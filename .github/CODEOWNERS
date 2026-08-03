@@ -1,0 +1,7 @@
+# Global code ownership
+*       @Irs622
+
+# Subsystem specific maintainers
+/src/nexusai/security/ @Irs622
+/src/nexusai/brain/    @Irs622
+/docs/                 @Irs622
