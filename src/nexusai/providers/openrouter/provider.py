@@ -24,6 +24,7 @@ from nexusai.providers.models import (
     ProviderCapabilities,
     ProviderHealth,
     ProviderMetadata,
+    ProviderTrace,
 )
 from nexusai.providers.translators.error_mapper import CanonicalErrorMapper
 from nexusai.providers.translators.openai import OpenAITranslator
@@ -53,16 +54,17 @@ class OpenRouterProvider(BaseProvider):
             provider_id="openrouter",
             display_name="OpenRouter API",
             homepage="https://openrouter.ai",
-            version="1.0.0",
+            sdk_version="1.0.0",
             capabilities=ProviderCapabilities(
-                chat=CapabilityLevel.NATIVE,
-                streaming=CapabilityLevel.NATIVE,
-                embeddings=CapabilityLevel.BASIC,
-                vision=CapabilityLevel.ADVANCED,
-                audio=CapabilityLevel.NONE,
-                tools=CapabilityLevel.NATIVE,
-                json_mode=CapabilityLevel.NATIVE,
-                max_context=128000,
+                capabilities={
+                    Capability.CHAT: CapabilityLevel.NATIVE,
+                    Capability.STREAMING: CapabilityLevel.NATIVE,
+                    Capability.EMBEDDINGS: CapabilityLevel.BASIC,
+                    Capability.VISION: CapabilityLevel.ADVANCED,
+                    Capability.AUDIO: CapabilityLevel.NONE,
+                    Capability.TOOLS: CapabilityLevel.NATIVE,
+                    Capability.JSON_MODE: CapabilityLevel.NATIVE,
+                }
             ),
         )
 
@@ -117,8 +119,12 @@ class OpenRouterProvider(BaseProvider):
 
             # Record latency trace
             latency_ms = (time.time() - t0) * 1000.0
-            if response.trace:
-                response.trace.latency_ms = latency_ms
+            response.trace = ProviderTrace(
+                provider_id=self.id,
+                latency_ms=latency_ms,
+                request_id=response.trace.request_id if response.trace else None,
+                headers=response.trace.headers if response.trace else {},
+            )
 
             return response
         except httpx.TimeoutException as te:
@@ -209,7 +215,7 @@ class OpenRouterProvider(BaseProvider):
                 m_id = item.get("id", "")
                 m_name = item.get("name", m_id)
                 ctx = item.get("context_length", 4096)
-                models.append(ModelInfo(id=m_id, name=m_name, max_context_length=ctx))
+                models.append(ModelInfo(id=m_id, display_name=m_name, context_window=ctx))
             return models
         except Exception:
             return []
@@ -222,7 +228,7 @@ class OpenRouterProvider(BaseProvider):
             return ProviderHealth(
                 healthy=len(models) > 0 or True,
                 latency_ms=latency,
-                model_count=len(models),
+                available_models=len(models),
             )
         except Exception as err:
-            return ProviderHealth(healthy=False, last_error=str(err))
+            return ProviderHealth(healthy=False, error=str(err))

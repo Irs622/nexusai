@@ -24,6 +24,7 @@ from nexusai.providers.models import (
     ProviderCapabilities,
     ProviderHealth,
     ProviderMetadata,
+    ProviderTrace,
 )
 from nexusai.providers.translators.anthropic import AnthropicTranslator
 from nexusai.providers.translators.error_mapper import CanonicalErrorMapper
@@ -54,16 +55,17 @@ class AnthropicProvider(BaseProvider):
             provider_id="anthropic",
             display_name="Anthropic Claude API",
             homepage="https://www.anthropic.com",
-            version="1.0.0",
+            sdk_version="1.0.0",
             capabilities=ProviderCapabilities(
-                chat=CapabilityLevel.NATIVE,
-                streaming=CapabilityLevel.NATIVE,
-                embeddings=CapabilityLevel.NONE,
-                vision=CapabilityLevel.NATIVE,
-                audio=CapabilityLevel.NONE,
-                tools=CapabilityLevel.NATIVE,
-                json_mode=CapabilityLevel.NATIVE,
-                max_context=200000,
+                capabilities={
+                    Capability.CHAT: CapabilityLevel.NATIVE,
+                    Capability.STREAMING: CapabilityLevel.NATIVE,
+                    Capability.EMBEDDINGS: CapabilityLevel.NONE,
+                    Capability.VISION: CapabilityLevel.NATIVE,
+                    Capability.AUDIO: CapabilityLevel.NONE,
+                    Capability.TOOLS: CapabilityLevel.NATIVE,
+                    Capability.JSON_MODE: CapabilityLevel.NATIVE,
+                }
             ),
         )
 
@@ -116,8 +118,12 @@ class AnthropicProvider(BaseProvider):
             response = self._translator.to_canonical_response(raw_payload, provider_id=self.id)
 
             latency_ms = (time.time() - t0) * 1000.0
-            if response.trace:
-                response.trace.latency_ms = latency_ms
+            response.trace = ProviderTrace(
+                provider_id=self.id,
+                latency_ms=latency_ms,
+                request_id=response.trace.request_id if response.trace else None,
+                headers=response.trace.headers if response.trace else {},
+            )
 
             return response
         except httpx.TimeoutException as te:
@@ -178,9 +184,9 @@ class AnthropicProvider(BaseProvider):
 
     async def list_models(self) -> list[ModelInfo]:
         return [
-            ModelInfo(id="claude-3-5-sonnet-20241022", name="Claude 3.5 Sonnet", max_context_length=200000),
-            ModelInfo(id="claude-3-5-haiku-20241022", name="Claude 3.5 Haiku", max_context_length=200000),
-            ModelInfo(id="claude-3-opus-20240229", name="Claude 3 Opus", max_context_length=200000),
+            ModelInfo(id="claude-3-5-sonnet-20241022", display_name="Claude 3.5 Sonnet", context_window=200000),
+            ModelInfo(id="claude-3-5-haiku-20241022", display_name="Claude 3.5 Haiku", context_window=200000),
+            ModelInfo(id="claude-3-opus-20240229", display_name="Claude 3 Opus", context_window=200000),
         ]
 
     async def health_check(self) -> ProviderHealth:
@@ -191,7 +197,7 @@ class AnthropicProvider(BaseProvider):
             return ProviderHealth(
                 healthy=len(models) > 0,
                 latency_ms=latency,
-                model_count=len(models),
+                available_models=len(models),
             )
         except Exception as err:
-            return ProviderHealth(healthy=False, last_error=str(err))
+            return ProviderHealth(healthy=False, error=str(err))

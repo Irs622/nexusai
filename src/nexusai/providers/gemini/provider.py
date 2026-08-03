@@ -24,6 +24,7 @@ from nexusai.providers.models import (
     ProviderCapabilities,
     ProviderHealth,
     ProviderMetadata,
+    ProviderTrace,
 )
 from nexusai.providers.translators.error_mapper import CanonicalErrorMapper
 from nexusai.providers.translators.gemini import GeminiTranslator
@@ -31,7 +32,7 @@ from nexusai.providers.translators.gemini import GeminiTranslator
 
 @stable
 class GeminiProvider(BaseProvider):
-    """Real vendor adapter for Google Gemini REST API (https://generativelanguage.googleapis.com/v1beta)."""
+    """Real vendor adapter for Google Gemini REST API (https://ai.google.dev)."""
 
     DEFAULT_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
 
@@ -53,16 +54,17 @@ class GeminiProvider(BaseProvider):
             provider_id="gemini",
             display_name="Google Gemini API",
             homepage="https://ai.google.dev",
-            version="1.0.0",
+            sdk_version="1.0.0",
             capabilities=ProviderCapabilities(
-                chat=CapabilityLevel.NATIVE,
-                streaming=CapabilityLevel.NATIVE,
-                embeddings=CapabilityLevel.NATIVE,
-                vision=CapabilityLevel.NATIVE,
-                audio=CapabilityLevel.ADVANCED,
-                tools=CapabilityLevel.NATIVE,
-                json_mode=CapabilityLevel.NATIVE,
-                max_context=1000000,
+                capabilities={
+                    Capability.CHAT: CapabilityLevel.NATIVE,
+                    Capability.STREAMING: CapabilityLevel.NATIVE,
+                    Capability.EMBEDDINGS: CapabilityLevel.NATIVE,
+                    Capability.VISION: CapabilityLevel.NATIVE,
+                    Capability.AUDIO: CapabilityLevel.ADVANCED,
+                    Capability.TOOLS: CapabilityLevel.NATIVE,
+                    Capability.JSON_MODE: CapabilityLevel.NATIVE,
+                }
             ),
         )
 
@@ -114,8 +116,12 @@ class GeminiProvider(BaseProvider):
             response = self._translator.to_canonical_response(raw_payload, provider_id=self.id)
 
             latency_ms = (time.time() - t0) * 1000.0
-            if response.trace:
-                response.trace.latency_ms = latency_ms
+            response.trace = ProviderTrace(
+                provider_id=self.id,
+                latency_ms=latency_ms,
+                request_id=response.trace.request_id if response.trace else None,
+                headers=response.trace.headers if response.trace else {},
+            )
 
             return response
         except httpx.TimeoutException as te:
@@ -202,8 +208,8 @@ class GeminiProvider(BaseProvider):
             resp = await self._client.get(url)
             if resp.status_code != 200:
                 return [
-                    ModelInfo(id="models/gemini-1.5-flash", name="Gemini 1.5 Flash", max_context_length=1000000),
-                    ModelInfo(id="models/gemini-1.5-pro", name="Gemini 1.5 Pro", max_context_length=2000000),
+                    ModelInfo(id="models/gemini-1.5-flash", display_name="Gemini 1.5 Flash", context_window=1000000),
+                    ModelInfo(id="models/gemini-1.5-pro", display_name="Gemini 1.5 Pro", context_window=2000000),
                 ]
 
             data = resp.json().get("models", [])
@@ -212,11 +218,11 @@ class GeminiProvider(BaseProvider):
                 m_id = item.get("name", "")
                 m_name = item.get("displayName", m_id)
                 ctx = item.get("inputTokenLimit", 1000000)
-                models.append(ModelInfo(id=m_id, name=m_name, max_context_length=ctx))
+                models.append(ModelInfo(id=m_id, display_name=m_name, context_window=ctx))
             return models
         except Exception:
             return [
-                ModelInfo(id="models/gemini-1.5-flash", name="Gemini 1.5 Flash", max_context_length=1000000),
+                ModelInfo(id="models/gemini-1.5-flash", display_name="Gemini 1.5 Flash", context_window=1000000),
             ]
 
     async def health_check(self) -> ProviderHealth:
@@ -227,7 +233,7 @@ class GeminiProvider(BaseProvider):
             return ProviderHealth(
                 healthy=len(models) > 0,
                 latency_ms=latency,
-                model_count=len(models),
+                available_models=len(models),
             )
         except Exception as err:
-            return ProviderHealth(healthy=False, last_error=str(err))
+            return ProviderHealth(healthy=False, error=str(err))

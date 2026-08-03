@@ -58,6 +58,8 @@ class BaseProvider(ABC):
         Yields:
             ChatResponse chunks as partial responses are generated.
         """
+        if False:
+            yield
         ...
 
     @abstractmethod

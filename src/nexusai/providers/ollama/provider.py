@@ -24,6 +24,7 @@ from nexusai.providers.models import (
     ProviderCapabilities,
     ProviderHealth,
     ProviderMetadata,
+    ProviderTrace,
 )
 from nexusai.providers.translators.error_mapper import CanonicalErrorMapper
 from nexusai.providers.translators.ollama import OllamaTranslator
@@ -51,16 +52,17 @@ class OllamaProvider(BaseProvider):
             provider_id="ollama",
             display_name="Ollama Local Engine",
             homepage="https://ollama.com",
-            version="1.0.0",
+            sdk_version="1.0.0",
             capabilities=ProviderCapabilities(
-                chat=CapabilityLevel.NATIVE,
-                streaming=CapabilityLevel.NATIVE,
-                embeddings=CapabilityLevel.BASIC,
-                vision=CapabilityLevel.BASIC,
-                audio=CapabilityLevel.NONE,
-                tools=CapabilityLevel.BASIC,
-                json_mode=CapabilityLevel.NATIVE,
-                max_context=128000,
+                capabilities={
+                    Capability.CHAT: CapabilityLevel.NATIVE,
+                    Capability.STREAMING: CapabilityLevel.NATIVE,
+                    Capability.EMBEDDINGS: CapabilityLevel.BASIC,
+                    Capability.VISION: CapabilityLevel.BASIC,
+                    Capability.AUDIO: CapabilityLevel.NONE,
+                    Capability.TOOLS: CapabilityLevel.BASIC,
+                    Capability.JSON_MODE: CapabilityLevel.NATIVE,
+                }
             ),
         )
 
@@ -104,8 +106,12 @@ class OllamaProvider(BaseProvider):
             response = self._translator.to_canonical_response(raw_payload, provider_id=self.id)
 
             latency_ms = (time.time() - t0) * 1000.0
-            if response.trace:
-                response.trace.latency_ms = latency_ms
+            response.trace = ProviderTrace(
+                provider_id=self.id,
+                latency_ms=latency_ms,
+                request_id=response.trace.request_id if response.trace else None,
+                headers=response.trace.headers if response.trace else {},
+            )
 
             return response
         except httpx.TimeoutException as te:
@@ -201,9 +207,9 @@ class OllamaProvider(BaseProvider):
                 result.append(
                     ModelInfo(
                         id=m_id or name,
-                        name=name,
+                        display_name=name,
                         family=family,
-                        max_context_length=8192,
+                        context_window=8192,
                     )
                 )
             return result
@@ -218,7 +224,7 @@ class OllamaProvider(BaseProvider):
             return ProviderHealth(
                 healthy=len(models) > 0 or True,
                 latency_ms=latency,
-                model_count=len(models),
+                available_models=len(models),
             )
         except Exception as err:
-            return ProviderHealth(healthy=False, last_error=str(err))
+            return ProviderHealth(healthy=False, error=str(err))
