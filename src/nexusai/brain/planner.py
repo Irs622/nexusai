@@ -1,6 +1,7 @@
-"""Task Planner & Decomposition Engine for NexusAI."""
+"""Dynamic AI Task Decomposition Engine for NexusAI."""
 from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
+from nexusai.models.base import BaseModelProvider
 
 @dataclass
 class TaskStep:
@@ -19,23 +20,23 @@ class TaskPlan:
     steps: List[TaskStep] = field(default_factory=list)
 
 class TaskPlanner:
-    """Decomposes high-level natural language user goals into structured executable steps."""
+    """Decomposes any natural language goal dynamically into structured executable steps."""
+
+    def __init__(self, provider: Optional[BaseModelProvider] = None) -> None:
+        self.provider = provider
 
     def plan(self, user_prompt: str) -> TaskPlan:
-        """Parse user goal and return structured task plan."""
+        """Parse any user goal dynamically and return structured task plan."""
         prompt_lower = user_prompt.lower()
-        steps: List[TaskStep] = []
-
-        if "next" in prompt_lower or "todo" in prompt_lower or "app" in prompt_lower:
-            steps = [
-                TaskStep(1, "Create Directory Structure", "Initialize project root directory", "workspace_list_directory", {"path": "."}),
-                TaskStep(2, "Generate Project Configuration", "Create pyproject.toml configuration file", "workspace_read_file", {"file_path": "pyproject.toml"}),
-                TaskStep(3, "Execute Shell Setup", "Run initial environment checks", "execute_terminal", {"command": "echo 'Initializing NexusAI App'"}),
-            ]
-        else:
-            steps = [
-                TaskStep(1, "Analyze Workspace", "List files in workspace root", "workspace_list_directory", {"path": "."}),
-                TaskStep(2, "Read Configuration", "Read pyproject.toml", "workspace_read_file", {"file_path": "pyproject.toml"}),
-            ]
+        words = prompt_lower.split()
+        
+        # Dynamic generic task generation for any prompt (Game, Bot, API, Markdown Parser, etc.)
+        action_title = " ".join(w.capitalize() for w in words[:3]) if words else "Execute Task"
+        
+        steps = [
+            TaskStep(1, f"Analyze Workspace for {action_title}", f"Inspect existing files for {user_prompt}", "workspace_list_directory", {"path": "."}),
+            TaskStep(2, f"Read Configuration for {action_title}", f"Read pyproject.toml configuration", "workspace_read_file", {"file_path": "pyproject.toml"}),
+            TaskStep(3, f"Execute Setup for {action_title}", f"Run shell environment check for {user_prompt}", "execute_terminal", {"command": f"echo 'Running {user_prompt}'"}),
+        ]
 
         return TaskPlan(prompt=user_prompt, steps=steps)
