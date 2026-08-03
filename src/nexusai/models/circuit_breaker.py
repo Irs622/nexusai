@@ -1,8 +1,7 @@
-"""Per-Provider Circuit Breaker Pattern with Sliding Window Metrics."""
+"""Per-Provider Circuit Breaker Pattern with Sliding Window Metrics & Health Score."""
 import time
 from enum import Enum
 from typing import Optional, Dict, Any, List
-from nexusai.core.errors import ModelProviderError
 
 class CircuitState(str, Enum):
     CLOSED = "CLOSED"
@@ -10,7 +9,7 @@ class CircuitState(str, Enum):
     HALF_OPEN = "HALF_OPEN"
 
 class CircuitBreaker:
-    """Configurable state machine managing per-provider failure thresholds and sliding window metrics."""
+    """Configurable state machine managing per-provider failure thresholds, sliding window metrics, and health scores."""
 
     def __init__(
         self,
@@ -30,7 +29,6 @@ class CircuitBreaker:
         self.trip_count = 0
         self.last_failure_time: float = 0.0
         
-        # Sliding window history of (success: bool, latency_ms: float)
         self._history: List[tuple[bool, float]] = []
 
     def can_execute(self) -> bool:
@@ -66,8 +64,26 @@ class CircuitBreaker:
         if len(self._history) > self.sliding_window_size:
             self._history.pop(0)
 
+    def calculate_health_score(self) -> float:
+        """Calculate dynamic health score between 0.0 and 1.0 (0.5 * success_ratio + 0.3 * latency_score + 0.2 * availability)."""
+        total = len(self._history)
+        if total == 0:
+            return 1.0 if self.state == CircuitState.CLOSED else 0.0
+
+        successes = sum(1 for s, _ in self._history if s)
+        success_ratio = successes / total
+
+        latencies = [lat for _, lat in self._history if lat > 0]
+        avg_latency = (sum(latencies) / len(latencies)) if latencies else 0.0
+        latency_score = max(0.0, 1.0 - (avg_latency / 2000.0))
+
+        availability = 0.0 if self.state == CircuitState.OPEN else (0.5 if self.state == CircuitState.HALF_OPEN else 1.0)
+        
+        score = (0.5 * success_ratio) + (0.3 * latency_score) + (0.2 * availability)
+        return round(score, 2)
+
     def get_metrics(self) -> Dict[str, Any]:
-        """Export circuit breaker metrics and sliding window health state."""
+        """Export circuit breaker metrics, sliding window health state, and health score."""
         total = len(self._history)
         successes = sum(1 for s, _ in self._history if s)
         success_ratio = (successes / total) if total > 0 else 1.0
@@ -84,4 +100,5 @@ class CircuitBreaker:
             "sliding_window_sample_size": total,
             "success_ratio": round(success_ratio, 2),
             "avg_latency_ms": round(avg_latency, 2),
+            "health_score": self.calculate_health_score(),
         }
