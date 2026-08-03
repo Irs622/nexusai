@@ -1,9 +1,26 @@
 {
   "version": "0.1.0-alpha",
   "date": "2026-08-03",
+  "environment": {
+    "machine": "Apple Silicon M-Series (macOS)",
+    "python_version": "3.12.5",
+    "runs_count": 10
+  },
   "metrics": {
-    "startup_time_seconds": 1.2,
-    "memory_rss_mb": 150.0,
-    "tool_latency_ms": 50.0
+    "startup_time_seconds": {
+      "median": 1.21,
+      "p95": 1.35,
+      "max_threshold": 1.80
+    },
+    "memory_rss_mb": {
+      "median": 145.2,
+      "p95": 160.0,
+      "max_threshold": 200.0
+    },
+    "tool_latency_ms": {
+      "median": 12.4,
+      "p95": 25.0,
+      "max_threshold": 50.0
+    }
   }
 }

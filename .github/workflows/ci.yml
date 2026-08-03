@@ -19,6 +19,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
-      - name: Run Pytest
+      - name: Run Pytest with Coverage
         run: |
-          pytest
+          pytest --cov=src/nexusai --cov-report=term-missing
+      - name: Run Benchmark Quality Gate Check
+        run: |
+          python benchmarks/check_regressions.py
