@@ -1,0 +1,25 @@
+# Security Configuration & Blacklists
+
+security:
+  strict_mode: false
+  auto_approve_low_risk: true
+  
+  # Command blacklists for shell execution
+  forbidden_commands:
+    - "rm -rf /"
+    - "rm -rf ~"
+    - "mkfs"
+    - "dd if="
+    - "> /dev/sda"
+    - ":(){ :|:& };:"
+    - "chmod -R 777 /"
+    - "sudo rm -rf"
+  
+  # Restricted system paths
+  protected_paths:
+    - "/System"
+    - "/usr/bin"
+    - "/bin"
+    - "/sbin"
+    - "/etc"
+    - "/var"

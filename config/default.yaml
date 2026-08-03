@@ -1,0 +1,27 @@
+# Default NexusAI Configuration
+
+app:
+  name: "NexusAI"
+  version: "0.1.0"
+  environment: "development"
+  debug: true
+
+logging:
+  level: "INFO"
+  format: "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level:<8}</level> | <cyan>{name}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>"
+  file_path: "logs/nexusai.log"
+  audit_log_path: "logs/audit.log"
+  rotation: "10 MB"
+
+models:
+  default_provider: "openrouter"
+  default_model: "openrouter/auto"
+  base_url: "https://openrouter.ai/api/v1"
+  temperature: 0.7
+  max_tokens: 2048
+  timeout_seconds: 60
+
+paths:
+  workspace_dir: "~/.nexusai"
+  plugins_dir: "plugins"
+  storage_dir: "storage"

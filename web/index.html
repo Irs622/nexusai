@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusAI // Personal AI Operating System</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- Top Header -->
+    <header class="header">
+        <div class="brand">
+            <span class="status-indicator online">●</span>
+            <span class="access-badge">[ ACCESS GRANTED ]</span>
+            <h1 class="logo-title">NEXUSAI // macOS AGENTIC OPERATING SYSTEM</h1>
+        </div>
+        <div class="header-controls">
+            <button id="voiceToggleBtn" class="btn btn-accent" onclick="toggleVoiceMode()">[ VOICE: OFF ]</button>
+            <button id="refreshStatusBtn" class="btn" onclick="fetchStatus()">[ SYNC SYS ]</button>
+            <div id="clockDisplay" class="clock-display">00:00:00</div>
+        </div>
+    </header>
+
+    <!-- Main 4-Column Layout Grid -->
+    <main class="dashboard-grid">
+        
+        <!-- Left Sidebar: System Awareness & Context Engine -->
+        <section class="card panel-context">
+            <h2 class="panel-header">// SYSTEM AWARENESS & CONTEXT</h2>
+            
+            <div class="context-item">
+                <div class="context-label">OPERATING SYSTEM</div>
+                <div class="context-value text-accent" id="sysOs">macOS Apple Silicon</div>
+            </div>
+
+            <div class="context-item">
+                <div class="context-label">ACTIVE APPLICATION</div>
+                <div class="context-value text-cyan" id="ctxActiveApp">Detecting...</div>
+            </div>
+
+            <div class="context-item">
+                <div class="context-label">ACTIVE WINDOW TITLE</div>
+                <div class="context-value" id="ctxActiveTitle">Detecting...</div>
+            </div>
+
+            <div class="context-item">
+                <div class="context-label">WORKSPACE GIT BRANCH</div>
+                <div class="context-value text-accent" id="ctxGitBranch">Detecting...</div>
+            </div>
+
+            <div class="meter-group">
+                <div class="meter-header">
+                    <span>CPU USAGE</span>
+                    <span id="cpuVal">0%</span>
+                </div>
+                <div class="meter-bar-bg">
+                    <div id="cpuBar" class="meter-bar-fill" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <div class="meter-group">
+                <div class="meter-header">
+                    <span>RAM MEMORY</span>
+                    <span id="ramVal">0%</span>
+                </div>
+                <div class="meter-bar-bg">
+                    <div id="ramBar" class="meter-bar-fill fill-cyan" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <div class="system-security-box">
+                <div class="context-label">SECURITY POLICY</div>
+                <div class="text-accent" id="secPolicy">STRICT MODE (AUTO-APPROVE LOW RISK)</div>
+            </div>
+        </section>
+
+        <!-- Center Main: LangGraph Workflow Visualizer & Chat Terminal -->
+        <section class="panel-center">
+            
+            <!-- LangGraph Agentic Workflow Graph Visualizer -->
+            <div class="card graph-container">
+                <div class="graph-header">
+                    <h2 class="panel-header">// LANGGRAPH AGENTIC WORKFLOW ENGINE</h2>
+                    <div class="iter-counter">ITERATIONS: <span id="graphIterCount" class="text-accent">0</span> / 10</div>
+                </div>
+
+                <div class="graph-nodes">
+                    <div id="nodeStart" class="graph-node node-done">[ START ]</div>
+                    <div class="graph-connector">➔</div>
+                    <div id="nodeReasoner" class="graph-node">[ REASONER NODE ]</div>
+                    <div class="graph-connector">⇄</div>
+                    <div id="nodeExecutor" class="graph-node">[ TOOL EXECUTOR ]</div>
+                    <div class="graph-connector">➔</div>
+                    <div id="nodeEnd" class="graph-node">[ END ]</div>
+                </div>
+                
+                <div id="graphLogFeed" class="graph-log-feed">
+                    > System standby. Ready for user prompt.
+                </div>
+            </div>
+
+            <!-- Terminal Chat Feed -->
+            <div class="card chat-container">
+                <div class="chat-header">
+                    <h2 class="panel-header">// TERMINAL REPL CHAT STREAM</h2>
+                    <div class="preset-pills">
+                        <button class="pill-btn" onclick="sendPresetPrompt('Tolong cek git status repository ini')">Git Status</button>
+                        <button class="pill-btn" onclick="sendPresetPrompt('Capture screenshot layar sekarang')">Vision Screen</button>
+                        <button class="pill-btn" onclick="sendPresetPrompt('Ingatkan saya untuk commit kode dalam 10 menit')">Reminder</button>
+                        <button class="pill-btn" onclick="sendPresetPrompt('Ingat fakta bahwa preferensi UI saya adalah Dark Mode')">Remember RAG</button>
+                    </div>
+                </div>
+
+                <!-- Chat Messages Scroll Container -->
+                <div id="chatFeed" class="chat-feed">
+                    <div class="chat-msg msg-system">
+                        <span class="msg-sender">[ SYSTEM ]</span>
+                        <div class="msg-body">NexusAI AI Operating System Initialized. Type a command or select a preset below.</div>
+                    </div>
+                </div>
+
+                <!-- Input Prompt Box -->
+                <form id="chatForm" class="chat-input-form" onsubmit="handleChatSubmit(event)">
+                    <span class="prompt-symbol">NexusAI ❯</span>
+                    <input type="text" id="promptInput" class="prompt-input" placeholder="Type command (e.g. 'Buka aplikasi Finder', 'Cari fakta tentang UI')..." autocomplete="off">
+                    <button type="submit" id="sendBtn" class="btn btn-accent">[ EXECUTE ]</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Right Sidebar: Interactive Tool Execution Dashboard -->
+        <section class="card panel-tools">
+            <h2 class="panel-header">// CAPABILITY TOOL REGISTRY</h2>
+            
+            <div class="tool-filter-bar">
+                <button class="filter-btn active" onclick="filterTools('ALL')">ALL</button>
+                <button class="filter-btn text-accent" onclick="filterTools('LOW')">LOW</button>
+                <button class="filter-btn text-cyan" onclick="filterTools('HIGH')">HIGH</button>
+                <button class="filter-btn text-alert" onclick="filterTools('CRITICAL')">CRIT</button>
+            </div>
+
+            <div id="toolsListFeed" class="tools-list-feed">
+                <div class="loading-text">Loading tool definitions...</div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Tool Manual Execution Modal -->
+    <div id="toolModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modalToolTitle" class="modal-title">// EXECUTE TOOL</h3>
+                <button class="btn btn-alert" onclick="closeToolModal()">[ X ]</button>
+            </div>
+            <p id="modalToolDesc" class="modal-desc"></p>
+
+            <form id="toolExecForm" onsubmit="submitToolExecution(event)">
+                <input type="hidden" id="modalToolName">
+                <div id="modalParamsContainer" class="modal-params"></div>
+                
+                <div class="modal-footer">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="modalUserConfirm"> Force Confirm High Risk
+                    </label>
+                    <button type="submit" class="btn btn-accent">[ RUN TOOL ]</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
