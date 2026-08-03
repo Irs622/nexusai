@@ -1,4 +1,4 @@
-"""Subprocess Plugin Execution Isolation Sandbox with Process Cleanup & Environment Scrubbing."""
+"""Subprocess Plugin Execution Isolation Sandbox with Output Size Limits & Process Cleanup."""
 import sys
 import os
 import asyncio
@@ -7,13 +7,14 @@ from typing import Any, Dict
 from nexusai.core.errors import ToolExecutionError
 
 class SubprocessPluginRunner:
-    """Executes plugin tools in isolated subprocesses with timeout, environment scrubbing, and cleanup guarantees."""
+    """Executes plugin tools in isolated subprocesses with timeout, output size limit, and process cleanup."""
 
-    def __init__(self, timeout_seconds: float = 30.0) -> None:
+    def __init__(self, timeout_seconds: float = 30.0, max_output_bytes: int = 1_000_000) -> None:
         self.timeout_seconds = timeout_seconds
+        self.max_output_bytes = max_output_bytes
 
     async def execute_isolated_code(self, script_code: str, kwargs: Dict[str, Any]) -> str:
-        """Run Python code block in isolated subprocess with environment scrubbing and process cleanup."""
+        """Run Python code block in isolated subprocess with environment scrubbing, process cleanup, and stdout capping."""
         clean_env = {
             "PATH": os.environ.get("PATH", "/usr/bin:/bin"),
             "PYTHONPATH": os.environ.get("PYTHONPATH", ""),
@@ -29,7 +30,7 @@ class SubprocessPluginRunner:
                 env=clean_env,
             )
             try:
-                stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=self.timeout_seconds)
+                stdout_bytes, stderr_bytes = await asyncio.wait_for(process.communicate(), timeout=self.timeout_seconds)
             except asyncio.TimeoutError:
                 try:
                     process.terminate()
@@ -41,10 +42,14 @@ class SubprocessPluginRunner:
                 raise ToolExecutionError(f"Subprocess plugin execution timed out after {self.timeout_seconds} seconds")
 
             if process.returncode != 0:
-                err_msg = stderr.decode("utf-8", errors="replace")
+                err_msg = stderr_bytes.decode("utf-8", errors="replace")[:2000]
                 raise ToolExecutionError(f"Subprocess plugin failed with exit code {process.returncode}: {err_msg}")
 
-            return stdout.decode("utf-8", errors="replace")
+            stdout_str = stdout_bytes.decode("utf-8", errors="replace")
+            if len(stdout_str) > self.max_output_bytes:
+                stdout_str = stdout_str[:self.max_output_bytes] + "\n... [Output truncated by Sandbox limit]"
+
+            return stdout_str
         except ToolExecutionError:
             raise
         except Exception as e:
