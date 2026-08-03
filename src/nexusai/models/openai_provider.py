@@ -106,21 +106,25 @@ class OpenAIProvider(BaseModelProvider):
 
         try:
             response = await self.client.chat.completions.create(**kwargs)
+            if not hasattr(response, "choices"):
+                raise ModelProviderError("Unexpected response format from OpenAI API")
             message = response.choices[0].message
 
             if message.tool_calls:
                 first_call = message.tool_calls[0]
-                tool_name = first_call.function.name
-                try:
-                    arguments = json.loads(first_call.function.arguments)
-                except Exception as je:
-                    raise ModelProviderError(f"Failed to parse tool call JSON arguments: {je}") from je
+                func = getattr(first_call, "function", None)
+                if func is not None:
+                    tool_name = func.name
+                    try:
+                        arguments = json.loads(func.arguments)
+                    except Exception as je:
+                        raise ModelProviderError(f"Failed to parse tool call JSON arguments: {je}") from je
 
-                return {
-                    "type": "tool_call",
-                    "tool_name": tool_name,
-                    "arguments": arguments,
-                }
+                    return {
+                        "type": "tool_call",
+                        "tool_name": tool_name,
+                        "arguments": arguments,
+                    }
 
             return {
                 "type": "text",

@@ -57,10 +57,21 @@ def create_app(
     scheduler: SchedulerService | None = None,
 ) -> FastAPI:
     """Create and configure FastAPI application for NexusAI Web Dashboard."""
+    from contextlib import asynccontextmanager
+    from typing import AsyncGenerator
+
+    @asynccontextmanager
+    async def lifespan(app_instance: FastAPI) -> AsyncGenerator[None, None]:
+        await memory.initialize_db()
+        sched_service.start()
+        yield
+        sched_service.stop()
+
     app = FastAPI(
         title="NexusAI Web Operating System Dashboard",
         description="Web UI and API Gateway for NexusAI Agentic OS",
         version="0.1.0",
+        lifespan=lifespan,
     )
 
     app.add_middleware(
@@ -116,15 +127,6 @@ def create_app(
         memory=memory,
         context_engine=context_engine,
     )
-
-    @app.on_event("startup")
-    async def startup_event() -> None:
-        await memory.initialize_db()
-        sched_service.start()
-
-    @app.on_event("shutdown")
-    async def shutdown_event() -> None:
-        sched_service.stop()
 
     # API Endpoints
     @app.get("/api/status")
