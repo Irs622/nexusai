@@ -1,74 +1,76 @@
-# Contributing to NexusAI
+---
+status: stable
+audience:
+  - contributors
+owner:
+  - core-team
+applies_to:
+  - contribution-workflow
+review_cycle: quarterly
+last_reviewed: 2026-08-03
+---
 
-Thank you for your interest in contributing to **NexusAI**! We welcome contributions from developers of all skill levels.
+# 🤝 Contributing to NexusAI
+
+Thank you for your interest in contributing to **NexusAI**! We welcome contributions from developers of all backgrounds.
 
 ---
 
-## Code of Conduct
+## 📜 Definition of Done (DoD) Checklist
 
-This project adheres to the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
+Before submitting a Pull Request, verify that your contribution meets our Definition of Done:
+
+- [ ] All unit tests pass locally (`pytest`).
+- [ ] Code passes static analysis (`ruff check .`, `mypy --strict src/nexusai`).
+- [ ] New features include corresponding unit tests in `tests/unit/`.
+- [ ] User-facing changes update `CHANGELOG.md` under `[Unreleased]`.
+- [ ] Relevant documentation under `docs/` or `docs/specs/` is updated.
+- [ ] Architectural shifts include an ADR in `docs/adr/`.
 
 ---
 
-## How Can I Contribute?
+## 🔀 Branch & Commit Conventions
 
-### 1. Reporting Bugs
-- Search existing [GitHub Issues](../../issues) to check if the bug has already been reported.
-- If not, open a new issue using the **Bug Report** template.
-- Include OS details, Python version, steps to reproduce, and error logs.
+### Branch Naming
+- `feature/short-description` for new capabilities.
+- `fix/issue-description` for bug fixes.
+- `docs/topic-name` for documentation improvements.
 
-### 2. Suggesting Enhancements
-- Open a **Feature Request** issue detailing the proposed change, use case, and potential benefits.
+### Commit Messages (Conventional Commits)
+We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
 
-### 3. Submitting Pull Requests (PRs)
+- `feat:` A new feature.
+- `fix:` A bug fix.
+- `docs:` Documentation only changes.
+- `style:` Changes that do not affect the meaning of code (formatting).
+- `refactor:` Code change that neither fixes a bug nor adds a feature.
+- `test:` Adding missing tests or correcting existing tests.
+- `chore:` Maintenance tasks or dependency updates.
 
-1. **Fork the Repository** and clone your fork locally:
+---
+
+## 🛠️ Local Development Setup
+
+1. **Fork & Clone:**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/jarfis-projek.git
-   cd jarfis-projek
+   git clone https://github.com/YOUR_USERNAME/nexusai.git
+   cd nexusai
    ```
 
-2. **Create a Feature Branch**:
-   ```bash
-   git checkout -b feature/amazing-new-feature
-   ```
-
-3. **Set Up Development Environment**:
+2. **Virtual Environment Setup:**
    ```bash
    python3 -m venv .venv
    source .venv/bin/activate
    pip install -e ".[dev]"
    ```
 
-4. **Make Your Changes**:
-   - Follow PEP 8 style guidelines.
-   - Add unit tests for any new features or bug fixes under `tests/`.
-
-5. **Run Tests & Linting**:
+3. **Run Test Suite:**
    ```bash
    pytest
    ```
 
-6. **Commit & Push**:
-   ```bash
-   git add .
-   git commit -m "feat: add amazing new feature"
-   git push origin feature/amazing-new-feature
-   ```
-
-7. **Open a Pull Request** against the `main` branch.
-
 ---
 
-## Commit Message Guidelines
+## 🤖 AI-Assisted Contributions
 
-We follow Conventional Commits:
-- `feat:` New feature
-- `fix:` Bug fix
-- `docs:` Documentation changes
-- `style:` Formatting, missing semi colons, etc.
-- `refactor:` Code refactoring without behavioral change
-- `test:` Adding or updating tests
-- `chore:` Build process or auxiliary tool changes
-
-Thank you for building NexusAI with us! 🚀
+If you are using AI coding assistants or submitting AI-generated PRs, please review **[AGENTS.md](AGENTS.md)** for our mandatory AI contribution guidelines.

@@ -1,0 +1,40 @@
+NexusAI (Jarfis)
+Copyright (c) 2026 NexusAI / Jarfis Contributors
+
+This product includes software developed by the NexusAI Open Source Community.
+
+========================================================================
+Third-Party Software Acknowledgements & Attributions
+========================================================================
+
+The following third-party software libraries may be used by or included in this project:
+
+1. FastAPI (MIT License)
+   Copyright (c) 2018 Sebastián Ramírez
+
+2. Pydantic (MIT License)
+   Copyright (c) 2019 Samuel Colvin
+
+3. Typer (MIT License)
+   Copyright (c) 2019 Sebastián Ramírez
+
+4. Rich (MIT License)
+   Copyright (c) 2020 Will McGugan
+
+5. Loguru (MIT License)
+   Copyright (c) 2017 Delgan
+
+6. LangChain / LangGraph (MIT License)
+   Copyright (c) 2023 Harrison Chase
+
+7. OpenAI Python SDK (Apache License 2.0)
+   Copyright (c) 2023 OpenAI
+
+8. Pytest (MIT License)
+   Copyright (c) 2004 Holger Krekel and others
+
+========================================================================
+Contributor Ownership Statement
+========================================================================
+
+All code and documentation contributions to this project remain the copyright of their respective authors and are licensed under the terms of the MIT License (SPDX: MIT).
