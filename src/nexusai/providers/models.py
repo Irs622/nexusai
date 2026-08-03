@@ -1,0 +1,296 @@
+"""Data models and type definitions for the NexusAI Provider SDK."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from enum import Enum
+from typing import Any
+
+from nexusai.core.annotations import stable
+from nexusai.providers.exceptions import ProviderSDKError
+
+
+@stable
+class MessageRole(str, Enum):
+    """Enumeration of standard chat message roles."""
+
+    SYSTEM = "system"
+    USER = "user"
+    ASSISTANT = "assistant"
+    TOOL = "tool"
+    DEVELOPER = "developer"
+
+
+@stable
+class Capability(str, Enum):
+    """Enumeration of provider and model capabilities."""
+
+    CHAT = "chat"
+    STREAMING = "streaming"
+    EMBEDDINGS = "embeddings"
+    VISION = "vision"
+    AUDIO = "audio"
+    TOOLS = "tools"
+    JSON_MODE = "json_mode"
+    REASONING = "reasoning"
+    THINKING = "thinking"
+    COMPUTER_USE = "computer_use"
+    IMAGE_GENERATION = "image_generation"
+    VIDEO_GENERATION = "video_generation"
+    PDF_UNDERSTANDING = "pdf_understanding"
+
+
+@stable
+class CapabilityLevel(str, Enum):
+    """Enumeration of capability support levels."""
+
+    NONE = "none"
+    BASIC = "basic"
+    ADVANCED = "advanced"
+    NATIVE = "native"
+
+
+@stable
+@dataclass(frozen=True)
+class ProviderCapabilities:
+    """Mapping of capabilities to their support levels for a provider."""
+
+    capabilities: dict[Capability, CapabilityLevel] = field(default_factory=dict)
+
+    def get_level(self, capability: Capability) -> CapabilityLevel:
+        """Get the support level for a capability."""
+        return self.capabilities.get(capability, CapabilityLevel.NONE)
+
+    def supports(
+        self,
+        capability: Capability,
+        min_level: CapabilityLevel = CapabilityLevel.BASIC,
+    ) -> bool:
+        """Check if a capability meets or exceeds a minimum level requirement."""
+        current_level = self.get_level(capability)
+        levels_order = [
+            CapabilityLevel.NONE,
+            CapabilityLevel.BASIC,
+            CapabilityLevel.ADVANCED,
+            CapabilityLevel.NATIVE,
+        ]
+        return levels_order.index(current_level) >= levels_order.index(min_level)
+
+
+@stable
+@dataclass(frozen=True)
+class JSONSchema:
+    """Domain model representing a JSON Schema specification."""
+
+    schema: dict[str, Any] = field(default_factory=dict)
+    version: str = "draft-07"
+    strict: bool = False
+
+
+@stable
+@dataclass(frozen=True)
+class PricingInfo:
+    """Pricing metadata for model usage."""
+
+    input_price: float = 0.0
+    output_price: float = 0.0
+    cached_input: float = 0.0
+    currency: str = "USD"
+    billing_unit: str = "1M tokens"
+
+
+@stable
+@dataclass(frozen=True)
+class ModelInfo:
+    """Information describing an LLM model offered by a provider."""
+
+    id: str
+    display_name: str
+    context_window: int = 4096
+    max_output_tokens: int | None = None
+    supports_tools: bool = False
+    supports_streaming: bool = True
+    supports_reasoning: bool = False
+    supports_function_calling: bool = False
+    supports_parallel_tools: bool = False
+    supports_json_schema: bool = False
+    pricing: PricingInfo | None = None
+    family: str | None = None
+
+
+@stable
+@dataclass(frozen=True)
+class ProviderHealth:
+    """Health check metric snapshot for a provider."""
+
+    healthy: bool
+    latency_ms: float = 0.0
+    error: str | None = None
+    available_models: int = 0
+    checked_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+@stable
+@dataclass(frozen=True)
+class ProviderTrace:
+    """Execution trace metadata for provider request debugging and audit."""
+
+    provider_id: str
+    request_id: str | None = None
+    latency_ms: float = 0.0
+    headers: dict[str, str] = field(default_factory=dict)
+
+
+@stable
+@dataclass(frozen=True)
+class ProviderMetadata:
+    """Immutable metadata describing provider identity and capabilities."""
+
+    provider_id: str
+    display_name: str
+    homepage: str = ""
+    sdk_version: str = "1.0.0"
+    capabilities: ProviderCapabilities = field(default_factory=ProviderCapabilities)
+
+
+@stable
+@dataclass
+class ProviderConfig:
+    """Configuration container for instantiating provider adapters."""
+
+    provider_id: str
+    credential_id: str | None = None
+    secret_name: str | None = None
+    base_url: str | None = None
+    timeout: float = 30.0
+    max_retries: int = 3
+    enabled: bool = True
+    priority: int = 10
+    weight: float = 1.0
+    tags: list[str] = field(default_factory=list)
+    headers: dict[str, str] = field(default_factory=dict)
+
+
+@stable
+@dataclass
+class ToolSchema:
+    """Strongly-typed tool definition contract for provider function calling."""
+
+    name: str
+    description: str
+    parameters: JSONSchema
+    strict: bool = False
+
+
+@stable
+@dataclass
+class ToolCall:
+    """Representation of a tool call request generated by an LLM."""
+
+    id: str
+    name: str
+    arguments: dict[str, Any] = field(default_factory=dict)
+
+
+@stable
+@dataclass
+class ChatMessage:
+    """Representation of a single conversation message."""
+
+    role: MessageRole
+    content: str | list[dict[str, Any]] | None = None
+    name: str | None = None
+    tool_calls: list[ToolCall] | None = None
+    tool_call_id: str | None = None
+
+
+@stable
+@dataclass
+class Usage:
+    """Token consumption statistics for a model invocation."""
+
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    total_tokens: int = 0
+
+
+@stable
+@dataclass
+class ChatChoice:
+    """Individual choice candidate in a chat completion response."""
+
+    index: int
+    message: ChatMessage
+    finish_reason: str | None = None
+
+
+@stable
+@dataclass
+class ChatRequest:
+    """Strongly-typed request parameters for chat completions."""
+
+    messages: list[ChatMessage]
+    model: str | None = None
+    temperature: float | None = None
+    top_p: float | None = None
+    seed: int | None = None
+    stop: list[str] | str | None = None
+    max_tokens: int | None = None
+    response_format: JSONSchema | None = None
+    tools: list[ToolSchema] | None = None
+    system_prompt: str | None = None
+    timeout: float | None = None
+    extra_params: dict[str, Any] = field(default_factory=dict)
+
+
+@stable
+@dataclass
+class ChatResponse:
+    """Strongly-typed response payload from a chat completion request."""
+
+    choices: list[ChatChoice] = field(default_factory=list)
+    usage: Usage | None = None
+    model: str | None = None
+    provider: str | None = None
+    trace: ProviderTrace | None = None
+
+    def primary_choice(self) -> ChatChoice:
+        """Explicitly return the primary choice (first choice candidate).
+
+        Raises:
+            ProviderSDKError: If choices list is empty.
+        """
+        if not self.choices:
+            raise ProviderSDKError("ChatResponse contains no choices.")
+        return self.choices[0]
+
+    def best_choice(self) -> ChatChoice:
+        """Explicitly return the best choice candidate.
+
+        Returns:
+            The primary candidate choice.
+        """
+        return self.primary_choice()
+
+
+@stable
+@dataclass
+class Embedding:
+    """Single text embedding vector representation."""
+
+    text: str
+    vector: list[float]
+    index: int = 0
+
+
+@stable
+@dataclass
+class EmbeddingResult:
+    """Result payload for embedding generation requests."""
+
+    embeddings: list[Embedding] = field(default_factory=list)
+    model: str = ""
+    provider: str = ""
+    usage: Usage | None = None
+    dimensions: int = 0

@@ -8,61 +8,69 @@ owner:
 applies_to:
   - model-providers
 review_cycle: quarterly
-last_reviewed: 2026-08-03
+last_reviewed: 2026-08-04
 ---
 
-# 🤖 Model Provider Specification
+# 🤖 Model Provider Specification & Provider SDK Foundation
 
-## 1. Abstract Interface (`BaseModelProvider`)
+## 1. Abstract Interface (`BaseProvider`)
 
-All LLM provider adapters MUST inherit from `BaseModelProvider`:
+All vendor LLM adapters in NexusAI MUST inherit from `BaseProvider` (`nexusai.providers.base.BaseProvider`):
 
 ```python
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional
+from typing import Any, AsyncIterator
+from nexusai.providers.models import (
+    ChatRequest, ChatResponse, EmbeddingResult,
+    ModelInfo, ProviderHealth, ProviderMetadata
+)
 
-class BaseModelProvider(ABC):
+class BaseProvider(ABC):
+    @property
     @abstractmethod
-    async def generate_response(
-        self,
-        messages: List[Dict[str, Any]],
-        tools: Optional[List[Dict[str, Any]]] = None,
-        system_prompt: Optional[str] = None,
-    ) -> Dict[str, Any]:
-        """
-        Generate LLM response.
-        MUST return a dict in standard schema:
-        {
-          "type": "text" | "tool_call",
-          "content": str (if text),
-          "tool_name": str (if tool_call),
-          "arguments": dict (if tool_call)
-        }
-        """
-        pass
+    def metadata(self) -> ProviderMetadata: ...
+
+    @property
+    def id(self) -> str:
+        return self.metadata.provider_id
+
+    @abstractmethod
+    async def chat(self, request: ChatRequest) -> ChatResponse: ...
+
+    @abstractmethod
+    async def stream_chat(self, request: ChatRequest) -> AsyncIterator[ChatResponse]: ...
+
+    @abstractmethod
+    async def embeddings(self, texts: list[str], model: str | None = None, **kwargs: Any) -> EmbeddingResult: ...
+
+    @abstractmethod
+    async def list_models(self) -> list[ModelInfo]: ...
+
+    @abstractmethod
+    async def health_check(self) -> ProviderHealth: ...
+
+    async def initialize(self) -> None: pass
+    async def shutdown(self) -> None: pass
 ```
 
 ---
 
-## 2. Standardized Output Response Schema
+## 2. Standardized Data Models (`ChatRequest`, `ChatResponse`, `JSONSchema`)
 
-To ensure model-agnostic routing, every provider MUST normalize LLM responses into one of two canonical dict schemas:
+Every adapter MUST translate between vendor-specific payloads and NexusAI canonical SDK models:
 
-### Text Response Schema
-```json
-{
-  "type": "text",
-  "content": "Hello! How can I assist you with your macOS workspace today?"
-}
-```
+### Chat Message Contracts
+- `MessageRole` (`SYSTEM`, `USER`, `ASSISTANT`, `TOOL`, `DEVELOPER`)
+- `ChatMessage` (role, content, name, tool_calls, tool_call_id)
+- `ToolSchema` (name, description, parameters: `JSONSchema`, strict)
+- `ChatChoice` (index, message, finish_reason)
+- `ChatResponse` (choices: `list[ChatChoice]`, usage, model, provider, trace)
+  - `response.primary_choice()` returns the top choice candidate.
 
-### Tool Call Schema
-```json
-{
-  "type": "tool_call",
-  "tool_name": "execute_terminal",
-  "arguments": {
-    "command": "ls -la ~/Documents"
-  }
-}
-```
+---
+
+## 3. Provider Architecture Stack & Lifecycle Management
+
+- **`ProviderRegistry`**: Pure instance registration, lookup, and default provider selection.
+- **`ProviderManager`**: Manages lifecycle (`initialize_all`, `shutdown_all`), concurrent health checks (`health_check_all`), and capability queries (`find_by_capability`, `supports`).
+- **`ProviderRouter`**: Executes policy-based provider selection (`select_provider`, `rank_providers`) matching required capabilities, health, cost, and priorities.

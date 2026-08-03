@@ -1,1 +1,1 @@
-"""Integration test suite for NexusAI."""
+"""Golden Integration Test Suite directory for live vendor API validation."""

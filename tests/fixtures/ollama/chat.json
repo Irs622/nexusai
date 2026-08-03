@@ -1,0 +1,10 @@
+{
+  "model": "llama3",
+  "message": {
+    "role": "assistant",
+    "content": "Hello from Ollama local payload fixture!"
+  },
+  "done": true,
+  "prompt_eval_count": 10,
+  "eval_count": 12
+}
