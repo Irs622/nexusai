@@ -1,20 +1,35 @@
-"""Observability Correlation Context for Tracing Requests across Subsystems."""
+"""Async-Safe Observability Correlation Context using contextvars."""
 import uuid
-from typing import Optional
-from dataclasses import dataclass, field
+import contextvars
+from typing import Optional, Dict
 
-@dataclass
+_correlation_id_var: contextvars.ContextVar[str] = contextvars.ContextVar("correlation_id", default="")
+_workflow_id_var: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar("workflow_id", default=None)
+_plugin_id_var: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar("plugin_id", default=None)
+
 class CorrelationContext:
-    """Request correlation context holding trace IDs."""
-    correlation_id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    workflow_id: Optional[str] = None
-    plugin_id: Optional[str] = None
-    provider_id: Optional[str] = None
+    """Async-safe context manager using Python contextvars."""
 
-    def to_dict(self) -> dict[str, str]:
+    @staticmethod
+    def get_correlation_id() -> str:
+        cid = _correlation_id_var.get()
+        if not cid:
+            cid = str(uuid.uuid4())
+            _correlation_id_var.set(cid)
+        return cid
+
+    @staticmethod
+    def set_context(correlation_id: Optional[str] = None, workflow_id: Optional[str] = None, plugin_id: Optional[str] = None) -> None:
+        _correlation_id_var.set(correlation_id or str(uuid.uuid4()))
+        if workflow_id:
+            _workflow_id_var.set(workflow_id)
+        if plugin_id:
+            _plugin_id_var.set(plugin_id)
+
+    @staticmethod
+    def to_dict() -> Dict[str, str]:
         return {
-            "correlation_id": self.correlation_id,
-            "workflow_id": self.workflow_id or "none",
-            "plugin_id": self.plugin_id or "none",
-            "provider_id": self.provider_id or "none",
+            "correlation_id": CorrelationContext.get_correlation_id(),
+            "workflow_id": _workflow_id_var.get() or "none",
+            "plugin_id": _plugin_id_var.get() or "none",
         }
