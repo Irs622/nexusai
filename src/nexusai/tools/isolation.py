@@ -1,24 +1,21 @@
-"""Subprocess Plugin Execution Isolation Sandbox with Output Size Limits & Process Cleanup."""
+"""Subprocess Plugin Execution Isolation Sandbox with Truncation Metadata & Process Cleanup."""
 import sys
 import os
 import asyncio
 import subprocess
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from nexusai.core.errors import ToolExecutionError
 
 class SubprocessPluginRunner:
-    """Executes plugin tools in isolated subprocesses with timeout, output size limit, and process cleanup."""
+    """Executes plugin tools in isolated subprocesses with timeout, truncation metadata, and process cleanup."""
 
     def __init__(self, timeout_seconds: float = 30.0, max_output_bytes: int = 1_000_000) -> None:
         self.timeout_seconds = timeout_seconds
         self.max_output_bytes = max_output_bytes
 
-    async def execute_isolated_code(self, script_code: str, kwargs: Dict[str, Any]) -> str:
-        """Run Python code block in isolated subprocess with environment scrubbing, process cleanup, and stdout capping."""
-        clean_env = {
-            "PATH": os.environ.get("PATH", "/usr/bin:/bin"),
-            "PYTHONPATH": os.environ.get("PYTHONPATH", ""),
-        }
+    async def execute_isolated_code(self, script_code: str, kwargs: Dict[str, Any], env: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
+        """Run Python code block in isolated subprocess returning output and truncation metadata."""
+        subprocess_env = env if env is not None else dict(os.environ)
 
         try:
             process = await asyncio.create_subprocess_exec(
@@ -27,7 +24,7 @@ class SubprocessPluginRunner:
                 script_code,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
-                env=clean_env,
+                env=subprocess_env,
             )
             try:
                 stdout_bytes, stderr_bytes = await asyncio.wait_for(process.communicate(), timeout=self.timeout_seconds)
@@ -46,10 +43,18 @@ class SubprocessPluginRunner:
                 raise ToolExecutionError(f"Subprocess plugin failed with exit code {process.returncode}: {err_msg}")
 
             stdout_str = stdout_bytes.decode("utf-8", errors="replace")
-            if len(stdout_str) > self.max_output_bytes:
-                stdout_str = stdout_str[:self.max_output_bytes] + "\n... [Output truncated by Sandbox limit]"
+            original_size = len(stdout_str)
+            is_truncated = original_size > self.max_output_bytes
+            
+            returned_output = stdout_str[:self.max_output_bytes] if is_truncated else stdout_str
+            returned_size = len(returned_output)
 
-            return stdout_str
+            return {
+                "output": returned_output,
+                "truncated": is_truncated,
+                "original_size": original_size,
+                "returned_size": returned_size,
+            }
         except ToolExecutionError:
             raise
         except Exception as e:

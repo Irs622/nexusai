@@ -1,6 +1,4 @@
-"""
-Vector Database Engine powered by ChromaDB for RAG Long-Term Memory.
-"""
+"""Vector Database Engine powered by ChromaDB for RAG Long-Term Memory."""
 
 from __future__ import annotations
 
@@ -18,7 +16,7 @@ class VectorKnowledgeBase:
 
     def __init__(
         self,
-        db_path: str | Path = "~/.nexusai/vector_db",
+        db_path: str | Path = ".nexusai/vector_db",
         client: Any = None,
         collection_name: str = "nexusai_long_term_memory",
     ) -> None:
@@ -100,4 +98,3 @@ class VectorKnowledgeBase:
             return await asyncio.to_thread(_query)
         except Exception as e:
             raise ToolExecutionError(f"Failed to search vector database: {e}") from e
-

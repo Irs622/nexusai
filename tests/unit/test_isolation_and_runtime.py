@@ -21,7 +21,8 @@ async def test_subprocess_isolation_success() -> None:
     runner = SubprocessPluginRunner(timeout_seconds=5.0)
     code = "print('Isolated output')"
     result = await runner.execute_isolated_code(code, {})
-    assert "Isolated output" in result
+    assert "Isolated output" in result["output"]
+    assert result["truncated"] is False
 
 @pytest.mark.asyncio
 async def test_subprocess_isolation_timeout_kills_process() -> None:

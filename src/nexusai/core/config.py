@@ -1,6 +1,4 @@
-"""
-Configuration Loader & Pydantic Settings for NexusAI.
-"""
+"""Configuration Loader & Pydantic Settings for NexusAI."""
 
 from __future__ import annotations
 
@@ -12,6 +10,7 @@ from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from nexusai.core.errors import ConfigurationError
+from nexusai.tools.plugin_manifest import PluginCapabilities
 
 load_dotenv()
 
@@ -43,12 +42,14 @@ class ModelSettings(BaseModel):
 class SecuritySettings(BaseModel):
     strict_mode: bool = True
     auto_approve_low_risk: bool = True
+    isolation_timeout_seconds: float = 30.0
+    capabilities: PluginCapabilities = Field(default_factory=PluginCapabilities)
     forbidden_commands: list[str] = Field(default_factory=list)
     protected_paths: list[str] = Field(default_factory=list)
 
 
 class PathSettings(BaseModel):
-    workspace_dir: str = "~/.nexusai"
+    workspace_dir: str = ".nexusai"
     plugins_dir: str = "plugins"
     storage_dir: str = "storage"
 
@@ -61,38 +62,8 @@ class SystemConfig(BaseSettings):
     paths: PathSettings = Field(default_factory=PathSettings)
 
     model_config = SettingsConfigDict(
-        env_prefix="NEXUS_AI_",
+        env_file=".env",
+        env_file_encoding="utf-8",
         env_nested_delimiter="__",
         extra="ignore",
     )
-
-    @classmethod
-    def load_from_yaml(cls, config_dir: Path | str = "config") -> "SystemConfig":
-        """Load configuration from YAML files in the given directory."""
-        config_path = Path(config_dir)
-        default_file = config_path / "default.yaml"
-        security_file = config_path / "security.yaml"
-
-        data: dict[str, Any] = {}
-
-        if default_file.exists():
-            try:
-                with open(default_file, "r", encoding="utf-8") as f:
-                    yaml_data = yaml.safe_load(f) or {}
-                    data.update(yaml_data)
-            except Exception as e:
-                raise ConfigurationError(f"Failed to parse {default_file}: {e}")
-
-        if security_file.exists():
-            try:
-                with open(security_file, "r", encoding="utf-8") as f:
-                    yaml_security = yaml.safe_load(f) or {}
-                    if "security" in yaml_security:
-                        data["security"] = yaml_security["security"]
-            except Exception as e:
-                raise ConfigurationError(f"Failed to parse {security_file}: {e}")
-
-        try:
-            return cls(**data)
-        except Exception as e:
-            raise ConfigurationError(f"Invalid configuration data: {e}")
