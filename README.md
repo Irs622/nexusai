@@ -1,4 +1,4 @@
-# 🤖 NexusAI (Jarfis)
+# 🤖 NexusAI (J.A.R.V.I.S.)
 
 > **Model-Agnostic AI Operating System for macOS (Apple Silicon & Intel)**
 
