@@ -1,0 +1,9 @@
+{
+  "version": "0.1.0-alpha",
+  "date": "2026-08-03",
+  "metrics": {
+    "startup_time_seconds": 1.2,
+    "memory_rss_mb": 150.0,
+    "tool_latency_ms": 50.0
+  }
+}
