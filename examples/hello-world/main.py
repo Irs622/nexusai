@@ -1,19 +1,16 @@
 """Hello World example for NexusAI."""
 import asyncio
 from nexusai.bus.bus import EventBus
-from nexusai.bus.events import BaseEvent
-
-class HelloEvent(BaseEvent):
-    message: str = "Hello NexusAI World!"
+from nexusai.bus.events import ToolExecutedEvent
 
 async def main() -> None:
     bus = EventBus()
     
-    @bus.on(HelloEvent)
-    async def handle_hello(event: HelloEvent) -> None:
-        print(f"Received event: {event.message}")
+    async def handle_tool_executed(event: ToolExecutedEvent) -> None:
+        print(f"Received event for tool: {event.tool_name}, success: {event.success}")
         
-    await bus.publish(HelloEvent())
+    bus.subscribe(ToolExecutedEvent, handle_tool_executed)
+    await bus.publish(ToolExecutedEvent(tool_name="hello_tool", success=True))
 
 if __name__ == "__main__":
     asyncio.run(main())

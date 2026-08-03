@@ -37,7 +37,7 @@ async def test_runtime_engine_lifecycle(tmp_path: pathlib.Path) -> None:
     assert engine.is_running is True
     
     await engine.shutdown()
-    assert engine.is_running is False
+    assert not engine.is_running
     assert len(engine.registry.get_all_tools()) == 0
 
 def test_circuit_breaker_health_score() -> None:

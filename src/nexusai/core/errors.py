@@ -54,3 +54,10 @@ class ModelProviderError(NexusAIError):
     """Raised when an LLM provider encounters an API error or timeout."""
 
     pass
+
+
+class WorkflowError(NexusAIError):
+    """Raised when a workflow graph encounters an execution or routing failure."""
+
+    pass
+

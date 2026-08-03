@@ -1,5 +1,6 @@
 """Workflow State Graph Execution Engine for NexusAI."""
 import asyncio
+import inspect
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 from nexusai.core.errors import WorkflowError
@@ -58,7 +59,7 @@ class WorkflowGraphEngine:
             state.history.append(node.name)
             
             # Execute node action
-            if asyncio.iscoroutinefunction(node.action):
+            if inspect.iscoroutinefunction(node.action):
                 res = await node.action(state)
             else:
                 res = node.action(state)
