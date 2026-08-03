@@ -6,10 +6,10 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
-from dotenv import load_dotenv
+from dotenv import find_dotenv, load_dotenv
 from fastapi import FastAPI, HTTPException
 
-load_dotenv()
+load_dotenv(find_dotenv(usecwd=True))
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -49,6 +49,10 @@ class ToolExecRequest(BaseModel):
     tool_name: str = Field(..., description="Name of tool to execute")
     arguments: dict[str, Any] = Field(default_factory=dict, description="Tool parameters")
     user_confirmed: bool = Field(False, description="User confirmation flag")
+
+
+ChatRequest.model_rebuild()
+ToolExecRequest.model_rebuild()
 
 
 def create_app(

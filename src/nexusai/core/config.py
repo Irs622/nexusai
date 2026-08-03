@@ -12,7 +12,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from nexusai.core.errors import ConfigurationError
 from nexusai.tools.plugin_manifest import PluginCapabilities
 
-load_dotenv()
+_env_file = Path.cwd() / ".env"
+if _env_file.is_file():
+    load_dotenv(dotenv_path=_env_file)
 
 
 class AppSettings(BaseModel):
@@ -62,8 +64,24 @@ class SystemConfig(BaseSettings):
     paths: PathSettings = Field(default_factory=PathSettings)
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=str(_env_file) if _env_file.is_file() else None,
         env_file_encoding="utf-8",
         env_nested_delimiter="__",
         extra="ignore",
     )
+
+    @classmethod
+    def load_from_yaml(cls, config_dir: str | Path = "config") -> SystemConfig:
+        """Load configuration settings from YAML files (e.g. default.yaml) in target directory."""
+        config_path = Path(config_dir)
+        yaml_file = config_path / "default.yaml" if config_path.is_dir() else config_path
+
+        if not yaml_file.exists():
+            return cls()
+
+        try:
+            with open(yaml_file, "r", encoding="utf-8") as f:
+                data = yaml.safe_load(f) or {}
+            return cls.model_validate(data)
+        except Exception as e:
+            raise ConfigurationError(f"Failed to parse YAML configuration: {e}") from e

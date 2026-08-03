@@ -2,9 +2,15 @@
 SecurityGuard and Risk Level Evaluator.
 """
 
+from __future__ import annotations
+
 from enum import Enum
+from typing import TYPE_CHECKING
 from pydantic import BaseModel
-from nexusai.core.config import SecuritySettings
+
+if TYPE_CHECKING:
+    from nexusai.core.config import SecuritySettings
+
 from nexusai.core.errors import SecurityError
 from nexusai.logging.logger import log_audit
 from nexusai.security.sanitizer import InputSanitizer

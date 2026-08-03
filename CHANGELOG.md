@@ -27,6 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Formal specifications for Runtime, Memory, Workflow, Plugins, Providers, and Tools under `docs/specs/`.
 - Security architecture guides (`permission-model.md`, `tool-sandbox.md`, `threat-model.md`).
 
+### Fixed
+- Fixed circular import dependency between `nexusai.core.config`, `nexusai.security.guard`, and `nexusai.tools` package modules.
+- Implemented `SystemConfig.load_from_yaml` classmethod and resolved Pydantic model rebuild annotations.
+
 ---
 
 ## [0.1.0-alpha] - 2026-08-03

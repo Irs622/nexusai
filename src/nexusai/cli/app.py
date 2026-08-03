@@ -3,11 +3,11 @@ Typer CLI Application Entrypoint for NexusAI.
 """
 
 import asyncio
-from dotenv import load_dotenv
+from dotenv import find_dotenv, load_dotenv
 import typer
 import uvicorn
 
-load_dotenv()
+load_dotenv(find_dotenv(usecwd=True))
 
 from nexusai.cli.chat import start_chat_session
 from nexusai.cli.console import print_banner, print_error, print_info, print_success
