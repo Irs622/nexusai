@@ -20,27 +20,28 @@ last_reviewed: 2026-08-03
 
 ## 📌 Milestones
 
-### 🟢 v0.1.0 — Foundation (Current Version)
-- [x] Model-agnostic provider adapters (OpenAI, OpenRouter, Ollama).
-- [x] CQRS Command, Query, and Event Bus.
-- [x] Interactive Terminal CLI Chat (`nexusai chat`).
-- [x] Web Dashboard OS Interface (`nexusai web`).
+### 🟢 v0.2.0-rc1 — Provider SDK RC (Certified Foundation)
+- [x] Model-agnostic provider adapters (OpenRouter, Gemini, Anthropic, Ollama L5 Certified).
+- [x] Provider SDK Foundation (`BaseProvider`, `ProviderRegistry`, `ProviderManager`, `ProviderRouter`).
+- [x] Canonical Semantic Equivalence Suite (`test_canonical_equivalence.py`).
+- [x] Governance & Canonical Evolution Rules (`ADR-0006`, `ADR-0007`).
+- [x] CQRS Command, Query, and Event Bus (`src/nexusai/bus/`).
+- [x] Interactive Terminal CLI Chat & Web Dashboard.
 - [x] Security Guard & Command Sanitizer.
 - [x] SQLite memory persistence.
 
-### 🟡 v0.2.0 — Plugin SDK & Tool Marketplace (Q3 2026)
+### 🟡 Phase 2 — Developer Experience & Ecosystem (Active Focus)
 - [ ] Formalized Plugin SDK & Discovery Loader (`BasePlugin`).
+- [ ] Provider CLI inspection & diagnostics (`nexusai doctor`, `nexusai inspect`, `nexusai benchmark`).
 - [ ] Custom tool package management CLI (`nexusai plugin install`).
-- [ ] Improved local vector store indexer.
+- [ ] Dynamic environment configuration loader.
 
-### 🔵 v0.3.0 — Advanced Desktop Automation (Q4 2026)
-- [ ] Enhanced macOS AppleScript & Accessibility UI automation.
-- [ ] Multi-turn vision screen analysis integration.
+### 🔵 Phase 3 — Observability & Tracing (Planned)
+- [ ] OpenTelemetry distributed tracing integration for provider invocations.
+- [ ] Standardized metrics export (token latency, request counts, error rates).
+- [ ] Diagnostic profiling tools.
 
-### 🟣 v0.4.0 — Multi-Agent Swarm Orchestration (Q1 2027)
-- [ ] Multi-agent workflow state graph routines.
-- [ ] Subagent delegation protocol.
-
-### 🏁 v1.0.0 — Stable Release (2027)
-- [ ] Stable Plugin SDK contract guarantee.
-- [ ] Production-grade security audit.
+### 🟣 Phase 4 — Enterprise Resilience (Planned)
+- [ ] Intelligent load balancing & dynamic provider failover.
+- [ ] Cost optimization & budget token routing.
+- [ ] Enterprise policy enforcement engine.

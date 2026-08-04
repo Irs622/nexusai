@@ -66,6 +66,7 @@ class GeminiTranslator(BaseTranslator):
             prompt_tokens=usage_meta.get("promptTokenCount", 0),
             completion_tokens=usage_meta.get("candidatesTokenCount", 0),
             total_tokens=usage_meta.get("totalTokenCount", 0),
+            reasoning_tokens=usage_meta.get("thinkingTokenCount", 0),
         )
 
         return ChatResponse(

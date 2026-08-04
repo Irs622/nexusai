@@ -23,9 +23,9 @@ This log tracks unmapped vendor features, wire format friction, or SDK limitatio
 
 | Pain Point ID | Category | OpenRouter | Gemini | Anthropic | Ollama | Shared? | Decision / Action |
 |---|---|---|---|---|---|---|---|
-| **PP-001** (Reasoning Tokens) | `Reasoning` | ✓ YES | ✓ YES | ✓ YES | ✓ YES | **YES** | **Candidate for Sprint 5 Review** |
-| **PP-002** (Stream Delta Finish Timing) | `Streaming` | ✓ YES | ✗ NO | ✓ YES | ✓ YES | **YES** | **Candidate for Sprint 5 Review** |
-| **PP-003** (Retry-After Header Parsing) | `Rate Limit` | ✓ YES | ✗ NO | ✓ YES | ✗ NO | **YES** | **Candidate for Sprint 5 Review** |
+| **PP-001** (Reasoning Tokens) | `Reasoning` | ✓ YES | ✓ YES | ✓ YES | ✗ NO | **YES** | **RESOLVED (Sprint 5)** |
+| **PP-002** (Stream Delta Finish Timing) | `Streaming` | ✓ YES | ✗ NO | ✓ YES | ✓ YES | **YES** | **RESOLVED (Sprint 5)** |
+| **PP-003** (Retry-After Header Parsing) | `Rate Limit` | ✓ YES | ✗ NO | ✓ YES | ✗ NO | **YES** | **RESOLVED (Sprint 5)** |
 | **PP-004** (Gemini Candidates Token Count) | `Cost` | ✗ NO | ✓ YES | ✗ NO | ✗ NO | **NO** | `IGNORE` (Vendor specific) |
 
 ---
@@ -35,12 +35,11 @@ This log tracks unmapped vendor features, wire format friction, or SDK limitatio
 ### PP-001: Reasoning / Thinking Tokens Unmapped
 - **ID**: `PP-001`
 - **Category**: `Reasoning`
-- **Providers**: OpenRouter (`deepseek-r1`), Gemini (`thinkingConfig`), Anthropic (`thinking`), Ollama (`deepseek-r1:7b`)
+- **Providers**: OpenRouter (`deepseek-r1`), Gemini (`thinkingConfig`), Anthropic (`thinking`)
 - **Severity**: Medium
 - **Frequency**: High (for reasoning models)
-- **Workaround**: Currently unmapped in canonical `Usage` model
-- **Shared?**: `YES` (Validated across OpenRouter + Gemini + Anthropic + Ollama)
-- **Status**: `ACCEPTED FOR SPRINT 5 KERNEL REFACTORING REVIEW`
+- **Shared?**: `YES` (Validated across OpenRouter + Gemini + Anthropic)
+- **Status**: `RESOLVED (Sprint 5 — Usage.reasoning_tokens normalized)`
 
 ### PP-002: Stream Delta Finish Reason Timing
 - **ID**: `PP-002`
@@ -48,9 +47,8 @@ This log tracks unmapped vendor features, wire format friction, or SDK limitatio
 - **Providers**: OpenRouter, Anthropic, Ollama
 - **Severity**: Low
 - **Frequency**: Always (100% of stream responses)
-- **Workaround**: Handled cleanly in `StreamController.assemble_final_response`
 - **Shared?**: `YES` (Validated across OpenRouter + Anthropic + Ollama)
-- **Status**: `ACCEPTED FOR SPRINT 5 KERNEL REFACTORING REVIEW`
+- **Status**: `RESOLVED (Sprint 5 — StreamController finish_reason timing standardized)`
 
 ### PP-003: Rate Limit Retry-After Header Parsing
 - **ID**: `PP-003`
@@ -58,7 +56,6 @@ This log tracks unmapped vendor features, wire format friction, or SDK limitatio
 - **Providers**: OpenRouter, Anthropic
 - **Severity**: Medium
 - **Frequency**: Moderate (only under rate limits)
-- **Workaround**: Generic `ProviderRateLimitError` handling
 - **Shared?**: `YES` (Validated across OpenRouter + Anthropic)
-- **Status**: `ACCEPTED FOR SPRINT 5 KERNEL REFACTORING REVIEW`
+- **Status**: `RESOLVED (Sprint 5 — ProviderRateLimitError.retry_after header parsing implemented)`
 

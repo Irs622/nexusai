@@ -63,10 +63,12 @@ class AnthropicTranslator(BaseTranslator):
         raw_usage = raw_payload.get("usage", {})
         input_tokens = raw_usage.get("input_tokens", 0)
         output_tokens = raw_usage.get("output_tokens", 0)
+        thinking_tokens = raw_usage.get("thinking_tokens", 0)
         usage = Usage(
             prompt_tokens=input_tokens,
             completion_tokens=output_tokens,
             total_tokens=input_tokens + output_tokens,
+            reasoning_tokens=thinking_tokens,
         )
 
         return ChatResponse(

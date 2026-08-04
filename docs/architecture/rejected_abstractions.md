@@ -21,23 +21,21 @@ This registry documents proposed architecture abstractions that were explicitly 
 
 ## 📋 Rejected Abstraction Inventory
 
-### RA-001: Explicit `ContextCache` Abstraction
-- **Proposed Name**: `ContextCache`
+### RA-001: Explicit `ContextCache` / `cached_tokens` Abstraction
+- **Proposed Name**: `ContextCache` / `Usage.cached_tokens`
 - **Proposed By**: Provider Integration Review
-- **Reason for Rejection**: Currently only Google Gemini natively supports prompt context caching. OpenRouter does not expose explicit context cache controls in its unified API.
-- **Decision**: `REJECTED — Pending second provider requirement (e.g. Anthropic Prompt Caching)`
-- **Current Workaround**: Pass vendor-specific parameters via `request.metadata`
+- **Reason for Rejection**: Supported natively by Gemini and Anthropic, but vendor formats vary.
+- **Decision**: `DEFERRED TO SPRINT 6+ — Pending broader provider adoption`
+- **Current Workaround**: Pass vendor-specific parameters via `request.extra_params`
 
-### RA-002: Vendor-Specific `ReasoningToken` Field in `Usage` Model
-- **Proposed Name**: `Usage.reasoning_tokens`
+### RA-002: `Usage.reasoning_tokens` Field & `reasoning_content` Text
+- **Proposed Name**: `Usage.reasoning_tokens` (metric) and `ChatMessage.reasoning_content` (text)
 - **Proposed By**: OpenRouter Pain Point `PP-001`
-- **Reason for Rejection**: Only OpenRouter/DeepSeek-R1 currently expose `reasoning_tokens` in completion details.
-- **Decision**: `REJECTED — Pending Gemini and Anthropic comparison`
-- **Current Workaround**: Retain in raw response trace metadata
+- **Decision**:
+  - `Usage.reasoning_tokens` metric: `ACCEPTED (Sprint 5)` — Validated across OpenRouter, Gemini, Anthropic.
+  - `ChatMessage.reasoning_content` text string: `DEFERRED TO SPRINT 6+` — Pending vendor thinking format convergence.
 
 ### RA-003: `HeaderRetryAfterStrategy`
 - **Proposed Name**: `HeaderRetryAfterStrategy`
 - **Proposed By**: OpenRouter Pain Point `PP-003`
-- **Reason for Rejection**: Standard `RetryPolicy` and `CanonicalErrorMapper` already handle HTTP 429 rate limit exceptions sufficiently.
-- **Decision**: `REJECTED — Pending second provider evidence`
-- **Current Workaround**: Standard exponential backoff with jitter
+- **Decision**: `ACCEPTED (Sprint 5)` — Integrated directly into `ProviderRateLimitError.retry_after` and `CanonicalErrorMapper`.

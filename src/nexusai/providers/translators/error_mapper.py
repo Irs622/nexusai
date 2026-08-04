@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from typing import Any
 
 from nexusai.core.annotations import stable
@@ -24,6 +26,7 @@ class CanonicalErrorMapper:
         status_code: int,
         raw_body: Any,
         provider_id: str,
+        headers: dict[str, str] | None = None,
     ) -> ProviderSDKError:
         """Map HTTP status codes and error payloads into fine-grained SDK exception hierarchy.
 
@@ -31,6 +34,7 @@ class CanonicalErrorMapper:
             status_code: HTTP response status code.
             raw_body: Raw error body (dict or string).
             provider_id: Provider identifier.
+            headers: Optional HTTP response headers dict.
 
         Returns:
             Mapped ProviderSDKError instance.
@@ -46,7 +50,24 @@ class CanonicalErrorMapper:
         if status_code in (401, 403):
             return ProviderAuthenticationError(msg)
         if status_code == 429:
-            return ProviderRateLimitError(msg)
+            retry_after: float | None = None
+            if headers:
+                hdr_val = next(
+                    (v for k, v in headers.items() if k.lower() == "retry-after"),
+                    None,
+                )
+                if hdr_val is not None:
+                    try:
+                        retry_after = float(hdr_val)
+                    except ValueError:
+                        try:
+                            dt = parsedate_to_datetime(hdr_val)
+                            now = datetime.now(timezone.utc)
+                            diff = (dt - now).total_seconds()
+                            retry_after = max(0.0, diff)
+                        except Exception:
+                            retry_after = None
+            return ProviderRateLimitError(msg, retry_after=retry_after)
         if status_code in (408, 504):
             return ProviderTimeoutError(msg)
         if status_code in (502, 503):

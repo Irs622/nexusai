@@ -75,10 +75,14 @@ class OpenAITranslator(BaseTranslator):
             )
 
         raw_usage = raw_payload.get("usage", {})
+        details = raw_usage.get("completion_tokens_details", {}) or {}
+        reasoning_tokens = details.get("reasoning_tokens", 0) if isinstance(details, dict) else 0
+
         usage = Usage(
             prompt_tokens=raw_usage.get("prompt_tokens", 0),
             completion_tokens=raw_usage.get("completion_tokens", 0),
             total_tokens=raw_usage.get("total_tokens", 0),
+            reasoning_tokens=reasoning_tokens,
         )
 
         return ChatResponse(

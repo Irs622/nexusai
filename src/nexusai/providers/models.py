@@ -213,6 +213,7 @@ class Usage:
     prompt_tokens: int = 0
     completion_tokens: int = 0
     total_tokens: int = 0
+    reasoning_tokens: int = 0
 
 
 @stable
@@ -250,7 +251,7 @@ class ChatResponse:
     """Strongly-typed response payload from a chat completion request."""
 
     choices: list[ChatChoice] = field(default_factory=list)
-    usage: Usage | None = None
+    usage: Usage = field(default_factory=Usage)
     model: str | None = None
     provider: str | None = None
     trace: ProviderTrace | None = None

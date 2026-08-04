@@ -28,6 +28,7 @@ This directory documents key architectural decisions made during the design and 
 | [ADR 0004](file:///Users/mac/Downloads/jarfis%20projek/docs/adr/0004-provider-interface.md) | Model-Agnostic Provider Interface | Superseded by 0006 | Models |
 | [ADR 0005](file:///Users/mac/Downloads/jarfis%20projek/docs/adr/0005-reasoning-and-observation-architecture.md) | Reasoning Engine & Observation Architecture | Accepted | Brain |
 | [ADR 0006](file:///Users/mac/Downloads/jarfis%20projek/docs/adr/0006-provider-sdk.md) | Vendor-Agnostic Provider SDK Foundation & Architecture | Accepted | Provider SDK |
+| [ADR 0007](file:///Users/mac/Downloads/jarfis%20projek/docs/adr/0007-canonical-model-evolution.md) | Governance Principles for Canonical Model Evolution | Accepted | Provider SDK |
 
 ---
 
