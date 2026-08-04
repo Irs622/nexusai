@@ -33,11 +33,11 @@ last_reviewed: 2026-08-03
 ### 🟡 Phase 2 — Developer Experience & Ecosystem (Active Focus)
 - [x] **Phase 2.1 — Architecture Enforcement & Governance Suite** (AST Dependency Inspector, Data-Driven Rules A001-A006, Whitelist Manager, Drift Detection, Multi-Dimensional Health Dashboard, GitHub Actions CI).
 - [x] **Phase 2.2A — Kernel Plugin Runtime Engine** (Formalized Plugin SDK, `BasePlugin`, discovery engine, `ManifestLoader`, `PluginValidator`, `DependencyResolver`, `ScopedPermissions`, `PluginSandbox`, `PluginRegistry`, `PluginRuntime`, `PluginLifecycleManager`).
-- [ ] **Phase 2.2B — Enterprise Runtime Features** (IoC `ServiceContainer`, `TaskSupervisor`, Hook System, Capability Negotiation, Plugin Health, Metrics, Recovery Policy).
-- [ ] **Phase 2.3 — Event Bus & Observability** (OpenTelemetry distributed tracing, token latency metrics, standardized event export).
-- [ ] **Phase 2.4 — Memory Runtime Engine** (Dual-tier SQLite conversation persistence & ChromaDB local vector store).
-- [ ] **Phase 2.5 — Refactor Whitelisted Technical Debt** (Clean up 28 transitional re-exports in `nexusai/providers/__init__.py`, enforce Dependency Injection Rules A007 & A008).
-- [ ] **Phase 2.6 — Developer CLI & Package Management** (`nexusai doctor`, `nexusai inspect`, `nexusai benchmark`, `nexusai plugin install`).
+- [x] **Phase 2.3 — Event Bus & Observability** (OpenTelemetry distributed tracing, token latency metrics, event replay, standardized event export).
+- [ ] **Phase 2.4 — Memory Runtime Engine** (7 Milestones: Contracts, Storage Engine, Embedding Layer, Vector Store, Retrieval Pipeline, Event-Driven Integration, Policy Engine).
+- [ ] **Phase 2.5 — Kernel Orchestration Engine** (Runtime Scheduler, Service Registry, Kernel Bootstrap, Lifecycle Coordinator, Graceful Shutdown, Health Check).
+- [ ] **Phase 2.2B — Enterprise Plugin Runtime & Marketplace Hardening** (Ed25519 digital signatures, OpenTelemetry metrics exporter, OS process isolation, marketplace ecosystem).
+- [ ] **Phase 2.6 — Technical Debt Refactoring & Developer CLI** (Clean up transitional re-exports, enforce DI Rules A007/A008, `nexusai` CLI suite).
 
 ### 🔵 Phase 3 — Observability & Tracing (Planned)
 - [ ] OpenTelemetry distributed tracing integration for provider invocations.

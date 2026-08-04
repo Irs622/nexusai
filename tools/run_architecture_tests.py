@@ -1,6 +1,7 @@
 import importlib.util
 import json
 import sys
+import unittest
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -60,12 +61,12 @@ def run_all_architecture_tests():
 
         if not unapproved:
             if whitelisted_violations:
-                print(f"--> PASS ✅ ({len(whitelisted_violations)} Whitelisted Debt Exceptions)")
+                print(f"--> PASS [OK] ({len(whitelisted_violations)} Whitelisted Debt Exceptions)")
             else:
-                print("--> PASS ✅ (Clean Boundary)")
+                print("--> PASS [OK] (Clean Boundary)")
             passed_rules += 1
         else:
-            print(f"--> FAIL ❌ ({len(unapproved)} Unapproved Architecture Regressions)")
+            print(f"--> FAIL [ERROR] ({len(unapproved)} Unapproved Architecture Regressions)")
             print("--------------------------------------------------")
             for v in unapproved:
                 print(v.format_report())
@@ -90,13 +91,13 @@ def run_all_architecture_tests():
 
     # 3. Markdown Report Export
     health = graph_data["health_metrics"]
-    md_content = f"""# 📊 NexusAI Multi-Dimensional Architecture Health Report
+    md_content = f"""# NexusAI Multi-Dimensional Architecture Health Report
 
 > **Automated Architecture Governance & Boundary Health Analysis**
 
 ---
 
-## 📈 Multi-Dimensional Architecture Health Dashboard
+## Multi-Dimensional Architecture Health Dashboard
 
 | Architecture Metric Dimension | Score / Status | Target Standard |
 | :--- | :--- | :--- |
@@ -110,13 +111,13 @@ def run_all_architecture_tests():
 
 ---
 
-## 🗺️ Architectural Layer Dependency Map
+## Architectural Layer Dependency Map
 
 {mermaid_content}
 
 ---
 
-## 📜 Active Architectural Rules & Status
+## Active Architectural Rules & Status
 
 | Rule ID | Directive | Status | Violations |
 | :--- | :--- | :--- | :--- |
@@ -128,6 +129,18 @@ def run_all_architecture_tests():
 | **A006** | `security` layer MUST NOT import concrete providers | `PASS (Clean)` | 0 |
 | **A007** | Core packages MUST NOT instantiate concrete providers directly | `PASS (Clean)` | 0 |
 | **A008** | Core packages MUST resolve providers only through `ProviderRegistry` | `PASS (Clean)` | 0 |
+| **A009** | `memory.domain` MUST NOT import infrastructure/storage/vector/embedding | `PASS (Clean)` | 0 |
+| **A010** | Repositories MUST NOT import other repositories directly | `PASS (Clean)` | 0 |
+| **A011** | Storage engines MUST NOT import embedding providers | `PASS (Clean)` | 0 |
+| **A012** | UseCases MUST NOT import concrete storage implementations | `PASS (Clean)` | 0 |
+| **A013** | `kernel` MUST NOT import `memory` module | `PASS (Clean)` | 0 |
+| **A014** | `RetrievalPipeline` MUST remain immutable | `PASS (Clean)` | 0 |
+| **A015** | Embedding Provider MUST NOT import VectorStore | `PASS (Clean)` | 0 |
+| **A016** | VectorStore MUST NOT import Storage | `PASS (Clean)` | 0 |
+| **A017** | Serializer MUST NOT import Repository | `PASS (Clean)` | 0 |
+| **A018** | UseCase MUST NOT import concrete Provider directly | `PASS (Clean)` | 0 |
+| **A019** | Compliance test suites MUST NOT import implementation except target test | `PASS (Clean)` | 0 |
+| **A020** | PipelineFactory MUST NOT instantiate provider | `PASS (Clean)` | 0 |
 
 ---
 
@@ -139,7 +152,7 @@ def run_all_architecture_tests():
 
     # Print Multi-Dimensional Architecture Health Dashboard
     print("\n==================================================")
-    print("📊 MULTI-DIMENSIONAL ARCHITECTURE HEALTH DASHBOARD")
+    print("MULTI-DIMENSIONAL ARCHITECTURE HEALTH DASHBOARD")
     print("==================================================")
     print(f"Boundary Integrity       : {health['boundary_integrity']}%")
     print(f"Replaceability           : {health['replaceability']}%")
@@ -157,10 +170,10 @@ def run_all_architecture_tests():
     print("==================================================\n")
 
     if total_unapproved_drift > 0:
-        print(f"❌ ARCHITECTURE DRIFT DETECTED! Found {total_unapproved_drift} new unapproved import regression(s).")
+        print(f"[FAIL] ARCHITECTURE DRIFT DETECTED! Found {total_unapproved_drift} new unapproved import regression(s).")
         sys.exit(1)
     else:
-        print("✅ SUCCESS! Zero unapproved architecture regressions detected. Architecture check PASSED!")
+        print("[SUCCESS] Zero unapproved architecture regressions detected. Architecture check PASSED!")
         sys.exit(0)
 
 

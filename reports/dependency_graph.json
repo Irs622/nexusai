@@ -11,7 +11,7 @@
     "unapproved_drift": 0,
     "circular_dependencies": 0,
     "forbidden_imports": 0,
-    "total_rules": 8
+    "total_rules": 20
   },
   "packages": [
     "api",
@@ -23,10 +23,12 @@
     "context",
     "core",
     "domain",
+    "kernel",
     "knowledge",
     "logging",
     "memory",
     "models",
+    "observability",
     "plugins",
     "providers",
     "root",
@@ -36,7 +38,7 @@
     "voice",
     "workflow"
   ],
-  "edge_count": 818,
+  "edge_count": 1241,
   "edges": [
     {
       "source": "root",
@@ -581,7 +583,7 @@
     {
       "source": "bus",
       "target": "bus",
-      "file": "bus/__init__.py"
+      "file": "bus/bus.py"
     },
     {
       "source": "bus",
@@ -984,6 +986,171 @@
       "file": "core/engine.py"
     },
     {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/migration/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/migration/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/migration/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/migration/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/outbox/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/outbox/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/outbox/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/outbox/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/outbox/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/outbox/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/outbox/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/outbox/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/outbox/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/outbox/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/outbox/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/outbox/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/outbox/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/outbox/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/outbox/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/outbox/dispatcher.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/outbox/dispatcher.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/outbox/dispatcher.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/outbox/dispatcher.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/outbox/dispatcher.py"
+    },
+    {
       "source": "knowledge",
       "target": "core",
       "file": "knowledge/vector.py"
@@ -1016,6 +1183,806 @@
     {
       "source": "memory",
       "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "kernel",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/content.py"
+    },
+    {
+      "source": "memory",
+      "target": "kernel",
+      "file": "memory/contracts/memory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/memory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/memory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/memory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/memory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/memory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/memory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/memory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/memory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/memory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/memory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/memory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/memory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/memory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/metadata.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/record.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/record.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/record.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/storage.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/domain/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/domain/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/domain/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/domain/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/domain/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/domain/record.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/domain/record.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/embedding/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/embedding/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/embedding/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/embedding/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/embedding/compliance.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/embedding/local_provider.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/embedding/local_provider.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/embedding/local_provider.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/embedding/mock_provider.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/embedding/mock_provider.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/embedding/remote_provider.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/embedding/remote_provider.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/embedding/remote_provider.py"
+    },
+    {
+      "source": "memory",
+      "target": "core",
+      "file": "memory/exceptions.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
       "file": "memory/hierarchy.py"
     },
     {
@@ -1026,7 +1993,882 @@
     {
       "source": "memory",
       "target": "memory",
+      "file": "memory/pipeline/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/builder.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/builder.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/builder.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/context_builder.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/context_builder.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/context_builder.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/context_builder.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/context_builder.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/context_builder.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/factory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/factory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/factory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/factory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/formatters.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/retrieval_pipeline.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/retrieval_pipeline.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/retrieval_pipeline.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/retrieval_pipeline.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/pipeline/retrieval_pipeline.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/policies/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/policies/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/policies/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/policies/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/policies/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/policies/base.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/policies/deduplication.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/policies/deduplication.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/policies/engine.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/policies/engine.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/policies/engine.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/policies/retention.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/policies/retention.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/repository/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/repository/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/repository/record_repo.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/repository/vector_repo.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/serializer/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/serializer/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/serializer/base.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/serializer/json_serializer.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/serializer/json_serializer.py"
+    },
+    {
+      "source": "memory",
+      "target": "kernel",
+      "file": "memory/service.py"
+    },
+    {
+      "source": "memory",
+      "target": "kernel",
+      "file": "memory/service.py"
+    },
+    {
+      "source": "memory",
+      "target": "kernel",
+      "file": "memory/service.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/service.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/service.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/service.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/service.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/service.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/service.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/service.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/service.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/services/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/services/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/services/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "kernel",
+      "file": "memory/services/admin.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/services/admin.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/services/admin.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/services/admin.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/services/admin.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/services/admin.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/services/admin.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/services/command.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/services/command.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/services/command.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/services/command.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/services/command.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/services/command.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/services/command.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/services/command.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/services/query.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/services/query.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/services/query.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/services/query.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/services/query.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
       "file": "memory/sqlite_memory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/stages/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/stages/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/stages/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/stages/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/stages/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/stages/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/stages/importance.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/stages/importance.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/stages/metadata_filter.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/stages/metadata_filter.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/stages/ranking.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/stages/ranking.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/stages/recency_boost.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/stages/recency_boost.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/stages/similarity.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/stages/similarity.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/stages/similarity.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/stages/weighted_scoring.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/stages/weighted_scoring.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/storage/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/storage/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/storage/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/storage/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/storage/compliance.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/storage/compliance.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/storage/compliance.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/storage/compliance.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/storage/compliance.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/storage/compliance.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/storage/file.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/storage/file.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/storage/file.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/storage/file.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/storage/in_memory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/storage/in_memory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/storage/sqlite.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/storage/sqlite.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/storage/sqlite.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/storage/sqlite.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/uow/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "kernel",
+      "file": "memory/uow/unit_of_work.py"
+    },
+    {
+      "source": "memory",
+      "target": "kernel",
+      "file": "memory/uow/unit_of_work.py"
+    },
+    {
+      "source": "memory",
+      "target": "kernel",
+      "file": "memory/uow/unit_of_work.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/uow/unit_of_work.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/uow/unit_of_work.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/usecases/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/usecases/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/usecases/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/usecases/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/usecases/forget.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/usecases/retrieve.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/usecases/retrieve.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/usecases/search.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/usecases/search.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/usecases/search.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/usecases/search.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/usecases/search.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/usecases/store.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/usecases/store.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/usecases/store.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/usecases/store.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/usecases/store.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/usecases/store.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/chroma.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/chroma.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/chroma.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/chroma.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/chroma.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/chroma.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/compliance.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/compliance.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/in_memory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/in_memory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/in_memory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/in_memory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/in_memory.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/mock_store.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/mock_store.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/mock_store.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/mock_store.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/mock_store.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/mock_store.py"
     },
     {
       "source": "models",
@@ -1099,9 +2941,59 @@
       "file": "models/streaming.py"
     },
     {
-      "source": "plugins",
-      "target": "plugins",
-      "file": "plugins/__init__.py"
+      "source": "observability",
+      "target": "observability",
+      "file": "observability/__init__.py"
+    },
+    {
+      "source": "observability",
+      "target": "observability",
+      "file": "observability/__init__.py"
+    },
+    {
+      "source": "observability",
+      "target": "observability",
+      "file": "observability/__init__.py"
+    },
+    {
+      "source": "observability",
+      "target": "observability",
+      "file": "observability/__init__.py"
+    },
+    {
+      "source": "observability",
+      "target": "observability",
+      "file": "observability/__init__.py"
+    },
+    {
+      "source": "observability",
+      "target": "observability",
+      "file": "observability/__init__.py"
+    },
+    {
+      "source": "observability",
+      "target": "observability",
+      "file": "observability/__init__.py"
+    },
+    {
+      "source": "observability",
+      "target": "observability",
+      "file": "observability/__init__.py"
+    },
+    {
+      "source": "observability",
+      "target": "observability",
+      "file": "observability/__init__.py"
+    },
+    {
+      "source": "observability",
+      "target": "observability",
+      "file": "observability/exporters.py"
+    },
+    {
+      "source": "observability",
+      "target": "observability",
+      "file": "observability/exporters.py"
     },
     {
       "source": "plugins",
@@ -1282,6 +3174,116 @@
       "source": "plugins",
       "target": "plugins",
       "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/contracts/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/contracts/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/contracts/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/contracts/__init__.py"
     },
     {
       "source": "plugins",
@@ -1386,7 +3388,52 @@
     {
       "source": "plugins",
       "target": "plugins",
-      "file": "plugins/runtime/__init__.py"
+      "file": "plugins/hooks/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/hooks/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/hooks/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/hooks/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/hooks/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/hooks/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/hooks/manager.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/hooks/manager.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/hooks/manager.py"
+    },
+    {
+      "source": "plugins",
+      "target": "logging",
+      "file": "plugins/hooks/manager.py"
     },
     {
       "source": "plugins",
@@ -1482,6 +3529,56 @@
       "source": "plugins",
       "target": "plugins",
       "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/capability_negotiator.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/capability_negotiator.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/capability_negotiator.py"
     },
     {
       "source": "plugins",
@@ -1626,6 +3723,16 @@
     {
       "source": "plugins",
       "target": "plugins",
+      "file": "plugins/runtime/recovery.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/recovery.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
       "file": "plugins/runtime/registry.py"
     },
     {
@@ -1697,6 +3804,16 @@
       "source": "plugins",
       "target": "plugins",
       "file": "plugins/security/signatures.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/telemetry/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/telemetry/__init__.py"
     },
     {
       "source": "plugins",

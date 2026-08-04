@@ -1,12 +1,14 @@
 """
-CQRS Message Bus: CommandBus, QueryBus, and EventBus.
+CQRS Message Bus: CommandBus, QueryBus, and EventBus with Filter, Replay, and Telemetry support.
 """
 
 from __future__ import annotations
 
 import asyncio
-from typing import TypeVar, Callable, Awaitable, Any
+from dataclasses import dataclass
+from typing import TypeVar, Callable, Awaitable, Any, Sequence
 
+from nexusai.bus.replay import EventReplayEngine
 from nexusai.core.errors import CommandExecutionError, QueryExecutionError
 from nexusai.logging.logger import log_audit
 
@@ -76,37 +78,87 @@ class QueryBus:
             raise QueryExecutionError(f"Execution failed for query {query_type.__name__}: {e}") from e
 
 
-class EventBus:
-    """Asynchronous Pub/Sub Event Bus for domain events."""
+@dataclass
+class EventSubscription:
+    """Record holding subscriber callback and optional predicate filter."""
 
-    def __init__(self) -> None:
-        self._subscribers: dict[type[Any], list[Callable[[Any], Awaitable[None]]]] = {}
+    subscriber: Callable[[Any], Awaitable[None]]
+    filter_fn: Callable[[Any], bool] | None = None
+
+
+class EventBus:
+    """Asynchronous Pub/Sub Event Bus for domain events with filtering, replay, and telemetry."""
+
+    def __init__(self, enable_replay: bool = True) -> None:
+        self._subscribers: dict[type[Any], list[EventSubscription]] = {}
+        self._interceptors: list[Callable[[Any], Awaitable[None]]] = []
+        self._replay_engine: EventReplayEngine | None = EventReplayEngine() if enable_replay else None
 
     def subscribe(
         self,
         event_type: type[TEvent],
         subscriber: Callable[[TEvent], Awaitable[None]],
+        filter_fn: Callable[[TEvent], bool] | None = None,
     ) -> None:
-        """Subscribe to a domain event type."""
+        """Subscribe to a domain event type with an optional predicate filter."""
         if event_type not in self._subscribers:
             self._subscribers[event_type] = []
-        self._subscribers[event_type].append(subscriber)
+        subscription = EventSubscription(
+            subscriber=subscriber,  # type: ignore[arg-type]
+            filter_fn=filter_fn,  # type: ignore[arg-type]
+        )
+        self._subscribers[event_type].append(subscription)
+
+    def add_interceptor(self, interceptor: Callable[[Any], Awaitable[None]]) -> None:
+        """Add a global event interceptor middleware."""
+        self._interceptors.append(interceptor)
+
+    @property
+    def replay_engine(self) -> EventReplayEngine | None:
+        """Return event replay engine."""
+        return self._replay_engine
 
     async def publish(self, event: Any) -> None:
-        """Publish domain event asynchronously to all subscribers."""
+        """Publish domain event asynchronously to all matching subscribers."""
+        if self._replay_engine:
+            self._replay_engine.record_event(event)
+
+        # Run interceptors
+        for interceptor in self._interceptors:
+            try:
+                await interceptor(event)
+            except Exception as e:
+                log_audit("EVENT_INTERCEPTOR_ERROR", {"event": type(event).__name__, "error": str(e)})
+
         event_type = type(event)
-        subscribers = self._subscribers.get(event_type, [])
+        subscriptions = self._subscribers.get(event_type, [])
 
-        if subscribers:
-            tasks = [subscriber(event) for subscriber in subscribers]
-            results = await asyncio.gather(*tasks, return_exceptions=True)
-            for res in results:
-                if isinstance(res, Exception):
-                    log_audit(
-                        "EVENT_SUBSCRIBER_ERROR",
-                        {
-                            "event": event_type.__name__,
-                            "error": str(res),
-                        },
-                    )
+        if subscriptions:
+            tasks: list[Awaitable[None]] = []
+            for sub in subscriptions:
+                if sub.filter_fn is None or sub.filter_fn(event):
+                    tasks.append(sub.subscriber(event))
 
+            if tasks:
+                results = await asyncio.gather(*tasks, return_exceptions=True)
+                for res in results:
+                    if isinstance(res, Exception):
+                        log_audit(
+                            "EVENT_SUBSCRIBER_ERROR",
+                            {
+                                "event": event_type.__name__,
+                                "error": str(res),
+                            },
+                        )
+
+    async def replay(
+        self,
+        since_timestamp: float | None = None,
+        filter_fn: Callable[[Any], bool] | None = None,
+    ) -> None:
+        """Replay historical events matching criteria."""
+        if not self._replay_engine:
+            return
+        history = self._replay_engine.get_history(since_timestamp=since_timestamp, filter_fn=filter_fn)
+        for event in history:
+            await self.publish(event)

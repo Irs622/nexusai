@@ -1,10 +1,10 @@
-# 📊 NexusAI Multi-Dimensional Architecture Health Report
+# NexusAI Multi-Dimensional Architecture Health Report
 
 > **Automated Architecture Governance & Boundary Health Analysis**
 
 ---
 
-## 📈 Multi-Dimensional Architecture Health Dashboard
+## Multi-Dimensional Architecture Health Dashboard
 
 | Architecture Metric Dimension | Score / Status | Target Standard |
 | :--- | :--- | :--- |
@@ -18,7 +18,7 @@
 
 ---
 
-## 🗺️ Architectural Layer Dependency Map
+## Architectural Layer Dependency Map
 
 ```mermaid
 graph TD
@@ -35,7 +35,7 @@ graph TD
 
 ---
 
-## 📜 Active Architectural Rules & Status
+## Active Architectural Rules & Status
 
 | Rule ID | Directive | Status | Violations |
 | :--- | :--- | :--- | :--- |
@@ -47,6 +47,18 @@ graph TD
 | **A006** | `security` layer MUST NOT import concrete providers | `PASS (Clean)` | 0 |
 | **A007** | Core packages MUST NOT instantiate concrete providers directly | `PASS (Clean)` | 0 |
 | **A008** | Core packages MUST resolve providers only through `ProviderRegistry` | `PASS (Clean)` | 0 |
+| **A009** | `memory.domain` MUST NOT import infrastructure/storage/vector/embedding | `PASS (Clean)` | 0 |
+| **A010** | Repositories MUST NOT import other repositories directly | `PASS (Clean)` | 0 |
+| **A011** | Storage engines MUST NOT import embedding providers | `PASS (Clean)` | 0 |
+| **A012** | UseCases MUST NOT import concrete storage implementations | `PASS (Clean)` | 0 |
+| **A013** | `kernel` MUST NOT import `memory` module | `PASS (Clean)` | 0 |
+| **A014** | `RetrievalPipeline` MUST remain immutable | `PASS (Clean)` | 0 |
+| **A015** | Embedding Provider MUST NOT import VectorStore | `PASS (Clean)` | 0 |
+| **A016** | VectorStore MUST NOT import Storage | `PASS (Clean)` | 0 |
+| **A017** | Serializer MUST NOT import Repository | `PASS (Clean)` | 0 |
+| **A018** | UseCase MUST NOT import concrete Provider directly | `PASS (Clean)` | 0 |
+| **A019** | Compliance test suites MUST NOT import implementation except target test | `PASS (Clean)` | 0 |
+| **A020** | PipelineFactory MUST NOT instantiate provider | `PASS (Clean)` | 0 |
 
 ---
 

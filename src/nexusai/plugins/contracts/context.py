@@ -19,3 +19,6 @@ class PluginContext:
     config_slice: dict[str, Any] = field(default_factory=dict)
     clock: Any | None = None
     cancellation_token: Any | None = None
+    metrics: Any | None = None
+    container: Any | None = None
+    hooks: Any | None = None
