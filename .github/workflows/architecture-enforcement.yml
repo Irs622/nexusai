@@ -1,0 +1,32 @@
+name: Architecture Enforcement & Dependency Boundaries
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  architecture-check:
+    name: Architecture Enforcement Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run Architecture Enforcement Test Suite
+        run: |
+          python3 tools/run_architecture_tests.py
+
+      - name: Archive Dependency Graph Artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dependency-graph
+          path: reports/dependency_graph.json

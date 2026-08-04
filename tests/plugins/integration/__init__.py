@@ -1,0 +1,3 @@
+"""
+Plugin integration test package.
+"""

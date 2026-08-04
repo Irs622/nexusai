@@ -1,0 +1,3 @@
+"""
+Plugin test suite package.
+"""

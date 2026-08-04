@@ -1,0 +1,43 @@
+# NexusAI Architecture Exception Whitelist
+# Authoritative registry of approved technical debt & transitional compatibility exceptions.
+# Every exception MUST state rule_id, file_path, reason, owner, created, and expires.
+
+version: 1.0.0
+last_updated: 2026-08-04
+
+exceptions:
+  - rule_id: A001
+    file_path: src/nexusai/providers/__init__.py
+    reason: "Transitional backward-compatibility re-exports of kernel execution primitives from nexusai.runtime (pending Phase 2.2 refactoring)"
+    owner: Core Architecture Team
+    created: 2026-08-04
+    expires: 2026-10-01
+    allowed_imports:
+      - nexusai.runtime.circuit_breaker.CircuitBreaker
+      - nexusai.runtime.circuit_breaker.CircuitState
+      - nexusai.runtime.clock.Clock
+      - nexusai.runtime.clock.SystemClock
+      - nexusai.runtime.clock.TestClock
+      - nexusai.runtime.context.CancellationToken
+      - nexusai.runtime.context.Deadline
+      - nexusai.runtime.context.ExecutionBudget
+      - nexusai.runtime.context.ExecutionContext
+      - nexusai.runtime.context.ExecutionHandle
+      - nexusai.runtime.context.RequestContext
+      - nexusai.runtime.context.ResourceContext
+      - nexusai.runtime.context.RuntimeContext
+      - nexusai.runtime.context.TraceContext
+      - nexusai.runtime.engine.ExecutionEngine
+      - nexusai.runtime.engine.RoutingDecision
+      - nexusai.runtime.events.ProviderEvent
+      - nexusai.runtime.events.ProviderHealthChangedEvent
+      - nexusai.runtime.events.ProviderRegisteredEvent
+      - nexusai.runtime.events.ProviderUnregisteredEvent
+      - nexusai.runtime.events.RoutingDecisionEvent
+      - nexusai.runtime.middleware.BaseMiddleware
+      - nexusai.runtime.middleware.MiddlewarePipeline
+      - nexusai.runtime.retry.RetryDecider
+      - nexusai.runtime.retry.RetryMiddleware
+      - nexusai.runtime.retry.RetryPolicy
+      - nexusai.runtime.state_machine.ExecutionState
+      - nexusai.runtime.state_machine.ExecutionStateMachine

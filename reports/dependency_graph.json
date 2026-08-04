@@ -1,0 +1,4335 @@
+{
+  "health_metrics": {
+    "health_score": 94,
+    "boundary_integrity": 100.0,
+    "replaceability": 100.0,
+    "dependency_health": 95.8,
+    "technical_debt_score": 72.0,
+    "documentation_score": 100.0,
+    "observability_score": 90.0,
+    "whitelisted_debt": 28,
+    "unapproved_drift": 0,
+    "circular_dependencies": 0,
+    "forbidden_imports": 0,
+    "total_rules": 8
+  },
+  "packages": [
+    "api",
+    "architecture",
+    "automation",
+    "brain",
+    "bus",
+    "cli",
+    "context",
+    "core",
+    "domain",
+    "knowledge",
+    "logging",
+    "memory",
+    "models",
+    "plugins",
+    "providers",
+    "root",
+    "runtime",
+    "security",
+    "tools",
+    "voice",
+    "workflow"
+  ],
+  "edge_count": 818,
+  "edges": [
+    {
+      "source": "root",
+      "target": "cli",
+      "file": "__main__.py"
+    },
+    {
+      "source": "api",
+      "target": "api",
+      "file": "api/__init__.py"
+    },
+    {
+      "source": "api",
+      "target": "automation",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "brain",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "bus",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "bus",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "bus",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "bus",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "context",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "core",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "core",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "memory",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "models",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "security",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "tools",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "tools",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "tools",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "tools",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "tools",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "tools",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "tools",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "tools",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "tools",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "tools",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "tools",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "tools",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "tools",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "tools",
+      "file": "api/server.py"
+    },
+    {
+      "source": "architecture",
+      "target": "architecture",
+      "file": "architecture/__init__.py"
+    },
+    {
+      "source": "architecture",
+      "target": "architecture",
+      "file": "architecture/__init__.py"
+    },
+    {
+      "source": "architecture",
+      "target": "architecture",
+      "file": "architecture/__init__.py"
+    },
+    {
+      "source": "architecture",
+      "target": "architecture",
+      "file": "architecture/__init__.py"
+    },
+    {
+      "source": "architecture",
+      "target": "architecture",
+      "file": "architecture/dependency_rules.py"
+    },
+    {
+      "source": "architecture",
+      "target": "architecture",
+      "file": "architecture/dependency_rules.py"
+    },
+    {
+      "source": "architecture",
+      "target": "architecture",
+      "file": "architecture/dependency_rules.py"
+    },
+    {
+      "source": "automation",
+      "target": "automation",
+      "file": "automation/__init__.py"
+    },
+    {
+      "source": "automation",
+      "target": "core",
+      "file": "automation/scheduler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/budget.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/budget.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/budget.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/compiler.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/compiler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "bus",
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "context",
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "memory",
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "models",
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "tools",
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "models",
+      "file": "brain/inference.py"
+    },
+    {
+      "source": "brain",
+      "target": "models",
+      "file": "brain/inference.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/observation.py"
+    },
+    {
+      "source": "brain",
+      "target": "models",
+      "file": "brain/planner.py"
+    },
+    {
+      "source": "brain",
+      "target": "context",
+      "file": "brain/prompt.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/reasoning.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/reasoning.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/reasoning.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/reasoning.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/reasoning.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/reasoning.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/reasoning.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/reasoning.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/reasoning.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/reasoning.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/strategy.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/strategy.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/strategy.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/strategy.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/strategy.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/strategy.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/strategy.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/workflow/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/workflow/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/workflow/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/workflow/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/workflow/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/workflow/graph.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/workflow/graph.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/workflow/graph.py"
+    },
+    {
+      "source": "brain",
+      "target": "bus",
+      "file": "brain/workflow/graph.py"
+    },
+    {
+      "source": "brain",
+      "target": "models",
+      "file": "brain/workflow/graph.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/workflow/nodes.py"
+    },
+    {
+      "source": "brain",
+      "target": "bus",
+      "file": "brain/workflow/nodes.py"
+    },
+    {
+      "source": "brain",
+      "target": "bus",
+      "file": "brain/workflow/nodes.py"
+    },
+    {
+      "source": "brain",
+      "target": "core",
+      "file": "brain/workflow/nodes.py"
+    },
+    {
+      "source": "brain",
+      "target": "models",
+      "file": "brain/workflow/nodes.py"
+    },
+    {
+      "source": "brain",
+      "target": "security",
+      "file": "brain/workflow/nodes.py"
+    },
+    {
+      "source": "brain",
+      "target": "security",
+      "file": "brain/workflow/nodes.py"
+    },
+    {
+      "source": "brain",
+      "target": "security",
+      "file": "brain/workflow/nodes.py"
+    },
+    {
+      "source": "bus",
+      "target": "bus",
+      "file": "bus/__init__.py"
+    },
+    {
+      "source": "bus",
+      "target": "bus",
+      "file": "bus/__init__.py"
+    },
+    {
+      "source": "bus",
+      "target": "bus",
+      "file": "bus/__init__.py"
+    },
+    {
+      "source": "bus",
+      "target": "bus",
+      "file": "bus/__init__.py"
+    },
+    {
+      "source": "bus",
+      "target": "bus",
+      "file": "bus/__init__.py"
+    },
+    {
+      "source": "bus",
+      "target": "bus",
+      "file": "bus/__init__.py"
+    },
+    {
+      "source": "bus",
+      "target": "core",
+      "file": "bus/bus.py"
+    },
+    {
+      "source": "bus",
+      "target": "core",
+      "file": "bus/bus.py"
+    },
+    {
+      "source": "bus",
+      "target": "logging",
+      "file": "bus/bus.py"
+    },
+    {
+      "source": "bus",
+      "target": "bus",
+      "file": "bus/commands.py"
+    },
+    {
+      "source": "bus",
+      "target": "bus",
+      "file": "bus/commands.py"
+    },
+    {
+      "source": "bus",
+      "target": "core",
+      "file": "bus/commands.py"
+    },
+    {
+      "source": "bus",
+      "target": "core",
+      "file": "bus/commands.py"
+    },
+    {
+      "source": "bus",
+      "target": "security",
+      "file": "bus/commands.py"
+    },
+    {
+      "source": "bus",
+      "target": "security",
+      "file": "bus/commands.py"
+    },
+    {
+      "source": "bus",
+      "target": "tools",
+      "file": "bus/commands.py"
+    },
+    {
+      "source": "cli",
+      "target": "cli",
+      "file": "cli/__init__.py"
+    },
+    {
+      "source": "cli",
+      "target": "cli",
+      "file": "cli/app.py"
+    },
+    {
+      "source": "cli",
+      "target": "cli",
+      "file": "cli/app.py"
+    },
+    {
+      "source": "cli",
+      "target": "cli",
+      "file": "cli/app.py"
+    },
+    {
+      "source": "cli",
+      "target": "cli",
+      "file": "cli/app.py"
+    },
+    {
+      "source": "cli",
+      "target": "cli",
+      "file": "cli/app.py"
+    },
+    {
+      "source": "cli",
+      "target": "core",
+      "file": "cli/app.py"
+    },
+    {
+      "source": "cli",
+      "target": "logging",
+      "file": "cli/app.py"
+    },
+    {
+      "source": "cli",
+      "target": "automation",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "brain",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "bus",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "bus",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "bus",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "bus",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "bus",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "cli",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "cli",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "cli",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "core",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "logging",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "memory",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "models",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "security",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "tools",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "tools",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "tools",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "tools",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "tools",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "tools",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "tools",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "tools",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "tools",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "tools",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "tools",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "voice",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "voice",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "context",
+      "target": "context",
+      "file": "context/__init__.py"
+    },
+    {
+      "source": "context",
+      "target": "context",
+      "file": "context/__init__.py"
+    },
+    {
+      "source": "context",
+      "target": "tools",
+      "file": "context/engine.py"
+    },
+    {
+      "source": "core",
+      "target": "core",
+      "file": "core/__init__.py"
+    },
+    {
+      "source": "core",
+      "target": "core",
+      "file": "core/__init__.py"
+    },
+    {
+      "source": "core",
+      "target": "core",
+      "file": "core/__init__.py"
+    },
+    {
+      "source": "core",
+      "target": "core",
+      "file": "core/__init__.py"
+    },
+    {
+      "source": "core",
+      "target": "core",
+      "file": "core/__init__.py"
+    },
+    {
+      "source": "core",
+      "target": "core",
+      "file": "core/__init__.py"
+    },
+    {
+      "source": "core",
+      "target": "core",
+      "file": "core/__init__.py"
+    },
+    {
+      "source": "core",
+      "target": "core",
+      "file": "core/__init__.py"
+    },
+    {
+      "source": "core",
+      "target": "core",
+      "file": "core/__init__.py"
+    },
+    {
+      "source": "core",
+      "target": "core",
+      "file": "core/__init__.py"
+    },
+    {
+      "source": "core",
+      "target": "core",
+      "file": "core/__init__.py"
+    },
+    {
+      "source": "core",
+      "target": "core",
+      "file": "core/__init__.py"
+    },
+    {
+      "source": "core",
+      "target": "core",
+      "file": "core/__init__.py"
+    },
+    {
+      "source": "core",
+      "target": "core",
+      "file": "core/__init__.py"
+    },
+    {
+      "source": "core",
+      "target": "core",
+      "file": "core/__init__.py"
+    },
+    {
+      "source": "core",
+      "target": "core",
+      "file": "core/config.py"
+    },
+    {
+      "source": "core",
+      "target": "tools",
+      "file": "core/config.py"
+    },
+    {
+      "source": "core",
+      "target": "core",
+      "file": "core/engine.py"
+    },
+    {
+      "source": "core",
+      "target": "core",
+      "file": "core/engine.py"
+    },
+    {
+      "source": "core",
+      "target": "bus",
+      "file": "core/engine.py"
+    },
+    {
+      "source": "core",
+      "target": "bus",
+      "file": "core/engine.py"
+    },
+    {
+      "source": "core",
+      "target": "bus",
+      "file": "core/engine.py"
+    },
+    {
+      "source": "core",
+      "target": "bus",
+      "file": "core/engine.py"
+    },
+    {
+      "source": "core",
+      "target": "tools",
+      "file": "core/engine.py"
+    },
+    {
+      "source": "core",
+      "target": "tools",
+      "file": "core/engine.py"
+    },
+    {
+      "source": "core",
+      "target": "tools",
+      "file": "core/engine.py"
+    },
+    {
+      "source": "core",
+      "target": "security",
+      "file": "core/engine.py"
+    },
+    {
+      "source": "core",
+      "target": "security",
+      "file": "core/engine.py"
+    },
+    {
+      "source": "core",
+      "target": "memory",
+      "file": "core/engine.py"
+    },
+    {
+      "source": "core",
+      "target": "memory",
+      "file": "core/engine.py"
+    },
+    {
+      "source": "core",
+      "target": "workflow",
+      "file": "core/engine.py"
+    },
+    {
+      "source": "knowledge",
+      "target": "core",
+      "file": "knowledge/vector.py"
+    },
+    {
+      "source": "logging",
+      "target": "logging",
+      "file": "logging/__init__.py"
+    },
+    {
+      "source": "logging",
+      "target": "logging",
+      "file": "logging/__init__.py"
+    },
+    {
+      "source": "logging",
+      "target": "core",
+      "file": "logging/logger.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/hierarchy.py"
+    },
+    {
+      "source": "memory",
+      "target": "knowledge",
+      "file": "memory/hierarchy.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/sqlite_memory.py"
+    },
+    {
+      "source": "models",
+      "target": "models",
+      "file": "models/__init__.py"
+    },
+    {
+      "source": "models",
+      "target": "models",
+      "file": "models/__init__.py"
+    },
+    {
+      "source": "models",
+      "target": "core",
+      "file": "models/base.py"
+    },
+    {
+      "source": "models",
+      "target": "core",
+      "file": "models/base.py"
+    },
+    {
+      "source": "models",
+      "target": "core",
+      "file": "models/openai_provider.py"
+    },
+    {
+      "source": "models",
+      "target": "core",
+      "file": "models/openai_provider.py"
+    },
+    {
+      "source": "models",
+      "target": "core",
+      "file": "models/openai_provider.py"
+    },
+    {
+      "source": "models",
+      "target": "models",
+      "file": "models/openai_provider.py"
+    },
+    {
+      "source": "models",
+      "target": "models",
+      "file": "models/router.py"
+    },
+    {
+      "source": "models",
+      "target": "models",
+      "file": "models/router.py"
+    },
+    {
+      "source": "models",
+      "target": "models",
+      "file": "models/runtime.py"
+    },
+    {
+      "source": "models",
+      "target": "core",
+      "file": "models/runtime.py"
+    },
+    {
+      "source": "models",
+      "target": "logging",
+      "file": "models/runtime.py"
+    },
+    {
+      "source": "models",
+      "target": "models",
+      "file": "models/streaming.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/contracts/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/contracts/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/contracts/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/contracts/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/contracts/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/contracts/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/contracts/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/contracts/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/contracts/base.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/contracts/base.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/events/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/events/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/events/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/events/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/events/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/events/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/events/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/events/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/events/events.py"
+    },
+    {
+      "source": "plugins",
+      "target": "core",
+      "file": "plugins/exceptions.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/descriptor.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/discovery.py"
+    },
+    {
+      "source": "plugins",
+      "target": "bus",
+      "file": "plugins/runtime/lifecycle.py"
+    },
+    {
+      "source": "plugins",
+      "target": "logging",
+      "file": "plugins/runtime/lifecycle.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/lifecycle.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/lifecycle.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/lifecycle.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/lifecycle.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/lifecycle.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/lifecycle.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/lifecycle.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/lifecycle.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/lifecycle.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/lifecycle.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/lifecycle.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/lifecycle.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/lifecycle.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/lifecycle.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/lifecycle.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/lifecycle.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/lifecycle.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/lifecycle.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/loader.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/loader.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/loader.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/loader.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/manifest_loader.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/manifest_loader.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/registry.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/registry.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/registry.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/registry.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/resolver.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/resolver.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/runtime.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/runtime.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/runtime/sandbox.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/security/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/security/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/security/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/security/permissions.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/security/signatures.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/security/signatures.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/validation/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/validation/__init__.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/validation/api_version.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/validation/api_version.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/validation/validator.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/validation/validator.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/validation/validator.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "runtime",
+      "file": "providers/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/anthropic/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/anthropic/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "logging",
+      "file": "providers/anthropic/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/anthropic/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/anthropic/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/anthropic/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/anthropic/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/anthropic/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/anthropic/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/anthropic/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/anthropic/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/anthropic/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/anthropic/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/anthropic/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/anthropic/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/anthropic/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/anthropic/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/anthropic/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/base.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/base.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/base.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/base.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/base.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/base.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/base.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/circuit_breaker.py"
+    },
+    {
+      "source": "providers",
+      "target": "logging",
+      "file": "providers/circuit_breaker.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/circuit_breaker.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/clock.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/engine.py"
+    },
+    {
+      "source": "providers",
+      "target": "logging",
+      "file": "providers/engine.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/engine.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/engine.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/engine.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/engine.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/engine.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/engine.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/engine.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/engine.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/engine.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/engine.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/engine.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/engine.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/engine.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/engine.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/engine.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/events.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/exceptions.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/exceptions.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/gemini/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/gemini/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "logging",
+      "file": "providers/gemini/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/gemini/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/gemini/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/gemini/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/gemini/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/gemini/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/gemini/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/gemini/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/gemini/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/gemini/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/gemini/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/gemini/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/gemini/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/gemini/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/gemini/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/gemini/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/health.py"
+    },
+    {
+      "source": "providers",
+      "target": "logging",
+      "file": "providers/health.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/health.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/health.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/manager.py"
+    },
+    {
+      "source": "providers",
+      "target": "logging",
+      "file": "providers/manager.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/manager.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/manager.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/manager.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/manager.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/manager.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/metrics.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/middleware.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/middleware.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/middleware.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/middleware.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/mock.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/mock.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/mock.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/mock.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/mock.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/mock.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/mock.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/mock.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/mock.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/mock.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/mock.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/mock.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/mock.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/mock.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/mock.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/mock.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/mock.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/models.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/models.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/ollama/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/ollama/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "logging",
+      "file": "providers/ollama/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/ollama/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/ollama/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/ollama/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/ollama/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/ollama/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/ollama/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/ollama/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/ollama/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/ollama/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/ollama/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/ollama/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/ollama/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/ollama/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/ollama/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/ollama/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/openrouter/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/openrouter/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "logging",
+      "file": "providers/openrouter/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/openrouter/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/openrouter/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/openrouter/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/openrouter/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/openrouter/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/openrouter/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/openrouter/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/openrouter/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/openrouter/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/openrouter/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/openrouter/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/openrouter/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/openrouter/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/openrouter/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/openrouter/provider.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/policy.py"
+    },
+    {
+      "source": "providers",
+      "target": "logging",
+      "file": "providers/policy.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/policy.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/policy.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/policy.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/policy.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/profile.py"
+    },
+    {
+      "source": "providers",
+      "target": "logging",
+      "file": "providers/profile.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/profile.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/profile.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/registry.py"
+    },
+    {
+      "source": "providers",
+      "target": "logging",
+      "file": "providers/registry.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/registry.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/registry.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/registry.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/registry.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/registry.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/retry.py"
+    },
+    {
+      "source": "providers",
+      "target": "logging",
+      "file": "providers/retry.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/retry.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/retry.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/retry.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/retry.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/retry.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/retry.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/retry.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/retry.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/retry.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/retry.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/retry.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/retry.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/retry.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/retry.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/retry.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/router.py"
+    },
+    {
+      "source": "providers",
+      "target": "logging",
+      "file": "providers/router.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/router.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/router.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/router.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/router.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/router.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/router.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/router.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/router.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/session.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/state_machine.py"
+    },
+    {
+      "source": "providers",
+      "target": "logging",
+      "file": "providers/state_machine.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/state_machine.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/__init__.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/translators/anthropic.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/anthropic.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/anthropic.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/anthropic.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/anthropic.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/anthropic.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/anthropic.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/anthropic.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/anthropic.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/translators/base.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/base.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/base.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/base.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/translators/error_mapper.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/error_mapper.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/error_mapper.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/error_mapper.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/error_mapper.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/error_mapper.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/error_mapper.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/translators/gemini.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/gemini.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/gemini.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/gemini.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/gemini.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/gemini.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/gemini.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/gemini.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/gemini.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/translators/ollama.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/ollama.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/ollama.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/ollama.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/ollama.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/ollama.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/ollama.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/ollama.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/ollama.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/translators/openai.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/openai.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/openai.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/openai.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/openai.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/openai.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/openai.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/openai.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/translators/openai.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "core",
+      "file": "runtime/circuit_breaker.py"
+    },
+    {
+      "source": "runtime",
+      "target": "logging",
+      "file": "runtime/circuit_breaker.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/circuit_breaker.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/circuit_breaker.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/circuit_breaker.py"
+    },
+    {
+      "source": "runtime",
+      "target": "core",
+      "file": "runtime/clock.py"
+    },
+    {
+      "source": "runtime",
+      "target": "core",
+      "file": "runtime/context.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/context.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/context.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/context.py"
+    },
+    {
+      "source": "runtime",
+      "target": "core",
+      "file": "runtime/engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "logging",
+      "file": "runtime/engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "core",
+      "file": "runtime/events.py"
+    },
+    {
+      "source": "runtime",
+      "target": "core",
+      "file": "runtime/middleware.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/middleware.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/middleware.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/middleware.py"
+    },
+    {
+      "source": "runtime",
+      "target": "core",
+      "file": "runtime/report.py"
+    },
+    {
+      "source": "runtime",
+      "target": "core",
+      "file": "runtime/retry.py"
+    },
+    {
+      "source": "runtime",
+      "target": "logging",
+      "file": "runtime/retry.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/retry.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/retry.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/retry.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/retry.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/retry.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/retry.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/retry.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/retry.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/retry.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/retry.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/retry.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/retry.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/retry.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/retry.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/retry.py"
+    },
+    {
+      "source": "runtime",
+      "target": "core",
+      "file": "runtime/state_machine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "logging",
+      "file": "runtime/state_machine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/state_machine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "core",
+      "file": "runtime/streaming.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/streaming.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/streaming.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/streaming.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/streaming.py"
+    },
+    {
+      "source": "runtime",
+      "target": "providers",
+      "file": "runtime/streaming.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/streaming.py"
+    },
+    {
+      "source": "runtime",
+      "target": "core",
+      "file": "runtime/tracing.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/__init__.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/__init__.py"
+    },
+    {
+      "source": "security",
+      "target": "core",
+      "file": "security/guard.py"
+    },
+    {
+      "source": "security",
+      "target": "logging",
+      "file": "security/guard.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/guard.py"
+    },
+    {
+      "source": "security",
+      "target": "core",
+      "file": "security/guard.py"
+    },
+    {
+      "source": "security",
+      "target": "tools",
+      "file": "security/policy.py"
+    },
+    {
+      "source": "security",
+      "target": "tools",
+      "file": "security/policy.py"
+    },
+    {
+      "source": "security",
+      "target": "core",
+      "file": "security/policy.py"
+    },
+    {
+      "source": "security",
+      "target": "core",
+      "file": "security/sanitizer.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/automation/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "automation",
+      "file": "tools/automation/schedule_tool.py"
+    },
+    {
+      "source": "tools",
+      "target": "security",
+      "file": "tools/automation/schedule_tool.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/automation/schedule_tool.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/automation/schedule_tool.py"
+    },
+    {
+      "source": "tools",
+      "target": "security",
+      "file": "tools/base.py"
+    },
+    {
+      "source": "tools",
+      "target": "core",
+      "file": "tools/base.py"
+    },
+    {
+      "source": "tools",
+      "target": "core",
+      "file": "tools/isolation.py"
+    },
+    {
+      "source": "tools",
+      "target": "knowledge",
+      "file": "tools/knowledge/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/knowledge/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/knowledge/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "knowledge",
+      "file": "tools/knowledge/memory_tools.py"
+    },
+    {
+      "source": "tools",
+      "target": "security",
+      "file": "tools/knowledge/memory_tools.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/knowledge/memory_tools.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/macos/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/macos/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/macos/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/macos/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/macos/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "security",
+      "file": "tools/macos/active_window.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/macos/active_window.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/macos/active_window.py"
+    },
+    {
+      "source": "tools",
+      "target": "security",
+      "file": "tools/macos/notify.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/macos/notify.py"
+    },
+    {
+      "source": "tools",
+      "target": "security",
+      "file": "tools/macos/open_app.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/macos/open_app.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/macos/open_app.py"
+    },
+    {
+      "source": "tools",
+      "target": "security",
+      "file": "tools/macos/raw_applescript.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/macos/raw_applescript.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/macos/raw_applescript.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/plugin_loader.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/plugin_loader.py"
+    },
+    {
+      "source": "tools",
+      "target": "core",
+      "file": "tools/plugin_loader.py"
+    },
+    {
+      "source": "tools",
+      "target": "core",
+      "file": "tools/registry.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/registry.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/selector.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/selector.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/system/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/system/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "core",
+      "file": "tools/system/applescript.py"
+    },
+    {
+      "source": "tools",
+      "target": "security",
+      "file": "tools/system/terminal.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/system/terminal.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/vision/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "core",
+      "file": "tools/vision/screen.py"
+    },
+    {
+      "source": "tools",
+      "target": "security",
+      "file": "tools/vision/screen.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/vision/screen.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/workspace/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/workspace/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/workspace/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "security",
+      "file": "tools/workspace/fs.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/workspace/fs.py"
+    },
+    {
+      "source": "tools",
+      "target": "security",
+      "file": "tools/workspace/git.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/workspace/git.py"
+    },
+    {
+      "source": "voice",
+      "target": "voice",
+      "file": "voice/__init__.py"
+    },
+    {
+      "source": "voice",
+      "target": "voice",
+      "file": "voice/__init__.py"
+    },
+    {
+      "source": "voice",
+      "target": "voice",
+      "file": "voice/__init__.py"
+    },
+    {
+      "source": "workflow",
+      "target": "core",
+      "file": "workflow/engine.py"
+    }
+  ],
+  "violations_summary": {
+    "total_violations": 28,
+    "whitelisted_exceptions": 28,
+    "unapproved_regressions": 0
+  },
+  "violations": [
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 59,
+      "import": "nexusai.runtime.circuit_breaker.CircuitBreaker",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 59,
+      "import": "nexusai.runtime.circuit_breaker.CircuitState",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 60,
+      "import": "nexusai.runtime.clock.Clock",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 60,
+      "import": "nexusai.runtime.clock.SystemClock",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 60,
+      "import": "nexusai.runtime.clock.TestClock",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 61,
+      "import": "nexusai.runtime.context.CancellationToken",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 61,
+      "import": "nexusai.runtime.context.Deadline",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 61,
+      "import": "nexusai.runtime.context.ExecutionBudget",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 61,
+      "import": "nexusai.runtime.context.ExecutionContext",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 61,
+      "import": "nexusai.runtime.context.ExecutionHandle",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 61,
+      "import": "nexusai.runtime.context.RequestContext",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 61,
+      "import": "nexusai.runtime.context.ResourceContext",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 61,
+      "import": "nexusai.runtime.context.RuntimeContext",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 61,
+      "import": "nexusai.runtime.context.TraceContext",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 72,
+      "import": "nexusai.runtime.engine.ExecutionEngine",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 72,
+      "import": "nexusai.runtime.engine.RoutingDecision",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 73,
+      "import": "nexusai.runtime.events.ProviderEvent",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 73,
+      "import": "nexusai.runtime.events.ProviderHealthChangedEvent",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 73,
+      "import": "nexusai.runtime.events.ProviderRegisteredEvent",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 73,
+      "import": "nexusai.runtime.events.ProviderUnregisteredEvent",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 73,
+      "import": "nexusai.runtime.events.RoutingDecisionEvent",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 80,
+      "import": "nexusai.runtime.middleware.BaseMiddleware",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 80,
+      "import": "nexusai.runtime.middleware.MiddlewarePipeline",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 81,
+      "import": "nexusai.runtime.retry.RetryDecider",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 81,
+      "import": "nexusai.runtime.retry.RetryMiddleware",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 81,
+      "import": "nexusai.runtime.retry.RetryPolicy",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 82,
+      "import": "nexusai.runtime.state_machine.ExecutionState",
+      "whitelisted": true
+    },
+    {
+      "rule_id": "A001",
+      "file": "src/nexusai/providers/__init__.py",
+      "line": 82,
+      "import": "nexusai.runtime.state_machine.ExecutionStateMachine",
+      "whitelisted": true
+    }
+  ]
+}

@@ -19,7 +19,7 @@ Whether you are an end-user, plugin developer, or core contributor, welcome! Her
 ```mermaid
 flowchart LR
     A["New Contributor"] --> B["README.md"]
-    B --> C["Manifesto\n(docs/concepts/manifesto.md)"]
+    B --> C["Architecture Manifesto\n(docs/concepts/architecture_manifesto.md)"]
     C --> D["Philosophy\n(docs/concepts/philosophy.md)"]
     D --> E["Project Structure\n(docs/reference/project-structure.md)"]
     E --> F["SDK Guide & Specs\n(docs/reference/sdk-guide.md)"]

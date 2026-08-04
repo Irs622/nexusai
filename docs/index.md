@@ -25,9 +25,9 @@ Follow this recommended reading path depending on your role:
 ```mermaid
 flowchart TD
     A["New to NexusAI?"] --> B["1. Read README.md"]
-    B --> C["2. Read Manifesto (docs/concepts/manifesto.md)"]
-    C --> D["3. Read Philosophy (docs/concepts/philosophy.md)"]
-    D --> E["4. Read Project Charter (docs/concepts/charter.md)"]
+    B --> C["2. Read Architecture Manifesto\n(docs/concepts/architecture_manifesto.md)"]
+    C --> D["3. Read Architecture Rationale\n(docs/concepts/architecture_rationale.md)"]
+    D --> E["4. Read Philosophy & Charter\n(docs/concepts/philosophy.md)"]
 
     F["Developing Plugins / Tools?"] --> G["1. Read SDK Guide (docs/reference/sdk-guide.md)"]
     G --> H["2. Read Plugin Specs (docs/specs/extensions/plugin.md)"]
@@ -45,7 +45,9 @@ flowchart TD
 ## 📂 Navigation Index by Category
 
 ### 💡 Core Concepts & Rationale (`docs/concepts/`)
-- 📜 **[Manifesto](concepts/manifesto.md)** — The 7 core beliefs & cultural values of NexusAI.
+- 🏛️ **[Architecture Manifesto](concepts/architecture_manifesto.md)** — ⭐ The constitutional document & 12-section architectural foundation of NexusAI.
+- 🧠 **[Architecture Rationale](concepts/architecture_rationale.md)** — 💡 Deep "Why", trade-off analysis, & guidance for maintainers.
+- 📜 **[Summary Manifesto](concepts/manifesto.md)** — The 7 core beliefs & cultural values summary.
 - 🧠 **[Philosophy](concepts/philosophy.md)** — Technical strategy & rationale ("Why NexusAI Exists").
 - 📐 **[System Design](concepts/design.md)** — Subsystem component interaction model.
 - 🎯 **[Project Charter](concepts/charter.md)** — In-Scope, Out-of-Scope boundaries & success metrics.
