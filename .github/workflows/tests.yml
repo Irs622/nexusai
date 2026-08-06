@@ -1,13 +1,14 @@
-name: Pytest Matrix
+name: Pytest Matrix & Package Coverage
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 jobs:
   test:
+    name: Pytest Suite & Coverage Verification
     runs-on: macos-latest
     strategy:
       matrix:
@@ -25,6 +26,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
-      - name: Test with pytest
+      - name: Execute Test Suite with Coverage
         run: |
-          pytest
+          python tools/run_tests.py

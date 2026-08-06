@@ -1,13 +1,14 @@
-name: CI Pipeline
+name: Master CI Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 jobs:
-  ci:
+  ci-quality-gate:
+    name: Full Quality Gate Verification
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,14 +23,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
-      - name: Run Pytest with Coverage
+      - name: Execute Master Quality Gate
         run: |
-          pytest --cov=src/nexusai --cov-report=term-missing --cov-fail-under=85
-      - name: Run Benchmark Quality Gate Check
-        run: |
-          python benchmarks/check_regressions.py
+          python tools/run_quality_gate.py
       - name: Upload Benchmark & Coverage Artifacts
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: ci-quality-artifacts
           path: |

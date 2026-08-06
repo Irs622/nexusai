@@ -61,3 +61,49 @@ class WorkflowError(NexusAIError):
 
     pass
 
+
+# --- Kernel Engine Exceptions ---
+
+
+class KernelError(NexusAIError):
+    """Base class for all OS Kernel Orchestration Engine errors."""
+
+    pass
+
+
+class ServiceRegistrationError(KernelError):
+    """Raised when service registration fails (e.g. duplicate ID or invalid metadata)."""
+
+    pass
+
+
+class DependencyCycleError(KernelError):
+    """Raised when circular dependencies are detected in the runtime service graph."""
+
+    pass
+
+
+class MissingDependencyError(KernelError):
+    """Raised when a required service dependency cannot be resolved."""
+
+    pass
+
+
+class LifecycleStateError(KernelError):
+    """Raised when an invalid service lifecycle transition is attempted."""
+
+    pass
+
+
+class KernelBootstrapError(KernelError):
+    """Raised when the OS Kernel fails during multi-stage bootstrap sequence."""
+
+    pass
+
+
+class GraphFrozenError(KernelError):
+    """Raised when attempting to modify a service dependency graph that has been frozen."""
+
+    pass
+
+

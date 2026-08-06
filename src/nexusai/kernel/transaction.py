@@ -47,6 +47,19 @@ class AsyncTransaction(ABC):
             return True
 
 
+class DefaultAsyncTransaction(AsyncTransaction):
+    """Default no-op in-memory AsyncTransaction implementation."""
+
+    async def begin(self) -> None:
+        pass
+
+    async def commit(self) -> None:
+        pass
+
+    async def rollback(self) -> None:
+        pass
+
+
 class UnitOfWork(ABC):
     """Abstract Unit of Work pattern interface for OS services."""
 

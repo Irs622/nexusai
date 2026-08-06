@@ -22,7 +22,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
+### Added — Phase 2.6: Engineering Quality Gate
+
+- `chore(quality)`: Modular tool runner architecture under `tools/` — separate single-responsibility scripts for formatting (`run_formatter.py`), linting (`run_linter.py`), type checking (`run_typecheck.py`), test execution (`run_tests.py`), mutation testing (`run_mutation_tests.py`), benchmark pipeline (`run_benchmarks.py`), security audit (`run_security_audit.py`), and license compliance (`run_license_check.py`).
+- `chore(quality)`: `tools/run_quality_gate.py` — local developer master orchestrator executing Stage 1 (formatter, linter, typecheck) in parallel via `concurrent.futures`, followed by sequential Stage 2 (architecture, tests, benchmarks).
+- `chore(ci)`: Updated GitHub Actions workflows — `lint.yml` now correctly runs `run_formatter.py`, `run_linter.py`, and `run_typecheck.py` instead of incorrectly running pytest; `tests.yml` delegates to `run_tests.py`; `ci.yml` delegates to `run_quality_gate.py`.
+- `chore(quality)`: `.pre-commit-config.yaml` — standard pre-commit configuration with ruff, black, isort, mypy, and file hygiene hooks.
+- `chore(benchmark)`: Pluggable benchmark framework with `benchmarks/collectors/`, `benchmarks/comparators/`, and `benchmarks/reporters/` sub-packages.
+- `chore(benchmark)`: Benchmark trend reporting with `Current`, `Previous`, `Delta (%)`, and `PASS/FAIL` status per metric.
+- `chore(benchmark)`: Restructured `benchmarks/history/` into `history/baseline/` (committed baselines) and `history/runs/` (timestamped run snapshots).
+- `chore(benchmark)`: `benchmarks/check_regressions.py` updated to delegate to the new pluggable benchmark framework instead of static file check.
+- `test(kernel)`: `tests/kernel/test_kernel_extreme_stress.py` — extreme stress test suite covering: 10,000 concurrent async task submissions, 100-service rapid startup, rapid shutdown under 500 in-flight jobs, queue flooding via 5×1,000 burst enqueue, dependency graph concurrent resolution (100 parallel queries), and concurrent registry registration contention (200 services).
+- `chore(security)`: `tools/run_security_audit.py` — `pip-audit` CVE vulnerability scanner integration.
+- `chore(security)`: `tools/run_license_check.py` — dependency license compliance checker (GPL blocked, MIT/Apache/BSD allowed).
+- `chore(config)`: `pyproject.toml` updated with `isort`, `mutmut`, `pip-audit`, `pip-licenses` dev dependencies; `[tool.coverage.run]` with branch coverage; `[tool.coverage.report]` with `fail_under = 90`; `[tool.mutmut]` scoped to `core/kernel/memory/domain`.
+- `docs(engineering)`: `docs/engineering/quality_gate.md` — complete engineering quality reference guide.
+
+### Added — Phase 2.5: Kernel Orchestration Engine
+- `feat(kernel)`: Phase 2.5 Kernel Orchestration Engine implementing deterministic boot, topological dependency resolution, state machine lifecycle coordination with automated rollback protection (`ROLLING_BACK`), time-based `RuntimeScheduler`, queue-based `BackgroundWorkerManager`, and structured diagnostic `SnapshotManager`.
+- `feat(kernel)`: Facade-driven `KernelOrchestrator` delegating to specialized kernel managers and exposing aggregated health/metrics across subsystems.
+- `test(kernel)`: Complete unit test suite for service registry, dependency graph DAG, lifecycle coordinator, runtime scheduler, worker manager, snapshot manager, and kernel orchestrator.
+- `test(acceptance)`: End-to-end acceptance tests validating boot failure recovery and restart after failure capabilities.
+- `docs(kernel)`: Architecture guide for `docs/architecture/kernel_orchestration.md`.
+
 - `feat(providers)`: Sprint 5 Canonical Normalizations & Semantic Equivalence Suite across 4 provider translators (`OpenAITranslator`, `GeminiTranslator`, `AnthropicTranslator`, `OllamaTranslator`).
 - `feat(providers)`: Add optional `Usage.reasoning_tokens` metric field to canonical `Usage` model mapped across OpenRouter, Gemini, and Anthropic.
 - `feat(providers)`: Add `retry_after: float | None` attribute to `ProviderRateLimitError` and HTTP header parsing in `CanonicalErrorMapper`.

@@ -43,7 +43,10 @@ class PipelineTrace:
             "total_latency_ms": self.total_latency_ms,
             "initial_count": self.initial_count,
             "final_count": self.final_count,
-            "stage_traces": [st.to_dict() for st.stage_traces if hasattr(st, "to_dict")]
+            "stage_traces": [
+                st.to_dict() if hasattr(st, "to_dict") else str(st)
+                for st in self.stage_traces
+            ]
             if hasattr(self, "stage_traces")
             else [],
         }
