@@ -1,0 +1,8 @@
+{
+  "dimensions": 768,
+  "distance_metric": "cosine",
+  "max_batch": 64,
+  "model_name": "ollama/nomic-embed-text",
+  "normalized_output": true,
+  "supports_batch": true
+}

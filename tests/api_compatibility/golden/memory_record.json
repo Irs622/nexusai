@@ -1,0 +1,13 @@
+{
+  "id": "rec_golden_001",
+  "memory_type": "EPISODIC",
+  "raw_text": "User requested plugin installation.",
+  "schema_version": "1.0.0",
+  "scope": "SESSION",
+  "source": "user_prompt",
+  "summary": "Plugin install request",
+  "tags": [
+    "plugins",
+    "setup"
+  ]
+}

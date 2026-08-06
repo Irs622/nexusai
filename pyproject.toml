@@ -60,6 +60,18 @@ asyncio_mode = "auto"
 addopts = [
     "--strict-markers",
 ]
+markers = [
+    "unit: pure unit tests with no external dependencies",
+    "integration: tests requiring local services (ChromaDB, filesystem)",
+    "contract: provider wire-format and protocol conformance tests",
+    "benchmark: latency and regression benchmark tests",
+    "stress: high-concurrency and load tests",
+    "network: tests requiring live external API access",
+    "snapshot: API compatibility golden snapshot tests",
+    "architecture: import boundary and layer rule enforcement",
+    "security: security audit and vulnerability tests",
+    "slow: long-running tests (>5s)",
+]
 
 [tool.coverage.run]
 branch = true

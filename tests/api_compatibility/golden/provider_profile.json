@@ -1,0 +1,10 @@
+{
+  "metadata": {
+    "display_name": "Anthropic Claude Engine",
+    "homepage": "",
+    "provider_id": "anthropic",
+    "sdk_version": "1.0.0"
+  },
+  "metrics_confidence": 0.0,
+  "provider_id": "anthropic"
+}

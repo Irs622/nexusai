@@ -1,0 +1,6 @@
+{
+  "is_cancelled": false,
+  "model": "gpt-4o",
+  "request_id": "req_12345",
+  "trace_id": "tr_67890"
+}

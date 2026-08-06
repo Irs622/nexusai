@@ -22,6 +22,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### ⚠️ Breaking Changes & API Migration Notes — Phase 2.6B
+
+#### `ProviderProfile` constructor refactored
+- **Before:** `ProviderProfile(provider_id="x", models=[...], average_latency_ms=...)`
+- **After:** `ProviderProfile(metadata=ProviderMetadata(provider_id="x", display_name="..."))`
+- **Migration:** Wrap provider static identity into `ProviderMetadata` instance and pass as `metadata=` keyword argument.
+
+#### `ExecutionContext` cancellation token sub-context restructuring
+- **Before:** `ExecutionContext(cancellation_token=token)`
+- **After:** `ctx = ExecutionContext(); token = ctx.runtime.cancellation_token`
+- **Migration:** Access cancellation token via `context.runtime.cancellation_token`.
+
+#### `EmbeddingCapabilities` field renaming
+- **Before:** `EmbeddingCapabilities(max_dimension=768, supports_gpu=True)`
+- **After:** `EmbeddingCapabilities(dimensions=768)`
+- **Migration:** Use `dimensions=` instead of `max_dimension=`. Remove obsolete `supports_gpu=` attribute.
+
+#### `ModelInfo` and `ProviderHealth` field alignment
+- **Before:** `model.name`, `health.model_count`
+- **After:** `model.id`, `health.available_models`
+- **Migration:** Use `.id` for `ModelInfo` primary identifier; use `.available_models` for `ProviderHealth` metric.
+
+### Added — Phase 2.6B + 2.6C: Baseline Stabilization & RC Validation Gate
+
+- `feat(quality)`: Tiered test execution matrix via `tools/run_tests.py` with `--mode` options (`local`, `unit`, `ci-pr`, `nightly`, `all`, `integration`, `contract`, `network`, `snapshot`, `architecture`).
+- `feat(quality)`: Pytest test matrix marker registration in `pyproject.toml` (`unit`, `integration`, `contract`, `benchmark`, `stress`, `network`, `snapshot`, `architecture`, `security`, `slow`).
+- `feat(api)`: Golden API Compatibility snapshot test suite in `tests/api_compatibility/` covering 6 frozen public API contracts (`ProviderProfile`, `ProviderMetadata`, `ProviderHealth`, `EmbeddingCapabilities`, `MemoryRecord`, `ExecutionContext`).
+- `feat(quality)`: Cross-platform Python-native fresh installation verification script `tools/verify_fresh_install.py`.
+- `docs(architecture)`: Added `docs/architecture/api_freeze.md` (3-tier governance policy: Stable, Beta, Experimental) and `docs/architecture/compatibility_matrix.md`.
+- `feat(quality)`: Updated `tools/run_quality_gate.py` with `--release` mode support executing full verification sequence.
+
 ### Added — Phase 2.6: Engineering Quality Gate
 
 - `chore(quality)`: Modular tool runner architecture under `tools/` — separate single-responsibility scripts for formatting (`run_formatter.py`), linting (`run_linter.py`), type checking (`run_typecheck.py`), test execution (`run_tests.py`), mutation testing (`run_mutation_tests.py`), benchmark pipeline (`run_benchmarks.py`), security audit (`run_security_audit.py`), and license compliance (`run_license_check.py`).

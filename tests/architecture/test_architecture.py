@@ -23,9 +23,15 @@ def _get_ast_imports(file_path: Path) -> list[str]:
 
 
 def test_provider_adapter_isolation_rule() -> None:
-    """Architecture Invariant: No provider file may import another provider adapter file."""
+    """Architecture Invariant: No provider adapter file may import another provider adapter file.
+
+    Note: __init__.py is explicitly excluded as it serves as the public facade
+    and is the intentional composition root for all concrete providers.
+    """
     providers_dir = Path("src/nexusai/providers")
     for file_path in providers_dir.glob("*.py"):
+        if file_path.name == "__init__.py":
+            continue  # Facade: intentionally re-exports all concrete providers
         imports = _get_ast_imports(file_path)
         for imp in imports:
             assert not imp.startswith("nexusai.providers.openai_provider"), f"Forbidden import in {file_path.name}: {imp}"
@@ -66,7 +72,11 @@ def test_domain_models_import_rule() -> None:
 
 def test_async_io_rule() -> None:
     """Architecture Invariant: Network/IO methods on BaseProvider interface must be async."""
-    async_methods = ["chat", "stream_chat", "embeddings", "list_models", "health_check"]
+    async_methods = ["chat", "embeddings", "list_models", "health_check"]
     for method_name in async_methods:
         method = getattr(BaseProvider, method_name)
         assert inspect.iscoroutinefunction(method), f"Async IO Rule Violation: {method_name} must be a coroutine function"
+
+    stream_method = getattr(BaseProvider, "stream_chat")
+    assert inspect.iscoroutinefunction(stream_method) or inspect.isasyncgenfunction(stream_method), \
+        "Async IO Rule Violation: stream_chat must be an async function"
