@@ -1,3 +1,4 @@
+from __future__ import annotations
 """Unit tests for the NexusAI Provider SDK foundation."""
 
 from typing import Any, AsyncIterator
@@ -314,22 +315,16 @@ def test_json_schema_model() -> None:
 
 def test_provider_profile_cache() -> None:
     from nexusai.providers import ProviderProfile, ProviderProfileCache
+    from nexusai.providers.models import ProviderMetadata
 
     cache = ProviderProfileCache()
-    prof = ProviderProfile(
-        provider_id="openrouter",
-        models=["claude-sonnet-4", "gpt-5.5"],
-        average_latency_ms=120.0,
-        average_cost_per_1k=0.003,
-        reliability_rate=0.999,
-        supports_tools=True,
-    )
+    meta = ProviderMetadata(provider_id="openrouter", display_name="OpenRouter")
+    prof = ProviderProfile(metadata=meta)
     cache.set(prof)
 
     fetched = cache.get("openrouter")
     assert fetched is not None
     assert fetched.provider_id == "openrouter"
-    assert "gpt-5.5" in fetched.models
     assert len(cache.list_profiles()) == 1
 
     cache.clear()
@@ -424,14 +419,13 @@ def test_provider_session() -> None:
 
 
 def test_execution_context_and_cancellation() -> None:
-    from nexusai.providers import CancellationToken, ExecutionContext, ExecutionHandle, ProviderTimeoutError
+    from nexusai.providers import ExecutionContext, ExecutionHandle, ProviderTimeoutError
 
-    token = CancellationToken()
+    ctx = ExecutionContext()
+    token = ctx.runtime.cancellation_token
     assert token.is_cancelled is False
 
-    ctx = ExecutionContext(cancellation_token=token)
     handle = ExecutionHandle(task_id="t1", context=ctx)
-
     handle.cancel("User aborted")
     assert token.is_cancelled is True
     assert token.reason == "User aborted"

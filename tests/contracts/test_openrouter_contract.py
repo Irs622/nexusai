@@ -1,3 +1,5 @@
+import pytest
+pytestmark = pytest.mark.network
 """Contract verification test suite for OpenRouterProvider using httpx mock transport."""
 
 import pytest
@@ -52,7 +54,7 @@ def _custom_transport(request: httpx.Request) -> httpx.Response:
 async def test_openrouter_provider_contract_suite() -> None:
     """Run full Level 1 API and Level 2 Behavior contract verification against OpenRouterProvider."""
     mock_client = httpx.AsyncClient(transport=httpx.MockTransport(_custom_transport), base_url="https://openrouter.ai/api/v1")
-    provider = OpenRouterProvider(api_key="sk-or-test-key", http_client=mock_client)
+    provider = OpenRouterProvider(api_key="mock_openrouter_credential", http_client=mock_client)
 
     # 1. API Surface Contract Verification
     await verify_provider_api_contract(provider)

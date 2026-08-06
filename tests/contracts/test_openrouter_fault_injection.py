@@ -37,7 +37,7 @@ async def test_openrouter_fault_injection_429_rate_limit() -> None:
         return httpx.Response(429, json={"error": {"message": "Rate limit exceeded"}})
 
     client = httpx.AsyncClient(transport=httpx.MockTransport(transport_429), base_url="https://openrouter.ai/api/v1")
-    p = OpenRouterProvider(api_key="test-key", http_client=client)
+    p = OpenRouterProvider(api_key="mock_openrouter_credential", http_client=client)
 
     req = ChatRequest(messages=[ChatMessage(role=MessageRole.USER, content="hi")])
     with pytest.raises(ProviderRateLimitError, match="Rate limit exceeded"):
@@ -51,7 +51,7 @@ async def test_openrouter_fault_injection_500_server_error() -> None:
         return httpx.Response(502, text="Bad Gateway")
 
     client = httpx.AsyncClient(transport=httpx.MockTransport(transport_500), base_url="https://openrouter.ai/api/v1")
-    p = OpenRouterProvider(api_key="test-key", http_client=client)
+    p = OpenRouterProvider(api_key="mock_openrouter_credential", http_client=client)
 
     req = ChatRequest(messages=[ChatMessage(role=MessageRole.USER, content="hi")])
     with pytest.raises(ProviderNetworkError):
@@ -69,7 +69,7 @@ async def test_openrouter_fault_injection_stream_cancellation() -> None:
         return httpx.Response(200, text=content)
 
     client = httpx.AsyncClient(transport=httpx.MockTransport(transport_stream), base_url="https://openrouter.ai/api/v1")
-    p = OpenRouterProvider(api_key="test-key", http_client=client)
+    p = OpenRouterProvider(api_key="mock_openrouter_credential", http_client=client)
 
     req = ChatRequest(messages=[ChatMessage(role=MessageRole.USER, content="hi")])
 

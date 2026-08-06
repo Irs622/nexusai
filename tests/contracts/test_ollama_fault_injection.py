@@ -1,3 +1,5 @@
+import pytest
+pytestmark = pytest.mark.network
 """Fault Injection Test Suite for OllamaProvider: server down/connection refused, 500 error, 404 model not found, and stream cancellation."""
 
 import pytest

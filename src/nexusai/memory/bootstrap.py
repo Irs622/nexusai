@@ -25,7 +25,7 @@ from nexusai.memory.services.admin import MemoryAdminService
 from nexusai.memory.services.command import MemoryCommandService
 from nexusai.memory.services.query import MemoryQueryService
 from nexusai.memory.storage import FileMemoryStore, InMemoryMemoryStore, SQLiteMemoryStore
-from nexusai.memory.uow import MemoryUnitOfWork
+from nexusai.memory.uow import DefaultMemoryUnitOfWork, MemoryUnitOfWork
 from nexusai.memory.usecases import (
     ForgetMemoryUseCase,
     RetrieveMemoryUseCase,
@@ -84,7 +84,8 @@ class PipelineModule:
 
     @staticmethod
     def build(config: MemoryEngineConfig, vector_store: VectorStore) -> RetrievalPipeline:
-        return PipelineFactory.create_pipeline(profile=config.pipeline_profile, vector_store=vector_store)
+        factory = PipelineFactory()
+        return factory.create_pipeline(profile_name=config.pipeline_profile)
 
 
 class MemoryEngineBootstrap:
@@ -102,10 +103,10 @@ class MemoryEngineBootstrap:
         pipeline = PipelineModule.build(cfg, vector_store)
         policy_engine = PolicyModule.build(cfg)
 
-        uow = MemoryUnitOfWork()
-        store_usecase = StoreMemoryUseCase(uow=uow, embedding_provider=embedder)
+        uow = DefaultMemoryUnitOfWork()
+        store_usecase = StoreMemoryUseCase(uow=uow)
         retrieve_usecase = RetrieveMemoryUseCase(uow=uow)
-        search_usecase = SearchMemoryUseCase(uow=uow, embedding_provider=embedder, pipeline=pipeline)
+        search_usecase = SearchMemoryUseCase(uow=uow, pipeline=pipeline, embedding_provider=embedder)
         forget_usecase = ForgetMemoryUseCase(uow=uow)
 
         command_service = MemoryCommandService(

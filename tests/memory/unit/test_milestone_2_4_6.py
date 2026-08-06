@@ -40,8 +40,8 @@ async def test_retrieval_engine_middleware_stages():
     pipeline = (
         PipelineBuilder(RetrievalPipelineConfig(max_candidates=5))
         .add_stage(MetadataFilterStage(required_tags=["ai"]))
-        .add_stage(RecencyBoostStage(weight=0.2))
-        .add_stage(ImportanceStage(weight=0.5))
+        .add_stage(RecencyBoostStage())
+        .add_stage(ImportanceStage())
         .add_stage(RankingStage())
         .build()
     )

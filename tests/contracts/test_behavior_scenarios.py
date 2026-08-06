@@ -1,3 +1,5 @@
+import pytest
+pytestmark = pytest.mark.network
 """Golden Scenario Tests verifying end-to-end runtime behavior resiliency."""
 
 import pytest

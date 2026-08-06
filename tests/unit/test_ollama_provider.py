@@ -4,6 +4,7 @@ import pytest
 import httpx
 
 from nexusai.providers import (
+    Capability,
     ChatMessage,
     ChatRequest,
     MessageRole,
@@ -63,7 +64,7 @@ async def test_ollama_provider_metadata() -> None:
     provider = OllamaProvider()
     assert provider.id == "ollama"
     assert provider.metadata.display_name == "Ollama Local Engine"
-    assert provider.metadata.capabilities.max_context == 128000
+    assert provider.metadata.capabilities.supports(Capability.CHAT)
 
 
 @pytest.mark.asyncio
@@ -133,8 +134,8 @@ async def test_ollama_provider_list_models() -> None:
 
     models = await provider.list_models()
     assert len(models) == 2
-    assert models[0].name == "llama3:latest"
-    assert models[1].name == "qwen2.5:coder"
+    assert models[0].id == "llama3:latest"
+    assert models[1].id == "qwen2.5:coder"
 
 
 @pytest.mark.asyncio
@@ -147,7 +148,7 @@ async def test_ollama_provider_health_check() -> None:
 
     health = await provider.health_check()
     assert health.healthy is True
-    assert health.model_count == 2
+    assert health.available_models == 2
 
 
 @pytest.mark.asyncio

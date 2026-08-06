@@ -1,3 +1,5 @@
+import pytest
+pytestmark = pytest.mark.integration
 """
 Provider Replaceability Matrix Test Suite proving provider-agnostic replaceability across storage/vector/embedding combinations.
 """

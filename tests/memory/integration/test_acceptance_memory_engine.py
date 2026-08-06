@@ -1,3 +1,5 @@
+import pytest
+pytestmark = pytest.mark.integration
 """
 Public API Acceptance Test Suite for NexusAI Memory Engine.
 """

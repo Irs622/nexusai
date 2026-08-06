@@ -1,3 +1,5 @@
+import pytest
+pytestmark = pytest.mark.network
 """Live API Integration Test Suite for OpenRouterProvider (requires OPENROUTER_API_KEY)."""
 
 import os

@@ -1,3 +1,5 @@
+import pytest
+pytestmark = pytest.mark.network
 """Contract verification test suite for AnthropicProvider using httpx mock transport."""
 
 import pytest
@@ -41,7 +43,7 @@ async def test_anthropic_provider_contract_suite() -> None:
         transport=httpx.MockTransport(_custom_anthropic_transport),
         base_url="https://api.anthropic.com/v1",
     )
-    provider = AnthropicProvider(api_key="sk-ant-test-key", http_client=mock_client)
+    provider = AnthropicProvider(api_key="mock_anthropic_credential", http_client=mock_client)
 
     # 1. Chat Completion Verification
     req = ChatRequest(

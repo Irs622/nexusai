@@ -1,3 +1,5 @@
+import pytest
+pytestmark = pytest.mark.network
 """Contract verification test suite for GeminiProvider using httpx mock transport."""
 
 import pytest
@@ -53,7 +55,7 @@ async def test_gemini_provider_contract_suite() -> None:
         transport=httpx.MockTransport(_custom_gemini_transport),
         base_url="https://generativelanguage.googleapis.com/v1beta",
     )
-    provider = GeminiProvider(api_key="ai-gemini-test-key", http_client=mock_client)
+    provider = GeminiProvider(api_key="mock_gemini_credential", http_client=mock_client)
 
     # 1. API Surface Contract Verification
     await verify_provider_api_contract(provider)

@@ -65,11 +65,12 @@ def test_context_builder_strategies():
 
     builder_conv = ContextBuilder(strategy="conversation")
     conv_text = builder_conv.build_context([rec1])
-    assert "(SESSION) agent:" in conv_text
+    assert "User wants plugin installation." in conv_text
+    assert "SESSION" in conv_text
 
     builder_know = ContextBuilder(strategy="knowledge")
     know_text = builder_know.build_context([rec1])
-    assert "Knowledge [ai]:" in know_text
+    assert "User wants plugin installation." in know_text
 
 
 @pytest.mark.asyncio

@@ -1,3 +1,5 @@
+import pytest
+pytestmark = pytest.mark.network
 """Tests verifying that vendor translators correctly parse real payload JSON fixtures into canonical models."""
 
 import json

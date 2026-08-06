@@ -1,3 +1,5 @@
+import pytest
+pytestmark = pytest.mark.network
 """Compatibility Drift Test Suite detecting external vendor payload breaking changes."""
 
 import json

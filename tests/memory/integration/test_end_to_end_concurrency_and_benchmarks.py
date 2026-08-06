@@ -1,3 +1,5 @@
+import pytest
+pytestmark = pytest.mark.integration
 """
 End-to-End Integration, Concurrency Validation, and P50/P95/P99 Latency Benchmark Test Suite.
 """

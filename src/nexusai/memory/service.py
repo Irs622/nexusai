@@ -26,7 +26,7 @@ class MemoryService(KernelService):
         descriptor: ServiceDescriptor | None = None,
     ) -> None:
         desc = descriptor or ServiceDescriptor(
-            service_id="memory_service",
+            id="memory_service",
             name="NexusAI Memory Engine Service",
             version="2.4.12",
         )
@@ -58,7 +58,7 @@ class MemoryService(KernelService):
     async def health(self) -> dict[str, Any]:
         """Return rich diagnostic subsystem health check probes."""
         res = await self._admin.health(self.state)
-        res["service_id"] = self.descriptor.service_id
+        res["service_id"] = self.descriptor.id
         return res
 
     def metrics(self) -> dict[str, Any]:

@@ -1,3 +1,5 @@
+import pytest
+pytestmark = pytest.mark.integration
 """
 Enforced SLA Latency Regression Benchmark Test Suite for Memory Engine operations.
 """

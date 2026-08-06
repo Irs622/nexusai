@@ -14,6 +14,7 @@
     "total_rules": 20
   },
   "packages": [
+    "__version__",
     "api",
     "architecture",
     "automation",
@@ -38,7 +39,7 @@
     "voice",
     "workflow"
   ],
-  "edge_count": 1241,
+  "edge_count": 1312,
   "edges": [
     {
       "source": "root",
@@ -179,11 +180,6 @@
       "source": "api",
       "target": "tools",
       "file": "api/server.py"
-    },
-    {
-      "source": "architecture",
-      "target": "architecture",
-      "file": "architecture/__init__.py"
     },
     {
       "source": "architecture",
@@ -1033,7 +1029,132 @@
     {
       "source": "kernel",
       "target": "kernel",
-      "file": "kernel/migration/__init__.py"
+      "file": "kernel/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "core",
+      "file": "kernel/bootstrap.py"
+    },
+    {
+      "source": "kernel",
+      "target": "core",
+      "file": "kernel/bootstrap.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/bootstrap.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/bootstrap.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/bootstrap.py"
+    },
+    {
+      "source": "kernel",
+      "target": "logging",
+      "file": "kernel/bootstrap.py"
+    },
+    {
+      "source": "kernel",
+      "target": "core",
+      "file": "kernel/dependency_graph.py"
+    },
+    {
+      "source": "kernel",
+      "target": "core",
+      "file": "kernel/dependency_graph.py"
+    },
+    {
+      "source": "kernel",
+      "target": "core",
+      "file": "kernel/dependency_graph.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/dependency_graph.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/dependency_graph.py"
+    },
+    {
+      "source": "kernel",
+      "target": "logging",
+      "file": "kernel/dependency_graph.py"
+    },
+    {
+      "source": "kernel",
+      "target": "core",
+      "file": "kernel/lifecycle.py"
+    },
+    {
+      "source": "kernel",
+      "target": "core",
+      "file": "kernel/lifecycle.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/lifecycle.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/lifecycle.py"
+    },
+    {
+      "source": "kernel",
+      "target": "logging",
+      "file": "kernel/lifecycle.py"
     },
     {
       "source": "kernel",
@@ -1053,6 +1174,81 @@
     {
       "source": "kernel",
       "target": "kernel",
+      "file": "kernel/migration/__init__.py"
+    },
+    {
+      "source": "kernel",
+      "target": "__version__",
+      "file": "kernel/orchestrator.py"
+    },
+    {
+      "source": "kernel",
+      "target": "core",
+      "file": "kernel/orchestrator.py"
+    },
+    {
+      "source": "kernel",
+      "target": "core",
+      "file": "kernel/orchestrator.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/orchestrator.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/orchestrator.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/orchestrator.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/orchestrator.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/orchestrator.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/orchestrator.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/orchestrator.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/orchestrator.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/orchestrator.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/orchestrator.py"
+    },
+    {
+      "source": "kernel",
+      "target": "logging",
+      "file": "kernel/orchestrator.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
       "file": "kernel/outbox/__init__.py"
     },
     {
@@ -1149,6 +1345,76 @@
       "source": "kernel",
       "target": "kernel",
       "file": "kernel/outbox/dispatcher.py"
+    },
+    {
+      "source": "kernel",
+      "target": "core",
+      "file": "kernel/registry.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/registry.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/registry.py"
+    },
+    {
+      "source": "kernel",
+      "target": "logging",
+      "file": "kernel/registry.py"
+    },
+    {
+      "source": "kernel",
+      "target": "logging",
+      "file": "kernel/scheduler.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/service.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/service.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/service.py"
+    },
+    {
+      "source": "kernel",
+      "target": "__version__",
+      "file": "kernel/snapshot.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/snapshot.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/snapshot.py"
+    },
+    {
+      "source": "kernel",
+      "target": "kernel",
+      "file": "kernel/snapshot.py"
+    },
+    {
+      "source": "kernel",
+      "target": "logging",
+      "file": "kernel/snapshot.py"
+    },
+    {
+      "source": "kernel",
+      "target": "logging",
+      "file": "kernel/worker.py"
     },
     {
       "source": "knowledge",
@@ -1713,6 +1979,36 @@
     {
       "source": "memory",
       "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
       "file": "memory/contracts/__init__.py"
     },
     {
@@ -1869,6 +2165,11 @@
       "source": "memory",
       "target": "memory",
       "file": "memory/contracts/record.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/contracts/retrieval.py"
     },
     {
       "source": "memory",
@@ -2642,6 +2943,21 @@
     },
     {
       "source": "memory",
+      "target": "memory",
+      "file": "memory/uow/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "kernel",
+      "file": "memory/uow/unit_of_work.py"
+    },
+    {
+      "source": "memory",
+      "target": "kernel",
+      "file": "memory/uow/unit_of_work.py"
+    },
+    {
+      "source": "memory",
       "target": "kernel",
       "file": "memory/uow/unit_of_work.py"
     },
@@ -2663,6 +2979,21 @@
     {
       "source": "memory",
       "target": "memory",
+      "file": "memory/uow/unit_of_work.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/uow/unit_of_work.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/uow/unit_of_work.py"
+    },
+    {
+      "source": "memory",
+      "target": "kernel",
       "file": "memory/uow/unit_of_work.py"
     },
     {
@@ -2754,6 +3085,11 @@
       "source": "memory",
       "target": "memory",
       "file": "memory/usecases/store.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/__init__.py"
     },
     {
       "source": "memory",
@@ -4374,6 +4710,26 @@
       "source": "providers",
       "target": "core",
       "file": "providers/clock.py"
+    },
+    {
+      "source": "providers",
+      "target": "core",
+      "file": "providers/context.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/context.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/context.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
+      "file": "providers/context.py"
     },
     {
       "source": "providers",

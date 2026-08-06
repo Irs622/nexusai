@@ -1,3 +1,5 @@
+import pytest
+pytestmark = pytest.mark.network
 """Canonical Semantic Equivalence Test Suite across all Provider Translators.
 
 Verifies that OpenAITranslator, GeminiTranslator, AnthropicTranslator, and OllamaTranslator

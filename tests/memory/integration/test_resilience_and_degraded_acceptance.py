@@ -1,3 +1,5 @@
+import pytest
+pytestmark = pytest.mark.integration
 """
 Resiliency and Degraded Health Failure Mode Acceptance Test Suite.
 """

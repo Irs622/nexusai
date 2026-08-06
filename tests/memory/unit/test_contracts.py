@@ -29,14 +29,12 @@ def test_memory_record_creation_defaults():
 def test_embedding_capabilities_value_object():
     caps = EmbeddingCapabilities(
         model_name="ollama/nomic-embed-text",
-        max_dimension=768,
+        dimensions=768,
         supports_batch=True,
-        supports_gpu=True,
     )
     assert caps.model_name == "ollama/nomic-embed-text"
-    assert caps.max_dimension == 768
+    assert caps.dimensions == 768
     assert caps.supports_batch is True
-    assert caps.supports_gpu is True
 
 
 def test_retrieval_context_defaults():
