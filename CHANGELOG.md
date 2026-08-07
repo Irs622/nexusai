@@ -22,6 +22,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🟢 Added — Phase 3.1 Brain Runtime Core (Milestones 3.1.1 - 3.1.8 Complete)
+- `feat(brain)`: Implemented versioned domain contracts and runtime context infrastructure (`BrainSession` v1.0, `SessionState` v1.0, `ExecutionContext` v1.0 with 5 sub-contexts, `PromptBundle` v1.0 with polymorphic `ArtifactRegistry`, `ExecutionBudget`, `ExecutionUsage`, `TurnMetrics` v1.0, and `BrainError` exception hierarchy).
+- `feat(brain)`: Implemented Provider ExecutionPlan & Capability Negotiation Bridge (`RequiredCapabilities`, `ExecutionConstraints`, `Capability` Enum, `ExecutionStep`, `ExecutionPlan`, and lean `ProviderSelector` fallback route builder).
+- `feat(brain)`: Implemented Context & Token-Aware History Pipeline (`ContextBudget` contract with reserved reasoning headroom, `AssembledContext` value object, `IHistoryProvider` port, `TokenBoundedHistory`, `HistoryLoader`, `SystemPromptResolver`, `ContextTruncator` with strategy pattern, and `ContextAssembler`).
+- `feat(brain)`: Implemented Canonical Prompt Pipeline & Priority ExtensionEvent Engine (`PromptRenderer` compiling provider-independent `PromptBundle` v1.0, `ExtensionEvent` container, `PluginFailurePolicy` error isolation, and `PriorityExtensionDispatcher` executing handlers in priority order).
+- `feat(brain)`: Implemented Delta Streaming Execution & ExecutionTracer Telemetry (`TurnStream` async generator wrapper with zero double-buffering, cancellation monitoring, `ExecutionTracer` sub-stage latency markers capturing TTFT in ms, throughput tokens/sec, and OpenTelemetry span helpers).
+- `feat(brain)`: Implemented Kernel Outbox Transactional Persistence (`OutboxRecord` with JSON contract boundaries, `IOutboxWriter` port, `KernelOutboxAdapter`, `InMemoryOutboxWriter`, and write-behind `TurnPersistenceService`).
+- `feat(brain)`: Implemented Open/Closed `IExecutionStage` Pipeline Engine & `BrainRuntimeFacade` (`HistoryStage`, `PromptStage`, `ProviderStage`, `PersistenceStage`, `ExecutionPipeline` orchestrator, `TurnResponse`, and `BrainRuntimeFacade`).
+- `test(brain)`: Added Milestone 3.1.8 Production Hardening test suite (100 concurrent streams load test, cancellation stress test, `PromptBundle` fuzzing, and contract serialization roundtrip verification across all domain payloads).
+- `test(brain)`: Complete unit and integration test coverage (`test_domain.py`, `test_runtime_context.py`, `test_capabilities_and_plan.py`, `test_context_pipeline.py`, `test_prompt_renderer_and_events.py`, `test_streaming_and_telemetry.py`, `test_persistence_and_outbox.py`, `test_brain_runtime_pipeline.py`, `test_production_hardening.py`).
+
 ### ⚠️ Breaking Changes & API Migration Notes — Phase 2.6B
 
 #### `ProviderProfile` constructor refactored

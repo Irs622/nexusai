@@ -67,3 +67,85 @@ AI Agents must use [Conventional Commits](https://www.conventionalcommits.org/):
 
 - **NEVER** embed hardcoded API keys, secrets, tokens, or dummy keys containing `key-` string patterns in source files or tests.
 - Always retrieve credentials dynamically from environment variables (`os.getenv(...)`).
+
+---
+
+## 🏛️ Phase 3.2+ Repository Architectural Governance
+
+### 1. Mandatory ADR Rules & Structure Linting
+Every change modifying, adding, or deprecating a public domain or runtime contract **MUST** be accompanied by an ADR under `docs/adr/`. All ADRs **MUST** contain these mandatory sections:
+- `Status`
+- `Context`
+- `Decision`
+- `Alternatives Considered`
+- `Consequences` (Positive & Negative)
+- `Validation Criteria`
+- `Review Phase`
+
+### 2. Testable DAG Dependency Graph
+Package imports within `src/nexusai/brain/` MUST strictly comply with top-down unidirectional DAG flow:
+
+```text
+nexusai.brain.domain
+        ▲
+        │
+nexusai.brain.runtime
+        ▲
+        │
+context / prompt / streaming / plugins / telemetry / persistence
+        ▲
+        │
+nexusai.brain.pipeline
+        ▲
+        │
+nexusai.brain.service (Composition Root)
+```
+
+- `domain` MUST NOT import any other sub-package inside `brain`.
+- `runtime` MAY ONLY import `domain`.
+- `context`, `prompt`, `streaming`, `plugins`, `telemetry`, and `persistence` MAY import `domain` and `runtime`.
+- `pipeline` MAY import `domain`, `runtime`, and feature sub-packages.
+- `service` is the composition root.
+
+### 3. ExecutionContext Field Budgets
+To prevent God-Object anti-patterns, sub-contexts within `ExecutionContext` MUST adhere to explicit field limits:
+- `IdentityContext`: $\le 4$ fields
+- `RuntimeContext`: $\le 5$ fields
+- `SecurityContext`: $\le 3$ fields
+- `TelemetryContext`: $\le 3$ fields
+- `CancellationContext`: $\le 2$ fields
+
+### 4. PR Architectural Self-Check
+Every PR or milestone summary **MUST** explicitly answer four mandatory check questions:
+1. *Architecture affected?* (Yes/No + rationale)
+2. *New public contract?* (Yes/No + ADR reference)
+3. *Existing ADR violated?* (Yes/No + compliance proof)
+4. *Performance impact?* (Yes/No + latency/memory budget assessment)
+
+### 5. Benchmark Performance Budgets
+All runtime implementations MUST comply with systemic performance ceilings:
+- **Pipeline Overhead**: $< 2.0\text{ms}$
+- **TTFT Regression**: $\le 5\%$
+- **Peak Memory Regression**: $\le 10\%$
+- **Serialization Overhead**: $\le 5\%$
+
+### 6. Public API Stability & Deprecation Policy
+- **Public API Contract**: All symbols exported in package `__all__` lists constitute the immutable Public API.
+- **Breaking Changes**: Removing a public symbol, renaming a public class, or altering constructor signatures is a breaking change requiring an approved ADR.
+- **Deprecation Lifecycle**: Deprecated APIs MUST follow a 4-phase transition lifecycle:
+  `Added` $\rightarrow$ `Deprecated` (with DeprecationWarning) $\rightarrow$ `Warning` $\rightarrow$ `Removed` (spanning at least one minor release cycle).
+
+### 7. Core Architecture Immutable Principles & State Ownership
+- **6 Core Principles (Mandatory ADR for any modification)**:
+  1. `PromptBundle` remains canonical and vendor-neutral.
+  2. `ExecutionPipeline` remains pure orchestration (never agent domain logic).
+  3. `ProviderRuntime` is the ONLY package understanding vendor SDKs/wire formats.
+  4. `SchemaVersion` is the mandatory public contract versioning mechanism.
+  5. `ArtifactRegistry` is the sole multimodal extension point.
+  6. Transactional Outbox remains asynchronous write-behind.
+- **State Ownership Fitness Function**: Every state object MUST have exactly ONE clear owner responsible for state mutation:
+  - `BrainSession`: Session Manager only.
+  - `ExecutionContext`: Executor only.
+  - `AgentMemory`: Memory Subsystem only.
+  - `PromptBundle`: Completely immutable after render.
+  - `ExecutionPlan`: Completely immutable after resolution.
