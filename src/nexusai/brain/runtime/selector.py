@@ -39,14 +39,11 @@ class ProviderSelector:
         Returns:
             An immutable ExecutionPlan containing primary and fallback ExecutionSteps.
         """
-        logger.debug(
-            "Negotiating capabilities",
-            extra={
-                "requested_caps": list(capabilities.capabilities),
-                "preferred_provider": preferred_provider,
-                "preferred_model": preferred_model,
-            },
-        )
+        logger.bind(
+            requested_caps=list(capabilities.capabilities),
+            preferred_provider=preferred_provider,
+            preferred_model=preferred_model,
+        ).debug("Negotiating capabilities")
 
         # 1. Direct explicit preference resolution
         primary_provider = preferred_provider or "openrouter"

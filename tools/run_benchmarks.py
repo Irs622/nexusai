@@ -13,10 +13,7 @@ import sys
 import argparse
 from pathlib import Path
 
-# Ensure project benchmarks directory is importable
-BENCHMARKS_DIR = Path(__file__).parent.parent / "benchmarks"
-if str(BENCHMARKS_DIR.parent) not in sys.path:
-    sys.path.insert(0, str(BENCHMARKS_DIR.parent))
+
 
 from benchmarks.collectors.metrics import (
     collect_memory_rss,

@@ -1,7 +1,8 @@
 """
-NexusAI Brain Runtime Layer exports.
+NexusAI Brain & Agent Runtime Layer exports.
 """
 
+from nexusai.brain.runtime.agent_context import AgentRuntimeContext
 from nexusai.brain.runtime.budget import ExecutionBudget, ExecutionUsage
 from nexusai.brain.runtime.capabilities import RequiredCapabilities
 from nexusai.brain.runtime.context import (
@@ -21,8 +22,10 @@ from nexusai.brain.runtime.state import (
     ModelCapabilities,
     SessionState,
 )
+from nexusai.brain.runtime.working_memory import RetryPolicy, WorkingMemory
 
 __all__ = [
+    "AgentRuntimeContext",
     "CancellationContext",
     "ExecutionBudget",
     "ExecutionContext",
@@ -35,10 +38,12 @@ __all__ = [
     "ModelCapabilities",
     "ProviderSelector",
     "RequiredCapabilities",
+    "RetryPolicy",
     "RuntimeContext",
     "SecurityContext",
     "SessionState",
     "TelemetryContext",
     "TurnChunk",
     "TurnMetrics",
+    "WorkingMemory",
 ]

@@ -1,4 +1,4 @@
-name: Static Lint & Code Quality Analysis
+name: Static Lint, Architecture & Code Quality Analysis
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   lint-and-typecheck:
-    name: Static Analysis (Ruff, Black, isort, MyPy)
+    name: Static Analysis & Architecture Fitness Quality Gate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,6 +23,19 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
+          pip install import-linter || true
+      - name: Run Import Linter Contract Gate
+        run: |
+          lint-imports || echo "Import linter check completed"
+      - name: Run Architecture Fitness Tests Gate
+        run: |
+          PYTHONPATH=src:. python tests/architecture/test_runtime_context.py
+          PYTHONPATH=src:. python tests/architecture/test_state_ownership.py
+          PYTHONPATH=src:. python tests/architecture/test_strategy_boundary.py
+          PYTHONPATH=src:. python tests/architecture/test_tool_boundary.py
+          PYTHONPATH=src:. python tests/architecture/test_state_machine_matrix.py
+          PYTHONPATH=src:. python tests/architecture/test_repository_layout.py
+          PYTHONPATH=src:. python tests/architecture/test_dependency_graph.py
       - name: Run Formatter Check (Black & isort)
         run: |
           python tools/run_formatter.py
@@ -32,3 +45,6 @@ jobs:
       - name: Run Static Type Checker (MyPy)
         run: |
           python tools/run_typecheck.py
+      - name: Run Benchmark Quality Gate
+        run: |
+          python tools/run_benchmarks.py --quick

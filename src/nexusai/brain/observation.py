@@ -1,9 +1,42 @@
-"""Unified ToolObserver Layer producing immutable Observation records."""
-from typing import Any, Dict, Optional
+"""Unified ObservationMapper and ToolObserver layer producing immutable Observation records."""
+
+from __future__ import annotations
+
+from typing import Any
+from nexusai.brain.ports.tool_port import ToolExecutionResult
 from nexusai.domain.models import Observation
 
+
+class ObservationMapper:
+    """Transforms ToolExecutionResult instances into tool-agnostic Observation domain entities."""
+
+    def map_tool_result(self, result: ToolExecutionResult) -> Observation:
+        """Map ToolExecutionResult to a standardized Observation record.
+
+        Args:
+            result: ToolExecutionResult output from IToolPort.
+
+        Returns:
+            Normalized Observation domain entity.
+        """
+        payload = result.output if result.success else (result.error_message or "Tool execution failed")
+        severity = "INFO" if result.success else "ERROR"
+
+        return Observation(
+            source="tool",
+            tool_name=result.tool_name,
+            success=result.success,
+            payload=payload,
+            severity=severity,
+            metrics={"execution_time_ms": result.execution_time_ms},
+        )
+
+
 class ToolObserver:
-    """Normalizes raw tool, provider, and permission outputs into unified Observation instances."""
+    """ToolObserver layer producing immutable Observation records from tool execution output."""
+
+    def __init__(self, mapper: ObservationMapper | None = None) -> None:
+        self._mapper = mapper or ObservationMapper()
 
     def create_observation(
         self,
@@ -25,3 +58,7 @@ class ToolObserver:
             payload=output_payload,
             severity=obs_severity,
         )
+
+    def map_result(self, result: ToolExecutionResult) -> Observation:
+        """Delegate tool result normalization to ObservationMapper."""
+        return self._mapper.map_tool_result(result)

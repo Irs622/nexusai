@@ -1,0 +1,21 @@
+[importlinter]
+root_package = nexusai
+include_external_packages = True
+
+[importlinter:contract:brain_isolation]
+name = Brain core must not import provider implementations directly
+type = forbidden
+source_modules =
+    nexusai.brain
+forbidden_modules =
+    nexusai.providers
+
+[importlinter:contract:tooling_isolation]
+name = Application code must not import repository tooling
+type = forbidden
+source_modules =
+    nexusai
+forbidden_modules =
+    benchmarks
+    tools
+    tests

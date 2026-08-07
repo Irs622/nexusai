@@ -1,5 +1,5 @@
 """
-NexusAI Brain Runtime Package.
+NexusAI Brain & Agent Runtime Package.
 """
 
 from nexusai.brain.domain import (
@@ -18,6 +18,15 @@ from nexusai.brain.domain import (
     TextArtifact,
     Turn,
 )
+from nexusai.brain.domain.agent import (
+    AgentGoal,
+    FailureRecord,
+    LoopDecision,
+    PlanStep,
+    ReflectionAnalysis,
+    StepStatus,
+)
+from nexusai.brain.loop_executor import LoopExecutor
 from nexusai.brain.pipeline import (
     ExecutionPipeline,
     HistoryStage,
@@ -26,7 +35,13 @@ from nexusai.brain.pipeline import (
     PromptStage,
     ProviderStage,
 )
+from nexusai.brain.ports.tool_port import (
+    IToolPort,
+    ToolExecutionRequest,
+    ToolExecutionResult,
+)
 from nexusai.brain.runtime import (
+    AgentRuntimeContext,
     CancellationContext,
     ExecutionBudget,
     ExecutionContext,
@@ -39,16 +54,40 @@ from nexusai.brain.runtime import (
     ModelCapabilities,
     ProviderSelector,
     RequiredCapabilities,
+    RetryPolicy,
     RuntimeContext,
     SecurityContext,
     SessionState,
     TelemetryContext,
     TurnChunk,
     TurnMetrics,
+    WorkingMemory,
 )
-from nexusai.brain.service import BrainRuntimeFacade, TurnResponse
+from nexusai.brain.service import (
+    AgentRuntimeFacade,
+    AgentSessionResponse,
+    BrainRuntimeFacade,
+    TurnResponse,
+)
+from nexusai.brain.state_machine import AgentState, AgentStateMachine
+from nexusai.brain.strategy import (
+    IDecisionStrategy,
+    IPlanningStrategy,
+    IReflectionStrategy,
+    LLMPlanningStrategy,
+    LLMReflectionStrategy,
+    RuleDecisionStrategy,
+    RulePlanningStrategy,
+    RuleReflectionStrategy,
+)
 
 __all__ = [
+    "AgentGoal",
+    "AgentRuntimeContext",
+    "AgentRuntimeFacade",
+    "AgentSessionResponse",
+    "AgentState",
+    "AgentStateMachine",
     "Artifact",
     "ArtifactRegistry",
     "AudioArtifact",
@@ -65,28 +104,47 @@ __all__ = [
     "ExecutionPlan",
     "ExecutionStep",
     "ExecutionUsage",
+    "FailureRecord",
     "HistoryStage",
+    "IDecisionStrategy",
     "IExecutionStage",
+    "IPlanningStrategy",
+    "IReflectionStrategy",
+    "IToolPort",
     "IdentityContext",
     "ImageArtifact",
+    "LLMPlanningStrategy",
+    "LLMReflectionStrategy",
+    "LoopDecision",
+    "LoopExecutor",
     "Message",
     "MessageRole",
     "ModelCapabilities",
     "PersistenceStage",
+    "PlanStep",
     "PromptBundle",
     "PromptMessage",
     "PromptStage",
     "ProviderSelector",
     "ProviderStage",
+    "ReflectionAnalysis",
     "RequiredCapabilities",
+    "RetryPolicy",
+    "RuleDecisionStrategy",
+    "RulePlanningStrategy",
+    "RuleReflectionStrategy",
     "RuntimeContext",
     "SchemaVersion",
     "SecurityContext",
     "SessionState",
+    "StepStatus",
     "TelemetryContext",
     "TextArtifact",
+    "ToolExecutionRequest",
+    "ToolExecutionResult",
     "Turn",
     "TurnChunk",
     "TurnMetrics",
     "TurnResponse",
+    "WorkingMemory",
 ]

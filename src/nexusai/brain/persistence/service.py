@@ -65,14 +65,11 @@ class TurnPersistenceService:
             event_id=uuid4(),
         )
 
-        logger.debug(
-            "Scheduling out-of-band turn persistence outbox record",
-            extra={
-                "event_id": str(record.event_id),
-                "execution_id": str(record.execution_id),
-                "turn_id": str(turn.id),
-            },
-        )
+        logger.bind(
+            event_id=str(record.event_id),
+            execution_id=str(record.execution_id),
+            turn_id=str(turn.id),
+        ).debug("Scheduling out-of-band turn persistence outbox record")
 
         # Execute write-behind task asynchronously
         try:

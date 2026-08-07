@@ -69,9 +69,9 @@ def compare_results(results: list[BenchmarkResult]) -> list[ComparisonResult]:
             continue
 
         b = metrics_baseline[metric_name]
-        baseline_median: float = float(b.get("median", 0.0))
-        baseline_p95: float = float(b.get("p95", 0.0))
-        max_threshold: float = float(b.get("max_threshold", float("inf")))
+        baseline_median: float = b.get("median", 0.0)
+        baseline_p95: float = b.get("p95", 0.0)
+        max_threshold: float = b.get("max_threshold", float("inf"))
 
         current = result.value
         delta_pct = (

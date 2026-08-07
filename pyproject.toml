@@ -55,7 +55,7 @@ packages = ["src/nexusai"]
 [tool.pytest.ini_options]
 minversion = "8.0"
 testpaths = ["tests"]
-pythonpath = ["src"]
+pythonpath = ["src", "."]
 asyncio_mode = "auto"
 addopts = [
     "--strict-markers",
@@ -97,6 +97,11 @@ python_version = "3.12"
 strict = true
 warn_return_any = true
 warn_unused_configs = true
+mypy_path = "src:."
+
+[tool.pyrefly]
+project-roots = ["src", "."]
+search-path = ["src", "."]
 
 [tool.ruff]
 line-length = 100

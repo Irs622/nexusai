@@ -149,3 +149,11 @@ All runtime implementations MUST comply with systemic performance ceilings:
   - `AgentMemory`: Memory Subsystem only.
   - `PromptBundle`: Completely immutable after render.
   - `ExecutionPlan`: Completely immutable after resolution.
+
+### 8. Repository Layout & Tooling Package Isolation
+- **Design Rationale**: Repository-level tooling (`benchmarks`, `tests`, `tools`) resides outside `src/` to prevent becoming an application dependency. All dependencies MUST flow toward the application (`src/nexusai`), never the reverse.
+- `benchmarks/` is a repository-level tooling package and explicitly resides outside `src/`. Root repository is added to `pythonpath` exclusively for tooling execution, not as an application package location.
+- Application code under `src/nexusai` MUST NOT import `benchmarks`, `tests`, or root tooling scripts.
+
+
+

@@ -73,11 +73,8 @@ class HistoryLoader:
         Returns:
             TokenBoundedHistory container.
         """
-        logger.debug(
-            "Loading history context",
-            extra={
-                "conversation_id": str(conversation_id),
-                "available_tokens": budget.available_history_tokens,
-            },
-        )
+        logger.bind(
+            conversation_id=str(conversation_id),
+            available_tokens=budget.available_history_tokens,
+        ).debug("Loading history context")
         return await self._provider.fetch_context(conversation_id, budget)

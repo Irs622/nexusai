@@ -1,0 +1,30 @@
+{
+  "date": "2026-08-07",
+  "passed": true,
+  "metrics": {
+    "startup_time_seconds": {
+      "current": 0.0,
+      "baseline_median": 1.21,
+      "delta_pct": -100.0,
+      "max_threshold": 1.8,
+      "passed": true,
+      "unit": "seconds"
+    },
+    "memory_rss_mb": {
+      "current": 14.88,
+      "baseline_median": 145.2,
+      "delta_pct": -89.75,
+      "max_threshold": 200.0,
+      "passed": true,
+      "unit": "MB"
+    },
+    "tool_latency_ms": {
+      "current": 0.365,
+      "baseline_median": 12.4,
+      "delta_pct": -97.06,
+      "max_threshold": 50.0,
+      "passed": true,
+      "unit": "ms"
+    }
+  }
+}
