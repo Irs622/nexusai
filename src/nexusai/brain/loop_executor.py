@@ -3,27 +3,15 @@
 from __future__ import annotations
 
 from typing import Callable
-from nexusai.brain.domain.agent import (
-    AgentGoal,
-    LoopDecision,
-    PlanStep,
-    StepStatus,
-)
+from nexusai.brain.container import RuntimeDependencies
+from nexusai.brain.domain.agent import LoopDecision, StepStatus
 from nexusai.brain.observation import ObservationMapper
 from nexusai.brain.pipeline.pipeline import ExecutionPipeline
 from nexusai.brain.ports.tool_port import IToolPort, ToolExecutionRequest
 from nexusai.brain.runtime.agent_context import AgentRuntimeContext
-from nexusai.brain.runtime.context import ExecutionContext
 from nexusai.brain.runtime.working_memory import WorkingMemory
-from nexusai.brain.state_machine import AgentState, AgentStateMachine
-from nexusai.brain.strategy import (
-    IDecisionStrategy,
-    IPlanningStrategy,
-    IReflectionStrategy,
-    RuleDecisionStrategy,
-    RulePlanningStrategy,
-    RuleReflectionStrategy,
-)
+from nexusai.brain.state_machine import AgentState
+from nexusai.brain.strategy import IDecisionStrategy, IPlanningStrategy, IReflectionStrategy
 from nexusai.domain.models import Observation
 from nexusai.logging.logger import logger
 
@@ -32,11 +20,12 @@ class LoopExecutor:
     """Multi-turn loop executor orchestrating state machine transitions and pipeline stage runs.
 
     Follows execution loop:
-    Planning -> Reasoning -> Tool -> Observation -> Reflection -> Decision.
+    Planning -> Reasoning -> Tool -> Observation -> Compaction -> Reflection -> Decision.
     """
 
     def __init__(
         self,
+        deps: RuntimeDependencies | None = None,
         planning_strategy: IPlanningStrategy | None = None,
         reflection_strategy: IReflectionStrategy | None = None,
         decision_strategy: IDecisionStrategy | None = None,
@@ -44,19 +33,22 @@ class LoopExecutor:
         observation_mapper: ObservationMapper | None = None,
         pipeline: ExecutionPipeline | None = None,
     ) -> None:
-        self._planner = planning_strategy or RulePlanningStrategy()
-        self._reflector = reflection_strategy or RuleReflectionStrategy()
-        self._decider = decision_strategy or RuleDecisionStrategy()
+        self.deps = deps or RuntimeDependencies(
+            planning_strategy=planning_strategy or RuntimeDependencies().planning_strategy,
+            reflection_strategy=reflection_strategy or RuntimeDependencies().reflection_strategy,
+            decision_strategy=decision_strategy or RuntimeDependencies().decision_strategy,
+        )
         self._tool_port = tool_port
         self._obs_mapper = observation_mapper or ObservationMapper()
         self._pipeline = pipeline or ExecutionPipeline()
 
-        # Lifecycle callbacks dictionary
         self.hooks: dict[str, list[Callable[[AgentRuntimeContext], None]]] = {
             "before_plan": [],
             "after_plan": [],
             "before_tool": [],
             "after_tool": [],
+            "before_compaction": [],
+            "after_compaction": [],
             "before_reflection": [],
             "after_turn": [],
         }
@@ -77,14 +69,7 @@ class LoopExecutor:
                 logger.error(f"[LoopExecutor] Error in hook callback '{event_name}': {exc}")
 
     async def execute_loop(self, ctx: AgentRuntimeContext) -> WorkingMemory:
-        """Execute multi-turn agent loop for given AgentRuntimeContext.
-
-        Args:
-            ctx: AgentRuntimeContext composition context.
-
-        Returns:
-            Final WorkingMemory state snapshot.
-        """
+        """Execute multi-turn agent loop for given AgentRuntimeContext."""
         sm = ctx.state_machine
         mem = ctx.working_memory
         logger.info(f"[LoopExecutor] Starting multi-turn agent loop for goal '{mem.goal.description}'")
@@ -92,7 +77,7 @@ class LoopExecutor:
         # 1. PLANNING
         self._trigger_hook("before_plan", ctx)
         sm.transition_to(AgentState.PLANNING)
-        steps = await self._planner.generate_plan(mem.goal, ctx)
+        steps = await self.deps.planning_strategy.generate_plan(mem.goal, ctx)
         mem.steps = steps
         mem.current_step_index = 0
         if steps:
@@ -108,7 +93,6 @@ class LoopExecutor:
             iteration += 1
             current_step = mem.current_step
 
-            # Check if all steps completed
             if current_step is None:
                 logger.info("[LoopExecutor] No remaining active step. Goal processing completed.")
                 sm.transition_to(AgentState.FINISHED)
@@ -142,7 +126,6 @@ class LoopExecutor:
                     )
                 self._trigger_hook("after_tool", ctx)
             else:
-                # Default observation if no tool specified
                 latest_obs = Observation(
                     source="system",
                     tool_name=current_step.tool_name or "internal_step",
@@ -151,23 +134,33 @@ class LoopExecutor:
                 )
                 mem.record_observation(latest_obs)
 
+            # 3. CONTEXT COMPACTION (Pure state application of delta)
+            self._trigger_hook("before_compaction", ctx)
+            compaction_result = self.deps.compaction_pipeline.execute(
+                memory=mem,
+                budget=self.deps.context_budget,
+                policy=self.deps.retention_policy,
+            )
+            mem.apply_compaction(compaction_result)
+            self._trigger_hook("after_compaction", ctx)
+
             # Run single turn pass through passive ExecutionPipeline
             await self._pipeline.process(ctx.execution_context)
             self._trigger_hook("after_turn", ctx)
 
-            # 3. REFLECTION
+            # 4. REFLECTION
             self._trigger_hook("before_reflection", ctx)
             if sm.current_state not in (AgentState.REFLECTING, AgentState.FAILED):
                 if sm.can_transition_to(AgentState.REFLECTING):
                     sm.transition_to(AgentState.REFLECTING)
 
-            analysis = await self._reflector.reflect(mem, latest_obs)
+            analysis = await self.deps.reflection_strategy.reflect(mem, latest_obs)
 
-            # 4. DECISION
+            # 5. DECISION
             if sm.can_transition_to(AgentState.DECISION):
                 sm.transition_to(AgentState.DECISION)
 
-            decision = self._decider.decide(mem, analysis)
+            decision = self.deps.decision_strategy.decide(mem, analysis)
             logger.info(f"[LoopExecutor] Iteration {iteration} decision: {decision.value}")
 
             if decision == LoopDecision.COMPLETE:
@@ -181,7 +174,7 @@ class LoopExecutor:
             elif decision == LoopDecision.REPLAN:
                 sm.transition_to(AgentState.REPLANNING)
                 sm.transition_to(AgentState.PLANNING)
-                replan_steps = await self._planner.generate_plan(mem.goal, ctx)
+                replan_steps = await self.deps.planning_strategy.generate_plan(mem.goal, ctx)
                 mem.steps = replan_steps
                 mem.current_step_index = 0
                 if replan_steps:

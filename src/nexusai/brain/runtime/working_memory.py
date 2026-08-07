@@ -5,8 +5,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from nexusai.brain.compaction.result import CompactionResult
 from nexusai.brain.domain.agent import AgentGoal, FailureRecord, PlanStep, StepStatus
 from nexusai.brain.domain.artifacts import Artifact
+from nexusai.brain.domain.observation_lifecycle import LifecycleState, ObservationMetadata
+from nexusai.core.errors import DuplicateObservationError
 from nexusai.domain.models import Observation
 
 
@@ -60,10 +63,17 @@ class WorkingMemory:
     scratchpad: list[str] = field(default_factory=list)
     context_variables: dict[str, Any] = field(default_factory=dict)
     observations: list[Observation] = field(default_factory=list)
+    _metadata_by_id: dict[str, ObservationMetadata] = field(default_factory=dict)
     temporary_artifacts: list[Artifact] = field(default_factory=list)
     failures: list[FailureRecord] = field(default_factory=list)
     retry_count: int = 0
     retry_policy: RetryPolicy = field(default_factory=RetryPolicy)
+
+    def __post_init__(self) -> None:
+        """Ensure 1-to-1 invariant between observations and metadata_by_id."""
+        for obs in self.observations:
+            if obs.id not in self._metadata_by_id:
+                self._metadata_by_id[obs.id] = ObservationMetadata(observation_id=obs.id)
 
     @property
     def current_step(self) -> PlanStep | None:
@@ -89,9 +99,38 @@ class WorkingMemory:
         """Append an ephemeral thought or reasoning entry to scratchpad."""
         self.scratchpad.append(entry)
 
-    def record_observation(self, observation: Observation) -> None:
-        """Record a normalized tool or system observation."""
+    def record_observation(
+        self, observation: Observation, metadata: ObservationMetadata | None = None
+    ) -> None:
+        """Record a normalized tool or system observation and maintain metadata invariant."""
+        if any(o.id == observation.id for o in self.observations):
+            raise DuplicateObservationError(f"Duplicate observation ID '{observation.id}' rejected.")
+
         self.observations.append(observation)
+        meta = metadata or ObservationMetadata(observation_id=observation.id)
+        self._metadata_by_id[observation.id] = meta
+
+    def remove_observation(self, observation_id: str) -> Observation | None:
+        """Remove observation by ID and clean up metadata to prevent orphans."""
+        target_obs: Observation | None = None
+        for obs in list(self.observations):
+            if obs.id == observation_id:
+                target_obs = obs
+                self.observations.remove(obs)
+                break
+
+        if observation_id in self._metadata_by_id:
+            del self._metadata_by_id[observation_id]
+
+        return target_obs
+
+    def get_observation_metadata(self, observation_id: str) -> ObservationMetadata | None:
+        """Retrieve ObservationMetadata by observation UUID string."""
+        return self._metadata_by_id.get(observation_id)
+
+    def has_observation_metadata(self, observation_id: str) -> bool:
+        """Check if metadata exists for observation UUID string."""
+        return observation_id in self._metadata_by_id
 
     def record_failure(self, step_id: int, error_message: str) -> FailureRecord:
         """Record a step execution failure record and increment retry count."""
@@ -103,3 +142,19 @@ class WorkingMemory:
         )
         self.failures.append(failure)
         return failure
+
+    def apply_compaction(self, result: CompactionResult) -> None:
+        """Pure state assignment of CompactionResult delta. ZERO calculation logic."""
+        # Mark compacted observations
+        for obs in result.compacted_observations:
+            if obs.id in self._metadata_by_id:
+                self._metadata_by_id[obs.id].mark_compacted()
+
+        # Clean up discarded metadata to prevent orphans
+        for obs in result.discarded_observations:
+            if obs.id in self._metadata_by_id:
+                del self._metadata_by_id[obs.id]
+
+        self.observations = list(result.retained_observations)
+        if result.summary_block:
+            self.add_scratchpad_entry(result.summary_block)

@@ -193,3 +193,9 @@ class BrainTimeoutError(BrainError):
     pass
 
 
+class DuplicateObservationError(BrainError):
+    """Raised when an observation with a duplicate ID is added to WorkingMemory."""
+
+    pass
+
+

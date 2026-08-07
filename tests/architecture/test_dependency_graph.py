@@ -55,6 +55,7 @@ def test_brain_domain_dag_isolation():
     domain_dir = SRC_DIR / "brain" / "domain"
     forbidden_subpackages = {
         "nexusai.brain.runtime",
+        "nexusai.brain.compaction",
         "nexusai.brain.context",
         "nexusai.brain.prompt",
         "nexusai.brain.streaming",
