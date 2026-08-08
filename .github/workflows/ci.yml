@@ -10,6 +10,8 @@ jobs:
   ci-quality-gate:
     name: Full Quality Gate Verification
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -18,10 +20,12 @@ jobs:
           python-version: '3.12'
       - name: Install System Dependencies
         run: |
-          sudo apt-get update && sudo apt-get install -y portaudio19-dev || true
+          sudo apt-get update -y || true
+          sudo apt-get install -y portaudio19-dev libasound2-dev || true
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install hatchling build
           pip install -e ".[dev]"
       - name: Execute Master Quality Gate
         run: |
