@@ -1,6 +1,6 @@
-# 🤖 NexusAI (J.A.R.V.I.S.)
+# 🤖 NexusAI
 
-> **Model-Agnostic Agent Runtime & Orchestration Infrastructure for macOS and Cross-Platform Execution**
+> **Model-Agnostic Agent Runtime & Orchestration Infrastructure**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python Version](https://img.shields.io/badge/python-3.12%2B-blue.svg)](pyproject.toml)
@@ -10,11 +10,27 @@
 [![Type Checked: Mypy](https://img.shields.io/badge/type--checked-mypy--strict-blue.svg)](https://mypy-lang.org/)
 [![Code of Conduct](https://img.shields.io/badge/Code%20of%20Conduct-v2.1-purple.svg)](CODE_OF_CONDUCT.md)
 
-**NexusAI** is the core Python Agent Runtime & Orchestration Engine. **J.A.R.V.I.S. (Jarfis)** is the default desktop assistant application personality built on top of the NexusAI engine.
+**NexusAI** is a model-agnostic agent runtime and orchestration infrastructure for building autonomous AI systems.
 
-NexusAI features a DAG-based execution planner (`PlanGraph`), event-driven architecture (`AgentEventBus`), multi-tier memory intelligence, runtime sandboxing (`CircuitBreaker`), diagnostic expectation reflection, and an offline strategy learning loop.
+It provides explicit DAG-based planning, execution scheduling, memory management, runtime policies, event-driven coordination, plugin capabilities, observability, and multi-provider model integration.
 
-> **Engineering Positioning**: NexusAI is built as a modular Agent Runtime infrastructure (`v0.6.0`). Operational validation under live production workloads is ongoing, with a long-term vision to evolve into an AI Operating System.
+NexusAI is currently a production-oriented runtime architecture (`v0.6.0`). Operational validation under real-world workloads is ongoing.
+
+Long-term, NexusAI aims to evolve from an agent runtime into a general-purpose AI Operating System.
+
+---
+
+### 🧩 Architecture Hierarchy & Reference Application
+
+```text
+NexusAI
+    ↓ (Core Infrastructure / Agent Runtime)
+J.A.R.V.I.S. / Jarfis
+    ↓ (Default Desktop Assistant Personality / Reference Application)
+```
+
+- **NexusAI**: The core open-source Python framework and runtime engine.
+- **J.A.R.V.I.S. (Jarfis)**: The default personal desktop assistant reference application built on top of the NexusAI engine.
 
 ---
 
