@@ -6,13 +6,11 @@ Verifies that strategies follow Protocol contracts and AgentRuntimeBuilder enfor
 from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
+
 from nexusai.brain.builder import AgentRuntimeBuilder
 from nexusai.brain.domain.agent import AgentGoal, PlanStep
 from nexusai.brain.runtime.agent_context import AgentRuntimeContext
 from nexusai.brain.strategy import (
-    IDecisionStrategy,
-    IPlanningStrategy,
-    IReflectionStrategy,
     RuleDecisionStrategy,
     RulePlanningStrategy,
     RuleReflectionStrategy,
@@ -21,8 +19,7 @@ from nexusai.brain.strategy import (
 
 @runtime_checkable
 class PlanningStrategyProtocol(Protocol):
-    async def generate_plan(self, goal: AgentGoal, ctx: AgentRuntimeContext) -> list[PlanStep]:
-        ...
+    async def generate_plan(self, goal: AgentGoal, ctx: AgentRuntimeContext) -> list[PlanStep]: ...
 
 
 def test_strategy_protocols():
@@ -45,8 +42,8 @@ def test_builder_dependency_injection():
 
     executor = builder.build_executor()
     assert executor._planner.__class__.__name__ == "RulePlanningStrategy"
-    assert executor._reflector.__class__.__name__ == "RuleReflectionStrategy"
-    assert executor._decider.__class__.__name__ == "RuleDecisionStrategy"
+    assert executor._reflection_strategy.__class__.__name__ == "RuleReflectionStrategy"
+    assert executor._decision_strategy.__class__.__name__ == "RuleDecisionStrategy"
 
 
 def test_builder_post_build_invariants():
@@ -61,8 +58,10 @@ def test_builder_post_build_invariants():
 
     assert facade._executor is not None, "LoopExecutor must be initialized!"
     assert facade._executor._planner is not None, "Planning strategy invariant failed!"
-    assert facade._executor._reflector is not None, "Reflection strategy invariant failed!"
-    assert facade._executor._decider is not None, "Decision strategy invariant failed!"
+    assert (
+        facade._executor._reflection_strategy is not None
+    ), "Reflection strategy invariant failed!"
+    assert facade._executor._decision_strategy is not None, "Decision strategy invariant failed!"
     assert facade._executor._obs_mapper is not None, "ObservationMapper invariant failed!"
     assert facade._executor._pipeline is not None, "ExecutionPipeline invariant failed!"
 

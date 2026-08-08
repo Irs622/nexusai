@@ -4,7 +4,7 @@ Custom exception hierarchy for NexusAI Plugin Engine.
 
 from __future__ import annotations
 
-from nexusai.core.errors import PluginError
+from nexusai.core.errors import PluginError as PluginError
 
 
 class PluginManifestError(PluginError):

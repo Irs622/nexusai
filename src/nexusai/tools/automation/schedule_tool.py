@@ -5,6 +5,7 @@ Schedule Reminder Tool for Proactive Automation.
 """
 
 from typing import Any
+
 from pydantic import BaseModel, Field
 
 from nexusai.automation.scheduler import SchedulerService
@@ -16,7 +17,9 @@ from nexusai.tools.macos.notify import send_macos_notification
 class ScheduleReminderInputSchema(BaseModel):
     """Input schema for automation_schedule_reminder tool."""
 
-    delay_minutes: int = Field(..., description="Time delay in minutes before firing the reminder notification")
+    delay_minutes: int = Field(
+        ..., description="Time delay in minutes before firing the reminder notification"
+    )
     message: str = Field(..., description="The reminder message text to display")
 
 
@@ -24,7 +27,9 @@ class ScheduleReminderTool(BaseTool):
     """Tool scheduling future macOS desktop reminders using the SchedulerService."""
 
     name = "automation_schedule_reminder"
-    description = "Schedules a native macOS notification to remind the user about something in the future."
+    description = (
+        "Schedules a native macOS notification to remind the user about something in the future."
+    )
     risk_level = RiskLevel.LOW
     input_schema = ScheduleReminderInputSchema
 

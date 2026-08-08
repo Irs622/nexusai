@@ -5,6 +5,7 @@ Declarative configuration schema model for plugin settings.
 from __future__ import annotations
 
 from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -12,10 +13,14 @@ class ConfigSchemaItem(BaseModel):
     """Schema descriptor for a single configuration field."""
 
     key: str = Field(..., description="Configuration property key")
-    type: str = Field(default="string", description="Value type (string, integer, boolean, float, secret)")
+    type: str = Field(
+        default="string", description="Value type (string, integer, boolean, float, secret)"
+    )
     default: Any = Field(default=None, description="Default value if omitted")
     required: bool = Field(default=False, description="Whether setting is mandatory")
-    secret: bool = Field(default=False, description="True if value contains sensitive token or secret")
+    secret: bool = Field(
+        default=False, description="True if value contains sensitive token or secret"
+    )
     description: str = Field(default="", description="Human-readable setting summary")
 
     model_config = {

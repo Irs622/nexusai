@@ -3,6 +3,7 @@ Unit tests for PluginRegistry and PluginDescriptor capability resolution.
 """
 
 from pathlib import Path
+
 import pytest
 
 from nexusai.plugins.contracts.capability import PluginCapability
@@ -52,8 +53,20 @@ def test_registry_capability_resolution():
         capabilities=["vector.store"],
     )
 
-    desc1 = PluginDescriptor(id=manifest1.id, manifest=manifest1, manifest_checksum="1", plugin_checksum="1", location=Path("/t1"))
-    desc2 = PluginDescriptor(id=manifest2.id, manifest=manifest2, manifest_checksum="2", plugin_checksum="2", location=Path("/t2"))
+    desc1 = PluginDescriptor(
+        id=manifest1.id,
+        manifest=manifest1,
+        manifest_checksum="1",
+        plugin_checksum="1",
+        location=Path("/t1"),
+    )
+    desc2 = PluginDescriptor(
+        id=manifest2.id,
+        manifest=manifest2,
+        manifest_checksum="2",
+        plugin_checksum="2",
+        location=Path("/t2"),
+    )
 
     registry.register(desc1)
     registry.register(desc2)

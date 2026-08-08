@@ -10,7 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Set
 
 # Default fallback whitelist definitions if PyYAML is unavailable
 DEFAULT_WHITELIST: Dict[str, Set[str]] = {
@@ -73,7 +73,7 @@ class ArchitectureWhitelist:
         norm_path = "src/nexusai/providers/__init__.py"
         key = f"A001:{norm_path}"
         allowed_set = set(DEFAULT_WHITELIST[key])
-        
+
         rule_id = "A001"
         file_path = norm_path
         reason = "Transitional compatibility re-exports"

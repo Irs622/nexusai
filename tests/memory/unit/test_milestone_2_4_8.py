@@ -7,10 +7,8 @@ import pytest
 from nexusai.kernel.outbox import (
     EmbeddingCompletedEvent,
     MemoryStoredEvent,
-    OutboxDispatcher,
-    OutboxRecord,
 )
-from nexusai.memory.domain import MemoryContent, MemoryMetadata, MemoryRecord
+from nexusai.memory.domain import MemoryContent, MemoryRecord
 from nexusai.memory.pipeline import (
     ContextBuilder,
     JSONPromptFormatter,
@@ -18,7 +16,6 @@ from nexusai.memory.pipeline import (
     XMLPromptFormatter,
 )
 from nexusai.memory.policies import DeduplicationPolicy, PolicyEngine
-from nexusai.memory.stages import WeightedScoringStage
 
 
 def test_domain_vs_integration_events():
@@ -39,8 +36,20 @@ def test_pipeline_trace_exports():
         initial_count=10,
         final_count=3,
         stage_traces=[
-            StageTrace(stage_name="SimilarityStage", input_count=10, output_count=5, latency_ms=4.2, dropped_count=5),
-            StageTrace(stage_name="RankingStage", input_count=5, output_count=3, latency_ms=1.1, dropped_count=2),
+            StageTrace(
+                stage_name="SimilarityStage",
+                input_count=10,
+                output_count=5,
+                latency_ms=4.2,
+                dropped_count=5,
+            ),
+            StageTrace(
+                stage_name="RankingStage",
+                input_count=5,
+                output_count=3,
+                latency_ms=1.1,
+                dropped_count=2,
+            ),
         ],
     )
 

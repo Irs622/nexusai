@@ -4,8 +4,8 @@ Interactive CLI Chat Loop for NexusAI with real-time UI event streaming, Voice, 
 
 from __future__ import annotations
 
-import asyncio
-from typing import Callable, Any
+from typing import Any, Callable
+
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.prompt import Prompt
@@ -106,7 +106,9 @@ async def start_chat_session(
                     console.print("\n[bold green]🎙️ Listening for voice command...[/bold green]")
                     user_input = await listen()
                     if not user_input or not user_input.strip():
-                        console.print("[dim yellow]No speech detected. Falling back to text prompt...[/dim yellow]")
+                        console.print(
+                            "[dim yellow]No speech detected. Falling back to text prompt...[/dim yellow]"
+                        )
                         user_input = Prompt.ask("\n[bold cyan]NexusAI ❯[/bold cyan]")
                     else:
                         console.print(f"[bold cyan]Transcribed Voice ❯[/bold cyan] {user_input}")

@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import asyncio
-from pathlib import Path
 import uuid
+from pathlib import Path
 from typing import Any
+
 import chromadb
 
 from nexusai.core.errors import ToolExecutionError
@@ -34,6 +35,7 @@ class VectorKnowledgeBase:
         if self.client is not None:
             self.collection = self.client.get_or_create_collection(name=self.collection_name)
         else:
+
             def _init_chroma() -> tuple[Any, Any]:
                 self.db_path.mkdir(parents=True, exist_ok=True)
                 c = chromadb.PersistentClient(path=str(self.db_path))

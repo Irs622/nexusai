@@ -4,12 +4,10 @@ StructuredContext and PromptFormatter abstractions for model-agnostic prompt for
 
 from __future__ import annotations
 
+import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-import json
-from typing import Sequence
-
-from nexusai.memory.domain.record import MemoryRecord
+from typing import Any
 
 
 @dataclass
@@ -21,7 +19,7 @@ class StructuredContextItem:
     scope: str
     memory_type: str
     content: str
-    metadata: dict
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -47,7 +45,9 @@ class MarkdownPromptFormatter(PromptFormatter):
     def format(self, context: StructuredContext) -> str:
         lines = [f"### {context.header}"]
         for item in context.items:
-            lines.append(f"\n[{item.index}] Scope: {item.scope} | Type: {item.memory_type}\n{item.content}")
+            lines.append(
+                f"\n[{item.index}] Scope: {item.scope} | Type: {item.memory_type}\n{item.content}"
+            )
         return "\n".join(lines)
 
 
@@ -88,7 +88,9 @@ class OpenAIPromptFormatter(PromptFormatter):
     """Formats StructuredContext into OpenAI / GPT system message instructions."""
 
     def format(self, context: StructuredContext) -> str:
-        lines = [f"System Instruction: Use the following {len(context.items)} retrieved context items to answer:"]
+        lines = [
+            f"System Instruction: Use the following {len(context.items)} retrieved context items to answer:"
+        ]
         for item in context.items:
             lines.append(f"- [{item.scope.upper()}] ({item.memory_type}): {item.content}")
         return "\n".join(lines)

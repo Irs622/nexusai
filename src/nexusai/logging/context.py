@@ -1,11 +1,19 @@
 """Async-Safe Observability Correlation Context using contextvars."""
-import uuid
-import contextvars
-from typing import Optional, Dict
 
-_correlation_id_var: contextvars.ContextVar[str] = contextvars.ContextVar("correlation_id", default="")
-_workflow_id_var: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar("workflow_id", default=None)
-_plugin_id_var: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar("plugin_id", default=None)
+import contextvars
+import uuid
+from typing import Dict, Optional
+
+_correlation_id_var: contextvars.ContextVar[str] = contextvars.ContextVar(
+    "correlation_id", default=""
+)
+_workflow_id_var: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar(
+    "workflow_id", default=None
+)
+_plugin_id_var: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar(
+    "plugin_id", default=None
+)
+
 
 class CorrelationContext:
     """Async-safe context manager using Python contextvars."""
@@ -19,7 +27,11 @@ class CorrelationContext:
         return cid
 
     @staticmethod
-    def set_context(correlation_id: Optional[str] = None, workflow_id: Optional[str] = None, plugin_id: Optional[str] = None) -> None:
+    def set_context(
+        correlation_id: Optional[str] = None,
+        workflow_id: Optional[str] = None,
+        plugin_id: Optional[str] = None,
+    ) -> None:
         _correlation_id_var.set(correlation_id or str(uuid.uuid4()))
         if workflow_id:
             _workflow_id_var.set(workflow_id)

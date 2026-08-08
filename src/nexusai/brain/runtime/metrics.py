@@ -57,7 +57,11 @@ class TurnMetrics:
     def from_dict(cls, data: dict[str, Any]) -> TurnMetrics:
         """Deserialize TurnMetrics from dictionary format."""
         version_data = data.get("metrics_version", {})
-        metrics_version = SchemaVersion.from_dict(version_data) if isinstance(version_data, dict) else SchemaVersion()
+        metrics_version = (
+            SchemaVersion.from_dict(version_data)
+            if isinstance(version_data, dict)
+            else SchemaVersion()
+        )
 
         return cls(
             metrics_version=metrics_version,

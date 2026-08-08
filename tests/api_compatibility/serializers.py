@@ -10,11 +10,9 @@ from __future__ import annotations
 from typing import Any
 
 from nexusai.memory.contracts.embedding import EmbeddingCapabilities
-from nexusai.memory.domain.content import MemoryContent
-from nexusai.memory.domain.metadata import MemoryMetadata
-from nexusai.memory.domain.record import MemoryRecord, MemoryScope, MemoryType
+from nexusai.memory.domain.record import MemoryRecord
 from nexusai.providers.context import ExecutionContext
-from nexusai.providers.models import ProviderCapabilities, ProviderHealth, ProviderMetadata
+from nexusai.providers.models import ProviderHealth, ProviderMetadata
 from nexusai.providers.profile import ProviderProfile
 
 

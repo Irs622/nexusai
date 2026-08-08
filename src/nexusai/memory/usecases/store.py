@@ -4,8 +4,8 @@ StoreMemoryUseCase implementation.
 
 from __future__ import annotations
 
-from typing import Callable
 import uuid
+from typing import Callable
 
 from nexusai.memory.domain.content import MemoryContent
 from nexusai.memory.domain.metadata import MemoryMetadata

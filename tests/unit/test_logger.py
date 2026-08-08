@@ -3,9 +3,11 @@ Unit tests for Logger and Audit Logger.
 """
 
 from pathlib import Path
+
 from loguru import logger
+
 from nexusai.core.config import LoggingSettings
-from nexusai.logging.logger import setup_logger, log_audit
+from nexusai.logging.logger import log_audit, setup_logger
 
 
 def test_setup_logger_and_audit(tmp_path: Path) -> None:
@@ -23,6 +25,7 @@ def test_setup_logger_and_audit(tmp_path: Path) -> None:
     setup_logger(settings)
     log_audit("TEST_EVENT", {"detail": "unit_test"})
     logger.complete()
+    logger.remove()
 
     assert audit_log.exists()
     content = audit_log.read_text(encoding="utf-8")

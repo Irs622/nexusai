@@ -5,7 +5,6 @@ PluginDiscoveryEngine for non-instantiating candidate discovery.
 from __future__ import annotations
 
 from pathlib import Path
-import sys
 
 from nexusai.plugins.runtime.candidate import PluginCandidate
 

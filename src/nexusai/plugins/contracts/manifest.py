@@ -5,6 +5,7 @@ Plugin manifest data structures and parsing schema.
 from __future__ import annotations
 
 from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -24,13 +25,23 @@ class PluginManifest(BaseModel):
 
     author: str = Field(default="Anonymous", description="Plugin author or organization")
     description: str = Field(default="", description="Detailed summary of plugin functionality")
-    entrypoint: str = Field(..., description="Python entrypoint class (e.g. module.submodule:MyPlugin)")
+    entrypoint: str = Field(
+        ..., description="Python entrypoint class (e.g. module.submodule:MyPlugin)"
+    )
 
-    capabilities: list[str] = Field(default_factory=list, description="Capabilities provided by this plugin")
-    permissions: dict[str, Any] = Field(default_factory=dict, description="Scoped permissions required by plugin")
+    capabilities: list[str] = Field(
+        default_factory=list, description="Capabilities provided by this plugin"
+    )
+    permissions: dict[str, Any] = Field(
+        default_factory=dict, description="Scoped permissions required by plugin"
+    )
 
-    dependencies: list[str] = Field(default_factory=list, description="Required plugin ID dependencies")
-    optional_dependencies: list[str] = Field(default_factory=list, description="Optional plugin ID dependencies")
+    dependencies: list[str] = Field(
+        default_factory=list, description="Required plugin ID dependencies"
+    )
+    optional_dependencies: list[str] = Field(
+        default_factory=list, description="Optional plugin ID dependencies"
+    )
 
     # Marketplace & Integrity metadata
     signature: str | None = Field(default=None, description="Digital signature of plugin author")

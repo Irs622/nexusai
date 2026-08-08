@@ -10,7 +10,6 @@ from typing import Any, AsyncIterator
 import httpx
 
 from nexusai.core.annotations import stable
-from nexusai.logging.logger import logger
 from nexusai.providers.base import BaseProvider
 from nexusai.providers.exceptions import ProviderConfigurationError
 from nexusai.providers.models import (
@@ -44,7 +43,9 @@ class OpenRouterProvider(BaseProvider):
         http_client: httpx.AsyncClient | None = None,
     ) -> None:
         self._api_key = api_key or os.getenv("OPENROUTER_API_KEY")
-        self._base_url = (base_url or os.getenv("OPENROUTER_BASE_URL") or self.DEFAULT_BASE_URL).rstrip("/")
+        self._base_url = (
+            base_url or os.getenv("OPENROUTER_BASE_URL") or self.DEFAULT_BASE_URL
+        ).rstrip("/")
         self._default_model = default_model
         self._translator = OpenAITranslator()
         self._client = http_client
@@ -111,7 +112,11 @@ class OpenRouterProvider(BaseProvider):
         try:
             resp = await self._client.post("/chat/completions", json=payload)
             if resp.status_code != 200:
-                raw_json = resp.json() if "application/json" in resp.headers.get("content-type", "") else resp.text
+                raw_json = (
+                    resp.json()
+                    if "application/json" in resp.headers.get("content-type", "")
+                    else resp.text
+                )
                 raise CanonicalErrorMapper.map_http_error(resp.status_code, raw_json, self.id)
 
             raw_payload = resp.json()
@@ -147,7 +152,9 @@ class OpenRouterProvider(BaseProvider):
             async with self._client.stream("POST", "/chat/completions", json=payload) as resp:
                 if resp.status_code != 200:
                     body = await resp.aread()
-                    raise CanonicalErrorMapper.map_http_error(resp.status_code, body.decode(), self.id)
+                    raise CanonicalErrorMapper.map_http_error(
+                        resp.status_code, body.decode(), self.id
+                    )
 
                 async for line in resp.aiter_lines():
                     line = line.strip()
@@ -159,7 +166,18 @@ class OpenRouterProvider(BaseProvider):
                             break
                         try:
                             chunk_payload = json.loads(data_str)
-                            chunk_response = self._translator.to_canonical_response(chunk_payload, provider_id=self.id)
+                            chunk_response = self._translator.to_canonical_response(
+                                chunk_payload, provider_id=self.id
+                            )
+                            yield chunk_response
+                        except Exception:
+                            continue
+                    else:
+                        try:
+                            chunk_payload = json.loads(line)
+                            chunk_response = self._translator.to_canonical_response(
+                                chunk_payload, provider_id=self.id
+                            )
                             yield chunk_response
                         except Exception:
                             continue
@@ -193,7 +211,9 @@ class OpenRouterProvider(BaseProvider):
             embeddings_list = []
             for idx, item in enumerate(data.get("data", [])):
                 vec = item.get("embedding", [])
-                embeddings_list.append(Embedding(text=texts[idx] if idx < len(texts) else "", vector=vec, index=idx))
+                embeddings_list.append(
+                    Embedding(text=texts[idx] if idx < len(texts) else "", vector=vec, index=idx)
+                )
 
             return EmbeddingResult(embeddings=embeddings_list, model=payload["model"])
         except Exception as err:

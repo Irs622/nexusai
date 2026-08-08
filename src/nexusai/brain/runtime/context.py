@@ -44,7 +44,9 @@ class RuntimeContext:
 
     execution_id: UUID = field(default_factory=uuid4)
     turn_id: UUID = field(default_factory=uuid4)
-    session_state: SessionState = field(default_factory=lambda: SessionState(provider_id="mock", active_model="mock-v1"))
+    session_state: SessionState = field(
+        default_factory=lambda: SessionState(provider_id="mock", active_model="mock-v1")
+    )
     required_capabilities: list[str] = field(default_factory=list)
 
 

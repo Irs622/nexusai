@@ -1,4 +1,5 @@
 import pytest
+
 pytestmark = pytest.mark.integration
 """
 End-to-End Integration, Concurrency Validation, and P50/P95/P99 Latency Benchmark Test Suite.
@@ -6,10 +7,13 @@ End-to-End Integration, Concurrency Validation, and P50/P95/P99 Latency Benchmar
 
 import asyncio
 import time
+
 import pytest
 
-from nexusai.kernel.outbox import OutboxDispatcher
-from nexusai.memory.domain import MemoryContent, MemoryMetadata, MemoryRecord, MemoryScope, MemoryType
+from nexusai.memory.domain import (
+    MemoryContent,
+    MemoryRecord,
+)
 from nexusai.memory.embedding import MockEmbeddingProvider
 from nexusai.memory.metrics import MemoryMetricsCollector
 from nexusai.memory.pipeline import (
@@ -17,9 +21,7 @@ from nexusai.memory.pipeline import (
     ContextBuilder,
     GeminiPromptFormatter,
     OpenAIPromptFormatter,
-    PipelineFactory,
 )
-from nexusai.memory.policies import DeduplicationPolicy, PolicyEngine, RetentionPolicy
 from nexusai.memory.serializer import JSONMemorySerializer
 from nexusai.memory.storage import InMemoryMemoryStore, SQLiteMemoryStore
 from nexusai.memory.vector import InMemoryVectorStore, VectorRecord
@@ -31,7 +33,7 @@ async def test_end_to_end_memory_lifecycle():
     store = SQLiteMemoryStore(":memory:")
     vector_store = InMemoryVectorStore(dimensions=8)
     embedder = MockEmbeddingProvider(dimensions=8)
-    serializer = JSONMemorySerializer()
+    _serializer = JSONMemorySerializer()
     metrics = MemoryMetricsCollector()
 
     # 1. Create record & store in persistence
@@ -47,7 +49,9 @@ async def test_end_to_end_memory_lifecycle():
     vec = await embedder.embed_text(record.content.raw_text)
     metrics.record_latency("embedding", (time.time() - t_start) * 1000.0)
 
-    v_rec = VectorRecord(record_id=record.id, vector=vec, namespace="brain", payload=record.content.raw_text)
+    v_rec = VectorRecord(
+        record_id=record.id, vector=vec, namespace="brain", payload=record.content.raw_text
+    )
     t_start = time.time()
     await vector_store.upsert(v_rec)
     metrics.record_latency("vector_search", (time.time() - t_start) * 1000.0)

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Callable
+
 from nexusai.brain.container import RuntimeDependencies
 from nexusai.brain.domain.agent import LoopDecision, StepStatus
 from nexusai.brain.observation import ObservationMapper
@@ -38,6 +39,9 @@ class LoopExecutor:
             reflection_strategy=reflection_strategy or RuntimeDependencies().reflection_strategy,
             decision_strategy=decision_strategy or RuntimeDependencies().decision_strategy,
         )
+        self._planner = self.deps.planning_strategy
+        self._reflection_strategy = self.deps.reflection_strategy
+        self._decision_strategy = self.deps.decision_strategy
         self._tool_port = tool_port
         self._obs_mapper = observation_mapper or ObservationMapper()
         self._pipeline = pipeline or ExecutionPipeline()
@@ -72,7 +76,9 @@ class LoopExecutor:
         """Execute multi-turn agent loop for given AgentRuntimeContext."""
         sm = ctx.state_machine
         mem = ctx.working_memory
-        logger.info(f"[LoopExecutor] Starting multi-turn agent loop for goal '{mem.goal.description}'")
+        logger.info(
+            f"[LoopExecutor] Starting multi-turn agent loop for goal '{mem.goal.description}'"
+        )
 
         # 1. PLANNING
         self._trigger_hook("before_plan", ctx)

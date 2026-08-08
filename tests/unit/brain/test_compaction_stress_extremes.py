@@ -1,11 +1,9 @@
 """Failure-Oriented Stress & Extreme Boundary Unit Tests for Context Compaction."""
 
-import pytest
 from nexusai.brain.compaction.budget import ContextBudget
 from nexusai.brain.compaction.importance import RetentionPolicy
-from nexusai.brain.compaction.pipeline import CompactionPipeline, StructuredSummaryGenerator
+from nexusai.brain.compaction.pipeline import CompactionPipeline
 from nexusai.brain.domain.agent import AgentGoal
-from nexusai.brain.domain.observation_lifecycle import ObservationMetadata
 from nexusai.brain.runtime.working_memory import WorkingMemory
 from nexusai.domain.models import Observation
 

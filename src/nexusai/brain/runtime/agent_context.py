@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+
 from nexusai.brain.runtime.context import ExecutionContext
 from nexusai.brain.runtime.working_memory import WorkingMemory
 from nexusai.brain.state_machine import AgentStateMachine

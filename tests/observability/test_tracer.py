@@ -2,7 +2,7 @@
 Unit tests for NexusTracer and TraceSpan OpenTelemetry propagation.
 """
 
-from nexusai.observability.tracer import NexusTracer, SpanContext
+from nexusai.observability.tracer import NexusTracer
 
 
 def test_tracer_span_creation_and_duration():

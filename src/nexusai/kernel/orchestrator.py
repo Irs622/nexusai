@@ -4,14 +4,14 @@ Kernel Orchestrator Facade for NexusAI OS Kernel.
 
 from __future__ import annotations
 
-from typing import Any, Sequence
 import uuid
+from typing import Any, Sequence
 
 from nexusai import __version__ as NEXUSAI_VERSION
 from nexusai.core.config import SystemConfig
 from nexusai.core.container import DependencyContainer
 from nexusai.kernel.bootstrap import KernelBootstrap
-from nexusai.kernel.contracts import KernelService, ServiceLifecycleState
+from nexusai.kernel.contracts import KernelService
 from nexusai.kernel.dependency_graph import RuntimeDependencyGraph
 from nexusai.kernel.lifecycle import LifecycleCoordinator
 from nexusai.kernel.registry import ServiceRegistry

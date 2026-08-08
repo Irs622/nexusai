@@ -1,13 +1,20 @@
 """10-State Autonomous Agent Loop with Lifecycle Hooks for NexusAI."""
-import uuid
+
 from typing import Callable, Dict, List, Optional
-from nexusai.domain.models import (
-    AgentState, Goal, AgentContext, AgentSession, BudgetDecision, GoalCompletionStatus, Observation
-)
-from nexusai.brain.reasoning import ReasoningEngine
-from nexusai.brain.compiler import WorkflowCompiler
+
 from nexusai.brain.budget import ResourceBudgetEngine
+from nexusai.brain.compiler import WorkflowCompiler
 from nexusai.brain.observation import ToolObserver
+from nexusai.brain.reasoning import ReasoningEngine
+from nexusai.domain.models import (
+    AgentContext,
+    AgentSession,
+    AgentState,
+    BudgetDecision,
+    Goal,
+    GoalCompletionStatus,
+)
+
 
 class AutonomousAgentLoop:
     """Orchestrates 10-state lifecycle: IDLE -> PLANNING -> EXECUTING -> OBSERVING -> EVALUATING -> REPLANNING -> WAITING -> FINISHED (FAILED/CANCELLED)."""
@@ -22,7 +29,7 @@ class AutonomousAgentLoop:
         self.compiler = compiler or WorkflowCompiler()
         self.budget_engine = budget_engine or ResourceBudgetEngine()
         self.observer = ToolObserver()
-        
+
         # Lifecycle Hooks
         self.hooks: Dict[str, List[Callable[[AgentContext], None]]] = {
             "before_plan": [],
@@ -44,7 +51,9 @@ class AutonomousAgentLoop:
 
     async def run_session(self, session: AgentSession, goal: Goal) -> AgentContext:
         """Execute full 10-state autonomous loop for an AgentSession."""
-        context = AgentContext(goal=goal, session_id=session.session_id, current_state=AgentState.IDLE)
+        context = AgentContext(
+            goal=goal, session_id=session.session_id, current_state=AgentState.IDLE
+        )
 
         # 1. PLANNING
         self._trigger_hook("before_plan", context)
@@ -56,7 +65,7 @@ class AutonomousAgentLoop:
 
         # 2. EXECUTING & OBSERVING & EVALUATING LOOP
         context = context.update(current_state=AgentState.EXECUTING)
-        
+
         for step in exec_plan.execution_steps:
             # Check Budget
             decision = self.budget_engine.evaluate_budget(context)
@@ -68,7 +77,7 @@ class AutonomousAgentLoop:
                 return context
 
             self._trigger_hook("before_tool", context)
-            
+
             # Execute & Observe
             obs = self.observer.create_observation(
                 tool_name=step.get("capabilities", ["workspace"])[0],
@@ -76,7 +85,7 @@ class AutonomousAgentLoop:
                 success=True,
             )
             session.history.append(obs)
-            
+
             # Update Context Metrics
             context = context.update(
                 tool_calls_count=context.tool_calls_count + 1,
@@ -87,7 +96,7 @@ class AutonomousAgentLoop:
             # Evaluate
             context = context.update(current_state=AgentState.EVALUATING)
             eval_res = self.reasoning_engine.evaluate_observation(obs)
-            
+
             if eval_res.goal_status == GoalCompletionStatus.PARTIAL and eval_res.retry_recommended:
                 context = context.update(
                     current_state=AgentState.REPLANNING,

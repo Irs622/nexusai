@@ -4,13 +4,13 @@ SystemPromptResolver service resolving active system instruction hierarchy.
 
 from __future__ import annotations
 
-from typing import Any
-
 
 class SystemPromptResolver:
     """Resolves active system prompt from global defaults, session defaults, and turn overrides."""
 
-    DEFAULT_GLOBAL_SYSTEM_PROMPT = "You are NexusAI, a helpful, precise AI Operating System assistant."
+    DEFAULT_GLOBAL_SYSTEM_PROMPT = (
+        "You are NexusAI, a helpful, precise AI Operating System assistant."
+    )
 
     def resolve(
         self,

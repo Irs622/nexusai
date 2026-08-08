@@ -3,6 +3,7 @@ Raw AppleScript Execution Tool.
 """
 
 from typing import Any
+
 from pydantic import BaseModel, Field
 
 from nexusai.security.guard import RiskLevel

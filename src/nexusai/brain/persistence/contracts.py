@@ -79,10 +79,16 @@ class OutboxRecord:
         """Deserialize OutboxRecord from dictionary format."""
         version_data = data.get("schema_version", {})
         schema_version = (
-            SchemaVersion.from_dict(version_data) if isinstance(version_data, dict) else SchemaVersion()
+            SchemaVersion.from_dict(version_data)
+            if isinstance(version_data, dict)
+            else SchemaVersion()
         )
         ts_val = data.get("timestamp")
-        timestamp = datetime.fromisoformat(ts_val) if isinstance(ts_val, str) else datetime.now(timezone.utc)
+        timestamp = (
+            datetime.fromisoformat(ts_val)
+            if isinstance(ts_val, str)
+            else datetime.now(timezone.utc)
+        )
 
         return cls(
             event_id=UUID(data["event_id"]) if "event_id" in data else uuid4(),

@@ -4,10 +4,10 @@ DomainEvent and IntegrationEvent contracts for clean event classification.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 import time
-from typing import Any
 import uuid
+from dataclasses import dataclass, field
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -24,7 +24,9 @@ class EventHeader:
 class BaseEvent:
     """Base event contract."""
 
-    def __init__(self, event_type: str, payload: dict[str, Any], correlation_id: str | None = None) -> None:
+    def __init__(
+        self, event_type: str, payload: dict[str, Any], correlation_id: str | None = None
+    ) -> None:
         self.header = EventHeader(event_type=event_type, correlation_id=correlation_id)
         self.payload = payload
 

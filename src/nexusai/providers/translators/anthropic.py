@@ -58,7 +58,9 @@ class AnthropicTranslator(BaseTranslator):
 
         tool_calls = self.normalize_tool_calls(raw_tools) if raw_tools else None
         msg = ChatMessage(role=MessageRole.ASSISTANT, content=text_content, tool_calls=tool_calls)
-        choice = ChatChoice(index=0, message=msg, finish_reason=raw_payload.get("stop_reason", "end_turn"))
+        choice = ChatChoice(
+            index=0, message=msg, finish_reason=raw_payload.get("stop_reason", "end_turn")
+        )
 
         raw_usage = raw_payload.get("usage", {})
         input_tokens = raw_usage.get("input_tokens", 0)

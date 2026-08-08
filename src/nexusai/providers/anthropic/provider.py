@@ -10,7 +10,6 @@ from typing import Any, AsyncIterator
 import httpx
 
 from nexusai.core.annotations import stable
-from nexusai.logging.logger import logger
 from nexusai.providers.base import BaseProvider
 from nexusai.providers.exceptions import ProviderConfigurationError
 from nexusai.providers.models import (
@@ -18,7 +17,6 @@ from nexusai.providers.models import (
     CapabilityLevel,
     ChatRequest,
     ChatResponse,
-    Embedding,
     EmbeddingResult,
     ModelInfo,
     ProviderCapabilities,
@@ -45,7 +43,9 @@ class AnthropicProvider(BaseProvider):
         http_client: httpx.AsyncClient | None = None,
     ) -> None:
         self._api_key = api_key or os.getenv("ANTHROPIC_API_KEY")
-        self._base_url = (base_url or os.getenv("ANTHROPIC_BASE_URL") or self.DEFAULT_BASE_URL).rstrip("/")
+        self._base_url = (
+            base_url or os.getenv("ANTHROPIC_BASE_URL") or self.DEFAULT_BASE_URL
+        ).rstrip("/")
         self._default_model = default_model
         self._translator = AnthropicTranslator()
         self._client = http_client
@@ -111,7 +111,11 @@ class AnthropicProvider(BaseProvider):
         try:
             resp = await self._client.post("/messages", json=payload)
             if resp.status_code != 200:
-                raw_json = resp.json() if "application/json" in resp.headers.get("content-type", "") else resp.text
+                raw_json = (
+                    resp.json()
+                    if "application/json" in resp.headers.get("content-type", "")
+                    else resp.text
+                )
                 raise CanonicalErrorMapper.map_http_error(resp.status_code, raw_json, self.id)
 
             raw_payload = resp.json()
@@ -146,7 +150,9 @@ class AnthropicProvider(BaseProvider):
             async with self._client.stream("POST", "/messages", json=payload) as resp:
                 if resp.status_code != 200:
                     body = await resp.aread()
-                    raise CanonicalErrorMapper.map_http_error(resp.status_code, body.decode(), self.id)
+                    raise CanonicalErrorMapper.map_http_error(
+                        resp.status_code, body.decode(), self.id
+                    )
 
                 async for line in resp.aiter_lines():
                     line = line.strip()
@@ -165,7 +171,9 @@ class AnthropicProvider(BaseProvider):
                                     "content": [{"type": "text", "text": delta_text}],
                                     "model": payload["model"],
                                 }
-                                yield self._translator.to_canonical_response(raw_c, provider_id=self.id)
+                                yield self._translator.to_canonical_response(
+                                    raw_c, provider_id=self.id
+                                )
                         except Exception:
                             continue
         except httpx.TimeoutException as te:
@@ -180,13 +188,25 @@ class AnthropicProvider(BaseProvider):
         **kwargs: Any,
     ) -> EmbeddingResult:
         # Anthropic does not currently provide native vector embedding API
-        raise ProviderConfigurationError("Anthropic API does not natively support vector embeddings.")
+        raise ProviderConfigurationError(
+            "Anthropic API does not natively support vector embeddings."
+        )
 
     async def list_models(self) -> list[ModelInfo]:
         return [
-            ModelInfo(id="claude-3-5-sonnet-20241022", display_name="Claude 3.5 Sonnet", context_window=200000),
-            ModelInfo(id="claude-3-5-haiku-20241022", display_name="Claude 3.5 Haiku", context_window=200000),
-            ModelInfo(id="claude-3-opus-20240229", display_name="Claude 3 Opus", context_window=200000),
+            ModelInfo(
+                id="claude-3-5-sonnet-20241022",
+                display_name="Claude 3.5 Sonnet",
+                context_window=200000,
+            ),
+            ModelInfo(
+                id="claude-3-5-haiku-20241022",
+                display_name="Claude 3.5 Haiku",
+                context_window=200000,
+            ),
+            ModelInfo(
+                id="claude-3-opus-20240229", display_name="Claude 3 Opus", context_window=200000
+            ),
         ]
 
     async def health_check(self) -> ProviderHealth:

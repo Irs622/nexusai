@@ -3,13 +3,16 @@ Unit tests for ScopedPermissions, PermissionEnforcer, and PluginSandbox.
 """
 
 import pytest
+
 from nexusai.plugins.exceptions import PluginPermissionError
 from nexusai.plugins.runtime.sandbox import PluginSandbox
 from nexusai.plugins.security import PermissionEnforcer, ScopedPermissions
 
 
 def test_permission_enforcer_filesystem_allowed():
-    perms = ScopedPermissions.from_dict({"filesystem": {"read": ["/tmp/allowed"], "write": ["/tmp/allowed"]}})
+    perms = ScopedPermissions.from_dict(
+        {"filesystem": {"read": ["/tmp/allowed"], "write": ["/tmp/allowed"]}}
+    )
     enforcer = PermissionEnforcer(perms)
 
     enforcer.check_filesystem_read("/tmp/allowed/file.txt")

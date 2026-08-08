@@ -1,7 +1,6 @@
 """Automated Conformance Report Generator for Provider SDK Contract Verification."""
 
 from dataclasses import dataclass
-import pytest
 
 from nexusai.providers.base import BaseProvider
 from tests.contracts.test_provider_contract import (

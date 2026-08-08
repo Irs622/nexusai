@@ -3,6 +3,7 @@ Unit tests for Typer CLI Application.
 """
 
 from typer.testing import CliRunner
+
 from nexusai.cli.app import app
 
 runner = CliRunner()

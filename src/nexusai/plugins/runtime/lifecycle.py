@@ -4,9 +4,6 @@ PluginLifecycleManager orchestrating 10-state lifecycle machine and event publis
 
 from __future__ import annotations
 
-import logging
-from typing import Any
-
 from nexusai.bus.bus import EventBus
 from nexusai.logging.logger import logger
 from nexusai.plugins.contracts.context import PluginContext
@@ -132,7 +129,9 @@ class PluginLifecycleManager:
                         failed_state=PluginState.FAILED,
                     )
                 )
-            raise PluginLifecycleError(f"Lifecycle execution failed for plugin '{plugin_id}': {e}") from e
+            raise PluginLifecycleError(
+                f"Lifecycle execution failed for plugin '{plugin_id}': {e}"
+            ) from e
 
     async def stop_and_unload_plugin(self, plugin_id: str) -> None:
         """Stop and unload an active plugin."""

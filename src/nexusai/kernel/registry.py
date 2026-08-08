@@ -5,7 +5,7 @@ Service Registry for NexusAI OS Kernel.
 from __future__ import annotations
 
 import threading
-from typing import Any, TypeVar
+from typing import TypeVar
 
 from nexusai.core.errors import ServiceRegistrationError
 from nexusai.kernel.contracts import KernelService, ServiceLifecycleState
@@ -28,9 +28,7 @@ class ServiceRegistry:
             ServiceRegistrationError: If service is invalid or ID already registered.
         """
         if not isinstance(service, KernelService):
-            raise ServiceRegistrationError(
-                f"Object '{service}' must inherit from KernelService"
-            )
+            raise ServiceRegistrationError(f"Object '{service}' must inherit from KernelService")
 
         service_id = service.service_id
         if not service_id:
@@ -55,9 +53,7 @@ class ServiceRegistry:
         """
         with self._lock:
             if service_id not in self._services:
-                raise ServiceRegistrationError(
-                    f"Service with ID '{service_id}' is not registered."
-                )
+                raise ServiceRegistrationError(f"Service with ID '{service_id}' is not registered.")
             service = self._services.pop(service_id)
             logger.info(f"Unregistered KernelService [ID: {service_id}]")
             return service
@@ -70,9 +66,7 @@ class ServiceRegistry:
         """
         with self._lock:
             if service_id not in self._services:
-                raise ServiceRegistrationError(
-                    f"Service with ID '{service_id}' is not registered."
-                )
+                raise ServiceRegistrationError(f"Service with ID '{service_id}' is not registered.")
             return self._services[service_id]
 
     def has(self, service_id: str) -> bool:
@@ -86,16 +80,14 @@ class ServiceRegistry:
             matching: list[T] = []
             for service in self._services.values():
                 if isinstance(service, interface_cls):
-                    matching.append(service)  # type: ignore[arg-type]
+                    matching.append(service)
             return matching
 
     def get_by_tag(self, tag: str) -> list[KernelService]:
         """Retrieve all registered services matching a given tag."""
         with self._lock:
             return [
-                service
-                for service in self._services.values()
-                if tag in service.descriptor.tags
+                service for service in self._services.values() if tag in service.descriptor.tags
             ]
 
     def list_services(self) -> list[KernelService]:

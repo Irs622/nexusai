@@ -4,6 +4,7 @@ Git Repository Context Tools.
 
 import asyncio
 from typing import Any
+
 from pydantic import BaseModel
 
 from nexusai.security.guard import RiskLevel

@@ -3,6 +3,7 @@ Unit tests for RuntimeScheduler.
 """
 
 import asyncio
+
 import pytest
 
 from nexusai.kernel.scheduler import RuntimeScheduler

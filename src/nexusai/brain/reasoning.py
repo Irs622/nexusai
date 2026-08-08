@@ -1,25 +1,38 @@
 """Pluggable ReasoningEngine Host for NexusAI."""
-from typing import Optional
-from nexusai.domain.models import Goal, GoalPlan, Observation, EvaluationResult, GoalCompletionStatus
-from nexusai.brain.inference import InferenceService
-from nexusai.brain.strategy import PlanningStrategy, HeuristicPlanningStrategy, RepairStrategy, DefaultRepairStrategy
+
+from __future__ import annotations
+
+from typing import Any, Optional, cast
+
+from nexusai.brain.domain.agent import AgentGoal
+from nexusai.brain.strategy import IPlanningStrategy, RulePlanningStrategy
+from nexusai.domain.models import (
+    EvaluationResult,
+    Goal,
+    GoalCompletionStatus,
+    GoalPlan,
+    Observation,
+)
+
 
 class ReasoningEngine:
     """Pluggable Reasoning Engine holding Planning, Tool Selection, Repair, and Reflection Strategies."""
 
     def __init__(
         self,
-        inference: Optional[InferenceService] = None,
-        planning_strategy: Optional[PlanningStrategy] = None,
-        repair_strategy: Optional[RepairStrategy] = None,
+        inference: Any = None,
+        planning_strategy: Optional[IPlanningStrategy] = None,
+        repair_strategy: Any = None,
     ) -> None:
-        self.inference = inference or InferenceService()
-        self.planning_strategy = planning_strategy or HeuristicPlanningStrategy()
-        self.repair_strategy = repair_strategy or DefaultRepairStrategy()
+        self.inference = inference
+        self.planning_strategy = planning_strategy or RulePlanningStrategy()
+        self.repair_strategy = repair_strategy
 
     async def generate_plan(self, goal: Goal) -> GoalPlan:
         """Delegate goal planning to configured planning strategy."""
-        return await self.planning_strategy.plan_goal(goal, self.inference)
+        agent_goal = AgentGoal(description=goal.prompt if hasattr(goal, "prompt") else str(goal))
+        res = await self.planning_strategy.generate_plan(agent_goal, self.inference)
+        return cast(GoalPlan, res)
 
     def evaluate_observation(self, obs: Observation) -> EvaluationResult:
         """Evaluate observation and return structured EvaluationResult."""

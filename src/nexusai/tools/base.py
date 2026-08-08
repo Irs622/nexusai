@@ -4,9 +4,11 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import Any
+
 from pydantic import BaseModel
-from nexusai.security.guard import RiskLevel
+
 from nexusai.core.annotations import stable
+from nexusai.security.guard import RiskLevel
 
 
 @stable

@@ -106,7 +106,9 @@ class ExecutionTracer:
         return metrics
 
     @contextmanager
-    def span(self, span_name: str, attributes: dict[str, Any] | None = None) -> Generator[None, None, None]:
+    def span(
+        self, span_name: str, attributes: dict[str, Any] | None = None
+    ) -> Generator[None, None, None]:
         """OpenTelemetry-compatible span context manager helper."""
         span_start = time.perf_counter()
         logger.debug(f"[SPAN START] {span_name}", extra=attributes or {})

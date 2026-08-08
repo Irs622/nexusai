@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import pytest
 from typer.testing import CliRunner
+
 from nexusai.cli.app import app
 from nexusai.cli.chat import start_chat_session
 from nexusai.models.base import BaseModelProvider

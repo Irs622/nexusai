@@ -2,16 +2,16 @@
 Unit tests for VectorKnowledgeBase, RememberFactTool, and RecallFactTool.
 """
 
-import pytest
+import uuid
+
 import chromadb
+import pytest
 
 from nexusai.knowledge.vector import VectorKnowledgeBase
 from nexusai.security.guard import RiskLevel
 from nexusai.tools.knowledge.memory_tools import RecallFactTool, RememberFactTool
 from nexusai.tools.registry import ToolRegistry
 
-
-import uuid
 
 @pytest.fixture
 def ephemeral_kb() -> VectorKnowledgeBase:

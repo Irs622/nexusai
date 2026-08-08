@@ -6,7 +6,7 @@ Layer 2: IFailureClassifier Protocol & RuleFailureClassifier (semantic pattern c
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from typing import Protocol, runtime_checkable
 
@@ -81,7 +81,11 @@ class RuleFailureClassifier:
         msg_lower = recent.error_message.lower()
 
         # 1. Network / Timeout Failure
-        if recent.is_timeout or (recent.http_status and recent.http_status in {502, 503, 504}) or any(kw in msg_lower for kw in ["timeout", "connection refused", "network_error"]):
+        if (
+            recent.is_timeout
+            or (recent.http_status and recent.http_status in {502, 503, 504})
+            or any(kw in msg_lower for kw in ["timeout", "connection refused", "network_error"])
+        ):
             return FailureAnalysis(
                 category=FailureCategory.NETWORK,
                 evidence_items=tuple(evidence_history[-3:]),
@@ -89,7 +93,10 @@ class RuleFailureClassifier:
             )
 
         # 2. Permission / Authentication Failure
-        if (recent.http_status and recent.http_status in {401, 403}) or any(kw in msg_lower for kw in ["permission denied", "unauthorized", "access denied", "forbidden"]):
+        if (recent.http_status and recent.http_status in {401, 403}) or any(
+            kw in msg_lower
+            for kw in ["permission denied", "unauthorized", "access denied", "forbidden"]
+        ):
             return FailureAnalysis(
                 category=FailureCategory.PERMISSION,
                 evidence_items=tuple(evidence_history[-3:]),

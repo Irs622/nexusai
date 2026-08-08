@@ -2,8 +2,9 @@
 Unit tests for Context Engine and Working Context.
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from nexusai.context.engine import ContextEngine, WorkingContext
 

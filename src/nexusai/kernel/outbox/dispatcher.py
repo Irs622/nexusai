@@ -5,9 +5,9 @@ OutboxDispatcher background worker consuming OutboxRecords with DLQ, idempotency
 from __future__ import annotations
 
 import asyncio
-from typing import Callable, Sequence
+from typing import Callable
 
-from nexusai.kernel.outbox.repository import OutboxRecord, OutboxRepository, OutboxStatus
+from nexusai.kernel.outbox.repository import OutboxRecord, OutboxRepository
 from nexusai.kernel.outbox.serializer import JSONOutboxSerializer, OutboxSerializer
 
 
@@ -63,11 +63,15 @@ class OutboxDispatcher:
                 processed_cnt += 1
             except Exception as ex:
                 if record.retry_count + 1 >= self._max_retries:
-                    await self._repository.mark_failed(record.id, error_message=f"DLQ Poison Message: {ex}")
+                    await self._repository.mark_failed(
+                        record.id, error_message=f"DLQ Poison Message: {ex}"
+                    )
                     if record not in self._dlq_records:
                         self._dlq_records.append(record)
                 else:
-                    await self._repository.mark_failed(record.id, error_message=f"Retry {record.retry_count + 1}: {ex}")
+                    await self._repository.mark_failed(
+                        record.id, error_message=f"Retry {record.retry_count + 1}: {ex}"
+                    )
 
         return processed_cnt
 

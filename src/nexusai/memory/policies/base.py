@@ -4,9 +4,9 @@ MemoryPolicy abstract base class and PolicyContext contracts.
 
 from __future__ import annotations
 
+import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-import time
 from typing import Any
 
 from nexusai.memory.domain.record import MemoryRecord

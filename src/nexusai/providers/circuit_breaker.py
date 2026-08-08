@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-import asyncio
-from enum import Enum
 import time
+from enum import Enum
 from typing import Any, Awaitable, Callable
 
 from nexusai.core.annotations import stable
@@ -26,7 +25,6 @@ class CircuitBreaker:
     """Circuit Breaker guarding provider calls against repeated cascading failures."""
 
     def __init__(
-
         self,
         provider_id: str,
         failure_threshold: int = 5,
@@ -52,7 +50,12 @@ class CircuitBreaker:
         return self._state
 
     def _transition_to(self, new_state: CircuitState) -> None:
-        logger.info("CircuitBreaker '{}' transition: {} -> {}", self.provider_id, self._state.value, new_state.value)
+        logger.info(
+            "CircuitBreaker '{}' transition: {} -> {}",
+            self.provider_id,
+            self._state.value,
+            new_state.value,
+        )
         self._state = new_state
         self._last_state_change = time.time()
         if new_state == CircuitState.CLOSED:

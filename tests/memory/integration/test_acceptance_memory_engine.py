@@ -1,4 +1,5 @@
 import pytest
+
 pytestmark = pytest.mark.integration
 """
 Public API Acceptance Test Suite for NexusAI Memory Engine.
@@ -15,7 +16,7 @@ from nexusai.memory.domain.record import MemoryScope, MemoryType
 async def test_memory_engine_public_api_acceptance():
     """Acceptance test running full memory lifecycle exclusively via MemoryService public API facade."""
     config = MemoryEngineConfig(
-        storage_dir=".nexusai/test_acceptance_storage",
+        storage_dir=":memory:",
         vector_provider="in_memory",
         embedding_provider="mock",
     )
@@ -27,7 +28,9 @@ async def test_memory_engine_public_api_acceptance():
     # 1. Health Probe
     health = await service.health()
     assert health["status"] == "healthy"
-    assert health["storage"] == "healthy"
+    assert health["storage"] == "healthy" or (
+        isinstance(health["storage"], dict) and health["storage"].get("status") == "healthy"
+    )
 
     # 2. Store Record via Public API
     record = await service.store(
@@ -56,7 +59,7 @@ async def test_memory_engine_public_api_acceptance():
     assert forgotten is True
 
     # 7. Operational Metrics
-    metrics_summary = service.metrics()
+    metrics_summary = await service.metrics()
     assert metrics_summary["counters"]["store_count"] >= 1
 
     # 8. Graceful Shutdown

@@ -2,8 +2,9 @@
 Unit tests for SchedulerService, NotifyTool, and ScheduleReminderTool.
 """
 
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
 
 from nexusai.automation.scheduler import SchedulerService
 from nexusai.core.errors import CommandExecutionError
@@ -72,7 +73,9 @@ async def test_notify_tool() -> None:
     assert tool.name == "macos_send_notification"
     assert tool.risk_level == RiskLevel.LOW
 
-    with patch("nexusai.tools.macos.notify.send_macos_notification", return_value=None) as mock_notify:
+    with patch(
+        "nexusai.tools.macos.notify.send_macos_notification", return_value=None
+    ) as mock_notify:
         result = await tool.execute(title="Build", message="Success")
         mock_notify.assert_called_once_with("Build", "Success")
         assert "Desktop notification sent" in result

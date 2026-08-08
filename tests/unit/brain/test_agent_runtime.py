@@ -13,7 +13,6 @@ from nexusai.brain.domain.agent import (
     StepStatus,
 )
 from nexusai.brain.domain.session import BrainSession
-from nexusai.brain.loop_executor import LoopExecutor
 from nexusai.brain.observation import ObservationMapper
 from nexusai.brain.ports.tool_port import ToolExecutionRequest
 from nexusai.brain.runtime.agent_context import AgentRuntimeContext
@@ -129,7 +128,12 @@ def test_rule_strategies() -> None:
 
     decider = RuleDecisionStrategy()
     decision = decider.decide(working_mem, analysis)
-    assert decision in (LoopDecision.CONTINUE, LoopDecision.COMPLETE, LoopDecision.REPLAN, LoopDecision.FAIL)
+    assert decision in (
+        LoopDecision.CONTINUE,
+        LoopDecision.COMPLETE,
+        LoopDecision.REPLAN,
+        LoopDecision.FAIL,
+    )
 
 
 def test_tool_registry_adapter_and_observation_mapper() -> None:

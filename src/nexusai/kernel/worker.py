@@ -84,7 +84,9 @@ class BackgroundWorkerManager:
         drain_tasks = [q.join() for q in self._queues.values()]
         if drain_tasks:
             try:
-                await asyncio.wait_for(asyncio.gather(*drain_tasks, return_exceptions=True), timeout=drain_timeout)
+                await asyncio.wait_for(
+                    asyncio.gather(*drain_tasks, return_exceptions=True), timeout=drain_timeout
+                )
             except asyncio.TimeoutError:
                 logger.warning(f"Worker queue drain timed out after {drain_timeout}s.")
 
@@ -111,7 +113,8 @@ class BackgroundWorkerManager:
                 "queue_size": self._queues[meta.name].qsize() if meta.name in self._queues else 0,
                 "last_processed_at": meta.last_processed_at,
                 "last_error": meta.last_error,
-                "is_running": meta.is_running and (meta.name in self._workers and not self._workers[meta.name].done()),
+                "is_running": meta.is_running
+                and (meta.name in self._workers and not self._workers[meta.name].done()),
             }
             for meta in self._meta.values()
         ]

@@ -4,9 +4,9 @@ MetricsInterface for plugin telemetry and monitoring.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 import time
-from typing import Any, Sequence
+from dataclasses import dataclass, field
+from typing import Sequence
 
 
 @dataclass(frozen=True)
@@ -36,7 +36,9 @@ class MetricsInterface:
 
     def timer(self, name: str, duration_seconds: float, **tags: str) -> None:
         """Record execution duration in seconds."""
-        self._records.append(MetricRecord(name=name, kind="timer", value=duration_seconds, tags=tags))
+        self._records.append(
+            MetricRecord(name=name, kind="timer", value=duration_seconds, tags=tags)
+        )
 
     def get_records(self) -> Sequence[MetricRecord]:
         """Return collected metric records."""

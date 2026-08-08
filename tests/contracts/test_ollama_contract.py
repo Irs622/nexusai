@@ -1,7 +1,7 @@
 """Contract verification test suite for OllamaProvider using httpx mock transport."""
 
-import pytest
 import httpx
+import pytest
 
 from nexusai.providers import (
     ChatMessage,
@@ -11,7 +11,6 @@ from nexusai.providers import (
 )
 from tests.contracts.conformance_reporter import generate_conformance_report
 from tests.contracts.test_provider_contract import (
-    verify_provider_api_contract,
     verify_provider_behavior_contract,
 )
 
@@ -34,11 +33,7 @@ def _custom_ollama_transport(request: httpx.Request) -> httpx.Response:
         return httpx.Response(200, json=body)
 
     elif "tags" in url:
-        body = {
-            "models": [
-                {"name": "llama3:latest", "model": "llama3:latest"}
-            ]
-        }
+        body = {"models": [{"name": "llama3:latest", "model": "llama3:latest"}]}
         return httpx.Response(200, json=body)
 
     return httpx.Response(404, json={"error": "Not Found"})

@@ -3,8 +3,8 @@ Unit tests for core plugin contracts and abstractions.
 """
 
 import pytest
+
 from nexusai.plugins.contracts import (
-    Capability,
     PluginCapability,
     PluginCapabilityType,
     PluginContext,

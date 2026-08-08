@@ -4,10 +4,10 @@ RetrievalContext, StageTrace, PipelineTrace, RetrievalStage middleware ABC, and 
 
 from __future__ import annotations
 
+import json
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass, field
-import json
-from typing import Any, Sequence
+from typing import Any
 
 from nexusai.memory.domain.record import MemoryRecord
 
@@ -43,12 +43,11 @@ class PipelineTrace:
             "total_latency_ms": self.total_latency_ms,
             "initial_count": self.initial_count,
             "final_count": self.final_count,
-            "stage_traces": [
-                st.to_dict() if hasattr(st, "to_dict") else str(st)
-                for st in self.stage_traces
-            ]
-            if hasattr(self, "stage_traces")
-            else [],
+            "stage_traces": (
+                [st.to_dict() if hasattr(st, "to_dict") else str(st) for st in self.stage_traces]
+                if hasattr(self, "stage_traces")
+                else []
+            ),
         }
 
     def to_json(self) -> str:
@@ -96,7 +95,7 @@ class RetrievalContext:
 
     query: str
     embedding: list[float] = field(default_factory=list)
-    metadata_filters: dict[str, Any] = field(default_factory=dict)
+    metadata_filters: dict[str, Any] | None = field(default_factory=dict)
     candidate_records: list[MemoryRecord] = field(default_factory=list)
     scores: dict[str, float] = field(default_factory=dict)
     sub_scores: dict[str, dict[str, float]] = field(default_factory=dict)

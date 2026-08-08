@@ -1,9 +1,11 @@
 import pytest
+
 pytestmark = pytest.mark.network
 """Tests verifying that vendor translators correctly parse real payload JSON fixtures into canonical models."""
 
 import json
 from pathlib import Path
+
 import pytest
 
 from nexusai.providers.translators import (
@@ -25,7 +27,9 @@ def test_openai_translator_real_fixture() -> None:
     canonical = translator.to_canonical_response(payload, provider_id="openrouter")
 
     assert canonical.provider == "openrouter"
-    assert canonical.primary_choice().message.content == "Hello from OpenRouter real payload fixture!"
+    assert (
+        canonical.primary_choice().message.content == "Hello from OpenRouter real payload fixture!"
+    )
     assert canonical.usage.total_tokens == 20
 
 
@@ -45,7 +49,9 @@ def test_anthropic_translator_real_fixture() -> None:
     canonical = translator.to_canonical_response(payload, provider_id="anthropic")
 
     assert canonical.provider == "anthropic"
-    assert canonical.primary_choice().message.content == "Hello from Anthropic real payload fixture!"
+    assert (
+        canonical.primary_choice().message.content == "Hello from Anthropic real payload fixture!"
+    )
     assert canonical.usage.total_tokens == 23
 
 

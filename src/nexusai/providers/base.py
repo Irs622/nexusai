@@ -11,6 +11,7 @@ from nexusai.providers.models import (
     ChatResponse,
     EmbeddingResult,
     ModelInfo,
+    ProviderCapabilities,
     ProviderHealth,
     ProviderMetadata,
 )
@@ -34,7 +35,6 @@ class BaseProvider(ABC):
     async def describe(self) -> ProviderCapabilities:
         """Dynamically discover and return capabilities supported by this provider adapter."""
         return self.metadata.capabilities
-
 
     @abstractmethod
     async def chat(self, request: ChatRequest) -> ChatResponse:

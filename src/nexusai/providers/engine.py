@@ -3,15 +3,12 @@
 from __future__ import annotations
 
 import time
-from typing import AsyncIterator
+from typing import cast
 
 from nexusai.core.annotations import stable
 from nexusai.logging.logger import logger
-from nexusai.providers.base import BaseProvider
 from nexusai.providers.circuit_breaker import CircuitBreaker
 from nexusai.providers.context import ExecutionContext
-from nexusai.providers.events import RoutingDecisionEvent
-from nexusai.providers.exceptions import ProviderSDKError
 from nexusai.providers.health import HealthMonitor
 from nexusai.providers.manager import ProviderManager
 from nexusai.providers.middleware import MiddlewarePipeline
@@ -112,7 +109,8 @@ class ExecutionEngine:
             async def raw_call() -> ChatResponse:
                 return await selected_provider.chat(req)
 
-            return await circuit_breaker.call(raw_call)
+            res = await circuit_breaker.call(raw_call)
+            return cast(ChatResponse, res)
 
         # 3. Execute via Middleware Pipeline
         try:

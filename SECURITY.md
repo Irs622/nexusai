@@ -1,36 +1,54 @@
-# Security Policy
+# 🛡️ Security Policy
 
 ## Supported Versions
 
-We actively release security updates for the following versions:
+We actively release security patches for the following versions:
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 0.1.x   | :white_check_mark: |
-| < 0.1   | :x:                |
+| 0.6.x   | :white_check_mark: |
+| 0.5.x   | :white_check_mark: |
+| < 0.5   | :x:                |
 
-## Reporting a Vulnerability
+---
 
-We take the security of **NexusAI** seriously. If you discover a security vulnerability, please do **NOT** open a public issue.
+## 🔒 Secrets & API Key Policy
 
-Instead, please report vulnerabilities via one of the following methods:
+- **Zero Hardcoded Secrets**: **NEVER** embed hardcoded API keys, tokens, or dummy keys in source files, tests, or examples.
+- **Dynamic Retrieval**: All credentials MUST be retrieved dynamically from environment variables (`os.getenv(...)`) or encrypted local storage.
+- **Automated Scanning**: All commits and PRs are scanned with automated secret scanners (`pip-audit` and GitHub Secret Scanning).
+
+---
+
+## 🐛 Reporting a Vulnerability & Responsible Disclosure
+
+We take the security of **NexusAI** seriously. If you discover a security vulnerability, please do **NOT** open a public GitHub issue.
+
+Instead, please report vulnerabilities via one of the following channels:
 
 1. **GitHub Private Vulnerability Reporting**: Use the "Report a vulnerability" button under the **Security** tab of this repository.
-2. **Email**: Send details of the issue to `security@nexusai.dev` (or the repository maintainer).
+2. **Security Contact Email**: Send vulnerability reports directly to `security@nexusai.dev` (or the core maintainers).
 
 ### What to Include in Your Report
 
-Please include as much detail as possible to help us reproduce and fix the issue quickly:
+Please include as much detail as possible to help us reproduce and remediate the vulnerability quickly:
 
-- Type of issue (e.g. prompt injection, privilege escalation, credential leak, arbitrary code execution)
-- Detailed steps to reproduce
-- Affected components or modules (`nexusai.security`, `nexusai.api`, etc.)
-- Any potential impact or proof of concept
+- **Type of Issue**: (e.g. prompt injection, privilege escalation, credential leak, arbitrary code execution)
+- **Affected Subsystem**: (`nexusai.brain.runtime`, `nexusai.security`, `nexusai.api`, etc.)
+- **Step-by-Step Reproduction**: Code snippet or payload required to trigger the issue
+- **Potential Impact**: Assessment of risk severity and data exposure
 
-### Response Timeline
+---
+
+## ⏱️ Response & Remediation Timeline
 
 - **Acknowledgement**: Within 48 hours.
-- **Assessment & Status Updates**: Within 5 business days.
-- **Fix & Patch Release**: Depending on severity, as quickly as possible (typically within 14 days).
+- **Triage & Status Update**: Within 5 business days.
+- **Patch & Security Advisory Release**: Within 14 business days (depending on severity).
 
-Thank you for helping keep NexusAI and its users secure!
+---
+
+## 📦 Dependency Updates & Vulnerability Auditing
+
+- We use Dependabot for automated dependency updates (`.github/dependabot.yml`).
+- `pip-audit` is run as part of our automated CI quality gate (`make quality-gate`) to scan for known CVEs in third-party packages.

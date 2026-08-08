@@ -4,12 +4,12 @@ OutboxRecord and OutboxRepository contracts for transactional event outbox patte
 
 from __future__ import annotations
 
+import time
+import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-import time
 from typing import Sequence
-import uuid
 
 
 class OutboxStatus(str, Enum):
@@ -51,7 +51,11 @@ class OutboxRepository(ABC):
         """Mark outbox record as successfully dispatched to EventBus."""
         pass
 
+    async def mark_published(self, record_id: str) -> None:
+        """Alias for mark_dispatched."""
+        await self.mark_dispatched(record_id)
+
     @abstractmethod
-    async def mark_failed(self, record_id: str, error: str) -> None:
+    async def mark_failed(self, record_id: str, error: str = "", error_message: str = "") -> None:
         """Mark outbox record as failed."""
         pass

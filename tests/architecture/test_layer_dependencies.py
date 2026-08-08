@@ -6,6 +6,7 @@ Rule A006: security layer MUST NOT import concrete provider implementations.
 """
 
 from pathlib import Path
+
 from nexusai.architecture.dependency_rules import DependencyRulesEngine
 
 PROJECT_ROOT = Path(__file__).parent.parent.parent

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Callable
+
 from nexusai.brain.loop_executor import LoopExecutor
 from nexusai.brain.observation import ObservationMapper
 from nexusai.brain.pipeline.pipeline import ExecutionPipeline

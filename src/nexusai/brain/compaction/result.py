@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
+
 from nexusai.domain.models import Observation
 
 

@@ -1,14 +1,19 @@
 """Dynamic Plugin Loader & Discovery Subsystem for NexusAI."""
+
 import importlib
 import inspect
-from typing import List, Type, Any
+from typing import List
+
+from nexusai.core.errors import NexusAIError
 from nexusai.tools.base import BaseTool
 from nexusai.tools.registry import ToolRegistry
-from nexusai.core.errors import NexusAIError
+
 
 class PluginLoadError(NexusAIError):
     """Raised when a plugin fails to load or register."""
+
     pass
+
 
 class PluginLoader:
     """Discovers and registers tool plugins dynamically into ToolRegistry."""
@@ -36,6 +41,8 @@ class PluginLoader:
                             self.registry.register(t)
                             discovered_tools.append(t)
                 except Exception as pe:
-                    raise PluginLoadError(f"Error instantiating plugin class '{obj.__name__}': {pe}") from pe
+                    raise PluginLoadError(
+                        f"Error instantiating plugin class '{obj.__name__}': {pe}"
+                    ) from pe
 
         return discovered_tools

@@ -2,7 +2,6 @@
 Unit tests for PluginRecoveryEngine and RecoveryStrategy.
 """
 
-from nexusai.plugins.contracts.state import PluginState
 from nexusai.plugins.runtime.recovery import PluginRecoveryEngine, RecoveryStrategy
 from nexusai.plugins.runtime.registry import PluginRegistry
 

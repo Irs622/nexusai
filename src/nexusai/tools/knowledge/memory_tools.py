@@ -3,7 +3,9 @@ Long-Term Memory Tools for storing and recalling semantic facts.
 """
 
 from __future__ import annotations
+
 from typing import Any
+
 from pydantic import BaseModel, Field
 
 from nexusai.knowledge.vector import VectorKnowledgeBase
@@ -14,7 +16,9 @@ from nexusai.tools.base import BaseTool
 class RememberFactInputSchema(BaseModel):
     """Input schema for knowledge_remember_fact tool."""
 
-    fact: str = Field(..., description="The fact, preference, or solution string to remember long-term")
+    fact: str = Field(
+        ..., description="The fact, preference, or solution string to remember long-term"
+    )
 
 
 class RememberFactTool(BaseTool):
@@ -40,14 +44,18 @@ class RememberFactTool(BaseTool):
 class RecallFactInputSchema(BaseModel):
     """Input schema for knowledge_recall_fact tool."""
 
-    query: str = Field(..., description="Semantic search query to retrieve past facts from long-term memory")
+    query: str = Field(
+        ..., description="Semantic search query to retrieve past facts from long-term memory"
+    )
 
 
 class RecallFactTool(BaseTool):
     """Tool for recalling relevant semantic facts from ChromaDB long-term memory."""
 
     name = "knowledge_recall_fact"
-    description = "Searches long-term memory for past facts, preferences, or solutions using semantic search."
+    description = (
+        "Searches long-term memory for past facts, preferences, or solutions using semantic search."
+    )
     risk_level = RiskLevel.LOW
     input_schema = RecallFactInputSchema
 

@@ -141,6 +141,7 @@ __all__ = [
     "MemoryRecord",
     "MemoryRecordRepository",
     "MemoryScope",
+    "MemorySerializer",
     "MemoryService",
     "MemoryStorage",
     "MemoryStorageError",

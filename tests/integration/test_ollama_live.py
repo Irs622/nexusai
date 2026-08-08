@@ -1,8 +1,9 @@
 """Live API Integration Test Suite for OllamaProvider (requires local Ollama server running at http://localhost:11434)."""
 
 import os
-import pytest
+
 import httpx
+import pytest
 
 from nexusai.providers import (
     ChatMessage,
@@ -26,7 +27,9 @@ def _is_ollama_online() -> bool:
 OLLAMA_AVAILABLE = _is_ollama_online()
 
 
-@pytest.mark.skipif(not OLLAMA_AVAILABLE, reason="Local Ollama server (http://localhost:11434) is not running")
+@pytest.mark.skipif(
+    not OLLAMA_AVAILABLE, reason="Local Ollama server (http://localhost:11434) is not running"
+)
 @pytest.mark.asyncio
 async def test_ollama_live_api_chat_completion() -> None:
     """Live API Test: Send real chat completion request to local Ollama server."""

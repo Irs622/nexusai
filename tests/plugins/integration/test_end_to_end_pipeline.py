@@ -3,6 +3,7 @@ Integration test running end-to-end plugin lifecycle pipeline.
 """
 
 from pathlib import Path
+
 import pytest
 
 from nexusai.bus.bus import EventBus
@@ -12,7 +13,6 @@ from nexusai.plugins.contracts.manifest import PluginManifest
 from nexusai.plugins.contracts.state import PluginState
 from nexusai.plugins.events.events import PluginStartedEvent
 from nexusai.plugins.runtime.candidate import PluginCandidate
-from nexusai.plugins.runtime.discovery import PluginDiscoveryEngine
 from nexusai.plugins.runtime.lifecycle import PluginLifecycleManager
 from nexusai.plugins.runtime.manifest_loader import ManifestLoader, MemorySource
 from nexusai.plugins.runtime.registry import PluginRegistry

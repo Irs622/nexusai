@@ -88,15 +88,16 @@ async def node_tool_executor(
     result = await command_bus.dispatch(cmd)
 
     current_messages = list(state.get("messages", []))
-    current_messages.append({
-        "role": "tool",
-        "tool_call_id": last_call.get("id", tool_name),
-        "content": str(result),
-        "name": tool_name,
-    })
+    current_messages.append(
+        {
+            "role": "tool",
+            "tool_call_id": last_call.get("id", tool_name),
+            "content": str(result),
+            "name": tool_name,
+        }
+    )
 
     return {
         "messages": current_messages,
         "last_tool_call": None,
     }
-

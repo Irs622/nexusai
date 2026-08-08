@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, Callable, Type
+from typing import Any, Callable
 from uuid import UUID, uuid4
 
 
@@ -124,7 +124,9 @@ class ImageArtifact(Artifact):
         return {
             "kind": self.kind(),
             "artifact_id": str(self.artifact_id),
-            "image_url_or_bytes": self.image_url_or_bytes if isinstance(self.image_url_or_bytes, str) else None,
+            "image_url_or_bytes": (
+                self.image_url_or_bytes if isinstance(self.image_url_or_bytes, str) else None
+            ),
             "mime_type": self.mime_type,
             "metadata": self.metadata,
         }
@@ -202,7 +204,9 @@ class DocumentArtifact(Artifact):
         return {
             "kind": self.kind(),
             "artifact_id": str(self.artifact_id),
-            "file_path_or_bytes": self.file_path_or_bytes if isinstance(self.file_path_or_bytes, str) else None,
+            "file_path_or_bytes": (
+                self.file_path_or_bytes if isinstance(self.file_path_or_bytes, str) else None
+            ),
             "file_type": self.file_type,
             "metadata": self.metadata,
         }

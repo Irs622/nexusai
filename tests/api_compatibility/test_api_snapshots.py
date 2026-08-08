@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+
 import pytest
 
 from nexusai.memory.contracts.embedding import EmbeddingCapabilities
@@ -16,9 +17,8 @@ from nexusai.memory.domain.content import MemoryContent
 from nexusai.memory.domain.metadata import MemoryMetadata
 from nexusai.memory.domain.record import MemoryRecord, MemoryScope, MemoryType
 from nexusai.providers.context import ExecutionContext
-from nexusai.providers.models import ProviderCapabilities, ProviderHealth, ProviderMetadata
+from nexusai.providers.models import ProviderHealth, ProviderMetadata
 from nexusai.providers.profile import ProviderProfile
-
 from tests.api_compatibility.serializers import (
     serialize_embedding_capabilities,
     serialize_execution_context,
@@ -102,7 +102,9 @@ def test_memory_record_snapshot(request: pytest.FixtureRequest) -> None:
         schema_version="1.0.0",
         memory_type=MemoryType.EPISODIC,
         scope=MemoryScope.SESSION,
-        content=MemoryContent(raw_text="User requested plugin installation.", summary="Plugin install request"),
+        content=MemoryContent(
+            raw_text="User requested plugin installation.", summary="Plugin install request"
+        ),
         metadata=MemoryMetadata(source="user_prompt", tags=["plugins", "setup"]),
     )
     _check_snapshot("memory_record", serialize_memory_record(record), request)

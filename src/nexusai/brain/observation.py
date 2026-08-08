@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Any
+
 from nexusai.brain.ports.tool_port import ToolExecutionResult
 from nexusai.domain.models import Observation
 
@@ -19,7 +20,11 @@ class ObservationMapper:
         Returns:
             Normalized Observation domain entity.
         """
-        payload = result.output if result.success else (result.error_message or "Tool execution failed")
+        payload = (
+            getattr(result, "result", None)
+            or getattr(result, "output", None)
+            or (result.error_message if not result.success else "Success")
+        )
         severity = "INFO" if result.success else "ERROR"
 
         return Observation(

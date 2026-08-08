@@ -6,6 +6,7 @@ Strictly preserves provider-neutrality and enables offline unit testing without 
 from __future__ import annotations
 
 from typing import Protocol
+
 from nexusai.brain.domain.agent import (
     AgentGoal,
     LoopDecision,
@@ -22,9 +23,7 @@ from nexusai.logging.logger import logger
 class IPlanningStrategy(Protocol):
     """Abstract Strategy interface for task planning."""
 
-    async def generate_plan(
-        self, goal: AgentGoal, ctx: AgentRuntimeContext
-    ) -> list[PlanStep]:
+    async def generate_plan(self, goal: AgentGoal, ctx: AgentRuntimeContext) -> list[PlanStep]:
         """Decompose an AgentGoal into an ordered sequence of PlanSteps.
 
         Args:
@@ -40,11 +39,11 @@ class IPlanningStrategy(Protocol):
 class RulePlanningStrategy:
     """Deterministic, rule-based planning strategy for fast offline testing and fallback."""
 
-    async def generate_plan(
-        self, goal: AgentGoal, ctx: AgentRuntimeContext
-    ) -> list[PlanStep]:
+    async def generate_plan(self, goal: AgentGoal, ctx: AgentRuntimeContext) -> list[PlanStep]:
         """Generate deterministic steps without making network calls."""
-        logger.debug(f"[RulePlanningStrategy] Generating rule-based plan for goal '{goal.description}'")
+        logger.debug(
+            f"[RulePlanningStrategy] Generating rule-based plan for goal '{goal.description}'"
+        )
         return [
             PlanStep(
                 step_id=1,
@@ -66,9 +65,7 @@ class RulePlanningStrategy:
 class LLMPlanningStrategy:
     """LLM-backed dynamic planning strategy using vendor-neutral PromptBundle."""
 
-    async def generate_plan(
-        self, goal: AgentGoal, ctx: AgentRuntimeContext
-    ) -> list[PlanStep]:
+    async def generate_plan(self, goal: AgentGoal, ctx: AgentRuntimeContext) -> list[PlanStep]:
         """Generate dynamic plan steps using provider runtime."""
         logger.debug(f"[LLMPlanningStrategy] Generating LLM plan for goal '{goal.description}'")
         # Baseline fallback step sequence until LLM provider call is connected
@@ -86,9 +83,7 @@ class LLMPlanningStrategy:
 class IReflectionStrategy(Protocol):
     """Abstract Strategy interface for evaluating observations and forming reflection analysis."""
 
-    async def reflect(
-        self, memory: WorkingMemory, observation: Observation
-    ) -> ReflectionAnalysis:
+    async def reflect(self, memory: WorkingMemory, observation: Observation) -> ReflectionAnalysis:
         """Evaluate observation and return objective ReflectionAnalysis.
 
         Args:
@@ -104,11 +99,11 @@ class IReflectionStrategy(Protocol):
 class RuleReflectionStrategy:
     """Deterministic rule-based reflection strategy for offline testing and fallback."""
 
-    async def reflect(
-        self, memory: WorkingMemory, observation: Observation
-    ) -> ReflectionAnalysis:
+    async def reflect(self, memory: WorkingMemory, observation: Observation) -> ReflectionAnalysis:
         """Evaluate observation using deterministic rules."""
-        logger.debug(f"[RuleReflectionStrategy] Reflecting on observation from tool '{observation.tool_name}'")
+        logger.debug(
+            f"[RuleReflectionStrategy] Reflecting on observation from tool '{observation.tool_name}'"
+        )
         if not observation.success or observation.severity == "ERROR":
             return ReflectionAnalysis(
                 goal_completed=False,
@@ -120,24 +115,25 @@ class RuleReflectionStrategy:
 
         # Check if all steps completed
         current_step = memory.current_step
-        all_completed = memory.steps and all(
-            s.status == StepStatus.COMPLETED for s in memory.steps if s != current_step
+        all_completed = bool(
+            memory.steps
+            and all(s.status == StepStatus.COMPLETED for s in memory.steps if s != current_step)
         )
 
         return ReflectionAnalysis(
             goal_completed=all_completed,
             confidence=1.0 if all_completed else 0.9,
             retryable=False,
-            suggested_action="Proceed to next plan step" if not all_completed else "Goal accomplished",
+            suggested_action=(
+                "Proceed to next plan step" if not all_completed else "Goal accomplished"
+            ),
         )
 
 
 class LLMReflectionStrategy:
     """LLM-backed reflection strategy for complex observation synthesis."""
 
-    async def reflect(
-        self, memory: WorkingMemory, observation: Observation
-    ) -> ReflectionAnalysis:
+    async def reflect(self, memory: WorkingMemory, observation: Observation) -> ReflectionAnalysis:
         """Reflect on observation using LLM inference."""
         logger.debug(f"[LLMReflectionStrategy] LLM reflecting on observation '{observation.id}'")
         return ReflectionAnalysis(
@@ -151,9 +147,7 @@ class LLMReflectionStrategy:
 class IDecisionStrategy(Protocol):
     """Abstract Strategy interface mapping ReflectionAnalysis to LoopDecision."""
 
-    def decide(
-        self, memory: WorkingMemory, analysis: ReflectionAnalysis
-    ) -> LoopDecision:
+    def decide(self, memory: WorkingMemory, analysis: ReflectionAnalysis) -> LoopDecision:
         """Determine next loop action based on WorkingMemory and ReflectionAnalysis.
 
         Args:
@@ -169,21 +163,18 @@ class IDecisionStrategy(Protocol):
 class RuleDecisionStrategy:
     """Deterministic rule-backed decision strategy."""
 
-    def decide(
-        self, memory: WorkingMemory, analysis: ReflectionAnalysis
-    ) -> LoopDecision:
+    def decide(self, memory: WorkingMemory, analysis: ReflectionAnalysis) -> LoopDecision:
         """Derive LoopDecision from ReflectionAnalysis and retry policy limits."""
-        logger.debug(f"[RuleDecisionStrategy] Deciding next loop state based on analysis (completed={analysis.goal_completed})")
+        logger.debug(
+            f"[RuleDecisionStrategy] Deciding next loop state based on analysis (completed={analysis.goal_completed})"
+        )
         if analysis.goal_completed:
             return LoopDecision.COMPLETE
 
-        if not analysis.retryable and not analysis.goal_completed:
-            return LoopDecision.FAIL
-
         # Evaluate retry limit if step failed
         if memory.current_step and memory.current_step.status == StepStatus.FAILED:
-            if memory.retry_count >= memory.retry_policy.max_attempts:
-                logger.warning(f"Step {memory.current_step.step_id} exceeded max retries ({memory.retry_policy.max_attempts})")
-                return LoopDecision.REPLAN
+            if memory.retry_count >= memory.retry_policy.max_attempts or not analysis.retryable:
+                return LoopDecision.FAIL
+            return LoopDecision.REPLAN
 
         return LoopDecision.CONTINUE

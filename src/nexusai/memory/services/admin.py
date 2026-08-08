@@ -54,13 +54,19 @@ class MemoryAdminService:
 
         vector_diag = {
             "status": "healthy" if self._vector_store else "unconfigured",
-            "provider": self._vector_store.capabilities.provider_name if self._vector_store else None,
+            "provider": (
+                self._vector_store.capabilities.provider_name if self._vector_store else None
+            ),
             "dimensions": self._vector_store.capabilities.dimensions if self._vector_store else 0,
         }
 
         embedding_diag = {
             "status": "healthy" if self._embedding_provider else "unconfigured",
-            "model": self._embedding_provider.capabilities.model_name if self._embedding_provider else None,
+            "model": (
+                self._embedding_provider.capabilities.model_name
+                if self._embedding_provider
+                else None
+            ),
         }
 
         return {

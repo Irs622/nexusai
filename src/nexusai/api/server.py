@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
+
 from dotenv import find_dotenv, load_dotenv
 from fastapi import FastAPI, HTTPException
 
@@ -152,12 +153,14 @@ def create_app(
             func = schema["function"]
             tool_name = func["name"]
             tool_obj = registry.get(tool_name)
-            tools_info.append({
-                "name": tool_name,
-                "description": func["description"],
-                "risk_level": tool_obj.risk_level.value,
-                "parameters": func["parameters"],
-            })
+            tools_info.append(
+                {
+                    "name": tool_name,
+                    "description": func["description"],
+                    "risk_level": tool_obj.risk_level.value,
+                    "parameters": func["parameters"],
+                }
+            )
         return tools_info
 
     @app.post("/api/chat")

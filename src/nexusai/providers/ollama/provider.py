@@ -10,9 +10,7 @@ from typing import Any, AsyncIterator
 import httpx
 
 from nexusai.core.annotations import stable
-from nexusai.logging.logger import logger
 from nexusai.providers.base import BaseProvider
-from nexusai.providers.exceptions import ProviderConfigurationError
 from nexusai.providers.models import (
     Capability,
     CapabilityLevel,
@@ -42,7 +40,9 @@ class OllamaProvider(BaseProvider):
         default_model: str = "llama3",
         http_client: httpx.AsyncClient | None = None,
     ) -> None:
-        self._base_url = (base_url or os.getenv("OLLAMA_BASE_URL") or self.DEFAULT_BASE_URL).rstrip("/")
+        self._base_url = (base_url or os.getenv("OLLAMA_BASE_URL") or self.DEFAULT_BASE_URL).rstrip(
+            "/"
+        )
         self._default_model = default_model
         self._translator = OllamaTranslator()
         self._client = http_client
@@ -99,7 +99,11 @@ class OllamaProvider(BaseProvider):
         try:
             resp = await self._client.post("/chat", json=payload)
             if resp.status_code != 200:
-                raw_json = resp.json() if "application/json" in resp.headers.get("content-type", "") else resp.text
+                raw_json = (
+                    resp.json()
+                    if "application/json" in resp.headers.get("content-type", "")
+                    else resp.text
+                )
                 raise CanonicalErrorMapper.map_http_error(resp.status_code, raw_json, self.id)
 
             raw_payload = resp.json()
@@ -133,7 +137,9 @@ class OllamaProvider(BaseProvider):
             async with self._client.stream("POST", "/chat", json=payload) as resp:
                 if resp.status_code != 200:
                     body = await resp.aread()
-                    raise CanonicalErrorMapper.map_http_error(resp.status_code, body.decode(), self.id)
+                    raise CanonicalErrorMapper.map_http_error(
+                        resp.status_code, body.decode(), self.id
+                    )
 
                 async for line in resp.aiter_lines():
                     line = line.strip()
@@ -141,7 +147,9 @@ class OllamaProvider(BaseProvider):
                         continue
                     try:
                         chunk_payload = json.loads(line)
-                        chunk_response = self._translator.to_canonical_response(chunk_payload, provider_id=self.id)
+                        chunk_response = self._translator.to_canonical_response(
+                            chunk_payload, provider_id=self.id
+                        )
                         yield chunk_response
                     except Exception:
                         continue
@@ -170,14 +178,24 @@ class OllamaProvider(BaseProvider):
                 data = resp.json()
                 raw_embeds = data.get("embeddings", [])
                 for idx, vec in enumerate(raw_embeds):
-                    embeddings_list.append(Embedding(text=texts[idx] if idx < len(texts) else "", vector=vec, index=idx))
-                return EmbeddingResult(embeddings=embeddings_list, model=target_model, provider=self.id)
+                    embeddings_list.append(
+                        Embedding(
+                            text=texts[idx] if idx < len(texts) else "", vector=vec, index=idx
+                        )
+                    )
+                return EmbeddingResult(
+                    embeddings=embeddings_list, model=target_model, provider=self.id
+                )
 
             # Fallback for older Ollama versions: POST /embeddings per item
             for idx, text in enumerate(texts):
-                single_resp = await self._client.post("/embeddings", json={"model": target_model, "prompt": text})
+                single_resp = await self._client.post(
+                    "/embeddings", json={"model": target_model, "prompt": text}
+                )
                 if single_resp.status_code != 200:
-                    raise CanonicalErrorMapper.map_http_error(single_resp.status_code, single_resp.text, self.id)
+                    raise CanonicalErrorMapper.map_http_error(
+                        single_resp.status_code, single_resp.text, self.id
+                    )
                 vec = single_resp.json().get("embedding", [])
                 embeddings_list.append(Embedding(text=text, vector=vec, index=idx))
 

@@ -5,6 +5,7 @@ KernelOutboxAdapter and InMemoryOutboxWriter implementing IOutboxWriter port.
 from __future__ import annotations
 
 from typing import Any
+
 from nexusai.brain.persistence.contracts import IOutboxWriter, OutboxRecord
 from nexusai.logging.logger import logger
 
@@ -18,7 +19,9 @@ class InMemoryOutboxWriter(IOutboxWriter):
     async def write_record(self, record: OutboxRecord) -> bool:
         """Write OutboxRecord to in-memory transaction buffer."""
         self.records.append(record)
-        logger.debug(f"InMemoryOutboxWriter recorded event '{record.event_type}' (id={record.event_id})")
+        logger.debug(
+            f"InMemoryOutboxWriter recorded event '{record.event_type}' (id={record.event_id})"
+        )
         return True
 
 

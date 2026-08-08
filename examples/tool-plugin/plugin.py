@@ -1,9 +1,13 @@
 """Example custom tool plugin for NexusAI."""
+
 from pydantic import BaseModel, Field
+
 from nexusai.tools.base import BaseTool
+
 
 class GreetingInput(BaseModel):
     name: str = Field(description="Name to greet")
+
 
 class GreetingTool(BaseTool):
     name = "greeting_tool"

@@ -1,16 +1,3 @@
----
-status: stable
-audience:
-  - end-users
-  - contributors
-owner:
-  - core-team
-applies_to:
-  - release-notes
-review_cycle: quarterly
-last_reviewed: 2026-08-03
----
-
 # 📜 Changelog
 
 All notable changes to **NexusAI** will be documented in this file.
@@ -22,97 +9,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### 🟢 Added — Phase 3.1 Brain Runtime Core (Milestones 3.1.1 - 3.1.8 Complete)
-- `feat(brain)`: Implemented versioned domain contracts and runtime context infrastructure (`BrainSession` v1.0, `SessionState` v1.0, `ExecutionContext` v1.0 with 5 sub-contexts, `PromptBundle` v1.0 with polymorphic `ArtifactRegistry`, `ExecutionBudget`, `ExecutionUsage`, `TurnMetrics` v1.0, and `BrainError` exception hierarchy).
-- `feat(brain)`: Implemented Provider ExecutionPlan & Capability Negotiation Bridge (`RequiredCapabilities`, `ExecutionConstraints`, `Capability` Enum, `ExecutionStep`, `ExecutionPlan`, and lean `ProviderSelector` fallback route builder).
-- `feat(brain)`: Implemented Context & Token-Aware History Pipeline (`ContextBudget` contract with reserved reasoning headroom, `AssembledContext` value object, `IHistoryProvider` port, `TokenBoundedHistory`, `HistoryLoader`, `SystemPromptResolver`, `ContextTruncator` with strategy pattern, and `ContextAssembler`).
-- `feat(brain)`: Implemented Canonical Prompt Pipeline & Priority ExtensionEvent Engine (`PromptRenderer` compiling provider-independent `PromptBundle` v1.0, `ExtensionEvent` container, `PluginFailurePolicy` error isolation, and `PriorityExtensionDispatcher` executing handlers in priority order).
-- `feat(brain)`: Implemented Delta Streaming Execution & ExecutionTracer Telemetry (`TurnStream` async generator wrapper with zero double-buffering, cancellation monitoring, `ExecutionTracer` sub-stage latency markers capturing TTFT in ms, throughput tokens/sec, and OpenTelemetry span helpers).
-- `feat(brain)`: Implemented Kernel Outbox Transactional Persistence (`OutboxRecord` with JSON contract boundaries, `IOutboxWriter` port, `KernelOutboxAdapter`, `InMemoryOutboxWriter`, and write-behind `TurnPersistenceService`).
-- `feat(brain)`: Implemented Open/Closed `IExecutionStage` Pipeline Engine & `BrainRuntimeFacade` (`HistoryStage`, `PromptStage`, `ProviderStage`, `PersistenceStage`, `ExecutionPipeline` orchestrator, `TurnResponse`, and `BrainRuntimeFacade`).
-- `test(brain)`: Added Milestone 3.1.8 Production Hardening test suite (100 concurrent streams load test, cancellation stress test, `PromptBundle` fuzzing, and contract serialization roundtrip verification across all domain payloads).
-- `test(brain)`: Complete unit and integration test coverage (`test_domain.py`, `test_runtime_context.py`, `test_capabilities_and_plan.py`, `test_context_pipeline.py`, `test_prompt_renderer_and_events.py`, `test_streaming_and_telemetry.py`, `test_persistence_and_outbox.py`, `test_brain_runtime_pipeline.py`, `test_production_hardening.py`).
+---
 
-### ⚠️ Breaking Changes & API Migration Notes — Phase 2.6B
+## [0.6.0] - 2026-08-07
 
-#### `ProviderProfile` constructor refactored
-- **Before:** `ProviderProfile(provider_id="x", models=[...], average_latency_ms=...)`
-- **After:** `ProviderProfile(metadata=ProviderMetadata(provider_id="x", display_name="..."))`
-- **Migration:** Wrap provider static identity into `ProviderMetadata` instance and pass as `metadata=` keyword argument.
+### 🟢 Added — Phase 6: End-to-End Integration, Observability & Learning Loop
+- `feat(telemetry)`: OpenTelemetry-compatible `ExecutionSpan` and `TraceCollector` capturing sub-operation timeline spans and aggregated latency breakdowns (`planner.plan`, `tool.execute`, `reflection.reflect`).
+- `feat(runtime)`: Granular `ResourceManager` and `ResourceBudget` tracking CPU, RAM, token limits, concurrency worker ceilings, API cost ceilings, and raising `ResourceQuotaExceededError`.
+- `feat(runtime)`: `AdaptiveBudgetAdaptation` dynamically scaling down concurrency and context depth when resource budgets run low.
+- `feat(eval)`: Closed-loop `OfflineEvaluator` and `StrategyTrainer` automatically tuning `PlannerWeights` based on historical `DecisionDatasetEntry` outcomes and scalar rewards.
+- `feat(memory)`: `DeduplicatingClusterCompressor` deduplicating exact/near-duplicate texts before token budget compression.
 
-#### `ExecutionContext` cancellation token sub-context restructuring
-- **Before:** `ExecutionContext(cancellation_token=token)`
-- **After:** `ctx = ExecutionContext(); token = ctx.runtime.cancellation_token`
-- **Migration:** Access cancellation token via `context.runtime.cancellation_token`.
+---
 
-#### `EmbeddingCapabilities` field renaming
-- **Before:** `EmbeddingCapabilities(max_dimension=768, supports_gpu=True)`
-- **After:** `EmbeddingCapabilities(dimensions=768)`
-- **Migration:** Use `dimensions=` instead of `max_dimension=`. Remove obsolete `supports_gpu=` attribute.
+## [0.5.0] - 2026-08-07
 
-#### `ModelInfo` and `ProviderHealth` field alignment
-- **Before:** `model.name`, `health.model_count`
-- **After:** `model.id`, `health.available_models`
-- **Migration:** Use `.id` for `ModelInfo` primary identifier; use `.available_models` for `ProviderHealth` metric.
+### 🟢 Added — Phase 5: Modular Planner, Capability Discovery, Execution Policy & Memory Intelligence
+- `feat(planner)`: Modular ExecutionPlanner pipeline stages (`GoalAnalyzer`, `TaskDecomposer`, `DependencyResolver`, `ActionRanker`, `ExecutionPlanner`) producing `PlanGraph` DAG plans.
+- `feat(planner)`: Pre-execution `PlanValidator` verifying DFS cycle detection, dead-end nodes, unreachable steps, and budget bounds.
+- `feat(planner)`: Parallel async `ExecutionScheduler` running independent DAG branches concurrently via worker queues.
+- `feat(ports)`: Dynamic `RuntimeCapabilityDiscovery` and ephemeral `DynamicCapabilityGraphBuilder` decoupling planning from hardcoded tool names.
+- `feat(runtime)`: `ExecutionPolicy` and `CircuitBreaker` sandboxing preventing cascading tool failures across `CLOSED`, `OPEN`, and `HALF_OPEN` states.
+- `feat(planner)`: `PlanGraphExecutionEngine` executing DAG nodes sequentially or concurrently enforcing runtime policies.
+- `feat(eval)`: `DecisionDataset` and `DecisionDatasetEntry` capturing execution decision trajectories for offline evaluation and RL training.
+- `feat(memory)`: Multi-tier Memory Intelligence pipeline (`MemoryIndexer`, `MemoryRetriever`, `MemoryRanker` with exponential recency decay, `MemoryConflictResolver`, `ContextCompressor`, `ContextAssembler`, `MemoryPolicy`).
+- `feat(domain)`: `WorldState` domain model encapsulating workspace path, environment variables, active MCP servers, and system resources.
+- `feat(events)`: Publish-subscribe `AgentEventBus` and typed domain events (`PlannerFinishedEvent`, `ExecutionStartedEvent`, `ExecutionFinishedEvent`, `ToolFailedEvent`, `MemoryUpdatedEvent`, `DecisionRecordedEvent`).
+- `feat(reflection)`: Diagnostic `ReflectionEngine` assessing expectation-outcome gaps and `PlanRepairEngine` dynamically patching `PlanGraph` DAG nodes.
+- `feat(memory)`: `MemoryConsolidator` consolidating stale episodic memories into permanent semantic knowledge summaries.
 
-### Added — Phase 2.6B + 2.6C: Baseline Stabilization & RC Validation Gate
+---
 
-- `feat(quality)`: Tiered test execution matrix via `tools/run_tests.py` with `--mode` options (`local`, `unit`, `ci-pr`, `nightly`, `all`, `integration`, `contract`, `network`, `snapshot`, `architecture`).
-- `feat(quality)`: Pytest test matrix marker registration in `pyproject.toml` (`unit`, `integration`, `contract`, `benchmark`, `stress`, `network`, `snapshot`, `architecture`, `security`, `slow`).
-- `feat(api)`: Golden API Compatibility snapshot test suite in `tests/api_compatibility/` covering 6 frozen public API contracts (`ProviderProfile`, `ProviderMetadata`, `ProviderHealth`, `EmbeddingCapabilities`, `MemoryRecord`, `ExecutionContext`).
-- `feat(quality)`: Cross-platform Python-native fresh installation verification script `tools/verify_fresh_install.py`.
-- `docs(architecture)`: Added `docs/architecture/api_freeze.md` (3-tier governance policy: Stable, Beta, Experimental) and `docs/architecture/compatibility_matrix.md`.
-- `feat(quality)`: Updated `tools/run_quality_gate.py` with `--release` mode support executing full verification sequence.
+## [0.4.0] - 2026-08-06
 
-### Added — Phase 2.6: Engineering Quality Gate
+### 🟢 Added — Phase 4: Quality Engineering & Replay Infrastructure
+- `feat(replay)`: Deterministic execution replay (`ReplayRecorder`, `ReplayRunner`, `ExecutionLog`, `ExecutionEvent`).
+- `feat(state)`: Core and Extended state hash computation (`compute_core_state_hash`, `compute_extended_state_hash`).
+- `feat(eval)`: Golden scenario corpus generation (`ScenarioCorpus`, `ScenarioRunner`, `AgentEvaluator`, `BenchmarkComparator`, `BenchmarkReportAggregator`).
+- `feat(ci)`: Automated benchmark regression detection and CI quality gate.
 
-- `chore(quality)`: Modular tool runner architecture under `tools/` — separate single-responsibility scripts for formatting (`run_formatter.py`), linting (`run_linter.py`), type checking (`run_typecheck.py`), test execution (`run_tests.py`), mutation testing (`run_mutation_tests.py`), benchmark pipeline (`run_benchmarks.py`), security audit (`run_security_audit.py`), and license compliance (`run_license_check.py`).
-- `chore(quality)`: `tools/run_quality_gate.py` — local developer master orchestrator executing Stage 1 (formatter, linter, typecheck) in parallel via `concurrent.futures`, followed by sequential Stage 2 (architecture, tests, benchmarks).
-- `chore(ci)`: Updated GitHub Actions workflows — `lint.yml` now correctly runs `run_formatter.py`, `run_linter.py`, and `run_typecheck.py` instead of incorrectly running pytest; `tests.yml` delegates to `run_tests.py`; `ci.yml` delegates to `run_quality_gate.py`.
-- `chore(quality)`: `.pre-commit-config.yaml` — standard pre-commit configuration with ruff, black, isort, mypy, and file hygiene hooks.
-- `chore(benchmark)`: Pluggable benchmark framework with `benchmarks/collectors/`, `benchmarks/comparators/`, and `benchmarks/reporters/` sub-packages.
-- `chore(benchmark)`: Benchmark trend reporting with `Current`, `Previous`, `Delta (%)`, and `PASS/FAIL` status per metric.
-- `chore(benchmark)`: Restructured `benchmarks/history/` into `history/baseline/` (committed baselines) and `history/runs/` (timestamped run snapshots).
-- `chore(benchmark)`: `benchmarks/check_regressions.py` updated to delegate to the new pluggable benchmark framework instead of static file check.
-- `test(kernel)`: `tests/kernel/test_kernel_extreme_stress.py` — extreme stress test suite covering: 10,000 concurrent async task submissions, 100-service rapid startup, rapid shutdown under 500 in-flight jobs, queue flooding via 5×1,000 burst enqueue, dependency graph concurrent resolution (100 parallel queries), and concurrent registry registration contention (200 services).
-- `chore(security)`: `tools/run_security_audit.py` — `pip-audit` CVE vulnerability scanner integration.
-- `chore(security)`: `tools/run_license_check.py` — dependency license compliance checker (GPL blocked, MIT/Apache/BSD allowed).
-- `chore(config)`: `pyproject.toml` updated with `isort`, `mutmut`, `pip-audit`, `pip-licenses` dev dependencies; `[tool.coverage.run]` with branch coverage; `[tool.coverage.report]` with `fail_under = 90`; `[tool.mutmut]` scoped to `core/kernel/memory/domain`.
-- `docs(engineering)`: `docs/engineering/quality_gate.md` — complete engineering quality reference guide.
+---
 
-### Added — Phase 2.5: Kernel Orchestration Engine
-- `feat(kernel)`: Phase 2.5 Kernel Orchestration Engine implementing deterministic boot, topological dependency resolution, state machine lifecycle coordination with automated rollback protection (`ROLLING_BACK`), time-based `RuntimeScheduler`, queue-based `BackgroundWorkerManager`, and structured diagnostic `SnapshotManager`.
-- `feat(kernel)`: Facade-driven `KernelOrchestrator` delegating to specialized kernel managers and exposing aggregated health/metrics across subsystems.
-- `test(kernel)`: Complete unit test suite for service registry, dependency graph DAG, lifecycle coordinator, runtime scheduler, worker manager, snapshot manager, and kernel orchestrator.
-- `test(acceptance)`: End-to-end acceptance tests validating boot failure recovery and restart after failure capabilities.
-- `docs(kernel)`: Architecture guide for `docs/architecture/kernel_orchestration.md`.
+## [0.3.0] - 2026-08-04
 
-- `feat(providers)`: Sprint 5 Canonical Normalizations & Semantic Equivalence Suite across 4 provider translators (`OpenAITranslator`, `GeminiTranslator`, `AnthropicTranslator`, `OllamaTranslator`).
-- `feat(providers)`: Add optional `Usage.reasoning_tokens` metric field to canonical `Usage` model mapped across OpenRouter, Gemini, and Anthropic.
-- `feat(providers)`: Add `retry_after: float | None` attribute to `ProviderRateLimitError` and HTTP header parsing in `CanonicalErrorMapper`.
-- `test(contracts)`: Add `test_canonical_equivalence.py` semantic equivalence test suite verifying request/response/tool/error contract translation integrity across all 4 vendor translators.
-- `feat(providers)`: Add `OllamaProvider` local REST adapter for offline LLM execution (`http://localhost:11434`), supporting chat, streaming, embeddings, tags/models discovery, and health checks.
-- Unit, Contract, Fault Injection, and Live integration test suites for `OllamaProvider`.
-- Multi-Level Provider Certification L5 for `OllamaProvider` with 0 kernel mutations.
-- Vendor-agnostic Provider SDK foundation (`BaseProvider`, `ProviderRegistry`, `ProviderManager`, `ProviderRouter`, typed contracts `ChatRequest`/`ChatResponse`, `JSONSchema`, and capability spectrum) under `nexusai.providers`.
-- Architectural Decision Record `docs/adr/0007-canonical-model-evolution.md` for governing canonical model evolution rules.
-- Architectural Decision Record `docs/adr/0006-provider-sdk.md`.
-- Complete OSPO documentation suite (`docs/index.md`, `AGENTS.md`, `MANIFESTO.md`, `PHILOSOPHY.md`, `DESIGN.md`, `PROJECT_CHARTER.md`).
-- Formal specifications for Runtime, Memory, Workflow, Plugins, Providers, and Tools under `docs/specs/`.
-- Security architecture guides (`permission-model.md`, `tool-sandbox.md`, `threat-model.md`).
+### 🟢 Added — Phase 3: Brain Runtime Core
+- `feat(brain)`: Versioned domain contracts and runtime context infrastructure (`BrainSession`, `ExecutionContext`, `PromptBundle`, `ArtifactRegistry`).
+- `feat(brain)`: Provider ExecutionPlan and Capability Negotiation Bridge (`RequiredCapabilities`, `ProviderSelector`).
+- `feat(brain)`: Delta streaming execution, telemetry tracer, and Kernel Outbox transactional persistence.
 
-### Fixed
-- Fixed circular import dependency between `nexusai.core.config`, `nexusai.security.guard`, and `nexusai.tools` package modules.
-- Implemented `SystemConfig.load_from_yaml` classmethod and resolved Pydantic model rebuild annotations.
+---
+
+## [0.2.0] - 2026-08-03
+
+### 🟢 Added — Phase 2: Kernel Orchestration Engine & Quality Gate
+- `feat(kernel)`: Deterministic boot, topological dependency resolution, state machine lifecycle coordination, and `KernelOrchestrator`.
+- `feat(quality)`: Modular quality gate runners (`run_formatter.py`, `run_linter.py`, `run_typecheck.py`, `run_tests.py`, `run_quality_gate.py`).
 
 ---
 
 ## [0.1.0-alpha] - 2026-08-03
 
-### Added
+### 🟢 Added — Initial Alpha Release
 - Core CQRS architecture (`CommandBus`, `QueryBus`, `EventBus`).
-- Model-agnostic LLM provider interface (`BaseModelProvider`, `OpenAIProvider`).
-- Interactive CLI application (`nexusai chat`, `nexusai status`).
-- Web Dashboard interface (`nexusai web`).
+- Model-agnostic LLM provider interfaces (OpenAI, OpenRouter, Ollama, Gemini, Anthropic).
+- Interactive CLI application (`nexusai chat`) and Web Dashboard.
 - Security Guard and Risk Classifier (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`).
-- Local SQLite memory storage (`SQLiteMemory`).

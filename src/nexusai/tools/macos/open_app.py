@@ -3,6 +3,7 @@ Open macOS Application Tool.
 """
 
 from typing import Any
+
 from pydantic import BaseModel, Field
 
 from nexusai.security.guard import RiskLevel
@@ -13,7 +14,10 @@ from nexusai.tools.system.applescript import execute_applescript
 class OpenAppInputSchema(BaseModel):
     """Input schema for macos_open_app tool."""
 
-    app_name: str = Field(..., description="Name of the macOS application to activate (e.g. 'Google Chrome', 'Spotify', 'Terminal')")
+    app_name: str = Field(
+        ...,
+        description="Name of the macOS application to activate (e.g. 'Google Chrome', 'Spotify', 'Terminal')",
+    )
 
 
 class OpenAppTool(BaseTool):

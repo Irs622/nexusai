@@ -47,7 +47,9 @@ def test_repository_layout_isolation():
             if root_pkg in forbidden_roots:
                 violations.append(f"{rel_path} -> {imp}")
 
-    assert not violations, f"Application code illegally imports tooling packages:\n" + "\n".join(violations)
+    assert not violations, "Application code illegally imports tooling packages:\n" + "\n".join(
+        violations
+    )
 
 
 def test_brain_domain_dag_isolation():
@@ -74,7 +76,7 @@ def test_brain_domain_dag_isolation():
                 if imp.startswith(forbidden):
                     violations.append(f"{rel_path} -> {imp}")
 
-    assert not violations, f"brain.domain violates DAG flow by importing:\n" + "\n".join(violations)
+    assert not violations, "brain.domain violates DAG flow by importing:\n" + "\n".join(violations)
 
 
 def test_brain_runtime_dag_isolation():
@@ -95,7 +97,7 @@ def test_brain_runtime_dag_isolation():
                 if imp.startswith(forbidden):
                     violations.append(f"{rel_path} -> {imp}")
 
-    assert not violations, f"brain.runtime violates DAG flow by importing:\n" + "\n".join(violations)
+    assert not violations, "brain.runtime violates DAG flow by importing:\n" + "\n".join(violations)
 
 
 if __name__ == "__main__":

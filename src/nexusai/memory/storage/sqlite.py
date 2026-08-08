@@ -4,8 +4,8 @@ SQLiteMemoryStore storage implementation storing serialized aggregate payloads.
 
 from __future__ import annotations
 
-from pathlib import Path
 import sqlite3
+from pathlib import Path
 from typing import Sequence
 
 from nexusai.memory.contracts.storage import MemoryStorage
@@ -16,12 +16,20 @@ from nexusai.memory.serializer import JSONMemorySerializer, MemorySerializer
 class SQLiteMemoryStore(MemoryStorage):
     """SQLite persistence storage engine storing serialized aggregate payloads."""
 
-    def __init__(self, db_path: str | Path = ":memory:", serializer: MemorySerializer | None = None) -> None:
+    def __init__(
+        self, db_path: str | Path = ":memory:", serializer: MemorySerializer | None = None
+    ) -> None:
         self._db_path = str(db_path)
         self._serializer = serializer or JSONMemorySerializer()
+        self._memory_conn: sqlite3.Connection | None = None
         self._init_db()
 
     def _get_connection(self) -> sqlite3.Connection:
+        if self._db_path == ":memory:":
+            if not hasattr(self, "_memory_conn") or self._memory_conn is None:
+                self._memory_conn = sqlite3.connect(":memory:")
+                self._memory_conn.row_factory = sqlite3.Row
+            return self._memory_conn
         conn = sqlite3.connect(self._db_path)
         conn.row_factory = sqlite3.Row
         return conn
@@ -82,7 +90,8 @@ class SQLiteMemoryStore(MemoryStorage):
         """List stored MemoryRecords up to limit."""
         with self._get_connection() as conn:
             rows = conn.execute(
-                "SELECT payload_bytes FROM memory_records ORDER BY created_at DESC LIMIT ?", (limit,)
+                "SELECT payload_bytes FROM memory_records ORDER BY created_at DESC LIMIT ?",
+                (limit,),
             ).fetchall()
 
         records: list[MemoryRecord] = []

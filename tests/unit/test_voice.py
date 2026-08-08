@@ -2,8 +2,9 @@
 Unit tests for Voice Interface (TTS cleaner, mac_tts, and STT listener).
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from nexusai.voice.stt import listen
 from nexusai.voice.tts import clean_text_for_speech, mac_tts

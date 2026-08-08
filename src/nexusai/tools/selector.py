@@ -1,7 +1,10 @@
 """Dynamic AI Tool Selector & Ranking Engine with Semantic Description Scoring."""
-from typing import List, Dict, Any, Optional
-from nexusai.tools.registry import ToolRegistry
+
+from typing import Optional
+
 from nexusai.tools.base import BaseTool
+from nexusai.tools.registry import ToolRegistry
+
 
 class ToolSelector:
     """Evaluates task descriptions and dynamically ranks tools using semantic description scoring."""

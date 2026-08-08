@@ -5,7 +5,6 @@ BasePlugin abstract contract for all NexusAI plugins.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any
 
 from nexusai.plugins.contracts.context import PluginContext
 from nexusai.plugins.contracts.manifest import PluginManifest

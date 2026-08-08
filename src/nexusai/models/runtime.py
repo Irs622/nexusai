@@ -1,9 +1,12 @@
 """Provider Resilience Runtime: Retries, Rate Limiting, and Fallback Providers."""
+
 import asyncio
 from typing import Any, Dict, List, Optional
-from nexusai.models.base import BaseModelProvider
+
 from nexusai.core.errors import ModelProviderError
 from nexusai.logging.logger import logger
+from nexusai.models.base import BaseModelProvider
+
 
 class ProviderRuntime:
     """Resilient wrapper for BaseModelProvider supporting retries, timeouts, and fallbacks."""
@@ -34,7 +37,9 @@ class ProviderRuntime:
                 return await self.primary.chat(messages, tools)
             except Exception as e:
                 last_exception = e
-                logger.warning(f"Primary LLM Provider attempt {attempt}/{self.max_retries} failed: {e}")
+                logger.warning(
+                    f"Primary LLM Provider attempt {attempt}/{self.max_retries} failed: {e}"
+                )
                 if attempt < self.max_retries:
                     await asyncio.sleep(self.backoff_seconds * attempt)
 
@@ -44,6 +49,10 @@ class ProviderRuntime:
             try:
                 return await self.fallback.chat(messages, tools)
             except Exception as fe:
-                raise ModelProviderError(f"Both Primary and Fallback LLM Providers failed. Fallback error: {fe}") from fe
+                raise ModelProviderError(
+                    f"Both Primary and Fallback LLM Providers failed. Fallback error: {fe}"
+                ) from fe
 
-        raise ModelProviderError(f"LLM Provider call failed after {self.max_retries} attempts: {last_exception}") from last_exception
+        raise ModelProviderError(
+            f"LLM Provider call failed after {self.max_retries} attempts: {last_exception}"
+        ) from last_exception

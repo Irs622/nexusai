@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 """Unit tests for the NexusAI Provider SDK foundation."""
 
 from typing import Any, AsyncIterator
+
 import pytest
 
 from nexusai.providers import (
@@ -390,7 +392,9 @@ async def test_middleware_pipeline() -> None:
         def __init__(self, name: str) -> None:
             self.name = name
 
-        async def process(self, request: ChatRequest, next_call, session: ProviderSession | None = None) -> ChatResponse:
+        async def process(
+            self, request: ChatRequest, next_call, session: ProviderSession | None = None
+        ) -> ChatResponse:
             execution_order.append(f"enter_{self.name}")
             resp = await next_call(request)
             execution_order.append(f"exit_{self.name}")
@@ -492,6 +496,7 @@ def test_hierarchical_cancellation_token() -> None:
 
 def test_test_clock_and_deadline() -> None:
     from datetime import datetime, timezone
+
     from nexusai.providers import Deadline, TestClock
 
     clock = TestClock(initial_time=1000.0)
@@ -535,8 +540,3 @@ async def test_execution_engine_pipeline() -> None:
     assert res is not None
     assert res.primary_choice().message.content == "Mock response output"
     assert res.provider == "engine_mock"
-
-
-
-
-

@@ -1,7 +1,10 @@
 """Dynamic Provider Router based on Health Score, Cost, and Capability."""
-from typing import List, Dict, Any, Optional
+
+from typing import Dict, Optional
+
 from nexusai.models.base import BaseModelProvider
 from nexusai.models.circuit_breaker import CircuitBreaker
+
 
 class ProviderRouter:
     """Routes requests to the optimal LLM provider based on real-time metrics and capabilities."""

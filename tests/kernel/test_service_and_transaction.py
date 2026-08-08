@@ -2,11 +2,10 @@
 Unit tests for KernelService, ServiceDescriptor, AsyncTransaction, and probes.
 """
 
-from typing import Any
 import pytest
 
 from nexusai.kernel.service import KernelService, ServiceDescriptor, ServiceLifecycleState
-from nexusai.kernel.transaction import AsyncTransaction, UnitOfWork
+from nexusai.kernel.transaction import AsyncTransaction
 
 
 class DummyService(KernelService):

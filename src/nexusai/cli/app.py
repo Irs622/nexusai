@@ -3,16 +3,16 @@ Typer CLI Application Entrypoint for NexusAI.
 """
 
 import asyncio
-from dotenv import find_dotenv, load_dotenv
+
 import typer
 import uvicorn
+from dotenv import find_dotenv, load_dotenv
 
 load_dotenv(find_dotenv(usecwd=True))
 
 from nexusai.cli.chat import start_chat_session
 from nexusai.cli.console import print_banner, print_error, print_info, print_success
 from nexusai.core.config import SystemConfig
-from nexusai.logging.logger import setup_logger
 
 app = typer.Typer(
     name="nexusai",
@@ -72,7 +72,9 @@ def status() -> None:
         print_banner()
         print_success("System Status: OPERATIONAL")
         print_info(f"Environment: {config.app.environment}")
-        print_info(f"Default Model: {config.models.default_provider} / {config.models.default_model}")
+        print_info(
+            f"Default Model: {config.models.default_provider} / {config.models.default_model}"
+        )
         print_info(f"Strict Security Mode: {config.security.strict_mode}")
     except Exception as e:
         print_error(f"Failed to load status: {e}")

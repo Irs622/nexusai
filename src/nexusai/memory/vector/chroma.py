@@ -35,7 +35,9 @@ class ChromaVectorStore(VectorStore):
             supports_metadata_filtering=True,
             supports_batch=True,
         )
-        self._fallback = InMemoryVectorStore(provider_name="chroma_vector_store", dimensions=dimensions)
+        self._fallback = InMemoryVectorStore(
+            provider_name="chroma_vector_store", dimensions=dimensions
+        )
 
     @property
     def capabilities(self) -> VectorCapabilities:
@@ -62,7 +64,9 @@ class ChromaVectorStore(VectorStore):
         filter_dict: dict[str, Any] | None = None,
     ) -> Sequence[VectorMatch]:
         """Perform vector search."""
-        return await self._fallback.search(query_vector, top_k=top_k, namespace=namespace, filter_dict=filter_dict)
+        return await self._fallback.search(
+            query_vector, top_k=top_k, namespace=namespace, filter_dict=filter_dict
+        )
 
     async def batch_upsert(self, records: Sequence[VectorRecord]) -> None:
         """Batch upsert records."""

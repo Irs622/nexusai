@@ -1,4 +1,5 @@
 import pytest
+
 pytestmark = pytest.mark.network
 """Canonical Semantic Equivalence Test Suite across all Provider Translators.
 
@@ -15,9 +16,6 @@ from nexusai.providers import (
     ChatResponse,
     MessageRole,
     ProviderRateLimitError,
-    ToolCall,
-    ToolSchema,
-    Usage,
 )
 from nexusai.providers.translators import (
     AnthropicTranslator,
@@ -68,7 +66,13 @@ def test_chat_response_semantic_equivalence(translators):
     openai_raw = {
         "id": "gen-123",
         "model": "gpt-4o",
-        "choices": [{"index": 0, "message": {"role": "assistant", "content": "Hello!"}, "finish_reason": "stop"}],
+        "choices": [
+            {
+                "index": 0,
+                "message": {"role": "assistant", "content": "Hello!"},
+                "finish_reason": "stop",
+            }
+        ],
         "usage": {
             "prompt_tokens": 10,
             "completion_tokens": 20,
@@ -80,7 +84,12 @@ def test_chat_response_semantic_equivalence(translators):
     # 2. Gemini Raw Payload
     gemini_raw = {
         "candidates": [{"content": {"parts": [{"text": "Hello!"}]}, "finishReason": "STOP"}],
-        "usageMetadata": {"promptTokenCount": 10, "candidatesTokenCount": 20, "totalTokenCount": 30, "thinkingTokenCount": 5},
+        "usageMetadata": {
+            "promptTokenCount": 10,
+            "candidatesTokenCount": 20,
+            "totalTokenCount": 30,
+            "thinkingTokenCount": 5,
+        },
     }
 
     # 3. Anthropic Raw Payload
@@ -155,7 +164,9 @@ def test_tool_call_semantic_equivalence(translators):
 def test_error_mapper_retry_after_parsing():
     """Verify CanonicalErrorMapper extracts Retry-After header for RateLimit errors (seconds format)."""
     headers_sec = {"retry-after": "12.5", "content-type": "application/json"}
-    err = CanonicalErrorMapper.map_http_error(429, "Rate limit exceeded", "openrouter", headers=headers_sec)
+    err = CanonicalErrorMapper.map_http_error(
+        429, "Rate limit exceeded", "openrouter", headers=headers_sec
+    )
     assert isinstance(err, ProviderRateLimitError)
     assert err.retry_after == 12.5
 
@@ -169,7 +180,9 @@ def test_error_mapper_retry_after_http_date():
     """Verify CanonicalErrorMapper handles RFC 1123 HTTP date strings in Retry-After headers."""
     # Future HTTP date string
     headers_date = {"Retry-After": "Wed, 21 Oct 2026 07:28:00 GMT"}
-    err = CanonicalErrorMapper.map_http_error(429, "Rate limit exceeded", "anthropic", headers=headers_date)
+    err = CanonicalErrorMapper.map_http_error(
+        429, "Rate limit exceeded", "anthropic", headers=headers_date
+    )
     assert isinstance(err, ProviderRateLimitError)
     assert err.retry_after is not None
     assert err.retry_after >= 0.0

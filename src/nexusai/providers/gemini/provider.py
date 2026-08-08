@@ -10,7 +10,6 @@ from typing import Any, AsyncIterator
 import httpx
 
 from nexusai.core.annotations import stable
-from nexusai.logging.logger import logger
 from nexusai.providers.base import BaseProvider
 from nexusai.providers.exceptions import ProviderConfigurationError
 from nexusai.providers.models import (
@@ -44,7 +43,9 @@ class GeminiProvider(BaseProvider):
         http_client: httpx.AsyncClient | None = None,
     ) -> None:
         self._api_key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-        self._base_url = (base_url or os.getenv("GEMINI_BASE_URL") or self.DEFAULT_BASE_URL).rstrip("/")
+        self._base_url = (base_url or os.getenv("GEMINI_BASE_URL") or self.DEFAULT_BASE_URL).rstrip(
+            "/"
+        )
         self._default_model = default_model
         self._translator = GeminiTranslator()
         self._client = http_client
@@ -109,7 +110,11 @@ class GeminiProvider(BaseProvider):
         try:
             resp = await self._client.post(url, json=payload)
             if resp.status_code != 200:
-                raw_json = resp.json() if "application/json" in resp.headers.get("content-type", "") else resp.text
+                raw_json = (
+                    resp.json()
+                    if "application/json" in resp.headers.get("content-type", "")
+                    else resp.text
+                )
                 raise CanonicalErrorMapper.map_http_error(resp.status_code, raw_json, self.id)
 
             raw_payload = resp.json()
@@ -146,7 +151,9 @@ class GeminiProvider(BaseProvider):
             async with self._client.stream("POST", url, json=payload) as resp:
                 if resp.status_code != 200:
                     body = await resp.aread()
-                    raise CanonicalErrorMapper.map_http_error(resp.status_code, body.decode(), self.id)
+                    raise CanonicalErrorMapper.map_http_error(
+                        resp.status_code, body.decode(), self.id
+                    )
 
                 async for line in resp.aiter_lines():
                     line = line.strip()
@@ -156,7 +163,18 @@ class GeminiProvider(BaseProvider):
                         data_str = line[6:].strip()
                         try:
                             chunk_payload = json.loads(data_str)
-                            chunk_response = self._translator.to_canonical_response(chunk_payload, provider_id=self.id)
+                            chunk_response = self._translator.to_canonical_response(
+                                chunk_payload, provider_id=self.id
+                            )
+                            yield chunk_response
+                        except Exception:
+                            continue
+                    else:
+                        try:
+                            chunk_payload = json.loads(line)
+                            chunk_response = self._translator.to_canonical_response(
+                                chunk_payload, provider_id=self.id
+                            )
                             yield chunk_response
                         except Exception:
                             continue
@@ -208,8 +226,16 @@ class GeminiProvider(BaseProvider):
             resp = await self._client.get(url)
             if resp.status_code != 200:
                 return [
-                    ModelInfo(id="models/gemini-1.5-flash", display_name="Gemini 1.5 Flash", context_window=1000000),
-                    ModelInfo(id="models/gemini-1.5-pro", display_name="Gemini 1.5 Pro", context_window=2000000),
+                    ModelInfo(
+                        id="models/gemini-1.5-flash",
+                        display_name="Gemini 1.5 Flash",
+                        context_window=1000000,
+                    ),
+                    ModelInfo(
+                        id="models/gemini-1.5-pro",
+                        display_name="Gemini 1.5 Pro",
+                        context_window=2000000,
+                    ),
                 ]
 
             data = resp.json().get("models", [])
@@ -222,7 +248,11 @@ class GeminiProvider(BaseProvider):
             return models
         except Exception:
             return [
-                ModelInfo(id="models/gemini-1.5-flash", display_name="Gemini 1.5 Flash", context_window=1000000),
+                ModelInfo(
+                    id="models/gemini-1.5-flash",
+                    display_name="Gemini 1.5 Flash",
+                    context_window=1000000,
+                ),
             ]
 
     async def health_check(self) -> ProviderHealth:

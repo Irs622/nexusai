@@ -16,7 +16,11 @@ class LifecycleCoordinator:
 
     async def initialize_service(self, service: KernelService) -> None:
         """Initialize a single service."""
-        if service.state not in (ServiceLifecycleState.UNINITIALIZED, ServiceLifecycleState.STOPPED):
+        if service.state not in (
+            ServiceLifecycleState.UNINITIALIZED,
+            ServiceLifecycleState.STOPPED,
+            ServiceLifecycleState.FAILED,
+        ):
             raise LifecycleStateError(
                 f"Cannot initialize service '{service.service_id}' from state {service.state.value}."
             )
@@ -27,7 +31,9 @@ class LifecycleCoordinator:
         except Exception as err:
             service.set_state(ServiceLifecycleState.FAILED)
             logger.error(f"Initialization failed for service '{service.service_id}': {err}")
-            raise LifecycleStateError(f"Failed to initialize service '{service.service_id}': {err}") from err
+            raise LifecycleStateError(
+                f"Failed to initialize service '{service.service_id}': {err}"
+            ) from err
 
     async def start_service(self, service: KernelService) -> None:
         """Start a single service."""
@@ -43,7 +49,9 @@ class LifecycleCoordinator:
         except Exception as err:
             service.set_state(ServiceLifecycleState.FAILED)
             logger.error(f"Startup failed for service '{service.service_id}': {err}")
-            raise LifecycleStateError(f"Failed to start service '{service.service_id}': {err}") from err
+            raise LifecycleStateError(
+                f"Failed to start service '{service.service_id}': {err}"
+            ) from err
 
     async def stop_service(self, service: KernelService) -> None:
         """Stop a single service."""
@@ -58,7 +66,9 @@ class LifecycleCoordinator:
         except Exception as err:
             service.set_state(ServiceLifecycleState.FAILED)
             logger.error(f"Stop failed for service '{service.service_id}': {err}")
-            raise LifecycleStateError(f"Failed to stop service '{service.service_id}': {err}") from err
+            raise LifecycleStateError(
+                f"Failed to stop service '{service.service_id}': {err}"
+            ) from err
 
     async def shutdown_service(self, service: KernelService) -> None:
         """Perform full shutdown and cleanup on a single service."""
@@ -70,7 +80,9 @@ class LifecycleCoordinator:
         except Exception as err:
             service.set_state(ServiceLifecycleState.FAILED)
             logger.error(f"Shutdown failed for service '{service.service_id}': {err}")
-            raise LifecycleStateError(f"Failed to shutdown service '{service.service_id}': {err}") from err
+            raise LifecycleStateError(
+                f"Failed to shutdown service '{service.service_id}': {err}"
+            ) from err
 
     async def start_services_orchestrated(self, boot_services: Sequence[KernelService]) -> None:
         """Initialize and start a list of services in topological boot order.
@@ -119,7 +131,9 @@ class LifecycleCoordinator:
         failed_service: KernelService,
     ) -> None:
         """Perform automated rollback of already started services upon boot failure."""
-        logger.warning(f"Initiating lifecycle ROLLING_BACK due to failure in '{failed_service.service_id}'...")
+        logger.warning(
+            f"Initiating lifecycle ROLLING_BACK due to failure in '{failed_service.service_id}'..."
+        )
 
         failed_service.set_state(ServiceLifecycleState.FAILED)
 

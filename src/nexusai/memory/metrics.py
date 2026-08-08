@@ -4,7 +4,6 @@ MemoryMetricsCollector for latency tracking, counters, and percentile calculatio
 
 from __future__ import annotations
 
-import time
 from typing import Any
 
 
@@ -58,9 +57,7 @@ class MemoryMetricsCollector:
 
     def get_summary(self) -> dict[str, Any]:
         """Return comprehensive metrics summary dictionary."""
-        percentiles_summary = {
-            metric: self.get_percentiles(metric) for metric in self._latencies
-        }
+        percentiles_summary = {metric: self.get_percentiles(metric) for metric in self._latencies}
         return {
             "counters": dict(self._counters),
             "percentiles": percentiles_summary,

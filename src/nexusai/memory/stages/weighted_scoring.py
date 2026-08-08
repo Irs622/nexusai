@@ -4,8 +4,6 @@ WeightedScoringStage for generic feature vector dot product scoring.
 
 from __future__ import annotations
 
-from typing import Any
-
 from nexusai.memory.contracts.retrieval import RetrievalContext, RetrievalStage
 
 

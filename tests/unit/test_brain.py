@@ -4,23 +4,23 @@ Unit tests for Model Providers, Prompt Builder, Brain Coordinator, and Context E
 
 from __future__ import annotations
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
+from pydantic import BaseModel, Field
 
 from nexusai.brain.coordinator import BrainCoordinator
 from nexusai.brain.prompt import PromptBuilder
 from nexusai.bus.bus import CommandBus, EventBus
 from nexusai.bus.commands import ExecuteToolCommand, ExecuteToolCommandHandler
-from nexusai.context.engine import ContextEngine, WorkingContext
+from nexusai.context.engine import WorkingContext
 from nexusai.core.config import SecuritySettings
 from nexusai.core.errors import ConfigurationError
-from nexusai.memory.sqlite_memory import SQLiteMemory
 from nexusai.models.base import BaseModelProvider
 from nexusai.models.openai_provider import OpenAIProvider
-from nexusai.security.guard import SecurityGuard, RiskLevel
+from nexusai.security.guard import RiskLevel, SecurityGuard
 from nexusai.tools.base import BaseTool
 from nexusai.tools.registry import ToolRegistry
-from pydantic import BaseModel, Field
 
 
 class SampleInputSchema(BaseModel):
@@ -177,4 +177,3 @@ def test_openai_provider_missing_api_key_raises_error() -> None:
     with patch.dict("os.environ", {}, clear=True):
         with pytest.raises(ConfigurationError):
             OpenAIProvider()
-

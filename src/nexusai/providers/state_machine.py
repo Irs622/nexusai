@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Callable, Set
+from typing import Callable
 
 from nexusai.core.annotations import stable
 from nexusai.logging.logger import logger
@@ -26,7 +26,11 @@ class ExecutionState(str, Enum):
 
 # Allowed state transitions graph
 VALID_TRANSITIONS: dict[ExecutionState, set[ExecutionState]] = {
-    ExecutionState.CREATED: {ExecutionState.QUEUED, ExecutionState.RUNNING, ExecutionState.CANCELLED},
+    ExecutionState.CREATED: {
+        ExecutionState.QUEUED,
+        ExecutionState.RUNNING,
+        ExecutionState.CANCELLED,
+    },
     ExecutionState.QUEUED: {ExecutionState.RUNNING, ExecutionState.CANCELLED},
     ExecutionState.RUNNING: {
         ExecutionState.WAITING_TOOL,
@@ -35,8 +39,16 @@ VALID_TRANSITIONS: dict[ExecutionState, set[ExecutionState]] = {
         ExecutionState.FAILED,
         ExecutionState.CANCELLED,
     },
-    ExecutionState.WAITING_TOOL: {ExecutionState.RUNNING, ExecutionState.FAILED, ExecutionState.CANCELLED},
-    ExecutionState.RETRYING: {ExecutionState.RUNNING, ExecutionState.FAILED, ExecutionState.CANCELLED},
+    ExecutionState.WAITING_TOOL: {
+        ExecutionState.RUNNING,
+        ExecutionState.FAILED,
+        ExecutionState.CANCELLED,
+    },
+    ExecutionState.RETRYING: {
+        ExecutionState.RUNNING,
+        ExecutionState.FAILED,
+        ExecutionState.CANCELLED,
+    },
     ExecutionState.COMPLETED: set(),
     ExecutionState.FAILED: set(),
     ExecutionState.CANCELLED: set(),
@@ -78,7 +90,9 @@ class ExecutionStateMachine:
 
         old_state = self._current_state
         self._current_state = new_state
-        logger.info("ExecutionState transition: {} -> {} ({})", old_state.value, new_state.value, reason)
+        logger.info(
+            "ExecutionState transition: {} -> {} ({})", old_state.value, new_state.value, reason
+        )
 
         for listener in self._listeners:
             try:

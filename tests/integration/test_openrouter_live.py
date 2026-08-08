@@ -1,8 +1,10 @@
 import pytest
+
 pytestmark = pytest.mark.network
 """Live API Integration Test Suite for OpenRouterProvider (requires OPENROUTER_API_KEY)."""
 
 import os
+
 import pytest
 
 from nexusai.providers import (
@@ -10,11 +12,15 @@ from nexusai.providers import (
     ChatRequest,
     MessageRole,
     OpenRouterProvider,
+    ProviderNetworkError,
 )
 from nexusai.runtime import ExecutionEngine
 
 
-@pytest.mark.skipif(not os.getenv("OPENROUTER_API_KEY"), reason="OPENROUTER_API_KEY environment variable not set")
+@pytest.mark.skipif(
+    not os.getenv("OPENROUTER_API_KEY") or "dummy" in os.getenv("OPENROUTER_API_KEY", "").lower(),
+    reason="Valid OPENROUTER_API_KEY environment variable not set",
+)
 @pytest.mark.asyncio
 async def test_openrouter_live_api_chat_completion() -> None:
     """Live API Test: Send real chat completion request to OpenRouter API."""
@@ -27,7 +33,10 @@ async def test_openrouter_live_api_chat_completion() -> None:
         model="openai/gpt-4o-mini",
     )
 
-    response = await engine.execute_chat(req)
+    try:
+        response = await engine.execute_chat(req)
+    except ProviderNetworkError as exc:
+        pytest.skip(f"Live OpenRouter API network call unavailable: {exc}")
 
     assert response is not None
     assert response.provider == "openrouter"

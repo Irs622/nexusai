@@ -5,7 +5,7 @@ Runtime Scheduler for time-based periodic and one-shot background kernel tasks.
 from __future__ import annotations
 
 import asyncio
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Awaitable, Callable
 
@@ -143,7 +143,8 @@ class RuntimeScheduler:
                 "failures_count": meta.failures_count,
                 "last_run": meta.last_run,
                 "last_error": meta.last_error,
-                "is_active": meta.is_active and (meta.name in self._tasks and not self._tasks[meta.name].done()),
+                "is_active": meta.is_active
+                and (meta.name in self._tasks and not self._tasks[meta.name].done()),
             }
             for meta in self._meta.values()
         ]

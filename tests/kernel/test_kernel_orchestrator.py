@@ -33,8 +33,12 @@ async def test_kernel_orchestrator_boot_shutdown_and_metrics():
 
     # DB -> Memory -> Brain
     s_db = MockKernelSubsystem(ServiceDescriptor(id="db", name="DB", version="1.0.0"))
-    s_mem = MockKernelSubsystem(ServiceDescriptor(id="memory", name="Memory", version="1.0.0", dependencies=("db",)))
-    s_brain = MockKernelSubsystem(ServiceDescriptor(id="brain", name="Brain", version="1.0.0", dependencies=("memory",)))
+    s_mem = MockKernelSubsystem(
+        ServiceDescriptor(id="memory", name="Memory", version="1.0.0", dependencies=("db",))
+    )
+    s_brain = MockKernelSubsystem(
+        ServiceDescriptor(id="brain", name="Brain", version="1.0.0", dependencies=("memory",))
+    )
 
     orchestrator.register_services([s_brain, s_db, s_mem])
 

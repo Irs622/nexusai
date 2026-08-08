@@ -4,12 +4,17 @@ Unit tests for Milestone 2.4.7: PipelineTrace telemetry, WeightedScoringStage, C
 
 import pytest
 
-from nexusai.memory.domain import MemoryContent, MemoryMetadata, MemoryRecord, MemoryScope, MemoryType
+from nexusai.memory.domain import (
+    MemoryContent,
+    MemoryMetadata,
+    MemoryRecord,
+    MemoryScope,
+    MemoryType,
+)
 from nexusai.memory.pipeline import ContextBuilder, PipelineBuilder, RetrievalPipelineConfig
 from nexusai.memory.policies import PolicyEngine, RetentionPolicy
 from nexusai.memory.stages import (
     ImportanceStage,
-    MetadataFilterStage,
     RankingStage,
     RecencyBoostStage,
     SimilarityStage,
@@ -46,6 +51,7 @@ async def test_pipeline_trace_telemetry():
     )
 
     from nexusai.memory.contracts.retrieval import RetrievalContext
+
     context = RetrievalContext(query="Telemetry", candidate_records=[rec1])
 
     result = await pipeline.execute(context)

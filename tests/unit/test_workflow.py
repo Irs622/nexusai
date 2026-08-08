@@ -5,7 +5,7 @@ Unit tests for LangGraph Agentic Workflow nodes, state routing, and compiled gra
 from __future__ import annotations
 
 import pytest
-from typing import Any
+from pydantic import BaseModel, Field
 
 from nexusai.brain.workflow.graph import build_agent_graph, should_continue
 from nexusai.brain.workflow.nodes import node_reasoner, node_tool_executor
@@ -14,10 +14,9 @@ from nexusai.bus.bus import CommandBus, EventBus
 from nexusai.bus.commands import ExecuteToolCommand, ExecuteToolCommandHandler
 from nexusai.core.config import SecuritySettings
 from nexusai.models.base import BaseModelProvider
-from nexusai.security.guard import SecurityGuard, RiskLevel
+from nexusai.security.guard import RiskLevel, SecurityGuard
 from nexusai.tools.base import BaseTool
 from nexusai.tools.registry import ToolRegistry
-from pydantic import BaseModel, Field
 
 
 class DummySchema(BaseModel):
@@ -80,7 +79,9 @@ async def test_node_reasoner_text_and_tool_call() -> None:
     assert res_text["final_response"] == "Answer"
     assert res_text["iterations"] == 1
 
-    tool_provider = MockModelProvider({"type": "tool_call", "tool_name": "dummy_tool", "arguments": {"query": "abc"}})
+    tool_provider = MockModelProvider(
+        {"type": "tool_call", "tool_name": "dummy_tool", "arguments": {"query": "abc"}}
+    )
     res_tool = await node_reasoner(state, tool_provider)
     assert res_tool["last_tool_call"]["tool_name"] == "dummy_tool"
     assert res_tool["iterations"] == 1
@@ -96,7 +97,11 @@ async def test_node_tool_executor(command_bus: CommandBus) -> None:
         "iterations": 1,
         "user_confirmed": False,
         "max_iterations": 10,
-        "last_tool_call": {"type": "tool_call", "tool_name": "dummy_tool", "arguments": {"query": "hello"}},
+        "last_tool_call": {
+            "type": "tool_call",
+            "tool_name": "dummy_tool",
+            "arguments": {"query": "hello"},
+        },
     }
 
     res = await node_tool_executor(state, command_bus)

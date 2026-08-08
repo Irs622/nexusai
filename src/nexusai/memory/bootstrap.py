@@ -4,9 +4,6 @@ Modular Composition Root DI container wiring Memory Engine sub-services.
 
 from __future__ import annotations
 
-from typing import Any
-
-from nexusai.kernel.outbox.dispatcher import OutboxDispatcher
 from nexusai.memory.config import MemoryEngineConfig
 from nexusai.memory.contracts.embedding import EmbeddingProvider
 from nexusai.memory.contracts.storage import MemoryStorage
@@ -24,8 +21,8 @@ from nexusai.memory.service import MemoryService
 from nexusai.memory.services.admin import MemoryAdminService
 from nexusai.memory.services.command import MemoryCommandService
 from nexusai.memory.services.query import MemoryQueryService
-from nexusai.memory.storage import FileMemoryStore, InMemoryMemoryStore, SQLiteMemoryStore
-from nexusai.memory.uow import DefaultMemoryUnitOfWork, MemoryUnitOfWork
+from nexusai.memory.storage import InMemoryMemoryStore, SQLiteMemoryStore
+from nexusai.memory.uow import DefaultMemoryUnitOfWork
 from nexusai.memory.usecases import (
     ForgetMemoryUseCase,
     RetrieveMemoryUseCase,
@@ -65,10 +62,16 @@ class EmbeddingModule:
     @staticmethod
     def build(config: MemoryEngineConfig) -> EmbeddingProvider:
         if config.embedding_provider == "local":
-            return LocalEmbeddingProvider(model_name=config.embedding_model, dimensions=config.vector_dimensions)
+            return LocalEmbeddingProvider(
+                model_name=config.embedding_model, dimensions=config.vector_dimensions
+            )
         elif config.embedding_provider == "remote":
-            return RemoteEmbeddingProvider(model_name=config.embedding_model, dimensions=config.vector_dimensions)
-        return MockEmbeddingProvider(model_name=config.embedding_model, dimensions=config.vector_dimensions)
+            return RemoteEmbeddingProvider(
+                model_name=config.embedding_model, dimensions=config.vector_dimensions
+            )
+        return MockEmbeddingProvider(
+            model_name=config.embedding_model, dimensions=config.vector_dimensions
+        )
 
 
 class PolicyModule:
@@ -106,11 +109,17 @@ class MemoryEngineBootstrap:
         uow = DefaultMemoryUnitOfWork()
         store_usecase = StoreMemoryUseCase(uow=uow)
         retrieve_usecase = RetrieveMemoryUseCase(uow=uow)
-        search_usecase = SearchMemoryUseCase(uow=uow, pipeline=pipeline, embedding_provider=embedder)
+        search_usecase = SearchMemoryUseCase(
+            uow=uow, pipeline=pipeline, embedding_provider=embedder
+        )
         forget_usecase = ForgetMemoryUseCase(uow=uow)
 
         command_service = MemoryCommandService(
-            store_usecase=store_usecase, forget_usecase=forget_usecase, storage=storage, metrics=metrics
+            store_usecase=store_usecase,
+            forget_usecase=forget_usecase,
+            storage=storage,
+            metrics=metrics,
+            uow=uow,
         )
         query_service = MemoryQueryService(
             retrieve_usecase=retrieve_usecase, search_usecase=search_usecase, metrics=metrics

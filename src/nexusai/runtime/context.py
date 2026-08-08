@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Callable
-import uuid
+from typing import Any
 
 from nexusai.core.annotations import stable
 from nexusai.providers.exceptions import ProviderTimeoutError

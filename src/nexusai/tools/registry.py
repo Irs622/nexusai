@@ -3,6 +3,7 @@ Central Tool Registry for registering and retrieving system capabilities.
 """
 
 from typing import Any
+
 from nexusai.core.errors import ToolExecutionError
 from nexusai.tools.base import BaseTool
 

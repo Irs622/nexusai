@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-import asyncio
 import random
-from typing import Sequence, Type
+from typing import Type
 
 from nexusai.core.annotations import stable
 from nexusai.logging.logger import logger
@@ -15,10 +14,8 @@ from nexusai.providers.exceptions import (
     ProviderNetworkError,
     ProviderRateLimitError,
     ProviderRegistrationError,
-    ProviderSDKError,
     ProviderTimeoutError,
 )
-
 from nexusai.providers.models import ChatRequest, ChatResponse
 from nexusai.providers.session import ProviderSession
 from nexusai.runtime.clock import Clock, SystemClock

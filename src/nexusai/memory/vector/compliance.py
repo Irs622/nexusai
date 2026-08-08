@@ -50,8 +50,12 @@ class VectorComplianceSuite:
         assert fetched_v1_up.metadata["tag"] == "updated"
 
         # 4. Batch Upsert
-        v2 = VectorRecord(record_id="v_2", vector=[0.2] * dim, metadata={"category": "tools"}, namespace="default")
-        v3 = VectorRecord(record_id="v_3", vector=[0.8] * dim, metadata={"category": "ai"}, namespace="default")
+        v2 = VectorRecord(
+            record_id="v_2", vector=[0.2] * dim, metadata={"category": "tools"}, namespace="default"
+        )
+        v3 = VectorRecord(
+            record_id="v_3", vector=[0.8] * dim, metadata={"category": "ai"}, namespace="default"
+        )
         await store.batch_upsert([v2, v3])
 
         cnt = await store.count(namespace="default")
@@ -76,7 +80,9 @@ class VectorComplianceSuite:
         assert search_ns_brain[0].record_id == "v_brain_1"
 
         search_ns_default = await store.search([0.9] * dim, top_k=5, namespace="default")
-        assert not any(r.record_id == "v_brain_1" for r in search_ns_default), "Record leaked across namespaces"
+        assert not any(
+            r.record_id == "v_brain_1" for r in search_ns_default
+        ), "Record leaked across namespaces"
 
         # 7. Delete Non-Existent
         del_non_existent = await store.delete("v_non_existent", namespace="default")

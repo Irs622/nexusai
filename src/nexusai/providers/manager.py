@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+
 from nexusai.core.annotations import stable
 from nexusai.logging.logger import logger
 from nexusai.providers.base import BaseProvider
@@ -54,7 +55,9 @@ class ProviderManager:
             elif isinstance(res, Exception):
                 health_map[pid] = ProviderHealth(healthy=False, error=str(res))
             else:
-                health_map[pid] = ProviderHealth(healthy=False, error="Unknown health check failure")
+                health_map[pid] = ProviderHealth(
+                    healthy=False, error="Unknown health check failure"
+                )
 
         return health_map
 

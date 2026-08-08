@@ -4,9 +4,9 @@ Generic versioned OutboxSerializer interface and JSON implementation for domain 
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 import json
 import time
+from abc import ABC, abstractmethod
 from typing import Any
 
 

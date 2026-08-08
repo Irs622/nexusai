@@ -15,7 +15,9 @@ from nexusai.logging.logger import logger
 class PluginFailurePolicy(str, Enum):
     """Failure policy indicating how dispatcher handles plugin execution errors."""
 
-    CONTINUE_ON_ERROR = "continue_on_error"  # Log error and continue executing remaining plugins/turn
+    CONTINUE_ON_ERROR = (
+        "continue_on_error"  # Log error and continue executing remaining plugins/turn
+    )
     STOP_ON_ERROR = "stop_on_error"  # Halt execution and re-raise plugin exception
 
 
@@ -76,7 +78,9 @@ class PriorityExtensionDispatcher:
             failure_policy=failure_policy,
         )
         self._handlers.append(registration)
-        logger.debug(f"Registered plugin handler for '{event_name}' (priority={priority}, policy={failure_policy.value})")
+        logger.debug(
+            f"Registered plugin handler for '{event_name}' (priority={priority}, policy={failure_policy.value})"
+        )
 
     async def dispatch(self, event: ExtensionEvent) -> None:
         """Dispatch event to registered handlers sorted by priority integer ascending.

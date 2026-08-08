@@ -4,9 +4,10 @@ Unit tests for NexusAI FastAPI Web Server and Web UI Dashboard endpoints.
 
 from __future__ import annotations
 
+from unittest.mock import AsyncMock, patch
+
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import AsyncMock, patch
 
 from nexusai.api.server import create_app
 from nexusai.models.base import BaseModelProvider

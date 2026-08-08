@@ -16,7 +16,13 @@ from nexusai.memory.contracts.retrieval import (
     StageTrace,
 )
 from nexusai.memory.contracts.storage import MemoryStorage
-from nexusai.memory.contracts.vector import DistanceMetric, VectorCapabilities, VectorMatch, VectorRecord, VectorStore
+from nexusai.memory.contracts.vector import (
+    DistanceMetric,
+    VectorCapabilities,
+    VectorMatch,
+    VectorRecord,
+    VectorStore,
+)
 
 __all__ = [
     "DistanceMetric",

@@ -3,7 +3,6 @@
 import ast
 import inspect
 from pathlib import Path
-import pytest
 
 from nexusai.providers.base import BaseProvider
 
@@ -34,8 +33,12 @@ def test_provider_adapter_isolation_rule() -> None:
             continue  # Facade: intentionally re-exports all concrete providers
         imports = _get_ast_imports(file_path)
         for imp in imports:
-            assert not imp.startswith("nexusai.providers.openai_provider"), f"Forbidden import in {file_path.name}: {imp}"
-            assert not imp.startswith("nexusai.providers.gemini"), f"Forbidden import in {file_path.name}: {imp}"
+            assert not imp.startswith(
+                "nexusai.providers.openai_provider"
+            ), f"Forbidden import in {file_path.name}: {imp}"
+            assert not imp.startswith(
+                "nexusai.providers.gemini"
+            ), f"Forbidden import in {file_path.name}: {imp}"
 
 
 def test_layer_boundary_rule() -> None:
@@ -47,17 +50,25 @@ def test_layer_boundary_rule() -> None:
             imports = _get_ast_imports(file_path)
             for imp in imports:
                 for forbidden in forbidden_layers:
-                    assert not imp.startswith(forbidden), f"Layer Boundary Violation in {file_path.name}: imports {imp}"
+                    assert not imp.startswith(
+                        forbidden
+                    ), f"Layer Boundary Violation in {file_path.name}: imports {imp}"
 
 
 def test_engine_adapter_decoupling_rule() -> None:
     """Architecture Invariant: ExecutionEngine must not import concrete provider adapter implementations."""
     engine_path = Path("src/nexusai/runtime/engine.py")
     imports = _get_ast_imports(engine_path)
-    forbidden_adapters = ["nexusai.providers.mock", "nexusai.providers.openrouter", "nexusai.providers.gemini"]
+    forbidden_adapters = [
+        "nexusai.providers.mock",
+        "nexusai.providers.openrouter",
+        "nexusai.providers.gemini",
+    ]
     for imp in imports:
         for forbidden in forbidden_adapters:
-            assert not imp.startswith(forbidden), f"ExecutionEngine Decoupling Violation: imports {imp}"
+            assert not imp.startswith(
+                forbidden
+            ), f"ExecutionEngine Decoupling Violation: imports {imp}"
 
 
 def test_domain_models_import_rule() -> None:
@@ -67,7 +78,9 @@ def test_domain_models_import_rule() -> None:
     imports = _get_ast_imports(models_path)
     for imp in imports:
         for forbidden in forbidden_transports:
-            assert not imp.startswith(forbidden), f"Domain Model Transport Leak in {models_path.name}: imports {imp}"
+            assert not imp.startswith(
+                forbidden
+            ), f"Domain Model Transport Leak in {models_path.name}: imports {imp}"
 
 
 def test_async_io_rule() -> None:
@@ -75,8 +88,11 @@ def test_async_io_rule() -> None:
     async_methods = ["chat", "embeddings", "list_models", "health_check"]
     for method_name in async_methods:
         method = getattr(BaseProvider, method_name)
-        assert inspect.iscoroutinefunction(method), f"Async IO Rule Violation: {method_name} must be a coroutine function"
+        assert inspect.iscoroutinefunction(
+            method
+        ), f"Async IO Rule Violation: {method_name} must be a coroutine function"
 
     stream_method = getattr(BaseProvider, "stream_chat")
-    assert inspect.iscoroutinefunction(stream_method) or inspect.isasyncgenfunction(stream_method), \
-        "Async IO Rule Violation: stream_chat must be an async function"
+    assert inspect.iscoroutinefunction(stream_method) or inspect.isasyncgenfunction(
+        stream_method
+    ), "Async IO Rule Violation: stream_chat must be an async function"

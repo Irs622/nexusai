@@ -4,8 +4,8 @@ Token latency tracking and TelemetryCollector metrics engine.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 import time
+from dataclasses import dataclass
 
 
 @dataclass

@@ -119,8 +119,14 @@ class AssembledContext:
     def from_dict(cls, data: dict[str, Any]) -> AssembledContext:
         """Deserialize AssembledContext from dictionary format."""
         version_data = data.get("context_version", {})
-        context_version = SchemaVersion.from_dict(version_data) if isinstance(version_data, dict) else SchemaVersion()
-        history_messages = tuple(PromptMessage.from_dict(m) for m in data.get("history_messages", []))
+        context_version = (
+            SchemaVersion.from_dict(version_data)
+            if isinstance(version_data, dict)
+            else SchemaVersion()
+        )
+        history_messages = tuple(
+            PromptMessage.from_dict(m) for m in data.get("history_messages", [])
+        )
         user_msg_data = data.get("user_message", {"role": "user", "content": ""})
         user_message = PromptMessage.from_dict(user_msg_data)
 

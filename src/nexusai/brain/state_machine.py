@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from enum import Enum
+
 from nexusai.logging.logger import logger
 
 
@@ -66,8 +67,8 @@ class AgentStateMachine:
             AgentState.FINISHED,
             AgentState.FAILED,
         },
-        AgentState.FINISHED: {AgentState.IDLE},
-        AgentState.FAILED: {AgentState.IDLE},
+        AgentState.FINISHED: {AgentState.IDLE, AgentState.PLANNING},
+        AgentState.FAILED: {AgentState.IDLE, AgentState.PLANNING},
     }
 
     def __init__(self, initial_state: AgentState = AgentState.IDLE) -> None:
@@ -98,5 +99,7 @@ class AgentStateMachine:
             )
             raise InvalidStateTransitionError(self._current_state, target_state)
 
-        logger.debug(f"AgentStateMachine transitioned: {self._current_state.value} -> {target_state.value}")
+        logger.debug(
+            f"AgentStateMachine transitioned: {self._current_state.value} -> {target_state.value}"
+        )
         self._current_state = target_state

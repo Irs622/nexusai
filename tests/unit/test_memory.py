@@ -3,6 +3,7 @@ Unit tests for SQLiteMemory system.
 """
 
 import pytest
+
 from nexusai.memory.sqlite_memory import SQLiteMemory
 
 
@@ -17,16 +18,28 @@ async def test_sqlite_memory_crud() -> None:
     await memory.add_message(session_id, "user", "Hello NexusAI")
     await memory.add_message(session_id, "assistant", "Hello User")
     await memory.add_message(session_id, "user", "Open Safari")
-    await memory.add_message(session_id, "assistant", "Tool call: macos_open_app", name="macos_open_app")
-    await memory.add_message(session_id, "tool", "Application 'Safari' activated.", name="macos_open_app")
+    await memory.add_message(
+        session_id, "assistant", "Tool call: macos_open_app", name="macos_open_app"
+    )
+    await memory.add_message(
+        session_id, "tool", "Application 'Safari' activated.", name="macos_open_app"
+    )
 
     # 2. Get messages
     messages = await memory.get_messages(session_id, limit=50)
     assert len(messages) == 5
     assert messages[0] == {"role": "user", "content": "Hello NexusAI"}
     assert messages[1] == {"role": "assistant", "content": "Hello User"}
-    assert messages[3] == {"role": "assistant", "content": "Tool call: macos_open_app", "name": "macos_open_app"}
-    assert messages[4] == {"role": "tool", "content": "Application 'Safari' activated.", "name": "macos_open_app"}
+    assert messages[3] == {
+        "role": "assistant",
+        "content": "Tool call: macos_open_app",
+        "name": "macos_open_app",
+    }
+    assert messages[4] == {
+        "role": "tool",
+        "content": "Application 'Safari' activated.",
+        "name": "macos_open_app",
+    }
 
     # 3. Test limit
     limited = await memory.get_messages(session_id, limit=2)

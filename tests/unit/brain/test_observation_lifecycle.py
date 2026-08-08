@@ -1,6 +1,7 @@
 """Comprehensive Invariant & Lifecycle State Transition Unit Tests."""
 
 import pytest
+
 from nexusai.brain.compaction.result import CompactionResult
 from nexusai.brain.domain.agent import AgentGoal
 from nexusai.brain.domain.observation_lifecycle import (
@@ -32,7 +33,9 @@ def test_invalid_lifecycle_transitions():
     assert meta.state == LifecycleState.ARCHIVED
 
     # Cannot transition from ARCHIVED to ACTIVE or COMPACTED
-    with pytest.raises(InvalidLifecycleTransitionError, match="Invalid ObservationMetadata lifecycle transition"):
+    with pytest.raises(
+        InvalidLifecycleTransitionError, match="Invalid ObservationMetadata lifecycle transition"
+    ):
         meta.transition_to(LifecycleState.ACTIVE)
 
     with pytest.raises(InvalidLifecycleTransitionError):

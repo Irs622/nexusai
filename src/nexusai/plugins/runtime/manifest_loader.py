@@ -8,6 +8,7 @@ import json
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any
+
 import yaml
 
 from nexusai.plugins.contracts.manifest import PluginManifest
@@ -109,11 +110,15 @@ class ManifestLoader:
         content, fmt = self.source.read_manifest_content(location)
         fmt = fmt.lower()
         if fmt not in self.readers:
-            raise PluginManifestError(f"Unsupported manifest format '{fmt}' for location '{location}'")
+            raise PluginManifestError(
+                f"Unsupported manifest format '{fmt}' for location '{location}'"
+            )
 
         data = self.readers[fmt].parse(content)
         try:
             manifest = PluginManifest(**data)
             return manifest, content
         except Exception as e:
-            raise PluginManifestError(f"Manifest schema validation failed for '{location}': {e}") from e
+            raise PluginManifestError(
+                f"Manifest schema validation failed for '{location}': {e}"
+            ) from e

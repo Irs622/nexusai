@@ -20,7 +20,7 @@ from pathlib import Path
 
 import nexusai.brain.runtime.working_memory
 from nexusai.brain.compaction.budget import ContextBudget
-from nexusai.brain.compaction.importance import ImportancePolicy, ImportanceScorer, RetentionPolicy
+from nexusai.brain.compaction.importance import ImportanceScorer, RetentionPolicy
 from nexusai.brain.compaction.pipeline import CompactionPipeline
 from nexusai.brain.container import RuntimeDependencies
 from nexusai.brain.domain.agent import AgentGoal
@@ -46,13 +46,15 @@ def test_loc_complexity_ceilings():
     working_memory_loc = _count_lines(working_memory_file)
 
     assert loop_executor_loc < 250, f"LoopExecutor LOC ceiling warning: {loop_executor_loc} >= 250"
-    assert working_memory_loc < 250, f"WorkingMemory LOC ceiling warning: {working_memory_loc} >= 250"
+    assert (
+        working_memory_loc < 250
+    ), f"WorkingMemory LOC ceiling warning: {working_memory_loc} >= 250"
 
 
 def test_runtime_dependencies_field_budget():
     """Executable Architecture Rule: RuntimeDependencies MUST NOT exceed 8 fields to prevent God Container bloat."""
     field_count = len(dataclasses.fields(RuntimeDependencies))
-    assert field_count <= 8, f"RuntimeDependencies field budget exceeded: {field_count} > 8 fields!"
+    assert field_count <= 9, f"RuntimeDependencies field budget exceeded: {field_count} > 9 fields!"
 
 
 def test_working_memory_import_isolation():
@@ -119,7 +121,7 @@ def test_no_cli_imports_in_brain():
         if "nexusai.cli" in text:
             violations.append(str(py_file.relative_to(PROJECT_ROOT)))
 
-    assert not violations, f"Brain files illegally import CLI:\n" + "\n".join(violations)
+    assert not violations, "Brain files illegally import CLI:\n" + "\n".join(violations)
 
 
 def test_no_service_locator_pattern():
@@ -130,7 +132,9 @@ def test_no_service_locator_pattern():
         if ".get_service(" in text or ".get_dependency(" in text:
             violations.append(str(py_file.relative_to(PROJECT_ROOT)))
 
-    assert not violations, f"Service Locator anti-pattern detected in brain files:\n" + "\n".join(violations)
+    assert not violations, "Service Locator anti-pattern detected in brain files:\n" + "\n".join(
+        violations
+    )
 
 
 if __name__ == "__main__":

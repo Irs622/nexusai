@@ -45,10 +45,16 @@ class BrainSession:
         """Deserialize BrainSession from dictionary format."""
         version_data = data.get("session_schema_version", {})
         schema_version = (
-            SchemaVersion.from_dict(version_data) if isinstance(version_data, dict) else SchemaVersion()
+            SchemaVersion.from_dict(version_data)
+            if isinstance(version_data, dict)
+            else SchemaVersion()
         )
         created_at_val = data.get("created_at")
-        created_at = datetime.fromisoformat(created_at_val) if isinstance(created_at_val, str) else datetime.now(timezone.utc)
+        created_at = (
+            datetime.fromisoformat(created_at_val)
+            if isinstance(created_at_val, str)
+            else datetime.now(timezone.utc)
+        )
 
         return cls(
             session_id=UUID(data["session_id"]) if "session_id" in data else uuid4(),

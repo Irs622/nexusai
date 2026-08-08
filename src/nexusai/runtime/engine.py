@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-import time
-from typing import Any, AsyncIterator
+from typing import Any, AsyncIterator, cast
 
 from nexusai.core.annotations import stable
 from nexusai.logging.logger import logger
@@ -79,7 +79,8 @@ class ExecutionStrategy:
             context.resource.deadline.throw_if_expired()
 
         circuit_breaker = self.get_circuit_breaker(provider_id)
-        return await circuit_breaker.call(executor_fn)
+        res = await circuit_breaker.call(executor_fn)
+        return cast(ChatResponse, res)
 
 
 @stable
@@ -126,6 +127,9 @@ class ExecutionEngine:
         policy: BaseProviderPolicy | None = None,
     ) -> ChatResponse:
         """Execute a chat request through the orchestrated pipeline."""
+        from nexusai.providers.exceptions import ProviderCircuitOpenError
+        from nexusai.runtime.circuit_breaker import CircuitState
+
         ctx = context or ExecutionContext()
         ctx.runtime.cancellation_token.throw_if_cancelled()
         if ctx.resource.deadline:
@@ -144,12 +148,31 @@ class ExecutionEngine:
             request=request,
         )
 
+        # Check if selected provider's circuit breaker is OPEN; if so try default
+        cb = self._strategy.get_circuit_breaker(selected_provider.id)
+        if cb.state == CircuitState.OPEN:
+            try:
+                default_p = self._manager.registry.get_default()
+                if default_p.id != selected_provider.id:
+                    logger.warning(
+                        "Provider '{}' circuit is OPEN, falling back to default '{}'",
+                        selected_provider.id,
+                        default_p.id,
+                    )
+                    selected_provider = default_p
+            except Exception:
+                pass
+
         decision = RoutingDecision(
             provider_id=selected_provider.id,
             provider=selected_provider,
             model=request.model or "default",
             policy_score=1.0,
-            policy_results={"capability": PolicyResult(allow=True, score=1.0, reason="Supports requested features")},
+            policy_results={
+                "capability": PolicyResult(
+                    allow=True, score=1.0, reason="Supports requested features"
+                )
+            },
             reason="Adaptive Router Selection",
         )
         ctx.runtime.provider_id = decision.provider_id
@@ -179,6 +202,21 @@ class ExecutionEngine:
                 elapsed_ms,
             )
             return response
+        except ProviderCircuitOpenError:
+            # Fallback to default provider on circuit open
+            try:
+                fallback = self._manager.registry.get_default()
+                logger.warning(
+                    "Circuit open for '{}', retrying with fallback '{}'",
+                    decision.provider_id,
+                    fallback.id,
+                )
+                response = await self._executor.invoke_chat(fallback, request)
+                state_machine.transition_to(ExecutionState.COMPLETED)
+                return response
+            except Exception as fallback_err:
+                state_machine.transition_to(ExecutionState.FAILED, reason=str(fallback_err))
+                raise
         except Exception as err:
             state_machine.transition_to(ExecutionState.FAILED, reason=str(err))
             logger.error("ExecutionEngine: Task {} failed: {}", ctx.request.request_id, err)

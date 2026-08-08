@@ -4,10 +4,11 @@ MemoryRecord DDD Aggregate Root enforcing domain invariants and event tracking.
 
 from __future__ import annotations
 
-from enum import Enum
 import time
 import uuid
+from enum import Enum
 from typing import Any
+
 from pydantic import BaseModel, Field, PrivateAttr
 
 from nexusai.memory.domain.content import MemoryContent
@@ -54,7 +55,7 @@ class MemoryRecord(BaseModel):
         updated_meta["updated_at"] = new_ts
         object.__setattr__(self, "metadata", MemoryMetadata(**updated_meta))
 
-    def archive(self) -> None:
+    def archive(self, reason: str | None = None) -> None:
         """Domain invariant: mark memory record as archived."""
         updated_meta = self.metadata.model_dump()
         updated_meta["archived"] = True

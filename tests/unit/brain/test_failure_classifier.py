@@ -1,7 +1,6 @@
 """Unit tests for Two-Layer Failure Pattern Detector (FailureEvidence & FailureClassifier)."""
 
 from nexusai.brain.failure_detector import (
-    FailureAnalysis,
     FailureCategory,
     FailureClassifier,
     FailureEvidence,
@@ -22,12 +21,17 @@ def test_network_failure_classification():
 def test_permission_failure_classification():
     """Verify classification of permission denied errors."""
     classifier = FailureClassifier()
-    ev = FailureEvidence(tool_name="workspace_write", error_message="Permission denied: /etc/hosts", http_status=403)
+    ev = FailureEvidence(
+        tool_name="workspace_write", error_message="Permission denied: /etc/hosts", http_status=403
+    )
     analysis = classifier.classify([ev])
 
     assert analysis is not None
     assert analysis.category == FailureCategory.PERMISSION
-    assert "credential" in analysis.recommendation.lower() or "permission" in analysis.recommendation.lower()
+    assert (
+        "credential" in analysis.recommendation.lower()
+        or "permission" in analysis.recommendation.lower()
+    )
 
 
 def test_oscillation_failure_classification():

@@ -1,9 +1,10 @@
 import pytest
+
 pytestmark = pytest.mark.network
 """Contract verification test suite for AnthropicProvider using httpx mock transport."""
 
-import pytest
 import httpx
+import pytest
 
 from nexusai.providers import (
     AnthropicProvider,
@@ -13,7 +14,6 @@ from nexusai.providers import (
 )
 from tests.contracts.conformance_reporter import generate_conformance_report
 from tests.contracts.test_provider_contract import (
-    verify_provider_api_contract,
     verify_provider_behavior_contract,
 )
 

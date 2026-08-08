@@ -6,20 +6,20 @@ from __future__ import annotations
 
 from enum import Enum
 from typing import TYPE_CHECKING
+
 from pydantic import BaseModel
 
 if TYPE_CHECKING:
     from nexusai.core.config import SecuritySettings
 
-from nexusai.core.errors import SecurityError
 from nexusai.logging.logger import log_audit
 from nexusai.security.sanitizer import InputSanitizer
 
 
 class RiskLevel(str, Enum):
-    LOW = "LOW"            # Read-only information checks
-    MEDIUM = "MEDIUM"      # Non-destructive side effects (open app, speak)
-    HIGH = "HIGH"          # Potentially modifying actions (file edit, terminal execution)
+    LOW = "LOW"  # Read-only information checks
+    MEDIUM = "MEDIUM"  # Non-destructive side effects (open app, speak)
+    HIGH = "HIGH"  # Potentially modifying actions (file edit, terminal execution)
     CRITICAL = "CRITICAL"  # Destructive actions (delete file, system settings edit)
 
 
@@ -63,9 +63,15 @@ class SecurityGuard:
 
         if request.risk_level in (RiskLevel.HIGH, RiskLevel.CRITICAL):
             if user_confirmed or not self.settings.strict_mode:
-                log_audit("ACTION_PERMITTED_BY_USER", {"action": request.action_name, "risk": request.risk_level.value})
+                log_audit(
+                    "ACTION_PERMITTED_BY_USER",
+                    {"action": request.action_name, "risk": request.risk_level.value},
+                )
                 return True
-            log_audit("ACTION_REQUIRES_CONFIRMATION", {"action": request.action_name, "risk": request.risk_level.value})
+            log_audit(
+                "ACTION_REQUIRES_CONFIRMATION",
+                {"action": request.action_name, "risk": request.risk_level.value},
+            )
             return False
 
         return False

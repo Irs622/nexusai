@@ -6,6 +6,7 @@ Verifies strict single ownership for Session, ExecutionContext, WorkingMemory, a
 from __future__ import annotations
 
 import dataclasses
+
 from nexusai.brain.domain.agent import AgentGoal
 from nexusai.brain.domain.prompt import MessageRole, PromptBundle, PromptMessage
 from nexusai.brain.domain.session import BrainSession

@@ -82,9 +82,7 @@ class InMemoryVectorStore(VectorStore):
         for r in ns.values():
             # Apply metadata filter
             if filter_dict:
-                match_filter = all(
-                    r.metadata.get(k) == v for k, v in filter_dict.items()
-                )
+                match_filter = all(r.metadata.get(k) == v for k, v in filter_dict.items())
                 if not match_filter:
                     continue
 

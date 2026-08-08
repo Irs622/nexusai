@@ -2,11 +2,13 @@
 Pytest global fixtures.
 """
 
-import pytest
 from pathlib import Path
-from nexusai.core.config import SystemConfig, SecuritySettings
+
+import pytest
+
+from nexusai.bus.bus import CommandBus, EventBus, QueryBus
+from nexusai.core.config import SecuritySettings, SystemConfig
 from nexusai.core.container import DependencyContainer
-from nexusai.bus.bus import CommandBus, QueryBus, EventBus
 from nexusai.security.guard import SecurityGuard
 
 

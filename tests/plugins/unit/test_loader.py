@@ -2,7 +2,6 @@
 Unit tests for PluginLoader module import and class instantiation.
 """
 
-from pathlib import Path
 import pytest
 
 from nexusai.plugins.contracts.base import BasePlugin

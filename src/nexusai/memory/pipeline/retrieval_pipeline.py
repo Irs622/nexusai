@@ -4,8 +4,8 @@ Immutable RetrievalPipeline executing stages with StageTrace and PipelineTrace t
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 import time
+from dataclasses import dataclass, field
 from typing import Any, Sequence
 
 from nexusai.memory.contracts.retrieval import (
@@ -31,7 +31,9 @@ class RetrievalPipelineConfig:
 class RetrievalPipeline:
     """Immutable execution pipeline holding a frozen sequence of RetrievalStage middleware with telemetry."""
 
-    def __init__(self, stages: Sequence[RetrievalStage], config: RetrievalPipelineConfig | None = None) -> None:
+    def __init__(
+        self, stages: Sequence[RetrievalStage], config: RetrievalPipelineConfig | None = None
+    ) -> None:
         self._stages: tuple[RetrievalStage, ...] = tuple(stages)
         self._config: RetrievalPipelineConfig = config or RetrievalPipelineConfig()
 

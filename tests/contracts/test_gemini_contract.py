@@ -1,15 +1,13 @@
 import pytest
+
 pytestmark = pytest.mark.network
 """Contract verification test suite for GeminiProvider using httpx mock transport."""
 
-import pytest
 import httpx
+import pytest
 
 from nexusai.providers import (
-    ChatMessage,
-    ChatRequest,
     GeminiProvider,
-    MessageRole,
 )
 from tests.contracts.conformance_reporter import generate_conformance_report
 from tests.contracts.test_provider_contract import (
@@ -25,12 +23,19 @@ def _custom_gemini_transport(request: httpx.Request) -> httpx.Response:
         body = {
             "candidates": [
                 {
-                    "content": {"parts": [{"text": "Gemini test response output"}], "role": "model"},
+                    "content": {
+                        "parts": [{"text": "Gemini test response output"}],
+                        "role": "model",
+                    },
                     "finishReason": "STOP",
                     "index": 0,
                 }
             ],
-            "usageMetadata": {"promptTokenCount": 10, "candidatesTokenCount": 15, "totalTokenCount": 25},
+            "usageMetadata": {
+                "promptTokenCount": 10,
+                "candidatesTokenCount": 15,
+                "totalTokenCount": 25,
+            },
         }
         return httpx.Response(200, json=body)
     elif "embedContent" in url:
@@ -39,8 +44,16 @@ def _custom_gemini_transport(request: httpx.Request) -> httpx.Response:
     elif "models" in url:
         body = {
             "models": [
-                {"name": "models/gemini-1.5-flash", "displayName": "Gemini 1.5 Flash", "inputTokenLimit": 1000000},
-                {"name": "models/gemini-1.5-pro", "displayName": "Gemini 1.5 Pro", "inputTokenLimit": 2000000},
+                {
+                    "name": "models/gemini-1.5-flash",
+                    "displayName": "Gemini 1.5 Flash",
+                    "inputTokenLimit": 1000000,
+                },
+                {
+                    "name": "models/gemini-1.5-pro",
+                    "displayName": "Gemini 1.5 Pro",
+                    "inputTokenLimit": 2000000,
+                },
             ]
         }
         return httpx.Response(200, json=body)

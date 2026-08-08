@@ -4,7 +4,7 @@ Unit tests for LifecycleCoordinator.
 
 import pytest
 
-from nexusai.core.errors import KernelBootstrapError, LifecycleStateError
+from nexusai.core.errors import KernelBootstrapError
 from nexusai.kernel.contracts import KernelService, ServiceDescriptor, ServiceLifecycleState
 from nexusai.kernel.lifecycle import LifecycleCoordinator
 
@@ -52,7 +52,9 @@ async def test_lifecycle_coordinator_orchestrated_rollback():
     coordinator = LifecycleCoordinator()
 
     s1 = DummyStatefulService(ServiceDescriptor(id="s1", name="S1", version="1.0.0"))
-    s2 = DummyStatefulService(ServiceDescriptor(id="s2", name="S2", version="1.0.0"), fail_on_start=True)
+    s2 = DummyStatefulService(
+        ServiceDescriptor(id="s2", name="S2", version="1.0.0"), fail_on_start=True
+    )
     s3 = DummyStatefulService(ServiceDescriptor(id="s3", name="S3", version="1.0.0"))
 
     boot_list = [s1, s2, s3]

@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "nexusai"
-version = "0.1.0"
-description = "NexusAI: Personal AI Operating System for macOS"
+version = "0.6.0"
+description = "NexusAI: Personal AI Operating System & Agent Runtime Engine"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
@@ -29,9 +29,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-audio = [
-    "pyaudio>=0.2.14",
-]
+audio = ["pyaudio>=0.2.14"]
 dev = [
     "pytest>=8.1.0",
     "pytest-asyncio>=0.23.0",
@@ -57,9 +55,7 @@ minversion = "8.0"
 testpaths = ["tests"]
 pythonpath = ["src", "."]
 asyncio_mode = "auto"
-addopts = [
-    "--strict-markers",
-]
+addopts = ["--strict-markers"]
 markers = [
     "unit: pure unit tests with no external dependencies",
     "integration: tests requiring local services (ChromaDB, filesystem)",
@@ -95,6 +91,8 @@ tests_dir = "tests"
 [tool.mypy]
 python_version = "3.12"
 strict = true
+ignore_missing_imports = true
+warn_unused_ignores = false
 warn_return_any = true
 warn_unused_configs = true
 mypy_path = "src:."
@@ -109,7 +107,7 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I"]
-ignore = []
+ignore = ["E501", "E402", "I001"]
 
 [tool.isort]
 profile = "black"
@@ -118,4 +116,3 @@ line_length = 100
 [tool.black]
 line-length = 100
 target-version = ['py312']
-

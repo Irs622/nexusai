@@ -2,15 +2,12 @@
 Unit tests for Memory contracts, value objects, exceptions, and models.
 """
 
-import pytest
 from nexusai.memory.contracts import (
     EmbeddingCapabilities,
     MemoryContent,
-    MemoryMetadata,
     MemoryRecord,
     MemoryScope,
     MemoryType,
-    QueryResult,
     RetrievalContext,
 )
 from nexusai.memory.exceptions import MemoryError, MemoryStorageError

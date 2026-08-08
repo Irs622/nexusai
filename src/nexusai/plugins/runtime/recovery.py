@@ -5,7 +5,6 @@ RecoveryStrategy and PluginRecoveryEngine for failure handling and quarantine.
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any
 
 from nexusai.plugins.contracts.state import PluginState
 from nexusai.plugins.runtime.registry import PluginRegistry

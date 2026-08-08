@@ -86,7 +86,9 @@ class DependencyResolver:
 
         if len(order) != len(active_ids):
             unresolved = set(active_ids) - set(order)
-            raise PluginDependencyError(f"Circular dependency detected involving plugins: {sorted(unresolved)}")
+            raise PluginDependencyError(
+                f"Circular dependency detected involving plugins: {sorted(unresolved)}"
+            )
 
         return LoadingPlan(
             order=tuple(order),

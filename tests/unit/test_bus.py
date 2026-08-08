@@ -4,8 +4,9 @@ Unit tests for CQRS CommandBus, QueryBus, and EventBus.
 
 import pytest
 from pydantic import BaseModel
-from nexusai.bus.bus import CommandBus, QueryBus, EventBus
-from nexusai.core.errors import CommandExecutionError, QueryExecutionError
+
+from nexusai.bus.bus import CommandBus, EventBus, QueryBus
+from nexusai.core.errors import CommandExecutionError
 
 
 class SampleCommand(BaseModel):

@@ -45,9 +45,8 @@ class ProviderRouter:
         Raises:
             ProviderNotFoundError: If no candidate provider satisfies the policy.
         """
-        all_providers = [
-            self._manager.registry.get(pid)
-            for pid in self._manager.registry.list_provider_ids()
+        _all_providers = [
+            self._manager.registry.get(pid) for pid in self._manager.registry.list_provider_ids()
         ]
 
         active_policy = policy

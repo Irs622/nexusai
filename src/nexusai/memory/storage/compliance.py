@@ -17,7 +17,9 @@ class StorageComplianceSuite:
     async def verify_storage_compliance(storage: MemoryStorage) -> None:
         """Run comprehensive behavioral compliance assertions on target storage engine."""
         # 1. Save and Get Record
-        content = MemoryContent(raw_text="Compliance test content: Bahasa Indonesia & Unicode: 🚀, Ñ, ü")
+        content = MemoryContent(
+            raw_text="Compliance test content: Bahasa Indonesia & Unicode: 🚀, Ñ, ü"
+        )
         metadata = MemoryMetadata(owner="test_user", tags=["test", "behavioral"])
         record = MemoryRecord(
             id="comp_rec_1",
@@ -32,7 +34,10 @@ class StorageComplianceSuite:
         fetched = await storage.get("comp_rec_1")
         assert fetched is not None, "Failed to retrieve saved record by ID"
         assert fetched.id == "comp_rec_1"
-        assert fetched.content.raw_text == "Compliance test content: Bahasa Indonesia & Unicode: 🚀, Ñ, ü"
+        assert (
+            fetched.content.raw_text
+            == "Compliance test content: Bahasa Indonesia & Unicode: 🚀, Ñ, ü"
+        )
         assert fetched.metadata.owner == "test_user"
         assert fetched.metadata.created_at == record.metadata.created_at
 

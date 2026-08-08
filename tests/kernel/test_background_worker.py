@@ -3,6 +3,7 @@ Unit tests for BackgroundWorkerManager.
 """
 
 import asyncio
+
 import pytest
 
 from nexusai.kernel.worker import BackgroundWorkerManager

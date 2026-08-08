@@ -12,7 +12,9 @@ class MemoryContent(BaseModel):
 
     raw_text: str = Field(..., description="Full raw text content")
     summary: str | None = Field(default=None, description="Compacted text summary if processed")
-    embedding_id: str | None = Field(default=None, description="Reference ID of vector embedding in VectorStore")
+    embedding_id: str | None = Field(
+        default=None, description="Reference ID of vector embedding in VectorStore"
+    )
 
     model_config = {
         "frozen": True,

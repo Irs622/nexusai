@@ -4,13 +4,12 @@ Unit tests for Milestone 3.1.3 Context & Token-Aware History Pipeline components
 
 from __future__ import annotations
 
-import pytest
 from uuid import uuid4
+
+import pytest
 
 from nexusai.brain.context import (
     ContextAssembler,
-    ContextTruncator,
-    HistoryLoader,
     InMemoryHistoryProvider,
     SystemPromptResolver,
 )
@@ -20,7 +19,6 @@ from nexusai.brain.domain import (
     Message,
     MessageRole,
     SchemaVersion,
-    TokenBoundedHistory,
     Turn,
 )
 from nexusai.core.errors import BrainContextAssemblyError
@@ -42,7 +40,9 @@ def test_context_budget_invariants_and_serialization() -> None:
         ContextBudget(max_input_tokens=-1)
 
     # Invariant: Reserved tokens exceed max_input_tokens
-    with pytest.raises(BrainContextAssemblyError, match="available_history_tokens.*must be positive"):
+    with pytest.raises(
+        BrainContextAssemblyError, match="available_history_tokens.*must be positive"
+    ):
         ContextBudget(max_input_tokens=1000, reserved_output_tokens=2000)
 
     d = budget.to_dict()
@@ -54,7 +54,9 @@ def test_assembled_context_immutability_and_serialization() -> None:
     """Verify AssembledContext tuple immutability and serialization boundary."""
     ctx = AssembledContext(
         system_instruction="System prompt",
-        history_messages=[Message(role=MessageRole.USER, content="Past query")],  # Auto-converted to tuple
+        history_messages=[
+            Message(role=MessageRole.USER, content="Past query")
+        ],  # Auto-converted to tuple
         user_message=Message(role=MessageRole.USER, content="Current query"),
         estimated_total_tokens=150,
         truncated_turn_count=2,
@@ -75,7 +77,9 @@ def test_system_prompt_resolver_precedence() -> None:
     resolver = SystemPromptResolver()
 
     # Precedence 1: Turn override takes top priority
-    res1 = resolver.resolve(turn_override="Turn override prompt", session_default="Session default prompt")
+    res1 = resolver.resolve(
+        turn_override="Turn override prompt", session_default="Session default prompt"
+    )
     assert res1 == "Turn override prompt"
 
     # Precedence 2: Session default takes second priority
@@ -92,12 +96,16 @@ async def test_context_assembler_end_to_end() -> None:
     """Verify ContextAssembler orchestrates history loading, system prompt resolution, and truncation."""
     turn1 = Turn(
         user_message=Message(role=MessageRole.USER, content="What is Python?"),
-        assistant_message=Message(role=MessageRole.ASSISTANT, content="Python is a programming language."),
+        assistant_message=Message(
+            role=MessageRole.ASSISTANT, content="Python is a programming language."
+        ),
         token_usage={"total": 20},
     )
     turn2 = Turn(
         user_message=Message(role=MessageRole.USER, content="What is NexusAI?"),
-        assistant_message=Message(role=MessageRole.ASSISTANT, content="NexusAI is an AI Operating System."),
+        assistant_message=Message(
+            role=MessageRole.ASSISTANT, content="NexusAI is an AI Operating System."
+        ),
         token_usage={"total": 25},
     )
 

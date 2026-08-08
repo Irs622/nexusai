@@ -77,7 +77,7 @@ def test_agent_runtime_end_to_end_full_flow():
     # 1. Setup ToolRegistry with real tool capabilities
     registry = ToolRegistry()
     registry.register(E2EWorkspaceListTool())  # type: ignore[arg-type]
-    registry.register(E2EFileReadTool())       # type: ignore[arg-type]
+    registry.register(E2EFileReadTool())  # type: ignore[arg-type]
     tool_port = ToolRegistryAdapter(registry)
 
     # 2. Assemble AgentRuntimeFacade using AgentRuntimeBuilder

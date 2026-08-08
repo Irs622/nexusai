@@ -4,11 +4,8 @@ Unit tests for domain lifecycle events.
 
 from nexusai.plugins.contracts.state import PluginState
 from nexusai.plugins.events.events import (
-    CapabilityRegisteredEvent,
     PluginDiscoveredEvent,
     PluginFailedEvent,
-    PluginLoadedEvent,
-    PluginStartedEvent,
 )
 
 

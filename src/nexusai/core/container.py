@@ -2,7 +2,7 @@
 Simple Dependency Injection Container for NexusAI services.
 """
 
-from typing import Any, TypeVar, Callable
+from typing import Any, Callable, TypeVar
 
 T = TypeVar("T")
 
@@ -12,13 +12,15 @@ class DependencyContainer:
 
     def __init__(self) -> None:
         self._services: dict[type[Any], Any] = {}
-        self._factories: dict[type[Any], Callable[['DependencyContainer'], Any]] = {}
+        self._factories: dict[type[Any], Callable[["DependencyContainer"], Any]] = {}
 
     def register_singleton(self, service_type: type[T], instance: T) -> None:
         """Register an existing singleton instance."""
         self._services[service_type] = instance
 
-    def register_factory(self, service_type: type[T], factory: Callable[['DependencyContainer'], T]) -> None:
+    def register_factory(
+        self, service_type: type[T], factory: Callable[["DependencyContainer"], T]
+    ) -> None:
         """Register a factory function for a service type."""
         self._factories[service_type] = factory
 

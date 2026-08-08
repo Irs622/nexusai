@@ -54,6 +54,12 @@ class InMemoryRecordRepository(MemoryRecordRepository):
     async def get_by_id(self, record_id: str) -> MemoryRecord | None:
         return self._store.get(record_id)
 
+    async def get(self, record_id: str) -> MemoryRecord | None:
+        return await self.get_by_id(record_id)
+
+    async def update(self, record: MemoryRecord) -> None:
+        await self.add(record)
+
     async def delete(self, record_id: str) -> bool:
         if record_id in self._store:
             del self._store[record_id]
@@ -70,7 +76,9 @@ class InMemoryVectorRepository(VectorRepository):
     def __init__(self) -> None:
         self._vectors: dict[str, Sequence[float]] = {}
 
-    async def upsert_vector(self, embedding_id: str, vector: Sequence[float], metadata: dict[str, str] | None = None) -> None:
+    async def upsert_vector(
+        self, embedding_id: str, vector: Sequence[float], metadata: dict[str, str] | None = None
+    ) -> None:
         self._vectors[embedding_id] = vector
 
     async def delete_vector(self, embedding_id: str) -> bool:
@@ -103,11 +111,12 @@ class InMemoryOutboxRepository(OutboxRepository):
             if r.id == record_id:
                 r.status = OutboxStatus.DISPATCHED
 
-    async def mark_failed(self, record_id: str, error: str) -> None:
+    async def mark_failed(self, record_id: str, error: str = "", error_message: str = "") -> None:
+        err_str = error_message or error
         for r in self._records:
             if r.id == record_id:
                 r.status = OutboxStatus.FAILED
-                r.error_message = error
+                r.error_message = err_str
 
 
 class DefaultMemoryUnitOfWork(MemoryUnitOfWork):
@@ -137,4 +146,5 @@ class DefaultMemoryUnitOfWork(MemoryUnitOfWork):
 
     def transaction(self) -> AsyncTransaction:
         from nexusai.kernel.transaction import DefaultAsyncTransaction
+
         return DefaultAsyncTransaction()

@@ -29,7 +29,9 @@ class ContextBuilder:
         self._strategy = strategy
         self._header = header
 
-    def build_structured(self, records_or_result: Sequence[MemoryRecord] | QueryResult) -> StructuredContext:
+    def build_structured(
+        self, records_or_result: Sequence[MemoryRecord] | QueryResult
+    ) -> StructuredContext:
         """Build StructuredContext representation from MemoryRecords."""
         records_list: list[MemoryRecord]
         if isinstance(records_or_result, QueryResult):

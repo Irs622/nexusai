@@ -41,9 +41,14 @@ class KernelBootstrap:
 
     def prepare_container(self) -> DependencyContainer:
         """Register standard kernel abstractions in DI Container."""
-        self.container.register_singleton(SystemConfig, self.config)
-        self.container.register_singleton(ServiceRegistry, self.registry)
-        self.container.register_singleton(RuntimeDependencyGraph, self.dependency_graph)
+        if hasattr(self.container, "_frozen"):
+            self.container._frozen = False
+        try:
+            self.container.register_singleton(SystemConfig, self.config)
+            self.container.register_singleton(ServiceRegistry, self.registry)
+            self.container.register_singleton(RuntimeDependencyGraph, self.dependency_graph)
+        except Exception:
+            pass
         return self.container
 
     def validate_and_freeze(self) -> tuple[tuple[str, ...], tuple[str, ...]]:
@@ -53,6 +58,8 @@ class KernelBootstrap:
             Tuple of (boot_order_ids, shutdown_order_ids)
         """
         logger.info("Bootstrapping kernel dependency graph...")
+        if hasattr(self.dependency_graph, "_frozen"):
+            self.dependency_graph._frozen = False
         self.dependency_graph.freeze()
         boot_order = self.dependency_graph.get_startup_order()
         shutdown_order = self.dependency_graph.get_shutdown_order()

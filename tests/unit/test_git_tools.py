@@ -2,8 +2,9 @@
 Unit tests for Git Status Tool.
 """
 
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
 
 from nexusai.security.guard import RiskLevel
 from nexusai.tools.registry import ToolRegistry

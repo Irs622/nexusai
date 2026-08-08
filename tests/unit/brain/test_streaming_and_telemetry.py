@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import asyncio
 import time
+
 import pytest
 
 from nexusai.brain.plugins import ExtensionEvent, PluginFailurePolicy, PriorityExtensionDispatcher
@@ -48,6 +49,7 @@ def test_execution_tracer_span_helper() -> None:
 @pytest.mark.asyncio
 async def test_turn_stream_iteration_and_ttft() -> None:
     """Verify TurnStream async iterator yields chunks with zero double-buffering and captures TTFT."""
+
     async def mock_provider_chunks() -> asyncio.AsyncIterator[TurnChunk]:
         yield TurnChunk(delta="Hello", sequence=0)
         yield TurnChunk(delta=" world", sequence=1, finish_reason="stop")
@@ -70,6 +72,7 @@ async def test_turn_stream_iteration_and_ttft() -> None:
 @pytest.mark.asyncio
 async def test_turn_stream_cancellation_monitoring() -> None:
     """Verify TurnStream detects cancellation signal and aborts stream execution."""
+
     async def infinite_chunks() -> asyncio.AsyncIterator[TurnChunk]:
         yield TurnChunk(delta="Chunk 1", sequence=0)
         yield TurnChunk(delta="Chunk 2", sequence=1)

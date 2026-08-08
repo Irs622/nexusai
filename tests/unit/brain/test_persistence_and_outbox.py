@@ -5,13 +5,13 @@ Unit tests for Milestone 3.1.6 Kernel Outbox Transactional Persistence.
 from __future__ import annotations
 
 import json
-import pytest
 from uuid import uuid4
+
+import pytest
 
 from nexusai.brain.domain import Message, MessageRole, SchemaVersion, Turn
 from nexusai.brain.persistence import (
     InMemoryOutboxWriter,
-    KernelOutboxAdapter,
     OutboxRecord,
     TurnPersistenceService,
 )

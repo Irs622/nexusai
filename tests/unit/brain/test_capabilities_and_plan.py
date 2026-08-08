@@ -4,8 +4,9 @@ Unit tests for RequiredCapabilities, Capability enum, ExecutionConstraints, Exec
 
 from __future__ import annotations
 
-import pytest
 from dataclasses import FrozenInstanceError
+
+import pytest
 
 from nexusai.brain.domain import SchemaVersion
 from nexusai.brain.runtime import (
@@ -44,8 +45,12 @@ def test_required_capabilities_and_constraints() -> None:
 
 def test_execution_plan_invariants_and_serialization() -> None:
     """Verify ExecutionPlan invariants, primary step retrieval, and serialization boundaries."""
-    step1 = ExecutionStep(step_type="provider_invocation", provider_id="openrouter", model_id="claude-3.5-sonnet")
-    step2 = ExecutionStep(step_type="fallback_invocation", provider_id="gemini", model_id="gemini-1.5-pro")
+    step1 = ExecutionStep(
+        step_type="provider_invocation", provider_id="openrouter", model_id="claude-3.5-sonnet"
+    )
+    step2 = ExecutionStep(
+        step_type="fallback_invocation", provider_id="gemini", model_id="gemini-1.5-pro"
+    )
 
     plan = ExecutionPlan(steps=[step1], fallback_chain=[step2])
 
@@ -54,7 +59,9 @@ def test_execution_plan_invariants_and_serialization() -> None:
     assert isinstance(plan.fallback_chain, tuple)
     assert plan.primary_step == step1
 
-    with pytest.raises(BrainCapabilityNegotiationError, match="must contain at least one primary execution step"):
+    with pytest.raises(
+        BrainCapabilityNegotiationError, match="must contain at least one primary execution step"
+    ):
         ExecutionPlan(steps=[])
 
     d = plan.to_dict()

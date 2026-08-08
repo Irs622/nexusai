@@ -1,7 +1,7 @@
 """Unit tests for OllamaProvider adapter using httpx mock transport."""
 
-import pytest
 import httpx
+import pytest
 
 from nexusai.providers import (
     Capability,

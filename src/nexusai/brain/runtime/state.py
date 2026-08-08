@@ -84,8 +84,8 @@ class SessionState:
         updated_at: Timestamp of last state mutation.
     """
 
-    provider_id: str
-    active_model: str
+    provider_id: str = "mock"
+    active_model: str = "mock-v1"
     generation_config: dict[str, Any] = field(default_factory=dict)
     model_capabilities: ModelCapabilities = field(
         default_factory=lambda: ModelCapabilities(max_input_tokens=128000, max_output_tokens=4096)

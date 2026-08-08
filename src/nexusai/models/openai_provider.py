@@ -11,6 +11,7 @@ import json
 import os
 from pathlib import Path
 from typing import Any
+
 from openai import AsyncOpenAI
 
 from nexusai.core.config import ModelSettings
@@ -71,7 +72,11 @@ class OpenAIProvider(BaseModelProvider):
         self.settings = settings or ModelSettings()
         self.model = self.settings.default_model
         resolved_key = api_key or os.getenv("OPENAI_API_KEY") or os.getenv("OPENROUTER_API_KEY")
-        base_url = self.settings.base_url or os.getenv("OPENAI_BASE_URL") or os.getenv("OPENROUTER_BASE_URL")
+        base_url = (
+            self.settings.base_url
+            or os.getenv("OPENAI_BASE_URL")
+            or os.getenv("OPENROUTER_BASE_URL")
+        )
 
         if client is not None:
             self.client = client
@@ -118,7 +123,9 @@ class OpenAIProvider(BaseModelProvider):
                     try:
                         arguments = json.loads(func.arguments)
                     except Exception as je:
-                        raise ModelProviderError(f"Failed to parse tool call JSON arguments: {je}") from je
+                        raise ModelProviderError(
+                            f"Failed to parse tool call JSON arguments: {je}"
+                        ) from je
 
                     return {
                         "type": "tool_call",
@@ -135,4 +142,3 @@ class OpenAIProvider(BaseModelProvider):
             raise
         except Exception as e:
             raise ModelProviderError(f"OpenAI API call failed: {e}") from e
-

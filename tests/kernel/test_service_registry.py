@@ -2,7 +2,6 @@
 Unit tests for ServiceRegistry.
 """
 
-from typing import Any
 import pytest
 
 from nexusai.core.errors import ServiceRegistrationError
@@ -44,7 +43,9 @@ class InterfaceImplementorService(CustomInterface):
 
 def test_service_registry_registration_and_lookup():
     registry = ServiceRegistry()
-    desc = ServiceDescriptor(id="service.a", name="Service A", version="1.0.0", tags=("core", "test"))
+    desc = ServiceDescriptor(
+        id="service.a", name="Service A", version="1.0.0", tags=("core", "test")
+    )
     srv = MockSubsystemService(desc)
 
     registry.register(srv)
@@ -59,8 +60,12 @@ def test_service_registry_registration_and_lookup():
 
 def test_service_registry_lookup_by_interface_and_tag():
     registry = ServiceRegistry()
-    srv_a = MockSubsystemService(ServiceDescriptor(id="a", name="A", version="1.0.0", tags=("tag1",)))
-    srv_b = InterfaceImplementorService(ServiceDescriptor(id="b", name="B", version="1.0.0", tags=("tag1", "tag2")))
+    srv_a = MockSubsystemService(
+        ServiceDescriptor(id="a", name="A", version="1.0.0", tags=("tag1",))
+    )
+    srv_b = InterfaceImplementorService(
+        ServiceDescriptor(id="b", name="B", version="1.0.0", tags=("tag1", "tag2"))
+    )
 
     registry.register(srv_a)
     registry.register(srv_b)

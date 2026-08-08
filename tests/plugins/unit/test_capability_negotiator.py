@@ -31,8 +31,16 @@ def test_capability_negotiator_with_constraints():
         permissions={"supports_stream": False},
     )
 
-    registry.register(PluginDescriptor(id=m1.id, manifest=m1, manifest_checksum="1", plugin_checksum="1", location=Path("/t1")))
-    registry.register(PluginDescriptor(id=m2.id, manifest=m2, manifest_checksum="2", plugin_checksum="2", location=Path("/t2")))
+    registry.register(
+        PluginDescriptor(
+            id=m1.id, manifest=m1, manifest_checksum="1", plugin_checksum="1", location=Path("/t1")
+        )
+    )
+    registry.register(
+        PluginDescriptor(
+            id=m2.id, manifest=m2, manifest_checksum="2", plugin_checksum="2", location=Path("/t2")
+        )
+    )
 
     negotiator = CapabilityNegotiator(registry)
     matches = negotiator.negotiate(PluginCapability.LLM_PROVIDER, {"supports_stream": True})

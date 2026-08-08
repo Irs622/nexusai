@@ -14,7 +14,9 @@ class VectorRepository(ABC):
     """Abstract repository interface for VectorStore operations."""
 
     @abstractmethod
-    async def upsert_vector(self, embedding_id: str, vector: Sequence[float], metadata: dict[str, str] | None = None) -> None:
+    async def upsert_vector(
+        self, embedding_id: str, vector: Sequence[float], metadata: dict[str, str] | None = None
+    ) -> None:
         """Upsert a vector embedding into index."""
         pass
 

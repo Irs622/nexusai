@@ -1,8 +1,5 @@
 """Shared Translator Contract Test Suite verifying BaseTranslator compliance across all translator implementations."""
 
-from typing import Any
-import pytest
-
 from nexusai.providers import ChatMessage, ChatRequest, MessageRole
 from nexusai.providers.translators import (
     AnthropicTranslator,
@@ -15,7 +12,9 @@ from nexusai.providers.translators import (
 
 def verify_translator_contract(translator: BaseTranslator) -> None:
     """Verify that a BaseTranslator instance satisfies standard translation contract rules."""
-    req = ChatRequest(messages=[ChatMessage(role=MessageRole.USER, content="Contract test message")])
+    req = ChatRequest(
+        messages=[ChatMessage(role=MessageRole.USER, content="Contract test message")]
+    )
 
     # 1. from_canonical_request returns dictionary payload
     payload = translator.from_canonical_request(req)

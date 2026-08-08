@@ -5,7 +5,8 @@ Background AsyncIOScheduler Service for Proactive Automation.
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from typing import Callable, Any
+from typing import Any, Callable
+
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.date import DateTrigger

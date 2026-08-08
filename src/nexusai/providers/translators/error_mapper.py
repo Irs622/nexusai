@@ -11,6 +11,7 @@ from nexusai.providers.exceptions import (
     ProviderAuthenticationError,
     ProviderConfigurationError,
     ProviderNetworkError,
+    ProviderNotFoundError,
     ProviderRateLimitError,
     ProviderSDKError,
     ProviderTimeoutError,
@@ -49,6 +50,8 @@ class CanonicalErrorMapper:
 
         if status_code in (401, 403):
             return ProviderAuthenticationError(msg)
+        if status_code == 404 or "not found" in error_msg.lower():
+            return ProviderNotFoundError(msg)
         if status_code == 429:
             retry_after: float | None = None
             if headers:
@@ -70,7 +73,7 @@ class CanonicalErrorMapper:
             return ProviderRateLimitError(msg, retry_after=retry_after)
         if status_code in (408, 504):
             return ProviderTimeoutError(msg)
-        if status_code in (502, 503):
+        if status_code in (500, 502, 503):
             return ProviderNetworkError(msg)
         if status_code == 400:
             return ProviderConfigurationError(msg)

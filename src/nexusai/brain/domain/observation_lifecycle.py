@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
+from typing import ClassVar
+
 from nexusai.core.errors import BrainContextAssemblyError
 
 
@@ -50,7 +52,7 @@ class ObservationMetadata:
     is_important: bool = False
     importance_score: float = 0.0
 
-    ALLOWED_TRANSITIONS: dict[LifecycleState, set[LifecycleState]] = {
+    ALLOWED_TRANSITIONS: ClassVar[dict[LifecycleState, set[LifecycleState]]] = {
         LifecycleState.ACTIVE: {LifecycleState.COMPACTED, LifecycleState.ARCHIVED},
         LifecycleState.COMPACTED: {LifecycleState.ARCHIVED},
         LifecycleState.ARCHIVED: set(),

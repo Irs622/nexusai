@@ -4,6 +4,8 @@ Centralized exception hierarchy for NexusAI.
 
 from __future__ import annotations
 
+from typing import Any
+
 
 class NexusAIError(Exception):
     """Base exception class for all NexusAI errors."""
@@ -199,3 +201,7 @@ class DuplicateObservationError(BrainError):
     pass
 
 
+class GraphFrozenError(NexusAIError):
+    """Raised when attempting to modify a frozen dependency graph."""
+
+    pass

@@ -27,7 +27,12 @@ class ServiceContainer:
         """Register a pre-instantiated singleton service."""
         self._services[service_type] = (ServiceLifetime.SINGLETON, lambda: instance, instance)
 
-    def register_factory(self, service_type: type[T], factory: Callable[[], T], lifetime: ServiceLifetime = ServiceLifetime.TRANSIENT) -> None:
+    def register_factory(
+        self,
+        service_type: type[T],
+        factory: Callable[[], T],
+        lifetime: ServiceLifetime = ServiceLifetime.TRANSIENT,
+    ) -> None:
         """Register a service factory with specified lifetime."""
         self._services[service_type] = (lifetime, factory, None)
 
@@ -38,7 +43,9 @@ class ServiceContainer:
             KeyError: If service_type is not registered in container.
         """
         if service_type not in self._services:
-            raise KeyError(f"Service '{service_type.__name__}' is not registered in ServiceContainer")
+            raise KeyError(
+                f"Service '{service_type.__name__}' is not registered in ServiceContainer"
+            )
 
         lifetime, factory, instance = self._services[service_type]
         if lifetime == ServiceLifetime.SINGLETON:

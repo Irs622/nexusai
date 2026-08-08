@@ -7,7 +7,6 @@ Enforces Section 8 of AGENTS.md:
 
 from __future__ import annotations
 
-import inspect
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent.parent
@@ -29,7 +28,9 @@ def test_src_nexusai_does_not_import_benchmarks():
         if "import benchmarks" in code or "from benchmarks" in code:
             violations.append(str(py_file.relative_to(PROJECT_ROOT)))
 
-    assert not violations, f"src/nexusai application code illegally imports benchmarks in: {violations}"
+    assert (
+        not violations
+    ), f"src/nexusai application code illegally imports benchmarks in: {violations}"
 
 
 if __name__ == "__main__":

@@ -4,12 +4,11 @@ MemoryCommandService handling state mutation operations.
 
 from __future__ import annotations
 
-from typing import Any
-
 from nexusai.memory.contracts.storage import MemoryStorage
 from nexusai.memory.domain.metadata import MemoryMetadata
 from nexusai.memory.domain.record import MemoryRecord, MemoryScope, MemoryType
 from nexusai.memory.metrics import MemoryMetricsCollector
+from nexusai.memory.uow.unit_of_work import MemoryUnitOfWork
 from nexusai.memory.usecases.forget import ForgetMemoryUseCase
 from nexusai.memory.usecases.store import StoreMemoryUseCase
 
@@ -23,11 +22,13 @@ class MemoryCommandService:
         forget_usecase: ForgetMemoryUseCase,
         storage: MemoryStorage | None = None,
         metrics: MemoryMetricsCollector | None = None,
+        uow: MemoryUnitOfWork | None = None,
     ) -> None:
         self._store_usecase = store_usecase
         self._forget_usecase = forget_usecase
         self._storage = storage
         self._metrics = metrics or MemoryMetricsCollector()
+        self._uow = uow
 
     async def store(
         self,
@@ -49,11 +50,27 @@ class MemoryCommandService:
 
     async def archive(self, record_id: str, reason: str = "user_action") -> bool:
         """Archive memory record by ID."""
-        if not self._storage:
-            return False
-        record = await self._storage.get(record_id)
+        record: MemoryRecord | None = None
+
+        if self._storage:
+            record = await self._storage.get(record_id)
+
+        if record is None and self._uow:
+            if hasattr(self._uow.records, "get_by_id"):
+                record = await self._uow.records.get_by_id(record_id)
+            elif hasattr(self._uow.records, "get"):
+                record = await self._uow.records.get(record_id)
+
         if not record:
             return False
+
         record.archive(reason=reason)
-        await self._storage.save(record)
+
+        if self._storage:
+            await self._storage.save(record)
+        elif self._uow:
+            async with self._uow.transaction():
+                if hasattr(self._uow.records, "add"):
+                    await self._uow.records.add(record)
+
         return True

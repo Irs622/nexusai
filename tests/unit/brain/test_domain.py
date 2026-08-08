@@ -4,8 +4,9 @@ Unit tests for nexusai.brain.domain models, invariants, polymorphism, and serial
 
 from __future__ import annotations
 
-import pytest
 from dataclasses import FrozenInstanceError
+
+import pytest
 
 from nexusai.brain.domain import (
     Artifact,

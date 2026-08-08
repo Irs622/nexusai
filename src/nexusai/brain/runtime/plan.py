@@ -98,7 +98,11 @@ class ExecutionPlan:
     def from_dict(cls, data: dict[str, Any]) -> ExecutionPlan:
         """Deserialize ExecutionPlan from dictionary format."""
         version_data = data.get("plan_version", {})
-        plan_version = SchemaVersion.from_dict(version_data) if isinstance(version_data, dict) else SchemaVersion()
+        plan_version = (
+            SchemaVersion.from_dict(version_data)
+            if isinstance(version_data, dict)
+            else SchemaVersion()
+        )
         steps = tuple(ExecutionStep.from_dict(s) for s in data.get("steps", []))
         fallback_chain = tuple(ExecutionStep.from_dict(s) for s in data.get("fallback_chain", []))
 

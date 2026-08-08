@@ -91,6 +91,7 @@ __all__ = [
     "PluginLifecycleError",
     "PluginLifecycleManager",
     "PluginLoadError",
+    "PluginLoader",
     "PluginManifest",
     "PluginManifestError",
     "PluginMetadata",

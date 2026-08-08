@@ -198,7 +198,10 @@ ARCHITECTURE_RULES: List[ArchitectureRule] = [
         rule_id="A018",
         target_package="memory.usecases",
         description="UseCase MUST NOT import concrete Provider directly",
-        forbidden_package_prefixes={"nexusai.memory.embedding.local_provider", "nexusai.memory.embedding.remote_provider"},
+        forbidden_package_prefixes={
+            "nexusai.memory.embedding.local_provider",
+            "nexusai.memory.embedding.remote_provider",
+        },
     ),
     ArchitectureRule(
         rule_id="A019",

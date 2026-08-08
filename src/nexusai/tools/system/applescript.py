@@ -3,6 +3,7 @@ Async AppleScript execution engine using osascript.
 """
 
 import asyncio
+
 from nexusai.core.errors import ToolExecutionError
 
 

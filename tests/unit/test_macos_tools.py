@@ -2,8 +2,9 @@
 Unit tests for AppleScript engine and macOS desktop automation tools.
 """
 
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
 
 from nexusai.core.errors import ToolExecutionError
 from nexusai.security.guard import RiskLevel
@@ -35,7 +36,10 @@ async def test_execute_applescript_success() -> None:
 @pytest.mark.asyncio
 async def test_execute_applescript_failure_raises_tool_execution_error() -> None:
     mock_process = AsyncMock()
-    mock_process.communicate.return_value = (b"", b"Execution error: Application isn't running (-600)")
+    mock_process.communicate.return_value = (
+        b"",
+        b"Execution error: Application isn't running (-600)",
+    )
     mock_process.returncode = 1
 
     with patch("asyncio.create_subprocess_exec", return_value=mock_process):
@@ -63,7 +67,10 @@ async def test_get_active_window_tool() -> None:
     assert tool.name == "macos_get_active_window"
     assert tool.risk_level == RiskLevel.LOW
 
-    with patch("nexusai.tools.macos.active_window.execute_applescript", return_value="Terminal::zsh - nexusai") as mock_script:
+    with patch(
+        "nexusai.tools.macos.active_window.execute_applescript",
+        return_value="Terminal::zsh - nexusai",
+    ) as mock_script:
         result = await tool.execute()
         assert result == {"active_app": "Terminal", "window_title": "zsh - nexusai"}
         assert mock_script.called is True
@@ -75,7 +82,9 @@ async def test_raw_applescript_tool_critical_risk() -> None:
     assert tool.name == "macos_execute_applescript"
     assert tool.risk_level == RiskLevel.CRITICAL
 
-    with patch("nexusai.tools.macos.raw_applescript.execute_applescript", return_value="Done") as mock_script:
+    with patch(
+        "nexusai.tools.macos.raw_applescript.execute_applescript", return_value="Done"
+    ) as mock_script:
         result = await tool.execute(script='display dialog "NexusAI"')
         mock_script.assert_called_once_with('display dialog "NexusAI"')
         assert result == "Done"

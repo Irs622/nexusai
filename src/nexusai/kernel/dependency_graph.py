@@ -5,7 +5,6 @@ Runtime Dependency Graph manager for NexusAI OS Kernel services.
 from __future__ import annotations
 
 from collections import deque
-from typing import Sequence
 
 from nexusai.core.errors import DependencyCycleError, GraphFrozenError, MissingDependencyError
 from nexusai.kernel.contracts import KernelService, ServiceDescriptor

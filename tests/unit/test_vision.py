@@ -4,8 +4,9 @@ Unit tests for Vision Layer, ScreenCaptureTool, and Multimodal OpenAI Provider p
 
 import base64
 from pathlib import Path
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
 
 from nexusai.core.errors import ToolExecutionError
 from nexusai.models.openai_provider import process_multimodal_messages
@@ -75,7 +76,10 @@ async def test_process_multimodal_messages(tmp_path: Path) -> None:
 @pytest.mark.asyncio
 async def test_process_multimodal_messages_missing_file() -> None:
     messages = [
-        {"role": "tool", "content": '{"type": "image_path", "path": "/tmp/non_existent_12345.png"}'},
+        {
+            "role": "tool",
+            "content": '{"type": "image_path", "path": "/tmp/non_existent_12345.png"}',
+        },
     ]
 
     formatted = await process_multimodal_messages(messages)

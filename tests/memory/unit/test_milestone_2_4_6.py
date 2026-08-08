@@ -4,21 +4,26 @@ Unit tests for Milestone 2.4.6: Retrieval Engine Middleware Stages and ContextBu
 
 import pytest
 
-from nexusai.memory.domain import MemoryContent, MemoryMetadata, MemoryRecord, MemoryScope, MemoryType
+from nexusai.memory.domain import (
+    MemoryContent,
+    MemoryMetadata,
+    MemoryRecord,
+    MemoryScope,
+    MemoryType,
+)
 from nexusai.memory.pipeline import ContextBuilder, PipelineBuilder, RetrievalPipelineConfig
 from nexusai.memory.stages import (
     ImportanceStage,
     MetadataFilterStage,
     RankingStage,
     RecencyBoostStage,
-    SimilarityStage,
 )
 from nexusai.memory.vector import InMemoryVectorStore
 
 
 @pytest.mark.asyncio
 async def test_retrieval_engine_middleware_stages():
-    vector_store = InMemoryVectorStore(dimensions=4)
+    _vector_store = InMemoryVectorStore(dimensions=4)
 
     # 1. Create candidate records
     rec1 = MemoryRecord(
@@ -47,6 +52,7 @@ async def test_retrieval_engine_middleware_stages():
     )
 
     from nexusai.memory.contracts.retrieval import RetrievalContext
+
     context = RetrievalContext(
         query="Memory Engine",
         candidate_records=[rec1, rec2],

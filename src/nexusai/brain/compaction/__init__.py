@@ -1,4 +1,4 @@
-"""Context Compaction and Memory Retention sub-package for NexusAI Agent Runtime."""
+"""Context compaction sub-package for NexusAI Agent Runtime."""
 
 from nexusai.brain.compaction.budget import (
     CharacterEstimator,
@@ -16,6 +16,7 @@ from nexusai.brain.compaction.importance import (
 from nexusai.brain.compaction.pipeline import (
     CompactionPipeline,
     ISummaryGenerator,
+    LLMSummaryGenerator,
     StructuredSummaryGenerator,
 )
 from nexusai.brain.compaction.result import CompactionResult, SummaryBlock
@@ -29,6 +30,7 @@ __all__ = [
     "ISummaryGenerator",
     "ImportancePolicy",
     "ImportanceScorer",
+    "LLMSummaryGenerator",
     "LinearPolicy",
     "ProviderTokenizerEstimator",
     "RetentionPolicy",

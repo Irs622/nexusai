@@ -69,7 +69,9 @@ class MiddlewarePipeline:
             current_mw = middleware
             current_next = chain
 
-            async def make_call(req: ChatRequest, mw=current_mw, nxt=current_next) -> ChatResponse:
+            async def make_call(
+                req: ChatRequest, mw: BaseMiddleware = current_mw, nxt: NextHandler = current_next
+            ) -> ChatResponse:
                 return await mw.process(req, nxt, session=session)
 
             chain = make_call

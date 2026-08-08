@@ -68,23 +68,30 @@ class RequiredCapabilities:
     def __post_init__(self) -> None:
         """Ensure capabilities list is converted to an immutable tuple."""
         if isinstance(self.capabilities, list):
-            norm_caps = tuple(c.value if isinstance(c, Capability) else str(c) for c in self.capabilities)
+            norm_caps = tuple(
+                c.value if isinstance(c, Capability) else str(c) for c in self.capabilities
+            )
             object.__setattr__(self, "capabilities", norm_caps)
         else:
-            norm_caps = tuple(c.value if isinstance(c, Capability) else str(c) for c in self.capabilities)
+            norm_caps = tuple(
+                c.value if isinstance(c, Capability) else str(c) for c in self.capabilities
+            )
             object.__setattr__(self, "capabilities", norm_caps)
 
     def has_capability(self, name: str | Capability) -> bool:
         """Check if a specific capability is required."""
         target_name = name.value if isinstance(name, Capability) else str(name)
         return target_name.lower() in (
-            (cap.value if isinstance(cap, Capability) else str(cap)).lower() for cap in self.capabilities
+            (cap.value if isinstance(cap, Capability) else str(cap)).lower()
+            for cap in self.capabilities
         )
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize RequiredCapabilities to dictionary format."""
         return {
-            "capabilities": [c.value if isinstance(c, Capability) else str(c) for c in self.capabilities],
+            "capabilities": [
+                c.value if isinstance(c, Capability) else str(c) for c in self.capabilities
+            ],
             "constraints": self.constraints.to_dict(),
         }
 
@@ -93,7 +100,11 @@ class RequiredCapabilities:
         """Deserialize RequiredCapabilities from dictionary format."""
         caps = tuple(str(c) for c in data.get("capabilities", []))
         constraints_data = data.get("constraints", {})
-        constraints = ExecutionConstraints.from_dict(constraints_data) if isinstance(constraints_data, dict) else ExecutionConstraints()
+        constraints = (
+            ExecutionConstraints.from_dict(constraints_data)
+            if isinstance(constraints_data, dict)
+            else ExecutionConstraints()
+        )
 
         return cls(
             capabilities=caps,

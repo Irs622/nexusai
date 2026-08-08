@@ -1,12 +1,15 @@
 """Per-Provider Circuit Breaker Pattern with Sliding Window Metrics & Health Score."""
+
 import time
 from enum import Enum
-from typing import Optional, Dict, Any, List
+from typing import Any, Dict, List
+
 
 class CircuitState(str, Enum):
     CLOSED = "CLOSED"
     OPEN = "OPEN"
     HALF_OPEN = "HALF_OPEN"
+
 
 class CircuitBreaker:
     """Configurable state machine managing per-provider failure thresholds, sliding window metrics, and health scores."""
@@ -22,13 +25,13 @@ class CircuitBreaker:
         self.failure_threshold = failure_threshold
         self.recovery_timeout_seconds = recovery_timeout_seconds
         self.sliding_window_size = sliding_window_size
-        
+
         self.state = CircuitState.CLOSED
         self.failure_count = 0
         self.total_failures = 0
         self.trip_count = 0
         self.last_failure_time: float = 0.0
-        
+
         self._history: List[tuple[bool, float]] = []
 
     def can_execute(self) -> bool:
@@ -53,7 +56,7 @@ class CircuitBreaker:
         self.total_failures += 1
         self.last_failure_time = time.time()
         self._record_history(False, latency_ms)
-        
+
         if self.failure_count >= self.failure_threshold:
             if self.state != CircuitState.OPEN:
                 self.trip_count += 1
@@ -77,8 +80,12 @@ class CircuitBreaker:
         avg_latency = (sum(latencies) / len(latencies)) if latencies else 0.0
         latency_score = max(0.0, 1.0 - (avg_latency / 2000.0))
 
-        availability = 0.0 if self.state == CircuitState.OPEN else (0.5 if self.state == CircuitState.HALF_OPEN else 1.0)
-        
+        availability = (
+            0.0
+            if self.state == CircuitState.OPEN
+            else (0.5 if self.state == CircuitState.HALF_OPEN else 1.0)
+        )
+
         score = (0.5 * success_ratio) + (0.3 * latency_score) + (0.2 * availability)
         return round(score, 2)
 

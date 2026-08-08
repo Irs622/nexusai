@@ -6,14 +6,18 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from loguru import logger
+
+from loguru import logger as logger
 
 from nexusai.core.config import LoggingSettings
+
+__all__ = ["logger", "setup_logger", "log_audit"]
 
 
 def setup_logger(settings: LoggingSettings) -> None:
     """Configure Loguru sinks for console, system log file, and audit log file."""
     logger.remove()
+    logger.enable("nexusai")
 
     # Console sink
     logger.add(

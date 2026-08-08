@@ -8,6 +8,7 @@ from uuid import uuid4
 
 from loguru import logger
 from pydantic import BaseModel
+
 from nexusai.brain.builder import AgentRuntimeBuilder
 from nexusai.brain.domain.agent import AgentGoal
 from nexusai.brain.domain.session import BrainSession

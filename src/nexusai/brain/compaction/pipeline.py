@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import time
 from typing import Protocol, runtime_checkable
+
 from nexusai.brain.compaction.budget import CharacterEstimator, ContextBudget, IContextEstimator
-from nexusai.brain.compaction.importance import ImportancePolicy, ImportanceScorer, RetentionPolicy
+from nexusai.brain.compaction.importance import ImportanceScorer, RetentionPolicy
 from nexusai.brain.compaction.result import CompactionResult, SummaryBlock
 from nexusai.brain.runtime.working_memory import WorkingMemory
+from nexusai.brain.telemetry.metrics import IMetricsCollector
 from nexusai.domain.models import Observation
 
 
@@ -43,6 +46,33 @@ class StructuredSummaryGenerator:
         )
 
 
+class LLMSummaryGenerator:
+    """Simulated/Vendor LLM summary generator synthesizing natural language context summaries."""
+
+    def __init__(self, model_id: str = "mock-llm-v1") -> None:
+        self.model_id = model_id
+
+    def generate_summary(self, compacted_observations: list[Observation]) -> SummaryBlock:
+        """Generate synthesized LLM SummaryBlock."""
+        if not compacted_observations:
+            return SummaryBlock(title="LLM Context Summary", text="", observation_ids=())
+
+        obs_ids = tuple(obs.id for obs in compacted_observations)
+        lines = [
+            f"[LLM Synthesized Context Summary ({self.model_id}): {len(compacted_observations)} events integrated]"
+        ]
+        for obs in compacted_observations:
+            lines.append(
+                f"* Synthesized execution of {obs.tool_name or 'tool'}: {str(obs.payload)[:60]}..."
+            )
+
+        return SummaryBlock(
+            title=f"LLM Context Summary ({len(compacted_observations)} items)",
+            text="\n".join(lines),
+            observation_ids=obs_ids,
+        )
+
+
 class CompactionPipeline:
     """Single-responsibility orchestrator running context compaction logic and returning CompactionResult.
 
@@ -55,18 +85,29 @@ class CompactionPipeline:
         estimator: IContextEstimator | None = None,
         scorer: ImportanceScorer | None = None,
         summary_generator: ISummaryGenerator | None = None,
+        metrics_collector: IMetricsCollector | None = None,
     ) -> None:
         self.estimator = estimator or CharacterEstimator()
         self.scorer = scorer or ImportanceScorer()
         self.summary_generator = summary_generator or StructuredSummaryGenerator()
+        self.metrics_collector = metrics_collector
 
     def _estimate(self, memory: WorkingMemory) -> int:
         """Helper Step 1: Estimate active ContextUnits in WorkingMemory."""
         return self.estimator.estimate_memory(memory)
 
-    def _should_compact(self, current_units: int, memory: WorkingMemory, budget: ContextBudget, policy: RetentionPolicy) -> bool:
+    def _should_compact(
+        self,
+        current_units: int,
+        memory: WorkingMemory,
+        budget: ContextBudget,
+        policy: RetentionPolicy,
+    ) -> bool:
         """Helper Step 2: Evaluate warning threshold trigger condition."""
-        if current_units <= budget.warning_units or len(memory.observations) <= policy.max_active_observations:
+        if (
+            current_units <= budget.warning_units
+            and len(memory.observations) <= policy.max_active_observations
+        ):
             return False
         return True
 
@@ -93,7 +134,9 @@ class CompactionPipeline:
         max_keep = policy.max_active_observations
         for obs, score in scored_obs:
             meta = memory.get_observation_metadata(obs.id)
-            if len(retained) < max_keep or (policy.preserve_artifacts and (obs.artifacts or (meta and meta.is_important))):
+            if len(retained) < max_keep or (
+                policy.preserve_artifacts and (obs.artifacts or (meta and meta.is_important))
+            ):
                 retained.append(obs)
             else:
                 compacted.append(obs)
@@ -114,12 +157,24 @@ class CompactionPipeline:
         policy: RetentionPolicy | None = None,
     ) -> CompactionResult:
         """Execute context compaction algorithm and return CompactionResult delta."""
+        t0 = time.perf_counter()
         active_budget = budget or ContextBudget()
         active_policy = policy or RetentionPolicy()
 
         current_units = self._estimate(memory)
 
         if not self._should_compact(current_units, memory, active_budget, active_policy):
+            duration_ms = (time.perf_counter() - t0) * 1000.0
+            if self.metrics_collector is not None:
+                self.metrics_collector.record_compaction(
+                    duration_ms=duration_ms,
+                    units_before=current_units,
+                    units_after=current_units,
+                    obs_before=len(memory.observations),
+                    obs_after=len(memory.observations),
+                    was_triggered=False,
+                    summary_created=False,
+                )
             return CompactionResult(
                 retained_observations=list(memory.observations),
                 compacted_observations=[],
@@ -132,8 +187,22 @@ class CompactionPipeline:
         retained, compacted = self._partition_observations(scored_obs, memory, active_policy)
         summary_block = self._generate_summary(compacted)
 
-        retained_units = sum(self.estimator.estimate_observation(o) for o in retained) + self.estimator.estimate_text(summary_block.text)
+        retained_units = sum(
+            self.estimator.estimate_observation(o) for o in retained
+        ) + self.estimator.estimate_text(summary_block.text)
         units_freed = max(0, current_units - retained_units)
+
+        duration_ms = (time.perf_counter() - t0) * 1000.0
+        if self.metrics_collector is not None:
+            self.metrics_collector.record_compaction(
+                duration_ms=duration_ms,
+                units_before=current_units,
+                units_after=retained_units,
+                obs_before=len(memory.observations),
+                obs_after=len(retained),
+                was_triggered=True,
+                summary_created=bool(summary_block.text),
+            )
 
         return CompactionResult(
             retained_observations=retained,

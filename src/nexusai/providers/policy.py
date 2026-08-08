@@ -106,7 +106,9 @@ class AvailabilityPolicy(BaseProviderPolicy):
             health = await provider.health_check()
             if health.healthy:
                 score = 1.0 / (1.0 + (health.latency_ms / 1000.0))
-                return PolicyResult(allow=True, score=score, reason=f"Healthy (latency={health.latency_ms:.1f}ms)")
+                return PolicyResult(
+                    allow=True, score=score, reason=f"Healthy (latency={health.latency_ms:.1f}ms)"
+                )
             return PolicyResult(allow=False, score=0.0, reason=f"Unhealthy: {health.error}")
         except Exception as err:
             logger.warning("AvailabilityPolicy evaluation error for '{}': {}", provider.id, err)
@@ -131,7 +133,11 @@ class CompositePolicy(BaseProviderPolicy):
         for policy in self.policies:
             res = await policy.evaluate(provider, request=request)
             if not res.allow:
-                return PolicyResult(allow=False, score=0.0, reason=f"Rejected by {policy.__class__.__name__}: {res.reason}")
+                return PolicyResult(
+                    allow=False,
+                    score=0.0,
+                    reason=f"Rejected by {policy.__class__.__name__}: {res.reason}",
+                )
             total_score += res.score
             if res.reason:
                 reasons.append(res.reason)

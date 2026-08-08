@@ -2,16 +2,17 @@
 Unit tests for Tool System, Tool Registry, TerminalTool, and ExecuteToolCommandHandler.
 """
 
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
 from pydantic import BaseModel, Field
 
-from nexusai.bus.bus import CommandBus, EventBus
+from nexusai.bus.bus import EventBus
 from nexusai.bus.commands import ExecuteToolCommand, ExecuteToolCommandHandler
 from nexusai.bus.events import ToolExecutedEvent
 from nexusai.core.config import SecuritySettings
 from nexusai.core.errors import SecurityError, ToolExecutionError
-from nexusai.security.guard import SecurityGuard, RiskLevel
+from nexusai.security.guard import RiskLevel, SecurityGuard
 from nexusai.tools.base import BaseTool
 from nexusai.tools.registry import ToolRegistry
 from nexusai.tools.system.terminal import TerminalTool

@@ -8,7 +8,7 @@ from typing import Any
 from nexusai.brain.compaction.result import CompactionResult
 from nexusai.brain.domain.agent import AgentGoal, FailureRecord, PlanStep, StepStatus
 from nexusai.brain.domain.artifacts import Artifact
-from nexusai.brain.domain.observation_lifecycle import LifecycleState, ObservationMetadata
+from nexusai.brain.domain.observation_lifecycle import ObservationMetadata
 from nexusai.core.errors import DuplicateObservationError
 from nexusai.domain.models import Observation
 
@@ -104,7 +104,9 @@ class WorkingMemory:
     ) -> None:
         """Record a normalized tool or system observation and maintain metadata invariant."""
         if any(o.id == observation.id for o in self.observations):
-            raise DuplicateObservationError(f"Duplicate observation ID '{observation.id}' rejected.")
+            raise DuplicateObservationError(
+                f"Duplicate observation ID '{observation.id}' rejected."
+            )
 
         self.observations.append(observation)
         meta = metadata or ObservationMetadata(observation_id=observation.id)
@@ -155,6 +157,16 @@ class WorkingMemory:
             if obs.id in self._metadata_by_id:
                 del self._metadata_by_id[obs.id]
 
+        # Prune older compacted metadata to bound dictionary size during long sessions
+        valid_ids = {o.id for o in result.retained_observations} | {
+            o.id for o in result.compacted_observations
+        }
+        for obs_id in list(self._metadata_by_id.keys()):
+            if obs_id not in valid_ids:
+                del self._metadata_by_id[obs_id]
+
         self.observations = list(result.retained_observations)
         if result.summary_block:
-            self.add_scratchpad_entry(result.summary_block)
+            self.add_scratchpad_entry(str(result.summary_block))
+            if len(self.scratchpad) > 50:
+                self.scratchpad = self.scratchpad[-50:]

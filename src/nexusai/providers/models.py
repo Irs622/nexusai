@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any
+from typing import Any, Sequence
 
 from nexusai.core.annotations import stable
 from nexusai.providers.exceptions import ProviderSDKError
@@ -255,6 +255,7 @@ class ChatResponse:
     model: str | None = None
     provider: str | None = None
     trace: ProviderTrace | None = None
+    id: str | None = None
 
     def primary_choice(self) -> ChatChoice:
         """Explicitly return the primary choice (first choice candidate).
@@ -291,7 +292,7 @@ class EmbeddingResult:
     """Result payload for embedding generation requests."""
 
     embeddings: list[Embedding] = field(default_factory=list)
-    model: str = ""
+    model: str | Sequence[str] = ""
     provider: str = ""
     usage: Usage | None = None
     dimensions: int = 0

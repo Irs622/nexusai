@@ -1,21 +1,24 @@
 from __future__ import annotations
+
 """
 Unit tests for Milestone 2.4.2: MemoryUnitOfWork, Domain Invariants, Outbox, and MemoryService.
 """
 
 from typing import Sequence
+
 import pytest
 
 from nexusai.kernel.outbox import JSONOutboxSerializer, OutboxRecord, OutboxRepository, OutboxStatus
-from nexusai.kernel.service import ServiceDescriptor, ServiceLifecycleState
+from nexusai.kernel.service import ServiceLifecycleState
 from nexusai.kernel.transaction import AsyncTransaction
 from nexusai.memory.contracts.embedding import EmbeddingCapabilities, EmbeddingProvider
 from nexusai.memory.contracts.retrieval import RetrievalContext, RetrievalStage
 from nexusai.memory.contracts.vector import VectorMatch
-from nexusai.memory.domain import MemoryContent, MemoryMetadata, MemoryRecord, MemoryScope, MemoryType
-from nexusai.memory.pipeline import PipelineBuilder, RetrievalPipelineConfig
+from nexusai.memory.domain import (
+    MemoryContent,
+    MemoryRecord,
+)
 from nexusai.memory.repository import MemoryRecordRepository, VectorRepository
-from nexusai.memory.service import MemoryService
 from nexusai.memory.uow import MemoryUnitOfWork
 
 
@@ -54,7 +57,9 @@ class MockVectorRepository(VectorRepository):
     def __init__(self) -> None:
         self.vectors: dict[str, Sequence[float]] = {}
 
-    async def upsert_vector(self, embedding_id: str, vector: Sequence[float], metadata: dict[str, str] | None = None) -> None:
+    async def upsert_vector(
+        self, embedding_id: str, vector: Sequence[float], metadata: dict[str, str] | None = None
+    ) -> None:
         self.vectors[embedding_id] = vector
 
     async def delete_vector(self, embedding_id: str) -> bool:
@@ -166,6 +171,7 @@ def test_json_outbox_serializer():
 @pytest.mark.asyncio
 async def test_memory_service_full_flow():
     from nexusai.memory.bootstrap import MemoryEngineBootstrap
+
     service = MemoryEngineBootstrap.create_service()
 
     await service.start()

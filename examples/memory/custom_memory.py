@@ -1,6 +1,9 @@
 """Example custom memory backend adapter for NexusAI."""
+
 from typing import Any, Dict, List
+
 from nexusai.memory.base import BaseMemory
+
 
 class InMemoryAdapter(BaseMemory):
     def __init__(self) -> None:

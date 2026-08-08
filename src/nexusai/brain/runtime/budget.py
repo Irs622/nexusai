@@ -60,8 +60,12 @@ class ExecutionBudget:
             max_input_tokens=int(data.get("max_input_tokens", 128000)),
             max_output_tokens=int(data.get("max_output_tokens", 4096)),
             max_time_ms=float(data.get("max_time_ms", 60000.0)),
-            max_cost_usd=float(data["max_cost_usd"]) if data.get("max_cost_usd") is not None else None,
-            max_memory_bytes=int(data["max_memory_bytes"]) if data.get("max_memory_bytes") is not None else None,
+            max_cost_usd=(
+                float(data["max_cost_usd"]) if data.get("max_cost_usd") is not None else None
+            ),
+            max_memory_bytes=(
+                int(data["max_memory_bytes"]) if data.get("max_memory_bytes") is not None else None
+            ),
         )
 
 
@@ -86,13 +90,17 @@ class ExecutionUsage:
     def add_input_tokens(self, count: int) -> None:
         """Accumulate input tokens with invariant validation."""
         if count < 0:
-            raise ValueError(f"ExecutionUsage invariant violated: count ({count}) cannot be negative.")
+            raise ValueError(
+                f"ExecutionUsage invariant violated: count ({count}) cannot be negative."
+            )
         self.used_input_tokens += count
 
     def add_output_tokens(self, count: int) -> None:
         """Accumulate output tokens with invariant validation."""
         if count < 0:
-            raise ValueError(f"ExecutionUsage invariant violated: count ({count}) cannot be negative.")
+            raise ValueError(
+                f"ExecutionUsage invariant violated: count ({count}) cannot be negative."
+            )
         self.used_output_tokens += count
 
     @property

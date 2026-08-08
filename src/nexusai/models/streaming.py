@@ -1,7 +1,10 @@
 """Streaming Token Execution Runtime for LLM Model Providers."""
+
 import asyncio
-from typing import AsyncGenerator, Dict, Any, List, Optional
+from typing import Any, AsyncGenerator, Dict, List, Optional
+
 from nexusai.models.base import BaseModelProvider
+
 
 class StreamingProviderRuntime:
     """Provides chunk-by-chunk token streaming abstractions over BaseModelProvider."""
@@ -17,7 +20,7 @@ class StreamingProviderRuntime:
         """Simulate chunk-by-chunk streaming tokens from provider response."""
         full_response = await self.provider.chat(messages, tools)
         content = full_response.get("content", "")
-        
+
         # Stream word by word asynchronously
         words = content.split(" ")
         for word in words:

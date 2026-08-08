@@ -3,6 +3,7 @@ Unit tests for EventBus subscriber filtering and interceptor pipeline.
 """
 
 import pytest
+
 from nexusai.bus.bus import EventBus
 from nexusai.plugins.events.events import PluginStartedEvent
 
@@ -22,9 +23,13 @@ async def test_event_bus_predicate_filtering():
     event_bus.subscribe(PluginStartedEvent, subscriber, filter_fn=filter_fn)
 
     # Publish matching event
-    await event_bus.publish(PluginStartedEvent(plugin_id="target.llm", capabilities=["llm.provider"]))
+    await event_bus.publish(
+        PluginStartedEvent(plugin_id="target.llm", capabilities=["llm.provider"])
+    )
     # Publish non-matching event
-    await event_bus.publish(PluginStartedEvent(plugin_id="other.tool", capabilities=["tool.integration"]))
+    await event_bus.publish(
+        PluginStartedEvent(plugin_id="other.tool", capabilities=["tool.integration"])
+    )
 
     assert len(received) == 1
     assert received[0].plugin_id == "target.llm"

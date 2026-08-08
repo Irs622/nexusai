@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import time
 import inspect
-from typing import Any
+import time
+
 from nexusai.brain.ports.tool_port import IToolPort, ToolExecutionRequest, ToolExecutionResult
 from nexusai.core.errors import ToolExecutionError
 from nexusai.logging.logger import logger
@@ -65,7 +65,9 @@ class ToolRegistryAdapter(IToolPort):
                 raise ToolExecutionError(f"Tool instance '{request.tool_name}' is not callable.")
 
             elapsed = (time.perf_counter() - start_time) * 1000.0
-            logger.debug(f"[ToolRegistryAdapter] Tool '{request.tool_name}' completed in {elapsed:.2f}ms")
+            logger.debug(
+                f"[ToolRegistryAdapter] Tool '{request.tool_name}' completed in {elapsed:.2f}ms"
+            )
             return ToolExecutionResult(
                 tool_name=request.tool_name,
                 success=True,

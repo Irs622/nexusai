@@ -39,7 +39,9 @@ class ProviderRuntimeMetrics:
         if self.ewma_latency_ms == 0.0:
             self.ewma_latency_ms = latency_ms
         else:
-            self.ewma_latency_ms = (self.alpha * latency_ms) + ((1 - self.alpha) * self.ewma_latency_ms)
+            self.ewma_latency_ms = (self.alpha * latency_ms) + (
+                (1 - self.alpha) * self.ewma_latency_ms
+            )
 
         # Update rolling window
         self.rolling_latencies.append(latency_ms)

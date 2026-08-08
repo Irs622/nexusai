@@ -7,7 +7,6 @@ from __future__ import annotations
 from typing import Any, Sequence
 
 from nexusai.memory.contracts.vector import (
-    DistanceMetric,
     VectorCapabilities,
     VectorMatch,
     VectorRecord,
@@ -42,7 +41,9 @@ class MockVectorStore(VectorStore):
         namespace: str = "default",
         filter_dict: dict[str, Any] | None = None,
     ) -> Sequence[VectorMatch]:
-        return await self._inner.search(query_vector, top_k=top_k, namespace=namespace, filter_dict=filter_dict)
+        return await self._inner.search(
+            query_vector, top_k=top_k, namespace=namespace, filter_dict=filter_dict
+        )
 
     async def batch_upsert(self, records: Sequence[VectorRecord]) -> None:
         await self._inner.batch_upsert(records)

@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Callable, Optional
-import uuid
+from typing import Any, Optional
 
 from nexusai.core.annotations import stable
 from nexusai.providers.clock import Clock, SystemClock
@@ -79,7 +79,7 @@ class Deadline:
     def from_seconds(cls, seconds: float, clock: Optional[Clock] = None) -> Deadline:
         """Create a Deadline that expires after the given number of seconds."""
         c = clock or SystemClock()
-        deadline_at = datetime.fromtimestamp(c.time() + seconds, tz=timezone)
+        deadline_at = datetime.fromtimestamp(c.time() + seconds, tz=timezone.utc)
         return cls(deadline_at=deadline_at, clock=c)
 
     def remaining_seconds(self) -> float:

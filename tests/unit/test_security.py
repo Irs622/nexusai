@@ -1,8 +1,9 @@
 """Unit tests for Security Guard and Sanitizer."""
 
 import pytest
-from nexusai.security.guard import SecurityGuard, RiskLevel, ActionRequest
+
 from nexusai.core.errors import SecurityError
+from nexusai.security.guard import ActionRequest, RiskLevel, SecurityGuard
 
 
 def test_security_low_risk_auto_permit(security_guard: SecurityGuard) -> None:

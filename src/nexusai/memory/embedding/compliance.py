@@ -20,7 +20,9 @@ class EmbeddingComplianceSuite:
         # 1. Single text embedding
         single_vec = await provider.embed_text("NexusAI Embedding Compliance Test")
         assert isinstance(single_vec, list), "embed_text must return a list"
-        assert len(single_vec) == caps.dimensions, f"Expected dimension {caps.dimensions}, got {len(single_vec)}"
+        assert (
+            len(single_vec) == caps.dimensions
+        ), f"Expected dimension {caps.dimensions}, got {len(single_vec)}"
         assert all(isinstance(x, float) for x in single_vec), "Embedding values must be floats"
 
         # 2. Batch text embedding
@@ -30,4 +32,6 @@ class EmbeddingComplianceSuite:
             assert isinstance(batch_vecs, list), "embed_batch must return a list"
             assert len(batch_vecs) == 3, f"Expected batch size 3, got {len(batch_vecs)}"
             for vec in batch_vecs:
-                assert len(vec) == caps.dimensions, f"Batch vector dimension mismatch: expected {caps.dimensions}, got {len(vec)}"
+                assert (
+                    len(vec) == caps.dimensions
+                ), f"Batch vector dimension mismatch: expected {caps.dimensions}, got {len(vec)}"

@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
+
 import aiosqlite
 
 from nexusai.memory.base import BaseMemory
@@ -109,4 +110,3 @@ class SQLiteMemory(BaseMemory):
             await self._db.close()
             self._db = None
             self._initialized = False
-

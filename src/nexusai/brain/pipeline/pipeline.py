@@ -5,6 +5,7 @@ ExecutionPipeline orchestrator executing ordered IExecutionStage implementations
 from __future__ import annotations
 
 from typing import Sequence
+
 from nexusai.brain.pipeline.stages import (
     HistoryStage,
     IExecutionStage,
@@ -25,12 +26,16 @@ class ExecutionPipeline:
         Args:
             stages: Optional sequence of IExecutionStage implementations (defaults to standard pipeline).
         """
-        self.stages: list[IExecutionStage] = list(stages) if stages is not None else [
-            HistoryStage(),
-            PromptStage(),
-            ProviderStage(),
-            PersistenceStage(),
-        ]
+        self.stages: list[IExecutionStage] = (
+            list(stages)
+            if stages is not None
+            else [
+                HistoryStage(),
+                PromptStage(),
+                ProviderStage(),
+                PersistenceStage(),
+            ]
+        )
 
     def add_stage(self, stage: IExecutionStage) -> None:
         """Add an execution stage to the pipeline (Open/Closed principle)."""

@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID, uuid4
 
-from nexusai.brain.domain.prompt import MessageRole
+from nexusai.brain.domain.prompt import MessageRole as MessageRole
 
 
 @dataclass
@@ -29,6 +29,16 @@ class Message:
     content: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert Message entity to dictionary representation."""
+        return {
+            "id": str(self.id),
+            "role": self.role.value if hasattr(self.role, "value") else str(self.role),
+            "content": self.content,
+            "metadata": self.metadata,
+            "timestamp": self.timestamp.isoformat(),
+        }
 
 
 @dataclass

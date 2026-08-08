@@ -30,7 +30,9 @@ def test_dependency_graph_topological_boot_and_shutdown_order():
 
 def test_dependency_graph_missing_dependency():
     graph = RuntimeDependencyGraph()
-    desc_mem = ServiceDescriptor(id="mem", name="Memory", version="1.0.0", dependencies=("missing_db",))
+    desc_mem = ServiceDescriptor(
+        id="mem", name="Memory", version="1.0.0", dependencies=("missing_db",)
+    )
     graph.add_service(desc_mem)
 
     with pytest.raises(MissingDependencyError) as exc_info:

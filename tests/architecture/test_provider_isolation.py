@@ -5,6 +5,7 @@ Rule A003: brain MUST depend only on provider abstractions, NEVER concrete adapt
 """
 
 from pathlib import Path
+
 from nexusai.architecture.dependency_rules import DependencyRulesEngine
 
 PROJECT_ROOT = Path(__file__).parent.parent.parent

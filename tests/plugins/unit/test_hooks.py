@@ -3,6 +3,7 @@ Unit tests for HookRegistry and HookManager middleware system.
 """
 
 import pytest
+
 from nexusai.plugins.hooks import HookManager, HookPayload, HookRegistry, HookType
 
 
@@ -23,7 +24,9 @@ async def test_hook_execution_order_and_cancellation():
     registry.register_hook("plugin.a", HookType.BEFORE_LLM_REQUEST, hook_high_priority, priority=10)
 
     manager = HookManager(registry)
-    result = await manager.trigger_hook(HookType.BEFORE_LLM_REQUEST, "caller.plugin", {"original": True})
+    result = await manager.trigger_hook(
+        HookType.BEFORE_LLM_REQUEST, "caller.plugin", {"original": True}
+    )
 
     assert execution_order == ["high", "low"]
     assert result.data["modified"] is True

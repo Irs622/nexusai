@@ -1,7 +1,9 @@
 """Unit tests for API stability annotations."""
-from nexusai.core.annotations import stable, experimental, internal
-from nexusai.tools.base import BaseTool
+
+from nexusai.core.annotations import internal
 from nexusai.models.base import BaseModelProvider, EmbeddingProvider
+from nexusai.tools.base import BaseTool
+
 
 def test_api_annotations_decorator() -> None:
     assert getattr(BaseTool, "__api_status__") == "stable"

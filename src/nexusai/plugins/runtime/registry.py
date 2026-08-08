@@ -4,8 +4,6 @@ PluginRegistry for metadata descriptor storage and capability resolution.
 
 from __future__ import annotations
 
-from typing import Sequence
-
 from nexusai.plugins.contracts.capability import Capability
 from nexusai.plugins.contracts.state import PluginState
 from nexusai.plugins.exceptions import PluginResolutionError
@@ -19,7 +17,9 @@ class PluginRegistry:
         self._descriptors: dict[str, PluginDescriptor] = {}
         self._states: dict[str, PluginState] = {}
 
-    def register(self, descriptor: PluginDescriptor, initial_state: PluginState = PluginState.LOADED) -> None:
+    def register(
+        self, descriptor: PluginDescriptor, initial_state: PluginState = PluginState.LOADED
+    ) -> None:
         """Register a plugin descriptor in the registry."""
         self._descriptors[descriptor.id] = descriptor
         self._states[descriptor.id] = initial_state

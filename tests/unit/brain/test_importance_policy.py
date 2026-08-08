@@ -27,7 +27,9 @@ def test_linear_policy_evaluation():
     memory = WorkingMemory(goal=AgentGoal(description="Goal test"))
 
     obs_normal = Observation(source="tool", tool_name="read_file", payload="content", success=True)
-    obs_failure = Observation(source="tool", tool_name="read_file", payload="error", success=False, severity="ERROR")
+    obs_failure = Observation(
+        source="tool", tool_name="read_file", payload="error", success=False, severity="ERROR"
+    )
     obs_write = Observation(source="tool", tool_name="write_file", payload="written", success=True)
 
     memory.record_observation(obs_normal)

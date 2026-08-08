@@ -2,15 +2,17 @@ cff-version: 1.2.0
 message: "If you use NexusAI in your software or research, please cite it as below."
 authors:
   - name: "NexusAI Open Source Contributors"
-title: "NexusAI: Model-Agnostic Personal AI Operating System for macOS"
-version: 0.1.0
-date-released: 2026-08-03
+title: "NexusAI: Personal AI Operating System & Agent Runtime Engine"
+version: 0.6.0
+date-released: 2026-08-07
 url: "https://github.com/Irs622/nexusai"
 license: MIT
 keywords:
   - ai-operating-system
-  - macos
-  - agentic-ai
+  - agent-runtime
+  - clean-architecture
   - model-agnostic
-  - local-first
+  - dags-planner
+  - memory-intelligence
+  - opentelemetry
   - python

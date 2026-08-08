@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from enum import Enum
-import time
 from typing import Any, Awaitable, Callable
 
 from nexusai.core.annotations import stable
@@ -52,7 +51,12 @@ class CircuitBreaker:
         return self._state
 
     def _transition_to(self, new_state: CircuitState) -> None:
-        logger.info("CircuitBreaker '{}' transition: {} -> {}", self.provider_id, self._state.value, new_state.value)
+        logger.info(
+            "CircuitBreaker '{}' transition: {} -> {}",
+            self.provider_id,
+            self._state.value,
+            new_state.value,
+        )
         self._state = new_state
         self._last_state_change = self.clock.time()
         if new_state == CircuitState.CLOSED:

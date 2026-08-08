@@ -4,7 +4,6 @@ ContextAssembler orchestrator service constructing AssembledContext value object
 
 from __future__ import annotations
 
-from typing import Any
 from uuid import UUID
 
 from nexusai.brain.context.history_loader import HistoryLoader
@@ -63,7 +62,9 @@ class ContextAssembler:
         bounded_history = await self._history_loader.load_history(conversation_id, budget)
 
         # 3. Truncate history messages to fit within available token budget
-        history_messages, truncated_count = self._truncator.truncate_turns(bounded_history.turns, budget)
+        history_messages, truncated_count = self._truncator.truncate_turns(
+            bounded_history.turns, budget
+        )
 
         # 4. Construct current user prompt message
         user_message = PromptMessage(role=MessageRole.USER, content=user_content)

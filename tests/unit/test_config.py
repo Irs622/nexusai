@@ -3,6 +3,7 @@ Unit tests for Configuration loader.
 """
 
 from pathlib import Path
+
 from nexusai.core.config import SystemConfig
 
 

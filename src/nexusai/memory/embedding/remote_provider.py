@@ -4,7 +4,6 @@ RemoteEmbeddingProvider implementation for OpenAI/OpenRouter embedding endpoints
 
 from __future__ import annotations
 
-import os
 from typing import Sequence
 
 from nexusai.memory.contracts.embedding import EmbeddingCapabilities, EmbeddingProvider

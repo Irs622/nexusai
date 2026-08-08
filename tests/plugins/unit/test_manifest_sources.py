@@ -3,6 +3,7 @@ Unit tests for ManifestLoader and ManifestSource implementations.
 """
 
 from pathlib import Path
+
 import pytest
 
 from nexusai.plugins.contracts.manifest import PluginManifest

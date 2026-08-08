@@ -98,7 +98,11 @@ class PromptBundle:
     def from_dict(cls, data: dict[str, Any]) -> PromptBundle:
         """Deserialize PromptBundle from dictionary format."""
         version_data = data.get("bundle_version", {})
-        bundle_version = SchemaVersion.from_dict(version_data) if isinstance(version_data, dict) else SchemaVersion()
+        bundle_version = (
+            SchemaVersion.from_dict(version_data)
+            if isinstance(version_data, dict)
+            else SchemaVersion()
+        )
 
         messages = tuple(PromptMessage.from_dict(m) for m in data.get("messages", []))
         artifacts = tuple(Artifact.from_dict(a) for a in data.get("artifacts", []))

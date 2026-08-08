@@ -10,6 +10,9 @@ Verifies:
 from __future__ import annotations
 
 from pathlib import Path
+
+import pytest
+
 from nexusai.brain.ports.tool_port import ToolExecutionRequest
 from nexusai.tools.adapter import ToolRegistryAdapter
 from nexusai.tools.registry import ToolRegistry
@@ -21,7 +24,8 @@ def test_path_traversal_defense():
     assert ".." in malicious_path, "Path traversal pattern detected"
 
 
-def test_tool_injection_defense():
+@pytest.mark.asyncio
+async def test_tool_injection_defense():
     """Verify tool requests with shell control characters are handled safely without shell execution."""
     registry = ToolRegistry()
     adapter = ToolRegistryAdapter(registry)
@@ -30,7 +34,7 @@ def test_tool_injection_defense():
         tool_name="nonexistent; rm -rf /",
         arguments={"cmd": "$(whoami) && cat /etc/passwd"},
     )
-    result = adapter.execute(malicious_req)
+    result = await adapter.execute(malicious_req)
     assert not result.success
     assert "is not registered" in result.error_message
 

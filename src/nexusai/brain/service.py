@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import AsyncIterator, Any
+from dataclasses import dataclass
+from typing import AsyncIterator
 from uuid import UUID
 
 from nexusai.brain.domain.agent import AgentGoal
@@ -14,12 +14,9 @@ from nexusai.brain.pipeline.pipeline import ExecutionPipeline
 from nexusai.brain.ports.tool_port import IToolPort
 from nexusai.brain.runtime.agent_context import AgentRuntimeContext
 from nexusai.brain.runtime.context import (
-    CancellationContext,
     ExecutionContext,
     IdentityContext,
     RuntimeContext,
-    SecurityContext,
-    TelemetryContext,
 )
 from nexusai.brain.runtime.metrics import TurnChunk, TurnMetrics
 from nexusai.brain.runtime.state import SessionState
@@ -191,7 +188,9 @@ class AgentRuntimeFacade:
         Returns:
             AgentSessionResponse summary.
         """
-        logger.info(f"[AgentRuntimeFacade] Starting multi-turn session for goal '{goal.description}'")
+        logger.info(
+            f"[AgentRuntimeFacade] Starting multi-turn session for goal '{goal.description}'"
+        )
         agent_ctx = self.create_agent_context(
             session=session, goal=goal, state=state, user_id=user_id, workspace_id=workspace_id
         )

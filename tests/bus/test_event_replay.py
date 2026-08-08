@@ -3,6 +3,7 @@ Unit tests for EventBus replay engine.
 """
 
 import pytest
+
 from nexusai.bus.bus import EventBus
 from nexusai.plugins.events.events import PluginDiscoveredEvent
 

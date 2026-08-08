@@ -76,10 +76,11 @@ class ProviderRegistry:
         Raises:
             ProviderNotFoundError: If provider_id is not registered.
         """
-        if provider_id not in self._providers:
-            logger.error("Provider lookup failed: '{}' not found", provider_id)
-            raise ProviderNotFoundError(f"Provider '{provider_id}' is not registered.")
-        return self._providers[provider_id]
+        pid = provider_id.id if hasattr(provider_id, "id") else str(provider_id)
+        if pid not in self._providers:
+            logger.error("Provider lookup failed: '{}' not found", pid)
+            raise ProviderNotFoundError(f"Provider '{pid}' is not registered.")
+        return self._providers[pid]
 
     def list_providers(self) -> list[ProviderMetadata]:
         """List metadata of all registered providers.
@@ -111,17 +112,10 @@ class ProviderRegistry:
             raise ProviderConfigurationError("No default provider has been set.")
         return self._providers[self._default_provider_id]
 
-    def set_default(self, provider_id: str) -> None:
-        """Set default provider by identifier.
-
-        Args:
-            provider_id: Identifier of provider to set as default.
-
-        Raises:
-            ProviderNotFoundError: If provider_id is not registered.
-        """
-        if provider_id not in self._providers:
-            logger.error("Failed to set default provider: '{}' not found", provider_id)
-            raise ProviderNotFoundError(f"Provider '{provider_id}' is not registered.")
-        self._default_provider_id = provider_id
-        logger.info("Updated default provider to '{}'", provider_id)
+    def set_default(self, provider_id: str | BaseProvider) -> None:
+        """Set default provider by identifier or provider instance."""
+        pid = provider_id.id if hasattr(provider_id, "id") else str(provider_id)
+        if pid not in self._providers:
+            raise ProviderNotFoundError(f"Cannot set default: Provider '{pid}' is not registered.")
+        self._default_provider_id = pid
+        logger.info("Default provider explicitly set to '{}'", pid)

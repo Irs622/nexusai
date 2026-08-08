@@ -28,7 +28,9 @@ class APIVersionNegotiator:
             PluginAPIVersionError: If compatibility check fails.
         """
         # 1. Check Kernel API Major compatibility
-        supported_plugin_apis = self.COMPATIBILITY_MATRIX.get(self.CURRENT_KERNEL_API, [self.CURRENT_PLUGIN_API])
+        supported_plugin_apis = self.COMPATIBILITY_MATRIX.get(
+            self.CURRENT_KERNEL_API, [self.CURRENT_PLUGIN_API]
+        )
         if manifest.plugin_api not in supported_plugin_apis:
             raise PluginAPIVersionError(
                 f"Plugin '{manifest.id}' requires Plugin API v{manifest.plugin_api}, "
@@ -36,7 +38,9 @@ class APIVersionNegotiator:
             )
 
         # 2. Check minimum kernel version rule
-        if self._parse_version(manifest.minimum_kernel) > self._parse_version(self.CURRENT_KERNEL_VERSION):
+        if self._parse_version(manifest.minimum_kernel) > self._parse_version(
+            self.CURRENT_KERNEL_VERSION
+        ):
             raise PluginAPIVersionError(
                 f"Plugin '{manifest.id}' requires minimum kernel version v{manifest.minimum_kernel}, "
                 f"but current kernel version is v{self.CURRENT_KERNEL_VERSION}"

@@ -1,6 +1,7 @@
 """Unit tests for ContextBudget and pluggable IContextEstimator implementations."""
 
 import pytest
+
 from nexusai.brain.compaction.budget import (
     CharacterEstimator,
     ContextBudget,
@@ -15,7 +16,9 @@ from nexusai.domain.models import Observation
 
 def test_context_budget_invariants():
     """Verify ContextBudget validation invariants."""
-    budget = ContextBudget(max_units=10000, warning_threshold_ratio=0.7, critical_threshold_ratio=0.85)
+    budget = ContextBudget(
+        max_units=10000, warning_threshold_ratio=0.7, critical_threshold_ratio=0.85
+    )
     assert budget.max_units == 10000
     assert budget.warning_units == 7000
     assert budget.critical_units == 8500
@@ -23,10 +26,15 @@ def test_context_budget_invariants():
     with pytest.raises(BrainContextAssemblyError, match="max_units .* must be positive"):
         ContextBudget(max_units=0)
 
-    with pytest.raises(BrainContextAssemblyError, match="warning_threshold_ratio .* must be between 0.0 and 1.0"):
+    with pytest.raises(
+        BrainContextAssemblyError, match="warning_threshold_ratio .* must be between 0.0 and 1.0"
+    ):
         ContextBudget(warning_threshold_ratio=1.5)
 
-    with pytest.raises(BrainContextAssemblyError, match="warning_threshold_ratio .* must be less than critical_threshold_ratio"):
+    with pytest.raises(
+        BrainContextAssemblyError,
+        match="warning_threshold_ratio .* must be less than critical_threshold_ratio",
+    ):
         ContextBudget(warning_threshold_ratio=0.9, critical_threshold_ratio=0.8)
 
 
@@ -52,6 +60,7 @@ def test_character_estimator():
 
 def test_provider_tokenizer_estimator():
     """Verify ProviderTokenizerEstimator with custom injected tokenizer function."""
+
     def mock_tokenizer(text: str) -> int:
         return len(text.split())
 

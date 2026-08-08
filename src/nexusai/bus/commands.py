@@ -3,13 +3,15 @@ CQRS Commands & Command Handlers for NexusAI.
 """
 
 from __future__ import annotations
+
 from typing import Any
+
 from pydantic import BaseModel, Field, ValidationError
 
 from nexusai.bus.bus import EventBus
 from nexusai.bus.events import ToolExecutedEvent
 from nexusai.core.errors import SecurityError, ToolExecutionError
-from nexusai.security.guard import SecurityGuard, ActionRequest
+from nexusai.security.guard import ActionRequest, SecurityGuard
 from nexusai.tools.registry import ToolRegistry
 
 

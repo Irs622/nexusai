@@ -8,8 +8,7 @@ from uuid import UUID
 
 from nexusai.brain.domain.context import ContextBudget
 from nexusai.brain.domain.history import IHistoryProvider, TokenBoundedHistory
-from nexusai.brain.domain.turn import Message, Turn
-from nexusai.brain.domain.prompt import MessageRole
+from nexusai.brain.domain.turn import Turn
 from nexusai.logging.logger import logger
 
 

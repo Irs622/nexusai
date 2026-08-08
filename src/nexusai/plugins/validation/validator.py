@@ -28,7 +28,9 @@ class PluginValidator:
         """
         # 1. Validate ID format
         if not manifest.id or not self.ID_PATTERN.match(manifest.id):
-            raise PluginValidationError(f"Invalid plugin ID '{manifest.id}'. Must contain only alphanumeric, '-', '_', '.'")
+            raise PluginValidationError(
+                f"Invalid plugin ID '{manifest.id}'. Must contain only alphanumeric, '-', '_', '.'"
+            )
 
         # 2. Validate entrypoint format (module.submodule:ClassName)
         if ":" not in manifest.entrypoint:

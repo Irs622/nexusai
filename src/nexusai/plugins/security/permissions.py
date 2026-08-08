@@ -76,5 +76,8 @@ class PermissionEnforcer:
         """Check if network host access is allowed."""
         if not self._permissions.network_hosts:
             raise PluginPermissionError(f"Network access denied for host: '{host}'")
-        if "*" not in self._permissions.network_hosts and host not in self._permissions.network_hosts:
+        if (
+            "*" not in self._permissions.network_hosts
+            and host not in self._permissions.network_hosts
+        ):
             raise PluginPermissionError(f"Network access denied for host: '{host}'")

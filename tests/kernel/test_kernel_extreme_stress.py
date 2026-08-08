@@ -12,10 +12,7 @@ Tests system stability under extreme load conditions:
 from __future__ import annotations
 
 import asyncio
-import time
 from typing import Any
-
-import pytest
 
 from nexusai.kernel.contracts import (
     KernelService,
@@ -25,7 +22,6 @@ from nexusai.kernel.contracts import (
 from nexusai.kernel.dependency_graph import RuntimeDependencyGraph
 from nexusai.kernel.registry import ServiceRegistry
 from nexusai.kernel.worker import BackgroundWorkerManager
-
 
 # ---------------------------------------------------------------------------
 # Minimal mock service fixture for stress tests
@@ -81,9 +77,7 @@ async def test_ten_thousand_concurrent_async_tasks() -> None:
     finally:
         await manager.stop(drain_timeout=5.0)
 
-    assert len(results) == N, (
-        f"Expected {N} processed items, got {len(results)}"
-    )
+    assert len(results) == N, f"Expected {N} processed items, got {len(results)}"
 
 
 # ---------------------------------------------------------------------------
@@ -106,9 +100,7 @@ async def test_hundred_service_rapid_startup() -> None:
     await asyncio.gather(*[svc.start() for svc in services])
 
     running = [s for s in services if s.state == ServiceLifecycleState.RUNNING]
-    assert len(running) == N, (
-        f"Expected {N} RUNNING services, got {len(running)}"
-    )
+    assert len(running) == N, f"Expected {N} RUNNING services, got {len(running)}"
 
     # Cleanup
     await asyncio.gather(*[svc.stop() for svc in services])
@@ -175,9 +167,9 @@ async def test_worker_queue_flooding_resilience() -> None:
     finally:
         await manager.stop(drain_timeout=3.0)
 
-    assert counters["total"] == BURST_SIZE * BURSTS, (
-        f"Expected {BURST_SIZE * BURSTS} processed, got {counters['total']}"
-    )
+    assert (
+        counters["total"] == BURST_SIZE * BURSTS
+    ), f"Expected {BURST_SIZE * BURSTS} processed, got {counters['total']}"
 
 
 # ---------------------------------------------------------------------------
@@ -238,9 +230,7 @@ async def test_concurrent_registry_registration_and_lookup() -> None:
     await asyncio.gather(*[register_and_lookup(svc) for svc in services])
 
     all_registered = registry.list_services()
-    assert len(all_registered) == N, (
-        f"Expected {N} services in registry, got {len(all_registered)}"
-    )
+    assert len(all_registered) == N, f"Expected {N} services in registry, got {len(all_registered)}"
 
     # Cleanup
     registry.clear()

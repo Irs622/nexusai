@@ -59,7 +59,9 @@ class GeminiTranslator(BaseTranslator):
                     raw_tools.append(p)
             tool_calls = self.normalize_tool_calls(raw_tools) if raw_tools else None
             msg = ChatMessage(role=MessageRole.ASSISTANT, content=text_str, tool_calls=tool_calls)
-            choices.append(ChatChoice(index=idx, message=msg, finish_reason=c.get("finishReason", "STOP")))
+            choices.append(
+                ChatChoice(index=idx, message=msg, finish_reason=c.get("finishReason", "STOP"))
+            )
 
         usage_meta = raw_payload.get("usageMetadata", {})
         usage = Usage(

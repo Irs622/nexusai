@@ -54,12 +54,18 @@ async def test_acceptance_boot_failure_recovery():
     """
     orchestrator = KernelOrchestrator()
 
-    srv_a = AcceptanceTestSubsystem(ServiceDescriptor(id="service_a", name="Service A", version="1.0.0"))
+    srv_a = AcceptanceTestSubsystem(
+        ServiceDescriptor(id="service_a", name="Service A", version="1.0.0")
+    )
     srv_b = AcceptanceTestSubsystem(
-        ServiceDescriptor(id="service_b", name="Service B", version="1.0.0", dependencies=("service_a",))
+        ServiceDescriptor(
+            id="service_b", name="Service B", version="1.0.0", dependencies=("service_a",)
+        )
     )
     srv_c = AcceptanceTestSubsystem(
-        ServiceDescriptor(id="service_c", name="Service C", version="1.0.0", dependencies=("service_b",)),
+        ServiceDescriptor(
+            id="service_c", name="Service C", version="1.0.0", dependencies=("service_b",)
+        ),
         fail_on_start=True,
     )
 
@@ -104,12 +110,18 @@ async def test_acceptance_restart_after_failure():
     """
     orchestrator = KernelOrchestrator()
 
-    srv_a = AcceptanceTestSubsystem(ServiceDescriptor(id="service_a", name="Service A", version="1.0.0"))
+    srv_a = AcceptanceTestSubsystem(
+        ServiceDescriptor(id="service_a", name="Service A", version="1.0.0")
+    )
     srv_b = AcceptanceTestSubsystem(
-        ServiceDescriptor(id="service_b", name="Service B", version="1.0.0", dependencies=("service_a",))
+        ServiceDescriptor(
+            id="service_b", name="Service B", version="1.0.0", dependencies=("service_a",)
+        )
     )
     srv_c = AcceptanceTestSubsystem(
-        ServiceDescriptor(id="service_c", name="Service C", version="1.0.0", dependencies=("service_b",)),
+        ServiceDescriptor(
+            id="service_c", name="Service C", version="1.0.0", dependencies=("service_b",)
+        ),
         fail_on_start=True,
     )
 

@@ -11,6 +11,8 @@ import gc
 import tracemalloc
 from uuid import uuid4
 
+from loguru import logger
+
 from nexusai.brain.builder import AgentRuntimeBuilder
 from nexusai.brain.compaction.budget import ContextBudget
 from nexusai.brain.compaction.importance import RetentionPolicy
@@ -23,6 +25,7 @@ from nexusai.brain.runtime.state import SessionState
 
 async def test_single_session_10k_observations():
     """Verify single-session observation compaction over 10,000 iterations in one WorkingMemory instance."""
+    logger.disable("nexusai")
     budget = ContextBudget(max_units=1000, warning_threshold_ratio=0.5)
     policy = RetentionPolicy(max_active_observations=10, preserve_artifacts=True)
 
@@ -61,7 +64,9 @@ async def test_single_session_10k_observations():
     print(f"Total single-session memory delta across 10,000 turns: {delta_kb:.2f} KB")
 
     # Bounded observation count invariant
-    assert len(mem.observations) <= 20, f"Observation count bloat detected: {len(mem.observations)} > 20"
+    assert (
+        len(mem.observations) <= 20
+    ), f"Observation count bloat detected: {len(mem.observations)} > 20"
 
     # Bounded memory growth delta invariant (< 1000 KB / 1.0 MB)
     assert delta_kb < 1000.0, f"Memory leak detected: grew by {delta_kb:.2f} KB!"

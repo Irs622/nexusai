@@ -5,7 +5,7 @@ Working Context Engine for passive environment and system awareness.
 from __future__ import annotations
 
 import asyncio
-from typing import Any
+
 import psutil
 from pydantic import BaseModel
 

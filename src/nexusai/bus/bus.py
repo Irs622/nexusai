@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass
-from typing import TypeVar, Callable, Awaitable, Any, Sequence
+from typing import Any, Awaitable, Callable, TypeVar
 
 from nexusai.bus.replay import EventReplayEngine
 from nexusai.core.errors import CommandExecutionError, QueryExecutionError
@@ -31,21 +31,27 @@ class CommandBus:
     ) -> None:
         """Register a command handler."""
         if command_type in self._handlers:
-            raise CommandExecutionError(f"Handler already registered for command {command_type.__name__}")
+            raise CommandExecutionError(
+                f"Handler already registered for command {command_type.__name__}"
+            )
         self._handlers[command_type] = handler
 
     async def dispatch(self, command: Any) -> Any:
         """Dispatch command to its registered handler."""
         command_type = type(command)
         if command_type not in self._handlers:
-            raise CommandExecutionError(f"No handler registered for command {command_type.__name__}")
+            raise CommandExecutionError(
+                f"No handler registered for command {command_type.__name__}"
+            )
 
         try:
             return await self._handlers[command_type](command)
         except CommandExecutionError:
             raise
         except Exception as e:
-            raise CommandExecutionError(f"Execution failed for command {command_type.__name__}: {e}") from e
+            raise CommandExecutionError(
+                f"Execution failed for command {command_type.__name__}: {e}"
+            ) from e
 
 
 class QueryBus:
@@ -75,7 +81,9 @@ class QueryBus:
         except QueryExecutionError:
             raise
         except Exception as e:
-            raise QueryExecutionError(f"Execution failed for query {query_type.__name__}: {e}") from e
+            raise QueryExecutionError(
+                f"Execution failed for query {query_type.__name__}: {e}"
+            ) from e
 
 
 @dataclass
@@ -92,7 +100,9 @@ class EventBus:
     def __init__(self, enable_replay: bool = True) -> None:
         self._subscribers: dict[type[Any], list[EventSubscription]] = {}
         self._interceptors: list[Callable[[Any], Awaitable[None]]] = []
-        self._replay_engine: EventReplayEngine | None = EventReplayEngine() if enable_replay else None
+        self._replay_engine: EventReplayEngine | None = (
+            EventReplayEngine() if enable_replay else None
+        )
 
     def subscribe(
         self,
@@ -104,8 +114,8 @@ class EventBus:
         if event_type not in self._subscribers:
             self._subscribers[event_type] = []
         subscription = EventSubscription(
-            subscriber=subscriber,  # type: ignore[arg-type]
-            filter_fn=filter_fn,  # type: ignore[arg-type]
+            subscriber=subscriber,
+            filter_fn=filter_fn,
         )
         self._subscribers[event_type].append(subscription)
 
@@ -128,7 +138,9 @@ class EventBus:
             try:
                 await interceptor(event)
             except Exception as e:
-                log_audit("EVENT_INTERCEPTOR_ERROR", {"event": type(event).__name__, "error": str(e)})
+                log_audit(
+                    "EVENT_INTERCEPTOR_ERROR", {"event": type(event).__name__, "error": str(e)}
+                )
 
         event_type = type(event)
         subscriptions = self._subscribers.get(event_type, [])
@@ -159,6 +171,8 @@ class EventBus:
         """Replay historical events matching criteria."""
         if not self._replay_engine:
             return
-        history = self._replay_engine.get_history(since_timestamp=since_timestamp, filter_fn=filter_fn)
+        history = self._replay_engine.get_history(
+            since_timestamp=since_timestamp, filter_fn=filter_fn
+        )
         for event in history:
             await self.publish(event)

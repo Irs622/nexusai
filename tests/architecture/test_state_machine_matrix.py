@@ -5,7 +5,7 @@ Verifies full state transition matrix enforcement across all 10 AgentState value
 
 from __future__ import annotations
 
-from nexusai.brain.state_machine import AgentState, AgentStateMachine, InvalidStateTransitionError
+from nexusai.brain.state_machine import AgentState, AgentStateMachine
 
 
 def test_full_state_machine_transition_matrix():
@@ -18,13 +18,13 @@ def test_full_state_machine_transition_matrix():
 
         for target_state in all_states:
             if target_state in allowed_targets:
-                assert sm.can_transition_to(target_state) is True, (
-                    f"Transition {source_state} -> {target_state} should be ALLOWED!"
-                )
+                assert (
+                    sm.can_transition_to(target_state) is True
+                ), f"Transition {source_state} -> {target_state} should be ALLOWED!"
             else:
-                assert sm.can_transition_to(target_state) is False, (
-                    f"Transition {source_state} -> {target_state} should be FORBIDDEN!"
-                )
+                assert (
+                    sm.can_transition_to(target_state) is False
+                ), f"Transition {source_state} -> {target_state} should be FORBIDDEN!"
 
 
 if __name__ == "__main__":

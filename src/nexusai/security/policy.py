@@ -1,6 +1,8 @@
 """Policy Engine for enforcing PluginManifest capabilities and permissions."""
-from nexusai.tools.plugin_manifest import PluginManifest, PluginCapabilities
+
 from nexusai.core.errors import SecurityError
+from nexusai.tools.plugin_manifest import PluginCapabilities, PluginManifest
+
 
 class PluginPolicyEngine:
     """Enforces capability permissions requested in PluginManifest."""
@@ -11,7 +13,7 @@ class PluginPolicyEngine:
     def validate_capabilities(self, manifest: PluginManifest) -> None:
         """Validate requested capabilities against allowed security policy."""
         req = manifest.capabilities
-        
+
         if req.terminal_execution and not self.allowed.terminal_execution:
             raise SecurityError(
                 f"Security Policy Violation: Plugin '{manifest.name}' requested terminal_execution capability which is disabled by policy."

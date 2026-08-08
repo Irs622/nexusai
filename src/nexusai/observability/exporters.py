@@ -4,8 +4,8 @@ Telemetry and trace exporters (ConsoleExporter, JSONFileExporter, OpenTelemetryE
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 import json
+from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -32,7 +32,9 @@ class ConsoleExporter(TelemetryExporter):
 
     def export_spans(self, spans: Sequence[TraceSpan]) -> None:
         for span in spans:
-            print(f"[TRACE] {span.name} (Duration: {span.duration_ms:.2f}ms, Status: {span.status})")
+            print(
+                f"[TRACE] {span.name} (Duration: {span.duration_ms:.2f}ms, Status: {span.status})"
+            )
 
     def export_metrics(self, metrics: Sequence[TokenLatencyMetric]) -> None:
         for m in metrics:

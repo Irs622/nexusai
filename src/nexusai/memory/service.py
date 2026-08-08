@@ -61,7 +61,7 @@ class MemoryService(KernelService):
         res["service_id"] = self.descriptor.id
         return res
 
-    def metrics(self) -> dict[str, Any]:
+    async def metrics(self) -> dict[str, Any]:
         """Return operational telemetry metrics summary."""
         return self._admin.metrics()
 
@@ -88,9 +88,7 @@ class MemoryService(KernelService):
         metadata_filters: dict[str, Any] | None = None,
     ) -> QueryResult:
         """Search MemoryRecord via MemoryQueryService."""
-        return await self._query.search(
-            query=query, top_k=top_k, metadata_filters=metadata_filters
-        )
+        return await self._query.search(query=query, top_k=top_k, metadata_filters=metadata_filters)
 
     async def forget(self, record_id: str) -> bool:
         """Forget MemoryRecord via MemoryCommandService."""

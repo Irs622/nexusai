@@ -53,7 +53,9 @@ class OllamaTranslator(BaseTranslator):
         tool_calls = self.normalize_tool_calls(raw_tools) if raw_tools else None
 
         msg = ChatMessage(role=MessageRole.ASSISTANT, content=content, tool_calls=tool_calls)
-        choice = ChatChoice(index=0, message=msg, finish_reason="done" if raw_payload.get("done") else "stop")
+        choice = ChatChoice(
+            index=0, message=msg, finish_reason="done" if raw_payload.get("done") else "stop"
+        )
 
         eval_count = raw_payload.get("eval_count", 0)
         prompt_eval_count = raw_payload.get("prompt_eval_count", 0)

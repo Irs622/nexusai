@@ -5,7 +5,6 @@ IExecutionStage protocol and concrete execution stages for ExecutionPipeline.
 from __future__ import annotations
 
 from typing import Protocol
-from uuid import UUID
 
 from nexusai.brain.context.assembler import ContextAssembler
 from nexusai.brain.domain.context import ContextBudget
@@ -37,7 +36,9 @@ class HistoryStage:
 
     async def execute(self, ctx: ExecutionContext) -> None:
         """Execute history loading and context assembly."""
-        logger.debug(f"[HistoryStage] Assembling context for execution '{ctx.runtime.execution_id}'")
+        logger.debug(
+            f"[HistoryStage] Assembling context for execution '{ctx.runtime.execution_id}'"
+        )
         budget = ContextBudget(
             max_input_tokens=ctx.budget.max_input_tokens,
             reserved_output_tokens=ctx.budget.max_output_tokens,
@@ -62,7 +63,9 @@ class PromptStage:
 
     async def execute(self, ctx: ExecutionContext) -> None:
         """Execute prompt rendering."""
-        logger.debug(f"[PromptStage] Rendering PromptBundle for execution '{ctx.runtime.execution_id}'")
+        logger.debug(
+            f"[PromptStage] Rendering PromptBundle for execution '{ctx.runtime.execution_id}'"
+        )
         assembled = ctx.telemetry.metadata.get("assembled_context")
 
         if assembled is not None:
@@ -78,10 +81,10 @@ class ProviderStage:
 
     async def execute(self, ctx: ExecutionContext) -> None:
         """Execute provider route negotiation."""
-        logger.debug(f"[ProviderStage] Negotiating provider plan for execution '{ctx.runtime.execution_id}'")
-        caps = RequiredCapabilities(
-            capabilities=tuple(ctx.runtime.required_capabilities)
+        logger.debug(
+            f"[ProviderStage] Negotiating provider plan for execution '{ctx.runtime.execution_id}'"
         )
+        caps = RequiredCapabilities(capabilities=tuple(ctx.runtime.required_capabilities))
 
         plan = self._selector.select_plan(
             capabilities=caps,
@@ -100,6 +103,8 @@ class PersistenceStage:
 
     async def execute(self, ctx: ExecutionContext) -> None:
         """Execute outbox persistence scheduling."""
-        logger.debug(f"[PersistenceStage] Scheduling outbox persistence for execution '{ctx.runtime.execution_id}'")
+        logger.debug(
+            f"[PersistenceStage] Scheduling outbox persistence for execution '{ctx.runtime.execution_id}'"
+        )
         # Persistence stage completes out-of-band turn record enqueueing
         ctx.telemetry.metadata["persistence_scheduled"] = True

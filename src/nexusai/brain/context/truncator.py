@@ -5,6 +5,7 @@ ContextTruncator service applying single-pass O(n) token window truncation strat
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+
 from nexusai.brain.domain.context import ContextBudget
 from nexusai.brain.domain.prompt import MessageRole, PromptMessage
 from nexusai.brain.domain.turn import Turn
@@ -61,7 +62,9 @@ class KeepLatestStrategy(ITruncationStrategy):
                 )
                 if turn.assistant_message and turn.assistant_message.content:
                     selected_messages.append(
-                        PromptMessage(role=MessageRole.ASSISTANT, content=turn.assistant_message.content)
+                        PromptMessage(
+                            role=MessageRole.ASSISTANT, content=turn.assistant_message.content
+                        )
                     )
                 accumulated_tokens += turn_total
             else:

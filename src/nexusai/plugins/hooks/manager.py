@@ -7,8 +7,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from nexusai.plugins.hooks.hooks import HookHandler, HookPayload, HookType
 from nexusai.logging.logger import logger
+from nexusai.plugins.hooks.hooks import HookHandler, HookPayload, HookType
 
 
 @dataclass(frozen=True)

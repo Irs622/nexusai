@@ -1,4 +1,5 @@
 import pytest
+
 pytestmark = pytest.mark.integration
 """
 Provider Replaceability Matrix Test Suite proving provider-agnostic replaceability across storage/vector/embedding combinations.
@@ -8,7 +9,7 @@ import pytest
 
 from nexusai.memory.bootstrap import MemoryEngineBootstrap
 from nexusai.memory.config import MemoryEngineConfig
-from nexusai.memory.domain.record import MemoryScope, MemoryType
+from nexusai.memory.domain.record import MemoryType
 
 
 @pytest.mark.asyncio

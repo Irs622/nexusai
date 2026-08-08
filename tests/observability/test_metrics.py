@@ -3,6 +3,7 @@ Unit tests for TokenLatencyTracker and TelemetryCollector metrics.
 """
 
 import time
+
 from nexusai.observability.metrics import TelemetryCollector, TokenLatencyTracker
 
 

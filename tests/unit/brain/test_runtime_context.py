@@ -5,8 +5,9 @@ Unit tests for nexusai.brain.runtime models, ExecutionContext sub-contexts, inva
 from __future__ import annotations
 
 import inspect
-import pytest
 from dataclasses import FrozenInstanceError
+
+import pytest
 
 import nexusai.brain.runtime.context as ctx_module
 from nexusai.brain.runtime import (

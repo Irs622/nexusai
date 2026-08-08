@@ -93,7 +93,9 @@ class MockProvider(BaseProvider):
         for idx, word in enumerate(words):
             msg = ChatMessage(role=MessageRole.ASSISTANT, content=word + " ")
             choice = ChatChoice(index=0, message=msg)
-            yield ChatResponse(choices=[choice], model=request.model or "mock-model-v1", provider=self.id)
+            yield ChatResponse(
+                choices=[choice], model=request.model or "mock-model-v1", provider=self.id
+            )
 
     async def embeddings(
         self,
@@ -102,7 +104,9 @@ class MockProvider(BaseProvider):
         **kwargs: Any,
     ) -> EmbeddingResult:
         self.call_count += 1
-        embeds = [Embedding(text=t, vector=[0.01, 0.02, 0.03], index=i) for i, t in enumerate(texts)]
+        embeds = [
+            Embedding(text=t, vector=[0.01, 0.02, 0.03], index=i) for i, t in enumerate(texts)
+        ]
         return EmbeddingResult(
             embeddings=embeds,
             model=model or "mock-embed-v1",
