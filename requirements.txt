@@ -21,7 +21,7 @@ langgraph>=0.0.30
 langchain-core>=0.1.30
 
 # Web Dashboard & API
-fastapi>=0.110.0
+fastapi>=0.141.1
 uvicorn>=0.28.0
 
 # Optional / Audio
