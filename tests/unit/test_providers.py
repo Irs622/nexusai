@@ -282,9 +282,9 @@ async def test_router_no_match_raises_error() -> None:
 @pytest.mark.asyncio
 async def test_base_provider_async_context_manager() -> None:
     p = DummyProvider("context_p")
-    async with p as provider:
-        assert provider.initialized is True
-        assert provider.shutdown_called is False
+    async with p:
+        assert p.initialized is True
+        assert p.shutdown_called is False
     assert p.shutdown_called is True
 
 
@@ -427,11 +427,11 @@ def test_execution_context_and_cancellation() -> None:
 
     ctx = ExecutionContext()
     token = ctx.runtime.cancellation_token
-    assert token.is_cancelled is False
+    assert not token.is_cancelled
 
     handle = ExecutionHandle(task_id="t1", context=ctx)
     handle.cancel("User aborted")
-    assert token.is_cancelled is True
+    assert token.is_cancelled
     assert token.reason == "User aborted"
 
     with pytest.raises(ProviderTimeoutError, match="User aborted"):
@@ -486,12 +486,12 @@ def test_hierarchical_cancellation_token() -> None:
     parent = CancellationToken()
     child = parent.create_child()
 
-    assert parent.is_cancelled is False
-    assert child.is_cancelled is False
+    assert not parent.is_cancelled
+    assert not child.is_cancelled
 
     parent.cancel("Parent stop")
-    assert parent.is_cancelled is True
-    assert child.is_cancelled is True
+    assert parent.is_cancelled
+    assert child.is_cancelled
 
 
 def test_test_clock_and_deadline() -> None:

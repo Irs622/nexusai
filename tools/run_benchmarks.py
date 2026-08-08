@@ -9,6 +9,7 @@ Orchestrates the full benchmark pipeline:
   5. Exit with non-zero if any threshold is exceeded.
 """
 
+import argparse
 from pathlib import Path
 import sys
 
