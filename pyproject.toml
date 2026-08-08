@@ -33,7 +33,7 @@ audio = ["pyaudio>=0.2.14"]
 dev = [
     "pytest>=8.1.0",
     "pytest-asyncio>=1.4.0",
-    "pytest-cov>=5.0.0",
+    "pytest-cov>=7.1.0",
     "mypy>=1.9.0",
     "ruff>=0.3.0",
     "black>=24.3.0",
