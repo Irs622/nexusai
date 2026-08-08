@@ -39,7 +39,7 @@
     "voice",
     "workflow"
   ],
-  "edge_count": 1312,
+  "edge_count": 1935,
   "edges": [
     {
       "source": "root",
@@ -233,38 +233,963 @@
     },
     {
       "source": "brain",
-      "target": "domain",
-      "file": "brain/agent_loop.py"
+      "target": "brain",
+      "file": "brain/__init__.py"
     },
     {
       "source": "brain",
-      "target": "domain",
-      "file": "brain/agent_loop.py"
+      "target": "brain",
+      "file": "brain/__init__.py"
     },
     {
       "source": "brain",
-      "target": "domain",
-      "file": "brain/agent_loop.py"
+      "target": "brain",
+      "file": "brain/__init__.py"
     },
     {
       "source": "brain",
-      "target": "domain",
-      "file": "brain/agent_loop.py"
+      "target": "brain",
+      "file": "brain/__init__.py"
     },
     {
       "source": "brain",
-      "target": "domain",
-      "file": "brain/agent_loop.py"
+      "target": "brain",
+      "file": "brain/__init__.py"
     },
     {
       "source": "brain",
-      "target": "domain",
-      "file": "brain/agent_loop.py"
+      "target": "brain",
+      "file": "brain/__init__.py"
     },
     {
       "source": "brain",
-      "target": "domain",
-      "file": "brain/agent_loop.py"
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/__init__.py"
     },
     {
       "source": "brain",
@@ -284,6 +1209,36 @@
     {
       "source": "brain",
       "target": "brain",
+      "file": "brain/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
       "file": "brain/agent_loop.py"
     },
     {
@@ -303,18 +1258,423 @@
     },
     {
       "source": "brain",
+      "target": "brain",
+      "file": "brain/builder.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/builder.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/builder.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/builder.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/builder.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/builder.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/builder.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/builder.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/builder.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/builder.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/builder.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/builder.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/budget.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/budget.py"
+    },
+    {
+      "source": "brain",
+      "target": "core",
+      "file": "brain/compaction/budget.py"
+    },
+    {
+      "source": "brain",
       "target": "domain",
+      "file": "brain/compaction/budget.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/importance.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/importance.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/compaction/importance.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/pipeline.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/pipeline.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/pipeline.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/pipeline.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/pipeline.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/pipeline.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/pipeline.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/pipeline.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/compaction/pipeline.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/compaction/pipeline.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/compaction/result.py"
+    },
+    {
+      "source": "brain",
+      "target": "workflow",
       "file": "brain/compiler.py"
     },
     {
       "source": "brain",
-      "target": "domain",
+      "target": "workflow",
       "file": "brain/compiler.py"
     },
     {
       "source": "brain",
       "target": "brain",
-      "file": "brain/coordinator.py"
+      "file": "brain/container.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/container.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/container.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/container.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/container.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/container.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/container.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/container.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/container.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/container.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/container.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/container.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/container.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/container.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/context/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/context/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/context/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/context/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/context/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/context/assembler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/context/assembler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/context/assembler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/context/assembler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/context/assembler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/context/assembler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/context/assembler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/context/assembler.py"
+    },
+    {
+      "source": "brain",
+      "target": "logging",
+      "file": "brain/context/assembler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/context/history_loader.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/context/history_loader.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/context/history_loader.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/context/history_loader.py"
+    },
+    {
+      "source": "brain",
+      "target": "logging",
+      "file": "brain/context/history_loader.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/context/truncator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/context/truncator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/context/truncator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/context/truncator.py"
     },
     {
       "source": "brain",
@@ -328,38 +1688,633 @@
     },
     {
       "source": "brain",
-      "target": "bus",
-      "file": "brain/coordinator.py"
+      "target": "brain",
+      "file": "brain/domain/__init__.py"
     },
     {
       "source": "brain",
-      "target": "context",
-      "file": "brain/coordinator.py"
+      "target": "brain",
+      "file": "brain/domain/__init__.py"
     },
     {
       "source": "brain",
-      "target": "memory",
-      "file": "brain/coordinator.py"
+      "target": "brain",
+      "file": "brain/domain/__init__.py"
     },
     {
       "source": "brain",
-      "target": "models",
-      "file": "brain/coordinator.py"
+      "target": "brain",
+      "file": "brain/domain/__init__.py"
     },
     {
       "source": "brain",
-      "target": "tools",
-      "file": "brain/coordinator.py"
+      "target": "brain",
+      "file": "brain/domain/__init__.py"
     },
     {
       "source": "brain",
-      "target": "models",
-      "file": "brain/inference.py"
+      "target": "brain",
+      "file": "brain/domain/__init__.py"
     },
     {
       "source": "brain",
-      "target": "models",
-      "file": "brain/inference.py"
+      "target": "brain",
+      "file": "brain/domain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/context.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/context.py"
+    },
+    {
+      "source": "brain",
+      "target": "core",
+      "file": "brain/domain/context.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/history.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/history.py"
+    },
+    {
+      "source": "brain",
+      "target": "core",
+      "file": "brain/domain/observation_lifecycle.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/prompt.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/prompt.py"
+    },
+    {
+      "source": "brain",
+      "target": "core",
+      "file": "brain/domain/prompt.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/session.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/turn.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/benchmark_report.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/benchmark_report.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/comparator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/coverage.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/decision_dataset.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/decision_dataset.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/evaluator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/evaluator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/evaluator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/evaluator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/evaluator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/golden_dataset.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/golden_dataset.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/learning.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/learning.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/eval/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/evaluator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/evaluator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/loop_executor.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/loop_executor.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/loop_executor.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/loop_executor.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/loop_executor.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/loop_executor.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/loop_executor.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/loop_executor.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/loop_executor.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/loop_executor.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/loop_executor.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/loop_executor.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/loop_executor.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/loop_executor.py"
+    },
+    {
+      "source": "brain",
+      "target": "logging",
+      "file": "brain/loop_executor.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/assembler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/assembler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/assembler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/assembler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/assembler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/assembler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/compressor.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/conflict_resolver.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/consolidator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/consolidator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/consolidator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/ranker.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/retriever.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/retriever.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/memory/retriever.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/observation.py"
     },
     {
       "source": "brain",
@@ -368,16 +2323,656 @@
     },
     {
       "source": "brain",
-      "target": "models",
+      "target": "brain",
+      "file": "brain/persistence/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/persistence/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/persistence/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/persistence/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/persistence/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/persistence/contracts.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/persistence/outbox_adapter.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/persistence/outbox_adapter.py"
+    },
+    {
+      "source": "brain",
+      "target": "logging",
+      "file": "brain/persistence/outbox_adapter.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/persistence/service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/persistence/service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/persistence/service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/persistence/service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/persistence/service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/persistence/service.py"
+    },
+    {
+      "source": "brain",
+      "target": "core",
+      "file": "brain/persistence/service.py"
+    },
+    {
+      "source": "brain",
+      "target": "logging",
+      "file": "brain/persistence/service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/pipeline/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/pipeline/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/pipeline/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/pipeline/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/pipeline/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/pipeline/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/pipeline/pipeline.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/pipeline/pipeline.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/pipeline/pipeline.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/pipeline/pipeline.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/pipeline/pipeline.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/pipeline/pipeline.py"
+    },
+    {
+      "source": "brain",
+      "target": "logging",
+      "file": "brain/pipeline/pipeline.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/pipeline/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/pipeline/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/pipeline/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/pipeline/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/pipeline/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/pipeline/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/pipeline/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "logging",
+      "file": "brain/pipeline/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/repair.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/repair.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/repair.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/repair.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/repair.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/repair.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/scheduler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/scheduler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/scheduler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/scheduler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/scheduler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/scheduler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/scheduler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/stages.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/validator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/validator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/validator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/validator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/validator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
       "file": "brain/planner.py"
     },
     {
       "source": "brain",
+      "target": "brain",
+      "file": "brain/planner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/plugins/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/plugins/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/plugins/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/plugins/events.py"
+    },
+    {
+      "source": "brain",
+      "target": "logging",
+      "file": "brain/plugins/events.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/capability_discovery.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/prompt/__init__.py"
+    },
+    {
+      "source": "brain",
       "target": "context",
+      "file": "brain/prompt/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/prompt/renderer.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/prompt/renderer.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/prompt/renderer.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/prompt/renderer.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/prompt/renderer.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/prompt/renderer.py"
+    },
+    {
+      "source": "brain",
+      "target": "logging",
+      "file": "brain/prompt/renderer.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
       "file": "brain/prompt.py"
     },
     {
       "source": "brain",
+      "target": "brain",
+      "file": "brain/reasoning.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/reasoning.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/reasoning.py"
+    },
+    {
+      "source": "brain",
       "target": "domain",
       "file": "brain/reasoning.py"
     },
@@ -404,62 +2999,627 @@
     {
       "source": "brain",
       "target": "brain",
-      "file": "brain/reasoning.py"
+      "file": "brain/reflection/engine.py"
     },
     {
       "source": "brain",
       "target": "brain",
-      "file": "brain/reasoning.py"
+      "file": "brain/reflection/engine.py"
     },
     {
       "source": "brain",
       "target": "brain",
-      "file": "brain/reasoning.py"
+      "file": "brain/reflection/engine.py"
     },
     {
       "source": "brain",
       "target": "brain",
-      "file": "brain/reasoning.py"
+      "file": "brain/replay/__init__.py"
     },
     {
       "source": "brain",
       "target": "brain",
-      "file": "brain/reasoning.py"
+      "file": "brain/replay/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/replay/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/replay/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/replay/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/replay/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/replay/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/replay/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/replay/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/replay/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/replay/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/replay/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/replay/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/replay/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/replay/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/replay/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/replay/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/replay/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/replay/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/replay/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/replay/runner.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/replay/serialization.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_context.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_context.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_context.py"
+    },
+    {
+      "source": "brain",
+      "target": "core",
+      "file": "brain/runtime/budget.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/context.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/context.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/context.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/context.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/metrics.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/plan.py"
+    },
+    {
+      "source": "brain",
+      "target": "core",
+      "file": "brain/runtime/plan.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/selector.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/selector.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/selector.py"
+    },
+    {
+      "source": "brain",
+      "target": "logging",
+      "file": "brain/runtime/selector.py"
+    },
+    {
+      "source": "brain",
+      "target": "core",
+      "file": "brain/runtime/state.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/working_memory.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/working_memory.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/working_memory.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/working_memory.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/working_memory.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/working_memory.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/working_memory.py"
+    },
+    {
+      "source": "brain",
+      "target": "core",
+      "file": "brain/runtime/working_memory.py"
     },
     {
       "source": "brain",
       "target": "domain",
-      "file": "brain/strategy.py"
+      "file": "brain/runtime/working_memory.py"
     },
     {
       "source": "brain",
-      "target": "domain",
-      "file": "brain/strategy.py"
+      "target": "brain",
+      "file": "brain/service.py"
     },
     {
       "source": "brain",
-      "target": "domain",
-      "file": "brain/strategy.py"
+      "target": "brain",
+      "file": "brain/service.py"
     },
     {
       "source": "brain",
-      "target": "domain",
-      "file": "brain/strategy.py"
+      "target": "brain",
+      "file": "brain/service.py"
     },
     {
       "source": "brain",
-      "target": "domain",
-      "file": "brain/strategy.py"
+      "target": "brain",
+      "file": "brain/service.py"
     },
     {
       "source": "brain",
-      "target": "domain",
+      "target": "brain",
+      "file": "brain/service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/service.py"
+    },
+    {
+      "source": "brain",
+      "target": "logging",
+      "file": "brain/service.py"
+    },
+    {
+      "source": "brain",
+      "target": "logging",
+      "file": "brain/state_machine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
       "file": "brain/strategy.py"
     },
     {
       "source": "brain",
       "target": "brain",
       "file": "brain/strategy.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/strategy.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/strategy.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/strategy.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/strategy.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/strategy.py"
+    },
+    {
+      "source": "brain",
+      "target": "domain",
+      "file": "brain/strategy.py"
+    },
+    {
+      "source": "brain",
+      "target": "logging",
+      "file": "brain/strategy.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/streaming/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/streaming/stream.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/streaming/stream.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/streaming/stream.py"
+    },
+    {
+      "source": "brain",
+      "target": "core",
+      "file": "brain/streaming/stream.py"
+    },
+    {
+      "source": "brain",
+      "target": "logging",
+      "file": "brain/streaming/stream.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/telemetry/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/telemetry/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/telemetry/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/telemetry/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/telemetry/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/telemetry/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/telemetry/tracer.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/telemetry/tracer.py"
+    },
+    {
+      "source": "brain",
+      "target": "logging",
+      "file": "brain/telemetry/tracer.py"
     },
     {
       "source": "brain",
@@ -664,11 +3824,6 @@
     {
       "source": "cli",
       "target": "core",
-      "file": "cli/app.py"
-    },
-    {
-      "source": "cli",
-      "target": "logging",
       "file": "cli/app.py"
     },
     {
@@ -913,6 +4068,26 @@
     },
     {
       "source": "core",
+      "target": "bus",
+      "file": "core/engine.py"
+    },
+    {
+      "source": "core",
+      "target": "bus",
+      "file": "core/engine.py"
+    },
+    {
+      "source": "core",
+      "target": "bus",
+      "file": "core/engine.py"
+    },
+    {
+      "source": "core",
+      "target": "bus",
+      "file": "core/engine.py"
+    },
+    {
+      "source": "core",
       "target": "core",
       "file": "core/engine.py"
     },
@@ -923,37 +4098,12 @@
     },
     {
       "source": "core",
-      "target": "bus",
+      "target": "memory",
       "file": "core/engine.py"
     },
     {
       "source": "core",
-      "target": "bus",
-      "file": "core/engine.py"
-    },
-    {
-      "source": "core",
-      "target": "bus",
-      "file": "core/engine.py"
-    },
-    {
-      "source": "core",
-      "target": "bus",
-      "file": "core/engine.py"
-    },
-    {
-      "source": "core",
-      "target": "tools",
-      "file": "core/engine.py"
-    },
-    {
-      "source": "core",
-      "target": "tools",
-      "file": "core/engine.py"
-    },
-    {
-      "source": "core",
-      "target": "tools",
+      "target": "memory",
       "file": "core/engine.py"
     },
     {
@@ -968,12 +4118,17 @@
     },
     {
       "source": "core",
-      "target": "memory",
+      "target": "tools",
       "file": "core/engine.py"
     },
     {
       "source": "core",
-      "target": "memory",
+      "target": "tools",
+      "file": "core/engine.py"
+    },
+    {
+      "source": "core",
+      "target": "tools",
       "file": "core/engine.py"
     },
     {
@@ -1238,11 +4393,6 @@
     },
     {
       "source": "kernel",
-      "target": "kernel",
-      "file": "kernel/orchestrator.py"
-    },
-    {
-      "source": "kernel",
       "target": "logging",
       "file": "kernel/orchestrator.py"
     },
@@ -1320,11 +4470,6 @@
       "source": "kernel",
       "target": "kernel",
       "file": "kernel/outbox/__init__.py"
-    },
-    {
-      "source": "kernel",
-      "target": "kernel",
-      "file": "kernel/outbox/dispatcher.py"
     },
     {
       "source": "kernel",
@@ -1823,21 +4968,6 @@
     },
     {
       "source": "memory",
-      "target": "kernel",
-      "file": "memory/bootstrap.py"
-    },
-    {
-      "source": "memory",
-      "target": "memory",
-      "file": "memory/bootstrap.py"
-    },
-    {
-      "source": "memory",
-      "target": "memory",
-      "file": "memory/bootstrap.py"
-    },
-    {
-      "source": "memory",
       "target": "memory",
       "file": "memory/bootstrap.py"
     },
@@ -2283,17 +5413,17 @@
     },
     {
       "source": "memory",
-      "target": "memory",
-      "file": "memory/hierarchy.py"
-    },
-    {
-      "source": "memory",
       "target": "knowledge",
       "file": "memory/hierarchy.py"
     },
     {
       "source": "memory",
       "target": "memory",
+      "file": "memory/hierarchy.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
       "file": "memory/pipeline/__init__.py"
     },
     {
@@ -2425,11 +5555,6 @@
       "source": "memory",
       "target": "memory",
       "file": "memory/pipeline/factory.py"
-    },
-    {
-      "source": "memory",
-      "target": "memory",
-      "file": "memory/pipeline/formatters.py"
     },
     {
       "source": "memory",
@@ -2670,6 +5795,11 @@
       "source": "memory",
       "target": "memory",
       "file": "memory/services/admin.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/services/command.py"
     },
     {
       "source": "memory",
@@ -3202,11 +6332,6 @@
       "file": "memory/vector/mock_store.py"
     },
     {
-      "source": "memory",
-      "target": "memory",
-      "file": "memory/vector/mock_store.py"
-    },
-    {
       "source": "models",
       "target": "models",
       "file": "models/__init__.py"
@@ -3255,11 +6380,6 @@
       "source": "models",
       "target": "models",
       "file": "models/router.py"
-    },
-    {
-      "source": "models",
-      "target": "models",
-      "file": "models/runtime.py"
     },
     {
       "source": "models",
@@ -3269,6 +6389,11 @@
     {
       "source": "models",
       "target": "logging",
+      "file": "models/runtime.py"
+    },
+    {
+      "source": "models",
+      "target": "models",
       "file": "models/runtime.py"
     },
     {
@@ -3753,22 +6878,22 @@
     },
     {
       "source": "plugins",
-      "target": "plugins",
-      "file": "plugins/hooks/manager.py"
-    },
-    {
-      "source": "plugins",
-      "target": "plugins",
-      "file": "plugins/hooks/manager.py"
-    },
-    {
-      "source": "plugins",
-      "target": "plugins",
-      "file": "plugins/hooks/manager.py"
-    },
-    {
-      "source": "plugins",
       "target": "logging",
+      "file": "plugins/hooks/manager.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/hooks/manager.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
+      "file": "plugins/hooks/manager.py"
+    },
+    {
+      "source": "plugins",
+      "target": "plugins",
       "file": "plugins/hooks/manager.py"
     },
     {
@@ -4578,16 +7703,6 @@
     },
     {
       "source": "providers",
-      "target": "logging",
-      "file": "providers/anthropic/provider.py"
-    },
-    {
-      "source": "providers",
-      "target": "providers",
-      "file": "providers/anthropic/provider.py"
-    },
-    {
-      "source": "providers",
       "target": "providers",
       "file": "providers/anthropic/provider.py"
     },
@@ -4659,6 +7774,11 @@
     {
       "source": "providers",
       "target": "core",
+      "file": "providers/base.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
       "file": "providers/base.py"
     },
     {
@@ -4803,21 +7923,6 @@
     },
     {
       "source": "providers",
-      "target": "providers",
-      "file": "providers/engine.py"
-    },
-    {
-      "source": "providers",
-      "target": "providers",
-      "file": "providers/engine.py"
-    },
-    {
-      "source": "providers",
-      "target": "providers",
-      "file": "providers/engine.py"
-    },
-    {
-      "source": "providers",
       "target": "core",
       "file": "providers/events.py"
     },
@@ -4839,11 +7944,6 @@
     {
       "source": "providers",
       "target": "core",
-      "file": "providers/gemini/provider.py"
-    },
-    {
-      "source": "providers",
-      "target": "logging",
       "file": "providers/gemini/provider.py"
     },
     {
@@ -5108,16 +8208,6 @@
     },
     {
       "source": "providers",
-      "target": "logging",
-      "file": "providers/ollama/provider.py"
-    },
-    {
-      "source": "providers",
-      "target": "providers",
-      "file": "providers/ollama/provider.py"
-    },
-    {
-      "source": "providers",
       "target": "providers",
       "file": "providers/ollama/provider.py"
     },
@@ -5198,11 +8288,6 @@
     },
     {
       "source": "providers",
-      "target": "logging",
-      "file": "providers/openrouter/provider.py"
-    },
-    {
-      "source": "providers",
       "target": "providers",
       "file": "providers/openrouter/provider.py"
     },
@@ -5369,11 +8454,6 @@
     {
       "source": "providers",
       "target": "logging",
-      "file": "providers/retry.py"
-    },
-    {
-      "source": "providers",
-      "target": "providers",
       "file": "providers/retry.py"
     },
     {
@@ -5614,6 +8694,11 @@
     {
       "source": "providers",
       "target": "core",
+      "file": "providers/translators/error_mapper.py"
+    },
+    {
+      "source": "providers",
+      "target": "providers",
       "file": "providers/translators/error_mapper.py"
     },
     {
@@ -6088,6 +9173,16 @@
     },
     {
       "source": "runtime",
+      "target": "providers",
+      "file": "runtime/engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/engine.py"
+    },
+    {
+      "source": "runtime",
       "target": "core",
       "file": "runtime/events.py"
     },
@@ -6124,11 +9219,6 @@
     {
       "source": "runtime",
       "target": "logging",
-      "file": "runtime/retry.py"
-    },
-    {
-      "source": "runtime",
-      "target": "providers",
       "file": "runtime/retry.py"
     },
     {
@@ -6268,11 +9358,6 @@
     },
     {
       "source": "security",
-      "target": "core",
-      "file": "security/guard.py"
-    },
-    {
-      "source": "security",
       "target": "logging",
       "file": "security/guard.py"
     },
@@ -6288,17 +9373,17 @@
     },
     {
       "source": "security",
-      "target": "tools",
-      "file": "security/policy.py"
-    },
-    {
-      "source": "security",
-      "target": "tools",
-      "file": "security/policy.py"
-    },
-    {
-      "source": "security",
       "target": "core",
+      "file": "security/policy.py"
+    },
+    {
+      "source": "security",
+      "target": "tools",
+      "file": "security/policy.py"
+    },
+    {
+      "source": "security",
+      "target": "tools",
       "file": "security/policy.py"
     },
     {
@@ -6315,6 +9400,36 @@
       "source": "tools",
       "target": "tools",
       "file": "tools/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "brain",
+      "file": "tools/adapter.py"
+    },
+    {
+      "source": "tools",
+      "target": "brain",
+      "file": "tools/adapter.py"
+    },
+    {
+      "source": "tools",
+      "target": "brain",
+      "file": "tools/adapter.py"
+    },
+    {
+      "source": "tools",
+      "target": "core",
+      "file": "tools/adapter.py"
+    },
+    {
+      "source": "tools",
+      "target": "logging",
+      "file": "tools/adapter.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/adapter.py"
     },
     {
       "source": "tools",
@@ -6343,12 +9458,12 @@
     },
     {
       "source": "tools",
-      "target": "security",
+      "target": "core",
       "file": "tools/base.py"
     },
     {
       "source": "tools",
-      "target": "core",
+      "target": "security",
       "file": "tools/base.py"
     },
     {
@@ -6468,17 +9583,17 @@
     },
     {
       "source": "tools",
-      "target": "tools",
-      "file": "tools/plugin_loader.py"
-    },
-    {
-      "source": "tools",
-      "target": "tools",
-      "file": "tools/plugin_loader.py"
-    },
-    {
-      "source": "tools",
       "target": "core",
+      "file": "tools/plugin_loader.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/plugin_loader.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
       "file": "tools/plugin_loader.py"
     },
     {
@@ -6611,196 +9726,196 @@
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 59,
+      "line": 56,
       "import": "nexusai.runtime.circuit_breaker.CircuitBreaker",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 59,
+      "line": 56,
       "import": "nexusai.runtime.circuit_breaker.CircuitState",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 60,
+      "line": 57,
       "import": "nexusai.runtime.clock.Clock",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 60,
+      "line": 57,
       "import": "nexusai.runtime.clock.SystemClock",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 60,
+      "line": 57,
       "import": "nexusai.runtime.clock.TestClock",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 61,
+      "line": 58,
       "import": "nexusai.runtime.context.CancellationToken",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 61,
+      "line": 58,
       "import": "nexusai.runtime.context.Deadline",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 61,
+      "line": 58,
       "import": "nexusai.runtime.context.ExecutionBudget",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 61,
+      "line": 58,
       "import": "nexusai.runtime.context.ExecutionContext",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 61,
+      "line": 58,
       "import": "nexusai.runtime.context.ExecutionHandle",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 61,
+      "line": 58,
       "import": "nexusai.runtime.context.RequestContext",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 61,
+      "line": 58,
       "import": "nexusai.runtime.context.ResourceContext",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 61,
+      "line": 58,
       "import": "nexusai.runtime.context.RuntimeContext",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 61,
+      "line": 58,
       "import": "nexusai.runtime.context.TraceContext",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 72,
+      "line": 69,
       "import": "nexusai.runtime.engine.ExecutionEngine",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 72,
+      "line": 69,
       "import": "nexusai.runtime.engine.RoutingDecision",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 73,
+      "line": 70,
       "import": "nexusai.runtime.events.ProviderEvent",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 73,
+      "line": 70,
       "import": "nexusai.runtime.events.ProviderHealthChangedEvent",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 73,
+      "line": 70,
       "import": "nexusai.runtime.events.ProviderRegisteredEvent",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 73,
+      "line": 70,
       "import": "nexusai.runtime.events.ProviderUnregisteredEvent",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 73,
+      "line": 70,
       "import": "nexusai.runtime.events.RoutingDecisionEvent",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 80,
+      "line": 77,
       "import": "nexusai.runtime.middleware.BaseMiddleware",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 80,
+      "line": 77,
       "import": "nexusai.runtime.middleware.MiddlewarePipeline",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 81,
+      "line": 78,
       "import": "nexusai.runtime.retry.RetryDecider",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 81,
+      "line": 78,
       "import": "nexusai.runtime.retry.RetryMiddleware",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 81,
+      "line": 78,
       "import": "nexusai.runtime.retry.RetryPolicy",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 82,
+      "line": 79,
       "import": "nexusai.runtime.state_machine.ExecutionState",
       "whitelisted": true
     },
     {
       "rule_id": "A001",
       "file": "src/nexusai/providers/__init__.py",
-      "line": 82,
+      "line": 79,
       "import": "nexusai.runtime.state_machine.ExecutionStateMachine",
       "whitelisted": true
     }

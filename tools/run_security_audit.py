@@ -23,7 +23,7 @@ def run_security_audit() -> int:
 
     cmd = [
         sys.executable, "-m", "pip_audit",
-        "--requirement", str(PROJECT_ROOT / "pyproject.toml"),
+        "--requirement", str(PROJECT_ROOT / "requirements.txt"),
         "--format", "columns",
         "--progress-spinner", "off",
     ]

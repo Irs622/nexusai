@@ -9,7 +9,7 @@ on:
 jobs:
   test:
     name: Pytest Suite & Coverage Verification
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ['3.10', '3.11', '3.12']
@@ -21,7 +21,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install System Dependencies
         run: |
-          brew install portaudio || true
+          sudo apt-get update && sudo apt-get install -y portaudio19-dev || true
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
