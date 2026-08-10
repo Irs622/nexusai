@@ -22,7 +22,7 @@ langchain-core>=0.1.30
 
 # Web Dashboard & API
 fastapi>=0.110.0
-uvicorn>=0.28.0
+uvicorn>=0.52.1
 
 # Optional / Audio
 pyaudio>=0.2.14; sys_platform == "darwin"
