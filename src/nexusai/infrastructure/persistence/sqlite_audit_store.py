@@ -7,6 +7,7 @@ import json
 import sqlite3
 import time
 from typing import Sequence
+from uuid import uuid4
 
 from nexusai.brain.domain.audit import (
     AuditEvent,

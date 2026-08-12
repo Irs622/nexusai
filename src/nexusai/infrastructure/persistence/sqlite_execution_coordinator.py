@@ -6,6 +6,7 @@ import json
 import sqlite3
 import time
 from typing import Any
+from uuid import uuid4
 
 from nexusai.brain.domain.execution_coordination import (
     ExecutionLease,
