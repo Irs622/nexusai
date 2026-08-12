@@ -67,8 +67,9 @@ class NetworkTool(IToolPort):
 
     async def execute(self, request: ToolExecutionRequest) -> ToolExecutionResult:
         """Execute governed HTTP GET/POST request with destination validation."""
-        raw_url = request.parameters.get("url", "")
-        method = request.parameters.get("method", "GET").upper()
+        params = request.parameters if isinstance(request.parameters, dict) else request.arguments if isinstance(request.arguments, dict) else {}
+        raw_url = params.get("url", "")
+        method = params.get("method", "GET").upper()
 
         if not raw_url:
             return ToolExecutionResult(
