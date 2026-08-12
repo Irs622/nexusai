@@ -283,9 +283,9 @@ async def test_router_no_match_raises_error() -> None:
 async def test_base_provider_async_context_manager() -> None:
     p = DummyProvider("context_p")
     async with p:
-        assert p.initialized is True
-        assert p.shutdown_called is False
-    assert p.shutdown_called is True
+        assert p.initialized
+        assert not p.shutdown_called
+    assert p.shutdown_called
 
 
 # ============================================================================

@@ -64,16 +64,15 @@ class MiddlewarePipeline:
         Returns:
             Final ChatResponse returned by middleware chain.
         """
-        chain = terminal_handler
-        for middleware in reversed(self._middlewares):
-            current_mw = middleware
-            current_next = chain
+        chain: NextHandler = terminal_handler
 
-            async def make_call(
-                req: ChatRequest, mw: BaseMiddleware = current_mw, nxt: NextHandler = current_next
-            ) -> ChatResponse:
+        def _create_handler(mw: BaseMiddleware, nxt: NextHandler) -> NextHandler:
+            async def handler(req: ChatRequest) -> ChatResponse:
                 return await mw.process(req, nxt, session=session)
 
-            chain = make_call
+            return handler
+
+        for middleware in reversed(self._middlewares):
+            chain = _create_handler(middleware, chain)
 
         return await chain(request)
