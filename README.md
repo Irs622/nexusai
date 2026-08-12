@@ -14,7 +14,7 @@
 
 It provides explicit DAG-based planning, execution scheduling, memory management, runtime policies, event-driven coordination, plugin capabilities, observability, and multi-provider model integration.
 
-NexusAI is currently a production-oriented runtime architecture (`v0.6.0`). Operational validation under real-world workloads is ongoing.
+NexusAI is currently a production-oriented runtime architecture (`v0.7.0`). Operational validation under real-world workloads is ongoing.
 
 Long-term, NexusAI aims to evolve from an agent runtime into a general-purpose AI Operating System.
 
@@ -120,7 +120,7 @@ if __name__ == "__main__":
 - **[Framework Comparison (docs/why-nexusai.md)](docs/why-nexusai.md)** — NexusAI vs. LangGraph, AutoGen, CrewAI, & Haystack.
 - **[Performance Benchmarks (docs/benchmarks.md)](docs/benchmarks.md)** — Sub-millisecond empirical benchmark metrics & reproducibility instructions.
 - **[Examples Directory (examples/)](examples/)** — Standalone executable demo scripts (`planner_demo.py`, `memory_demo.py`, `runtime_demo.py`).
-- **[Product Roadmap (ROADMAP.md)](ROADMAP.md)** — Milestone history & `v0.6.0` $\rightarrow$ `v1.0.0` roadmap.
+- **[Product Roadmap (ROADMAP.md)](ROADMAP.md)** — Milestone history & `v0.7.0` $\rightarrow$ `v1.0.0` roadmap.
 
 ---
 

@@ -1,7 +1,7 @@
 # 🗺️ NexusAI Product & Architecture Roadmap
 
 > [!NOTE]
-> **Engineering Status**: Current Version: `v0.6.0` (**Production-Oriented Architecture**).
+> **Engineering Status**: Current Version: `v0.7.0` (**Production Deployment Architecture & Level 3 Certified**).
 > The project has completed architectural implementation and automated quality gates. Operational validation under live production workloads and community deployment is ongoing.
 
 ---
@@ -46,7 +46,7 @@
 
 ---
 
-### 🔵 Operational Validation & Community Stage (`v0.6.0` $\rightarrow$ `v1.0.0`)
+### 🔵 Operational Validation & Community Stage (`v0.7.0` $\rightarrow$ `v1.0.0`)
 
 - [ ] **Community & Production Workload Validation**: Gather feedback from external developers and real-world workloads.
 - [ ] **Live MCP Server Protocol Integration**: End-to-end integration testing with multi-provider live Model Context Protocol servers.

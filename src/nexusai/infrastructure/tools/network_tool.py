@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import ipaddress
+import socket
 import urllib.parse
 import urllib.request
 from typing import Any
@@ -28,7 +30,7 @@ class NetworkTool(IToolPort):
         self.blocked_hosts = {"127.0.0.1", "localhost", "0.0.0.0", "169.254.169.254", "::1"}
 
     def _validate_url(self, raw_url: str) -> urllib.parse.ParseResult:
-        """Validate URL scheme and host against destination allowlist and SSRF blocklist."""
+        """Validate URL scheme, hostname allowlist, and resolve IP addresses against SSRF blocklists."""
         parsed = urllib.parse.urlparse(raw_url)
 
         if parsed.scheme not in ("http", "https"):
@@ -43,6 +45,23 @@ class NetworkTool(IToolPort):
 
         if self.allowed_hosts and hostname not in self.allowed_hosts:
             raise PermissionError(f"Host '{hostname}' is not in the network destination allowlist")
+
+        # Resolve hostname IPs and validate against private / link-local / loopback / reserved IP ranges
+        try:
+            addr_info = socket.getaddrinfo(hostname, None)
+            for family, _, _, _, sockaddr in addr_info:
+                ip_str = sockaddr[0]
+                ip_obj = ipaddress.ip_address(ip_str)
+                if (
+                    ip_obj.is_private
+                    or ip_obj.is_loopback
+                    or ip_obj.is_link_local
+                    or ip_obj.is_reserved
+                    or ip_obj.is_multicast
+                ):
+                    raise ValueError(f"Host '{hostname}' resolved to private/blocked IP '{ip_str}' (SSRF protection)")
+        except socket.gaierror:
+            pass  # Let request level handle unreachable hosts
 
         return parsed
 
