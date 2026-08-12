@@ -45,6 +45,29 @@ class P5LiveHarness:
         self.run_preflight_check()
         return {"status": "DRY_RUN_PASSED", "scenarios_planned": "15"}
 
+    async def run_mode(self, mode: str) -> dict[str, Any]:
+        """Execute harness in requested mode: preflight, dry-run, or execute."""
+        if mode == "preflight":
+            self.run_preflight_check()
+            return {"mode": "preflight", "status": "PASSED"}
+        elif mode == "dry-run":
+            return self.run_dry_run()
+        elif mode == "execute":
+            self.run_preflight_check()
+            res = await self.execute_scenario(
+                scenario_id="P5-LIVE-SCENARIO-01",
+                execution_id="exec-live-001",
+                attempt_id="att-01",
+                idempotency_key="idempotent-key-001",
+                worker_id="worker-staging-01",
+                fencing_token=1,
+                recovery_epoch=100,
+                committed=True,
+            )
+            return {"mode": "execute", "status": "PASSED" if res else "FAILED"}
+        else:
+            raise ValueError(f"Invalid mode '{mode}'. Choose from 'preflight', 'dry-run', or 'execute'.")
+
     async def execute_scenario(
         self,
         scenario_id: str,

@@ -1,9 +1,9 @@
 cff-version: 1.2.0
-message: "If you use NexusAI in your software or research, please cite it as below."
+message: "If you use NexusAI in your research or systems, please cite it as below."
 authors:
-  - name: "NexusAI Open Source Contributors"
+  - name: "NexusAI Core Team"
 title: "NexusAI: Personal AI Operating System & Agent Runtime Engine"
-version: 0.6.0
+version: 0.7.0
 date-released: 2026-08-07
 url: "https://github.com/Irs622/nexusai"
 license: MIT

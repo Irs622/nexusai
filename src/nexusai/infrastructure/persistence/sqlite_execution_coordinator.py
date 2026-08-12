@@ -24,7 +24,7 @@ class SQLiteExecutionCoordinator(IExecutionCoordinator):
     def __init__(self, db_path: str = ":memory:", busy_timeout_ms: int = 10000) -> None:
         self._keepalive: sqlite3.Connection | None
         if db_path == ":memory:":
-            self.db_path = "file:mem_coord?mode=memory&cache=shared"
+            self.db_path = f"file:mem_coord_{uuid4().hex}?mode=memory&cache=shared"
             self._keepalive = sqlite3.connect(self.db_path, uri=True)
         else:
             self.db_path = db_path
@@ -268,9 +268,11 @@ class SQLiteExecutionCoordinator(IExecutionCoordinator):
             if now >= row["expires_at"]:
                 raise FencingTokenError(f"Lease for execution '{execution_id}' expired at {row['expires_at']}")
 
-            # Fencing token invariant (P4-6-INV-08 & INV-09)
-            if expected_token < row["fencing_token"]:
-                raise FencingTokenError(f"Obsolete fencing token {expected_token} < active token {row['fencing_token']}")
+            # Strict fencing token invariant (P4-6-INV-08 & INV-09)
+            if expected_token != row["fencing_token"]:
+                raise FencingTokenError(
+                    f"Fencing token mismatch: expected {expected_token}, active token is {row['fencing_token']}"
+                )
 
             return True
 

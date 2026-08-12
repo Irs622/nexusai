@@ -2,15 +2,15 @@
 
 > **Model-Agnostic Agent Runtime & Orchestration Infrastructure**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Python Version](https://img.shields.io/badge/python-3.12%2B-blue.svg)](pyproject.toml)
-[![Status: Production-Oriented](https://img.shields.io/badge/Status-Production--Oriented-blue.svg)](docs/architecture.md)
-[![Version](https://img.shields.io/badge/version-v0.6.0-green.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-v0.7.0-green.svg)](CHANGELOG.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python Version](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue.svg)](pyproject.toml)
+[![Architecture](https://img.shields.io/badge/architecture-P5%20Production%20Deployment-purple.svg)](docs/specs/core/architecture.md)
 [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Type Checked: Mypy](https://img.shields.io/badge/type--checked-mypy--strict-blue.svg)](https://mypy-lang.org/)
 [![Code of Conduct](https://img.shields.io/badge/Code%20of%20Conduct-v2.1-purple.svg)](CODE_OF_CONDUCT.md)
 
-**NexusAI** is a model-agnostic agent runtime and orchestration infrastructure for building autonomous AI systems.
+**NexusAI** is a multi-tenant, agentic AI operating system runtime designed for production deployment, distributed execution, and capability governance.
 
 It provides explicit DAG-based planning, execution scheduling, memory management, runtime policies, event-driven coordination, plugin capabilities, observability, and multi-provider model integration.
 

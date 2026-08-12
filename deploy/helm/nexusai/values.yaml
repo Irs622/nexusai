@@ -7,6 +7,7 @@ image:
   repository: nexusai/runtime
   pullPolicy: IfNotPresent
   tag: "1.0.0"
+  digest: "sha256:4b2259160bb43c683b5443ef5094191a329c3a37233c77d9c6691456a06be3c9"
 
 serviceAccount:
   create: true

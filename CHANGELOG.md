@@ -11,6 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.7.0] - 2026-08-12
+
+### 🚀 Phase 5: Production Deployment, Multi-Node Coordination & Governance
+- `feat(coordination)`: Implement `PostgresExecutionCoordinator` and `RedisExecutionCoordinator` for multi-worker distributed lease coordination and monotonic fencing tokens.
+- `feat(persistence)`: Implement durable PostgreSQL execution persistence, transaction boundaries, and SQLite migration pipeline.
+- `feat(secrets)`: Implement HashiCorp Vault (`VaultCredentialProvider`) and AWS KMS (`KMSCredentialProvider`) credential management with automatic secret rotation.
+- `feat(sandbox)`: Implement process and gRPC sandbox isolation with capability policies.
+- `feat(dr)`: Implement disaster recovery, snapshot metadata, and epoch tracking.
+- `feat(observability)`: Implement OpenTelemetry-compatible structured logging and Prometheus metric exporters.
+- `feat(k8s)`: Implement Helm deployment manifests, non-root security contexts, read-only root filesystems, and image digest pinning support.
+
+---
+
 ## [0.6.0] - 2026-08-07
 
 ### 🟢 Added — Phase 6: End-to-End Integration, Observability & Learning Loop

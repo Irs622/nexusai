@@ -1,19 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nexusai-worker
-  namespace: {{ .Release.Namespace }}
+  name: nexusai-control-plane
   labels:
-    app: nexusai-worker
+    app: nexusai-control-plane
 spec:
-  replicas: {{ .Values.replicaCount.worker }}
+  replicas: {{ .Values.replicaCount.controlPlane }}
   selector:
     matchLabels:
-      app: nexusai-worker
+      app: nexusai-control-plane
   template:
     metadata:
       labels:
-        app: nexusai-worker
+        app: nexusai-control-plane
     spec:
       serviceAccountName: {{ .Values.serviceAccount.name }}
       securityContext:
@@ -24,7 +23,7 @@ spec:
         seccompProfile:
           type: RuntimeDefault
       containers:
-        - name: worker
+        - name: control-plane
           image: "{{ if .Values.image.digest }}{{ .Values.image.repository }}@{{ .Values.image.digest }}{{ else }}{{ .Values.image.repository }}:{{ .Values.image.tag }}{{ end }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           securityContext:
@@ -35,11 +34,14 @@ spec:
                 - ALL
           resources:
             limits:
-              cpu: {{ .Values.resources.worker.limits.cpu }}
-              memory: {{ .Values.resources.worker.limits.memory }}
+              cpu: {{ .Values.resources.controlPlane.limits.cpu }}
+              memory: {{ .Values.resources.controlPlane.limits.memory }}
             requests:
-              cpu: {{ .Values.resources.worker.requests.cpu }}
-              memory: {{ .Values.resources.worker.requests.memory }}
+              cpu: {{ .Values.resources.controlPlane.requests.cpu }}
+              memory: {{ .Values.resources.controlPlane.requests.memory }}
+          ports:
+            - containerPort: 8080
+              name: http
           readinessProbe:
             httpGet:
               path: {{ .Values.probes.readiness.path }}

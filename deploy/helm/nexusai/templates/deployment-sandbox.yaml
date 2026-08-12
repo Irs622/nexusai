@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nexusai-sandbox
+  labels:
+    app: nexusai-sandbox
+spec:
+  replicas: {{ .Values.replicaCount.sandbox }}
+  selector:
+    matchLabels:
+      app: nexusai-sandbox
+  template:
+    metadata:
+      labels:
+        app: nexusai-sandbox
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: sandbox
+          image: "{{ if .Values.image.digest }}{{ .Values.image.repository }}@{{ .Values.image.digest }}{{ else }}{{ .Values.image.repository }}:{{ .Values.image.tag }}{{ end }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            limits:
+              cpu: {{ .Values.resources.sandbox.limits.cpu }}
+              memory: {{ .Values.resources.sandbox.memory }}
+            requests:
+              cpu: {{ .Values.resources.sandbox.requests.cpu }}
+              memory: {{ .Values.resources.sandbox.requests.memory }}

@@ -64,7 +64,7 @@ class NetworkTool(IToolPort):
 
             timeout = float(request.parameters.get("timeout", self.default_timeout_seconds))
             req = urllib.request.Request(raw_url, method=method)
-            req.add_header("User-Agent", "NexusAI-Governed-Runtime/0.6.0")
+            req.add_header("User-Agent", "NexusAI-Governed-Runtime/0.7.0")
 
             # Execute HTTP request using standard urllib with timeout
             with urllib.request.urlopen(req, timeout=timeout) as response:

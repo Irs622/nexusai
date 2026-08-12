@@ -30,7 +30,7 @@ class SQLiteApprovalStore(IApprovalStore):
     def __init__(self, db_path: str = ":memory:", busy_timeout_ms: int = 10000) -> None:
         self._keepalive: sqlite3.Connection | None
         if db_path == ":memory:":
-            self.db_path = "file:mem_app?mode=memory&cache=shared"
+            self.db_path = f"file:mem_app_{uuid4().hex}?mode=memory&cache=shared"
             self._keepalive = sqlite3.connect(self.db_path, uri=True)
         else:
             self.db_path = db_path
