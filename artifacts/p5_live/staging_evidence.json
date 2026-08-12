@@ -1,0 +1,26 @@
+{
+  "artifact_status": "CANDIDATE_EVIDENCE_SPECIFICATION",
+  "staging_mode": "PREFLIGHT_AND_DRY_RUN_VALIDATED",
+  "target_cluster": "nexusai-staging",
+  "target_namespace": "nexusai-staging",
+  "preflight_passed": true,
+  "evidence_hash_chain_verified": true,
+  "hard_abort_controller_active": true,
+  "candidate_scenarios": [
+    "P5-LIVE-FAIL-01",
+    "P5-LIVE-FAIL-02",
+    "P5-LIVE-FAIL-03",
+    "P5-LIVE-FAIL-04",
+    "P5-LIVE-FAIL-05",
+    "P5-LIVE-FAIL-06",
+    "P5-LIVE-FAIL-07",
+    "P5-LIVE-FAIL-08",
+    "P5-LIVE-FAIL-09",
+    "P5-LIVE-REC-10",
+    "P5-LIVE-REC-11",
+    "P5-LIVE-RACE-12",
+    "P5-LIVE-RACE-13",
+    "P5-LIVE-RACE-14",
+    "P5-LIVE-RACE-15"
+  ]
+}
