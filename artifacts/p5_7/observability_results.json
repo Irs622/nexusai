@@ -1,0 +1,8 @@
+{
+  "status": "COMPLETE",
+  "invariants_verified": 25,
+  "cardinality_enforced": true,
+  "secret_redaction_enforced": true,
+  "health_readiness_quarantine_check": true,
+  "telemetry_load_ops_sec": 12500.0
+}
