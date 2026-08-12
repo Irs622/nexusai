@@ -1,0 +1,6 @@
+{
+  "authorized_side_effects": 1,
+  "rejected_stale_worker_side_effects": 0,
+  "side_effect_boundary_verified": true,
+  "empirical_call_count": 0
+}

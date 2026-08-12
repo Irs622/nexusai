@@ -1,0 +1,7 @@
+{
+  "topology": "MULTI_NODE_DISTRIBUTED_CLUSTER",
+  "primary_store": "PostgreSQL 16+",
+  "coordinator": "PostgresExecutionCoordinator (CAS Row Locking & Atomic Sequences)",
+  "nodes": ["Node A", "Node B", "Node C"],
+  "sandbox_gateway": "gRPC Container Sandbox Gateway"
+}
