@@ -1,0 +1,69 @@
+replicaCount:
+  controlPlane: 2
+  worker: 3
+  sandbox: 2
+
+image:
+  repository: nexusai/runtime
+  pullPolicy: IfNotPresent
+  tag: "1.0.0"
+
+serviceAccount:
+  create: true
+  name: nexusai-sa
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+resources:
+  controlPlane:
+    limits:
+      cpu: "1"
+      memory: "1Gi"
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+  worker:
+    limits:
+      cpu: "2"
+      memory: "2Gi"
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+  sandbox:
+    limits:
+      cpu: "1"
+      memory: "512Mi"
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+
+networkPolicy:
+  enabled: true
+
+rbac:
+  create: true
+
+probes:
+  readiness:
+    path: /health/ready
+    port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  liveness:
+    path: /health/live
+    port: 8080
+    initialDelaySeconds: 15
+    periodSeconds: 20

@@ -1,0 +1,27 @@
+replicaCount:
+  controlPlane: 3
+  worker: 5
+  sandbox: 3
+
+image:
+  repository: nexusai/runtime
+  pullPolicy: Always
+  tag: "1.0.0-prod"
+
+networkPolicy:
+  enabled: true
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL

@@ -1,0 +1,9 @@
+{
+  "helm_chart": "deploy/helm/nexusai",
+  "lint_passed": true,
+  "templates_validated": true,
+  "no_host_path_mounts": true,
+  "no_privileged_containers": true,
+  "no_docker_socket": true,
+  "no_secrets_in_manifests": true
+}
