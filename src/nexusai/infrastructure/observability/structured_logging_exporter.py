@@ -27,7 +27,7 @@ class StructuredLoggingExporter(IObservabilityPort):
             # Fault Isolation: Stream write failures NEVER break core execution
             pass
 
-    async def emit_event(self, event: RuntimeEvent) -> None:
+    async def emit_event(self, event: Any) -> None:
         """Emit JSON structured log record for a RuntimeEvent."""
         payload = {
             "timestamp": event.timestamp,
@@ -44,7 +44,7 @@ class StructuredLoggingExporter(IObservabilityPort):
     async def increment_counter(
         self,
         name: str,
-        value: int = 1,
+        value: float = 1.0,
         *,
         attributes: Mapping[str, Any] | None = None,
     ) -> None:

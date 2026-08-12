@@ -7,6 +7,95 @@ from enum import Enum
 import time
 from typing import Any, Sequence
 
+# Re-exports for backward compatibility with Phase 2/3/4 execution recovery
+from nexusai.brain.domain.execution_recovery import (
+    JournalEntry,
+    JournalLifecyclePhase,
+    RecoveryStatus as ExecutionRecoveryStatus,
+)
+
+
+def classify_failure(exc: Exception | None = None) -> FailureClass:
+    """Classify exception into a FailureClass."""
+    if exc is None:
+        return FailureClass.TRANSIENT
+    name = type(exc).__name__.lower()
+    if "timeout" in name or "connection" in name:
+        return FailureClass.TRANSIENT
+    if "permission" in name or "auth" in name or "security" in name:
+        return FailureClass.GOVERNANCE_VIOLATION
+    if "cancel" in name:
+        return FailureClass.CANCELLED
+    return FailureClass.PERMANENT
+
+
+def generate_idempotency_key(execution_id: str, node_id: str, attempt: int = 1) -> str:
+    """Generate a canonical idempotency key."""
+    return f"{execution_id}:{node_id}:{attempt}"
+
+
+@dataclass(frozen=True)
+class ToolExecutionPolicy:
+    """Policy governing tool execution retries and timeouts."""
+
+    max_retries: int = 3
+    timeout_seconds: float = 30.0
+    retry_delay_seconds: float = 1.0
+
+
+class RecoveryPolicyEngine:
+    """Engine for evaluating recovery decisions."""
+
+    @staticmethod
+    def evaluate(failure_class: FailureClass, attempt: int = 1, max_retries: int = 3) -> RecoveryDecision:
+        if failure_class == FailureClass.TRANSIENT and attempt <= max_retries:
+            return RecoveryDecision(
+                action=RecoveryAction.RETRY,
+                failure_class=failure_class,
+                reason=f"Transient failure on attempt {attempt}/{max_retries}",
+                retry_delay_seconds=1.0 * attempt,
+            )
+        return RecoveryDecision(
+            action=RecoveryAction.SAFE_ABANDON,
+            failure_class=failure_class,
+            reason=f"Non-retryable failure class {failure_class.value}",
+        )
+
+
+
+class FailureClass(str, Enum):
+    """Classification of execution failures."""
+
+    TRANSIENT = "TRANSIENT"
+    PERMANENT = "PERMANENT"
+    GOVERNANCE_VIOLATION = "GOVERNANCE_VIOLATION"
+    SIDE_EFFECT_AMBIGUOUS = "SIDE_EFFECT_AMBIGUOUS"
+    CANCELLED = "CANCELLED"
+    RESOURCE_EXHAUSTED = "RESOURCE_EXHAUSTED"
+
+
+class RecoveryAction(str, Enum):
+    """Recommended recovery action."""
+
+    RETRY = "RETRY"
+    REVALIDATE_AND_RETRY = "REVALIDATE_AND_RETRY"
+    SAFE_ABANDON = "SAFE_ABANDON"
+    QUARANTINE = "QUARANTINE"
+    HUMAN_INTERVENTION = "HUMAN_INTERVENTION"
+
+
+@dataclass(frozen=True)
+class RecoveryDecision:
+    """Decision payload produced by recovery evaluation."""
+
+    action: RecoveryAction
+    failure_class: FailureClass
+    reason: str
+    requires_approval: bool = False
+    retry_delay_seconds: float = 0.0
+    idempotency_key: str = ""
+    next_retry_at: float | None = None
+
 
 class RecoveryStatus(str, Enum):
     """Lifecycle state of a disaster recovery operation."""

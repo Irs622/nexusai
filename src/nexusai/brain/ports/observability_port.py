@@ -55,3 +55,36 @@ class IObservabilityHealth(Protocol):
     def is_ready(self) -> bool:
         """Return True if application dependencies and disaster recovery state permit accepting traffic."""
         ...
+
+
+@runtime_checkable
+class IObservabilityPort(Protocol):
+    """Aggregate protocol interface combining metric recording, tracing, structured logging, and health probes."""
+
+    async def increment_counter(self, name: str, value: float = 1.0, *, attributes: Mapping[str, Any] | None = None) -> None:
+        """Increment a counter metric."""
+        ...
+
+    async def record_histogram(self, name: str, value: float, attributes: Mapping[str, Any] | None = None) -> None:
+        """Record a histogram latency/value observation."""
+        ...
+
+    async def set_gauge(self, name: str, value: float, attributes: Mapping[str, Any] | None = None) -> None:
+        """Set a gauge metric value."""
+        ...
+
+    async def record_gauge(self, name: str, value: float, *, attributes: Mapping[str, Any] | None = None) -> None:
+        """Record a gauge metric value."""
+        ...
+
+    async def record_duration(self, name: str, duration_ms: float, *, attributes: Mapping[str, Any] | None = None) -> None:
+        """Record a duration metric value."""
+        ...
+
+    async def emit_event(self, event: Any) -> None:
+        """Emit an observability telemetry event."""
+        ...
+
+
+
+

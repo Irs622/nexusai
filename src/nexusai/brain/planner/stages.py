@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 from uuid import uuid4
 
 from nexusai.brain.domain.agent import (
@@ -153,7 +153,7 @@ class TaskDecomposer:
 
 
 class DependencyResolver:
-    """Stage 3: Dynamically resolves dependencies via CapabilityGraph without hardcoding tool names."""
+    """Stage 3: Dynamically resolves semantic dependencies via CapabilityGraph and explicit step declarations."""
 
     def resolve(
         self,
@@ -163,6 +163,7 @@ class DependencyResolver:
     ) -> PlanGraph:
         cap_graph = graph or CapabilityGraph()
         final_steps: list[PlanStep] = []
+        tool_to_step_id: dict[str, int] = {}
         seen_tools: set[str] = set()
 
         for step in steps:
@@ -170,8 +171,9 @@ class DependencyResolver:
                 reqs = cap_graph.requirements[step.tool_name]
                 for req_tool in reqs:
                     if req_tool not in seen_tools:
+                        req_step_id = len(final_steps) + 1
                         req_step = PlanStep(
-                            step_id=len(final_steps) + 1,
+                            step_id=req_step_id,
                             title=f"Auto-Prerequisite: {req_tool}",
                             description=f"Auto-inserted prerequisite '{req_tool}' required for '{step.tool_name}'",
                             tool_name=req_tool,
@@ -179,20 +181,41 @@ class DependencyResolver:
                         )
                         final_steps.append(req_step)
                         seen_tools.add(req_tool)
+                        tool_to_step_id[req_tool] = req_step_id
 
-            step.step_id = len(final_steps) + 1
+            if step.step_id is None or step.step_id <= 0:
+                step.step_id = len(final_steps) + 1
+
             final_steps.append(step)
             if step.tool_name:
                 seen_tools.add(step.tool_name)
+                tool_to_step_id[step.tool_name] = step.step_id
 
-        nodes: dict[int, PlanGraphNode] = {}
-        edges: list[tuple[int, int]] = []
+        nodes: dict[Any, PlanGraphNode] = {}
+        edges: list[tuple[Any, Any]] = []
 
-        for idx, st in enumerate(final_steps, 1):
-            deps = (idx - 1,) if idx > 1 else ()
-            nodes[idx] = PlanGraphNode(step=st, dependencies=deps)
-            if idx > 1:
-                edges.append((idx - 1, idx))
+        for st in final_steps:
+            node_deps: list[Any] = []
+
+            # 1. Add explicit step dependencies declared on step.depends_on
+            if hasattr(st, "depends_on") and st.depends_on:
+                for dep in st.depends_on:
+                    node_deps.append(dep)
+
+            # 2. Add capability graph tool prerequisites if present
+            if st.tool_name and st.tool_name in cap_graph.requirements:
+                for req_tool in cap_graph.requirements[st.tool_name]:
+                    if req_tool in tool_to_step_id:
+                        parent_id = tool_to_step_id[req_tool]
+                        if parent_id != st.step_id and parent_id not in node_deps:
+                            node_deps.append(parent_id)
+
+            # Preserve explicit dependencies tuple (deduplicated & sorted for determinism)
+            unique_deps = tuple(sorted(set(node_deps), key=lambda d: (type(d).__name__, str(d))))
+            nodes[st.step_id] = PlanGraphNode(step=st, dependencies=unique_deps)
+
+            for dep in unique_deps:
+                edges.append((dep, st.step_id))
 
         return PlanGraph(nodes=nodes, edges=tuple(edges))
 

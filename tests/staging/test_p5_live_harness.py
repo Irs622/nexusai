@@ -30,7 +30,7 @@ class P5LiveHarness:
         self.production_hosts_detected = production_hosts_detected
         self.collector = LiveSideEffectCollector()
 
-    def run_preflight_check(() -> bool:
+    def run_preflight_check(self) -> bool:
         """Validate cluster identity, namespace, and production endpoint safety."""
         if self.cluster_id != "nexusai-staging" or self.namespace != "nexusai-staging":
             raise PreflightValidationError(

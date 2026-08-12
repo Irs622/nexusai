@@ -16,6 +16,12 @@ class ToolExecutionRequest:
     execution_id: UUID | str = field(default_factory=uuid4)
     timeout_seconds: float = 30.0
 
+    @property
+    def parameters(self) -> dict[str, Any]:
+        """Alias for arguments payload dictionary."""
+        return self.arguments
+
+
 
 @dataclass(frozen=True)
 class ToolExecutionResult:

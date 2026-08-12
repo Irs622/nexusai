@@ -22,16 +22,26 @@ class SQLiteExecutionCoordinator(IExecutionCoordinator):
     """Durable multi-process SQLite execution lease coordinator with Compare-And-Set transaction boundaries."""
 
     def __init__(self, db_path: str = ":memory:", busy_timeout_ms: int = 10000) -> None:
-        self.db_path = db_path
+        self._keepalive: sqlite3.Connection | None
+        if db_path == ":memory:":
+            self.db_path = "file:mem_coord?mode=memory&cache=shared"
+            self._keepalive = sqlite3.connect(self.db_path, uri=True)
+        else:
+            self.db_path = db_path
+            self._keepalive = None
         self.busy_timeout_ms = busy_timeout_ms
         self._init_db()
 
     def _get_connection(self) -> sqlite3.Connection:
-        conn = sqlite3.connect(self.db_path, timeout=self.busy_timeout_ms / 1000.0)
+        if self.db_path.startswith("file:"):
+            conn = sqlite3.connect(self.db_path, uri=True, timeout=self.busy_timeout_ms / 1000.0)
+        else:
+            conn = sqlite3.connect(self.db_path, timeout=self.busy_timeout_ms / 1000.0)
         conn.execute("PRAGMA journal_mode=WAL;")
         conn.execute(f"PRAGMA busy_timeout={self.busy_timeout_ms};")
         conn.row_factory = sqlite3.Row
         return conn
+
 
     def _init_db(self) -> None:
         with self._get_connection() as conn:

@@ -34,7 +34,7 @@ def sanitize_metric_attributes(attributes: Mapping[str, Any] | None) -> dict[str
 class MetricsSnapshot:
     """Read-only snapshot of collected metrics and runtime events."""
 
-    counters: dict[str, int]
+    counters: dict[str, float]
     gauges: dict[str, float]
     duration_samples: dict[str, list[float]]
     events: list[RuntimeEvent]
@@ -46,12 +46,12 @@ class InMemoryMetricsExporter(IObservabilityPort):
     def __init__(self, fail_on_purpose: bool = False) -> None:
         self.fail_on_purpose = fail_on_purpose
         self._lock = asyncio.Lock()
-        self._counters: dict[str, int] = {}
+        self._counters: dict[str, float] = {}
         self._gauges: dict[str, float] = {}
         self._duration_samples: dict[str, list[float]] = {}
         self._events: list[RuntimeEvent] = []
 
-    async def emit_event(self, event: RuntimeEvent) -> None:
+    async def emit_event(self, event: Any) -> None:
         """Emit a correlated runtime event with fault isolation."""
         try:
             if self.fail_on_purpose:
@@ -65,7 +65,7 @@ class InMemoryMetricsExporter(IObservabilityPort):
     async def increment_counter(
         self,
         name: str,
-        value: int = 1,
+        value: float = 1.0,
         *,
         attributes: Mapping[str, Any] | None = None,
     ) -> None:
