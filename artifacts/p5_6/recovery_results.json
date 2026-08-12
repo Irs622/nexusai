@@ -1,0 +1,18 @@
+{
+  "recovery_id": "rec-bak-drill-100",
+  "backup_id": "bak-drill-100",
+  "status": "READY",
+  "recovery_epoch": 2,
+  "duration_ms": 14.5,
+  "rpo_target_seconds": 300.0,
+  "rto_target_seconds": 900.0,
+  "empirical_rto_seconds": 0.015,
+  "verification": {
+    "valid": true,
+    "recovery_epoch": 2,
+    "journal_reconciled_count": 10,
+    "invalidated_leases_count": 5,
+    "audit_chain_valid": true,
+    "violations": []
+  }
+}

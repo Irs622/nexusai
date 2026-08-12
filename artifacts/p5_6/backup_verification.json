@@ -1,0 +1,10 @@
+{
+  "backup_id": "bak-drill-100",
+  "created_at": 1770887200.0,
+  "database_system": "PostgreSQL",
+  "database_version": "16.2",
+  "checksum_sha256": "4a5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c",
+  "size_bytes": 1048576,
+  "verification_status": "VERIFIED",
+  "contains_secrets": false
+}
