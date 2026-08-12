@@ -1,0 +1,19 @@
+{
+  "summary": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0,
+    "informational": 1
+  },
+  "findings": [
+    {
+      "id": "SEC-INFO-01",
+      "severity": "INFORMATIONAL",
+      "component": "IExecutionCoordinator / SQLiteExecutionCoordinator",
+      "title": "SQLite WAL Deployment Scope Limitation",
+      "description": "SQLite WAL lease coordination operates on a shared filesystem. Multi-host pod clusters require Postgres/Redis coordination adapters.",
+      "remediation": "Plug Postgres or Redis backend into IExecutionCoordinator interface for multi-node deployments."
+    }
+  ]
+}

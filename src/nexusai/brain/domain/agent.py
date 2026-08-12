@@ -81,7 +81,7 @@ class ValidationIssue:
     severity: ValidationSeverity
     code: str
     message: str
-    step_id: int | None = None
+    step_id: int | str | None = None
 
 
 @dataclass(frozen=True)
@@ -164,12 +164,13 @@ class PlanningConstraints:
 class PlanStep:
     """Individual executable step within an AgentPlan."""
 
-    step_id: int
+    step_id: int | str
     title: str
     description: str = ""
     tool_name: str | None = None
     arguments: dict[str, Any] = field(default_factory=dict)
     status: StepStatus = StepStatus.PENDING
+    depends_on: tuple[Any, ...] = field(default_factory=tuple)
 
 
 @dataclass(frozen=True)
@@ -177,22 +178,22 @@ class PlanGraphNode:
     """DAG Graph Node wrapping a PlanStep with explicit dependency step IDs."""
 
     step: PlanStep
-    dependencies: tuple[int, ...] = ()
+    dependencies: tuple[int | str, ...] = ()
 
 
 @dataclass(frozen=True)
 class PlanGraph:
     """DAG Execution Plan container storing nodes and dependency edges."""
 
-    nodes: dict[int, PlanGraphNode] = field(default_factory=dict)
-    edges: tuple[tuple[int, int], ...] = ()
+    nodes: dict[int | str, PlanGraphNode] = field(default_factory=dict)
+    edges: tuple[tuple[int | str, int | str], ...] = ()
 
 
 @dataclass(frozen=True)
 class FailureRecord:
     """Failure record documenting an execution error."""
 
-    step_id: int
+    step_id: int | str
     error_message: str
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     retry_count: int = 0
@@ -202,7 +203,7 @@ class FailureRecord:
 class ExecutionFailure:
     """Structured domain failure model for recovery planning."""
 
-    step_id: int
+    step_id: int | str
     tool_name: str
     reason: FailureReason
     error_message: str
