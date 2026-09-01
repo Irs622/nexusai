@@ -1,0 +1,32 @@
+{
+  "verdict": "PASS",
+  "test_name": "NexusAI 72-Hour / Continuous Soak Test",
+  "timestamp_iso": "2026-09-01T16:28:50Z",
+  "duration_seconds": 0.37,
+  "total_cycles_executed": 1000,
+  "throughput_cycles_per_sec": 2734.63,
+  "memory_audit": {
+    "initial_rss_mb": 43.23,
+    "final_rss_mb": 43.78,
+    "net_rss_growth_mb": 0.55,
+    "growth_slope_mb_per_1000_cycles": 0.55,
+    "initial_heap_mb": 0.0,
+    "final_heap_mb": 0.05,
+    "peak_heap_mb": 0.38,
+    "tolerance_limit_mb": 25.0,
+    "leak_free_verdict": true
+  },
+  "gc_audit": {
+    "uncollected_garbage_objects": 0,
+    "lingering_async_tasks": 1,
+    "gc_healthy_verdict": true
+  },
+  "latency_percentiles_ms": {
+    "min": 0.14,
+    "max": 0.23,
+    "mean": 0.15,
+    "p50": 0.15,
+    "p95": 0.16,
+    "p99": 0.17
+  }
+}
