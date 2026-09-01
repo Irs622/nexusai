@@ -1,0 +1,38 @@
+# NexusAI Distributed Worker Cluster Topology Configuration
+version: "1.0"
+default_strategy: "LEAST_BUSY"
+
+workers:
+  # Primary Local High-Throughput Worker
+  - node_id: "worker-local-01"
+    endpoint: "in-process"
+    max_concurrency: 8
+    labels:
+      - "tier-primary"
+      - "zone-local"
+    capabilities:
+      - "FILE_READ"
+      - "FILE_WRITE"
+      - "SYSTEM_INFO"
+
+  # Standby Docker Sandbox Worker
+  - node_id: "worker-docker-sandbox-01"
+    endpoint: "http://127.0.0.1:50051"
+    max_concurrency: 4
+    labels:
+      - "tier-sandbox"
+      - "zone-container"
+    capabilities:
+      - "PROCESS_EXEC"
+      - "NETWORK_HTTP"
+
+  # Cloud Staging Worker Replica
+  - node_id: "worker-staging-01"
+    endpoint: "http://nexusai-worker-staging.nexusai-staging.svc.cluster.local:8080"
+    max_concurrency: 16
+    labels:
+      - "tier-cloud"
+      - "zone-staging"
+    capabilities:
+      - "LLM_INFERENCE"
+      - "MCP_CALL"
