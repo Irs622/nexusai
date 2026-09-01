@@ -10,10 +10,11 @@ import pytest
 from nexusai.brain.domain.execution_coordination import (
     LeaseAcquisitionError,
     LeaseStatus,
-    StaleWorkerError,
     WorkerIdentity,
 )
-from nexusai.infrastructure.persistence.sqlite_execution_coordinator import SQLiteExecutionCoordinator
+from nexusai.infrastructure.persistence.sqlite_execution_coordinator import (
+    SQLiteExecutionCoordinator,
+)
 
 
 @pytest.mark.asyncio

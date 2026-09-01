@@ -12,7 +12,6 @@ from nexusai.brain.domain.llm import (
     LLMRateLimitError,
     LLMRequest,
     LLMRole,
-    LLMTimeoutError,
     LLMUnavailableError,
 )
 from nexusai.infrastructure.llm.openai_provider import OpenAIProvider
@@ -22,7 +21,14 @@ from nexusai.infrastructure.llm.openai_provider import OpenAIProvider
 async def test_openai_provider_missing_key_raises_auth_error() -> None:
     """Test OpenAIProvider raises LLMAuthenticationError when API key is missing."""
     provider = OpenAIProvider(api_key="")
-    req = LLMRequest(model="gpt-4o", messages=(pytest.importorskip("nexusai.brain.domain.llm").LLMMessage(role=LLMRole.USER, content="hi"),))
+    req = LLMRequest(
+        model="gpt-4o",
+        messages=(
+            pytest.importorskip("nexusai.brain.domain.llm").LLMMessage(
+                role=LLMRole.USER, content="hi"
+            ),
+        ),
+    )
 
     with pytest.raises(LLMAuthenticationError, match="API key is missing"):
         await provider.complete(req)
@@ -42,7 +48,9 @@ def test_openai_provider_http_error_mapping() -> None:
         provider._handle_http_error(urllib.error.HTTPError("url", 400, "Bad Request", {}, None))
 
     with pytest.raises(LLMUnavailableError):
-        provider._handle_http_error(urllib.error.HTTPError("url", 503, "Service Unavailable", {}, None))
+        provider._handle_http_error(
+            urllib.error.HTTPError("url", 503, "Service Unavailable", {}, None)
+        )
 
 
 if __name__ == "__main__":

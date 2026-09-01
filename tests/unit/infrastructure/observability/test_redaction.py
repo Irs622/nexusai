@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
 
 from nexusai.infrastructure.observability.redaction import sanitize_secrets_recursive
 
