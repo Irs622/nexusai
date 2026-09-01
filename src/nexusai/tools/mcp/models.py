@@ -51,7 +51,7 @@ class McpToolContent(BaseModel):
     type: str = "text"
     text: str | None = None
     data: str | None = None
-    mime_type: str | None = Field(None, alias="mimeType")
+    mime_type: str | None = Field(default=None, alias="mimeType")
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -60,7 +60,7 @@ class McpCallToolResult(BaseModel):
     """Structured result returned by tools/call execution."""
 
     content: list[McpToolContent] = Field(default_factory=list)
-    is_error: bool = Field(False, alias="isError")
+    is_error: bool = Field(default=False, alias="isError")
 
     model_config = ConfigDict(populate_by_name=True)
 

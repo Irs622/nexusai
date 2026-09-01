@@ -69,8 +69,9 @@ async def test_mcp_tool_wrapper_compliance(
 
     # 3. Dynamic Pydantic schema validation
     valid_args = wrapper.input_schema(query="SELECT * FROM users", limit=5)
-    assert valid_args.query == "SELECT * FROM users"
-    assert valid_args.limit == 5
+    args_dict = valid_args.model_dump()
+    assert args_dict["query"] == "SELECT * FROM users"
+    assert args_dict["limit"] == 5
 
     # Missing required field 'query' should fail validation
     with pytest.raises(ValidationError):

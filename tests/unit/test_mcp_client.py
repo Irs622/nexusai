@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -15,7 +16,7 @@ from nexusai.tools.mcp.models import McpServerConfig
 
 
 class FakeStreamReader:
-    def __init__(self, responses: list[dict[str, object]]) -> None:
+    def __init__(self, responses: list[Any]) -> None:
         self._lines = [(json.dumps(r) + "\n").encode("utf-8") for r in responses]
         self._idx = 0
 
@@ -126,16 +127,16 @@ async def test_mcp_client_lifecycle_and_tool_call(sample_config: McpServerConfig
 
         # Call tool
         result = await client.call_tool("greet", {"name": "NexusAI"})
-        assert result.is_error is False
+        assert not result.is_error
         assert result.extract_text() == "Hello, NexusAI!"
 
         # Ping
         is_alive = await client.ping()
-        assert is_alive is True
+        assert is_alive
 
         # Stop
         await client.stop()
-        assert client.is_connected is False
+        assert not client.is_connected
 
 
 @pytest.mark.asyncio
