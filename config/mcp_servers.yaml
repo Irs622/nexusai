@@ -1,0 +1,32 @@
+# Model Context Protocol (MCP) Server Configurations for NexusAI
+#
+# To register a new MCP server, define an entry under `mcp_servers`:
+#
+# mcp_servers:
+#   <server_name>:
+#     command: "uvx" or "npx" or "python3"
+#     args: ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/dir"]
+#     env:
+#       SOME_VAR: "value"
+#     enabled: true
+#     risk_level: "MEDIUM"  # LOW | MEDIUM | HIGH | CRITICAL
+#     timeout_seconds: 30.0
+
+mcp_servers:
+  # Example: Local SQLite MCP Server (disabled by default)
+  sqlite_example:
+    command: "uvx"
+    args: ["mcp-server-sqlite", "--db-path", "storage/sample.db"]
+    env: {}
+    enabled: false
+    risk_level: "MEDIUM"
+    timeout_seconds: 30.0
+
+  # Example: Filesystem MCP Server (disabled by default)
+  filesystem_example:
+    command: "npx"
+    args: ["-y", "@modelcontextprotocol/server-filesystem", "./storage"]
+    env: {}
+    enabled: false
+    risk_level: "HIGH"
+    timeout_seconds: 30.0

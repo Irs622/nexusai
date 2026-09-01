@@ -4,7 +4,7 @@ Tool System Package for NexusAI capabilities.
 
 from typing import Any
 
-__all__ = ["BaseTool", "ToolRegistry"]
+__all__ = ["BaseTool", "ToolRegistry", "McpServerManager", "McpToolWrapper"]
 
 
 def __getattr__(name: str) -> Any:
@@ -16,4 +16,12 @@ def __getattr__(name: str) -> Any:
         from nexusai.tools.registry import ToolRegistry
 
         return ToolRegistry
+    if name == "McpServerManager":
+        from nexusai.tools.mcp.manager import McpServerManager
+
+        return McpServerManager
+    if name == "McpToolWrapper":
+        from nexusai.tools.mcp.tool import McpToolWrapper
+
+        return McpToolWrapper
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")

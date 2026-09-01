@@ -81,10 +81,18 @@ async def test_terminal_tool_execution() -> None:
 
     with patch("asyncio.create_subprocess_shell", return_value=mock_process) as mock_shell:
         result = await tool.execute(command="echo 'hello world'")
+        import sys
+
+        expected_kwargs = {
+            "stdout": -1,  # asyncio.subprocess.PIPE
+            "stderr": -1,
+        }
+        if sys.platform != "win32":
+            expected_kwargs["start_new_session"] = True
+
         mock_shell.assert_called_once_with(
             "echo 'hello world'",
-            stdout=-1,  # asyncio.subprocess.PIPE
-            stderr=-1,
+            **expected_kwargs,
         )
         assert result["stdout"] == "hello world\n"
         assert result["stderr"] == ""

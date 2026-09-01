@@ -38,6 +38,13 @@ class ToolRegistry:
         """Export all registered tools into LLM function-calling JSON schemas."""
         return [tool.to_json_schema() for tool in self._tools.values()]
 
+    def unregister(self, name: str) -> bool:
+        """Unregister a tool by name if present. Returns True if removed, False otherwise."""
+        if name in self._tools:
+            del self._tools[name]
+            return True
+        return False
+
     def clear(self) -> None:
         """Unregister all tools."""
         self._tools.clear()

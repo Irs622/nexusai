@@ -80,5 +80,80 @@ def status() -> None:
         print_error(f"Failed to load status: {e}")
 
 
+mcp_app = typer.Typer(
+    name="mcp",
+    help="Manage Model Context Protocol (MCP) servers and external tools",
+    add_completion=False,
+)
+app.add_typer(mcp_app, name="mcp")
+
+
+@mcp_app.command("list")
+def mcp_list(
+    config_path: str = typer.Option(
+        "config/mcp_servers.yaml", "--config", "-c", help="Path to MCP servers config YAML"
+    ),
+) -> None:
+    """List configured Model Context Protocol (MCP) servers and their status."""
+    from nexusai.tools.mcp.manager import McpServerManager
+
+    manager = McpServerManager()
+    count = manager.load_config_file(config_path)
+    print_banner()
+    print_info(f"Loaded {count} MCP server configuration(s) from [cyan]{config_path}[/cyan]:\n")
+
+    if not manager.registered_server_names:
+        print_info("No MCP servers configured yet. Add servers in config/mcp_servers.yaml")
+        return
+
+    for name in manager.registered_server_names:
+        cfg = manager._server_configs[name]
+        status_tag = (
+            "[bold green]ENABLED[/bold green]" if cfg.enabled else "[dim red]DISABLED[/dim red]"
+        )
+        print_info(
+            f"• [bold cyan]{name}[/bold cyan] ({status_tag}) "
+            f"[dim]| Cmd: {cfg.command} {' '.join(cfg.args)} | Risk: {cfg.risk_level.value}[/dim]"
+        )
+
+
+@mcp_app.command("ping")
+def mcp_ping(
+    server_name: str = typer.Argument(..., help="Name of configured MCP server to ping"),
+    config_path: str = typer.Option(
+        "config/mcp_servers.yaml", "--config", "-c", help="Path to MCP servers config YAML"
+    ),
+) -> None:
+    """Ping an MCP server to verify liveness and communication."""
+    from nexusai.tools.mcp.manager import McpServerManager
+
+    manager = McpServerManager()
+    manager.load_config_file(config_path)
+
+    if server_name not in manager.registered_server_names:
+        print_error(f"MCP server '{server_name}' not found in configuration.")
+        raise typer.Exit(code=1)
+
+    async def _do_ping() -> None:
+        cfg = manager._server_configs[server_name]
+        from nexusai.tools.mcp.client import McpClient
+
+        client = McpClient(cfg)
+        try:
+            print_info(f"Connecting to MCP server '{server_name}'...")
+            await client.start()
+            tools = await client.list_tools()
+            print_success(f"Connected to '{server_name}' successfully!")
+            print_info(f"Discovered {len(tools)} tool(s):")
+            for t in tools:
+                print_info(f"  - [cyan]{t.name}[/cyan]: {t.description}")
+        except Exception as err:
+            print_error(f"Failed to connect to '{server_name}': {err}")
+        finally:
+            await client.stop()
+
+    asyncio.run(_do_ping())
+
+
 if __name__ == "__main__":
     app()
