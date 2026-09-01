@@ -1,0 +1,88 @@
+{
+  "mode": "execute",
+  "verdict": "PASS",
+  "total_scenarios": 15,
+  "passed_scenarios": 15,
+  "failed_scenarios": 0,
+  "stale_side_effects_counter": 0,
+  "dual_execution_authority_counter": 0,
+  "cryptographic_hash_chain_valid": true,
+  "total_evidence_records": 16,
+  "scenario_results": {
+    "P5-LIVE-01": {
+      "status": "PASSED",
+      "stale_side_effects": 0,
+      "dual_execution_authority": 0
+    },
+    "P5-LIVE-02": {
+      "status": "PASSED",
+      "stale_side_effects": 0,
+      "dual_execution_authority": 0
+    },
+    "P5-LIVE-03": {
+      "status": "PASSED",
+      "stale_side_effects": 0,
+      "dual_execution_authority": 0
+    },
+    "P5-LIVE-04": {
+      "status": "PASSED",
+      "stale_side_effects": 0,
+      "dual_execution_authority": 0
+    },
+    "P5-LIVE-05": {
+      "status": "PASSED",
+      "stale_side_effects": 0,
+      "dual_execution_authority": 0
+    },
+    "P5-LIVE-06": {
+      "status": "PASSED",
+      "stale_side_effects": 0,
+      "dual_execution_authority": 0
+    },
+    "P5-LIVE-07": {
+      "status": "PASSED",
+      "stale_side_effects": 0,
+      "dual_execution_authority": 0
+    },
+    "P5-LIVE-08": {
+      "status": "PASSED",
+      "stale_side_effects": 0,
+      "dual_execution_authority": 0
+    },
+    "P5-LIVE-09": {
+      "status": "PASSED",
+      "stale_side_effects": 0,
+      "dual_execution_authority": 0
+    },
+    "P5-LIVE-10": {
+      "status": "PASSED",
+      "stale_side_effects": 0,
+      "dual_execution_authority": 0
+    },
+    "P5-LIVE-11": {
+      "status": "PASSED",
+      "stale_side_effects": 0,
+      "dual_execution_authority": 0
+    },
+    "P5-LIVE-12": {
+      "status": "PASSED",
+      "stale_side_effects": 0,
+      "dual_execution_authority": 0
+    },
+    "P5-LIVE-13": {
+      "status": "PASSED",
+      "stale_side_effects": 0,
+      "dual_execution_authority": 0
+    },
+    "P5-LIVE-14": {
+      "status": "PASSED",
+      "stale_side_effects": 0,
+      "dual_execution_authority": 0
+    },
+    "P5-LIVE-15": {
+      "status": "PASSED",
+      "hard_abort_triggered": true,
+      "side_effects": 1
+    }
+  }
+}
