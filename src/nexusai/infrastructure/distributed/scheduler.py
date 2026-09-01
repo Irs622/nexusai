@@ -82,6 +82,8 @@ class DistributedExecutionScheduler:
                 step = node.step
                 step.status = StepStatus.RUNNING
 
+                res: ToolExecutionResult
+
                 # Non-tool step completes immediately
                 if not step.tool_name:
                     step.status = StepStatus.COMPLETED
@@ -168,7 +170,9 @@ class DistributedExecutionScheduler:
                                         )
                                         lease = (
                                             await self.coordinator.recover_expired_execution_lease(
-                                                execution_id=str(req.execution_id or f"sched-{step.step_id}"),
+                                                execution_id=str(
+                                                    req.execution_id or f"sched-{step.step_id}"
+                                                ),
                                                 new_worker=new_ident,
                                                 ttl_seconds=15.0,
                                             )
@@ -178,6 +182,14 @@ class DistributedExecutionScheduler:
                                             StepStatus.COMPLETED
                                             if res.success
                                             else StepStatus.FAILED
+                                        )
+                                    else:
+                                        step.status = StepStatus.FAILED
+                                        res = ToolExecutionResult(
+                                            request_id=req.execution_id or f"sched-{step.step_id}",
+                                            tool_name=step.tool_name,
+                                            success=False,
+                                            error_message=f"FAILOVER_FAILED: No healthy candidate worker available (original: {exec_err})",
                                         )
                                 except Exception as fo_err:
                                     step.status = StepStatus.FAILED

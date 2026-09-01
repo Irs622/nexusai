@@ -227,7 +227,7 @@ async def run_soak_harness(
 
     total_growth_mb = final_rss_mb - initial_rss_mb
     if cycle_count > 0:
-        growth_slope_per_1k = (total_growth_mb / cycle_count) * 1000.0
+        growth_slope_per_1k = (total_growth_mb / max(1, cycle_count)) * 1000.0
     else:
         growth_slope_per_1k = 0.0
 
