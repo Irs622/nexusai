@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pathlib
+from typing import Any
 
 import yaml
 
@@ -38,6 +39,11 @@ class McpServerManager:
     @property
     def registered_server_names(self) -> list[str]:
         """Return list of all configured server names."""
+        return list(self._server_configs.keys())
+
+    @property
+    def configured_server_names(self) -> list[str]:
+        """Alias for registered_server_names."""
         return list(self._server_configs.keys())
 
     @property
@@ -217,3 +223,29 @@ class McpServerManager:
         for tools in self._tools_by_server.values():
             all_tools.extend(tools)
         return all_tools
+
+    async def ping_server(self, server_name: str) -> bool:
+        """Ping a connected MCP server."""
+        if server_name not in self._clients:
+            raise ToolExecutionError(f"MCP server '{server_name}' is not connected")
+        return await self._clients[server_name].ping()
+
+    def get_server_info(self, server_name: str) -> dict[str, Any]:
+        """Return information about a registered MCP server."""
+        cfg = self._server_configs.get(server_name)
+        client = self._clients.get(server_name)
+        tools = self._tools_by_server.get(server_name, [])
+        return {
+            "name": server_name,
+            "is_connected": client.is_connected if client else False,
+            "command": cfg.command if cfg else "",
+            "tools_count": len(tools),
+            "tools": [
+                {
+                    "name": t.name,
+                    "description": t.description,
+                    "risk_level": t.risk_level.value,
+                }
+                for t in tools
+            ],
+        }

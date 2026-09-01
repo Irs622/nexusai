@@ -3,74 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexusAI // Personal AI Operating System</title>
+    <title>NexusAI // Agentic Web OS Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <!-- Top Header -->
+    <!-- Background Ambient Glow Mesh -->
+    <div class="ambient-glow glow-cyan"></div>
+    <div class="ambient-glow glow-violet"></div>
+
+    <!-- Top Navigation Header -->
     <header class="header">
         <div class="brand">
-            <span class="status-indicator online">●</span>
-            <span class="access-badge">[ ACCESS GRANTED ]</span>
-            <h1 class="logo-title">NEXUSAI // macOS AGENTIC OPERATING SYSTEM</h1>
+            <div class="status-pulse-wrapper">
+                <span class="status-pulse-dot"></span>
+                <span class="status-pulse-ring"></span>
+            </div>
+            <div class="brand-text">
+                <h1 class="logo-title">NEXUS<span>AI</span></h1>
+                <span class="brand-subtitle">macOS AGENTIC OPERATING SYSTEM</span>
+            </div>
+            <span class="badge badge-cert">[ LEVEL 4 CERTIFIED ]</span>
+            <span id="sseStatusBadge" class="badge badge-sse">[ SSE: STREAMING ]</span>
         </div>
         <div class="header-controls">
-            <button id="voiceToggleBtn" class="btn btn-accent" onclick="toggleVoiceMode()">[ VOICE: OFF ]</button>
-            <button id="refreshStatusBtn" class="btn" onclick="fetchStatus()">[ SYNC SYS ]</button>
+            <button id="voiceToggleBtn" class="btn btn-glass" onclick="toggleVoiceMode()">
+                <span class="icon">🎙</span> [ VOICE: OFF ]
+            </button>
+            <button id="refreshStatusBtn" class="btn btn-glass" onclick="fetchStatus()">
+                <span class="icon">⚡</span> [ SYNC SYS ]
+            </button>
             <div id="clockDisplay" class="clock-display">00:00:00</div>
         </div>
     </header>
 
-    <!-- Main 4-Column Layout Grid -->
+    <!-- Main 4-Column Dashboard Layout Grid -->
     <main class="dashboard-grid">
         
         <!-- Left Sidebar: System Awareness & Context Engine -->
         <section class="card panel-context">
-            <h2 class="panel-header">// SYSTEM AWARENESS & CONTEXT</h2>
+            <div class="panel-header-bar">
+                <h2 class="panel-header"><span class="neon-hash">//</span> SYSTEM AWARENESS</h2>
+                <span class="panel-tag">TELEMETRY</span>
+            </div>
             
             <div class="context-item">
                 <div class="context-label">OPERATING SYSTEM</div>
-                <div class="context-value text-accent" id="sysOs">macOS Apple Silicon</div>
+                <div class="context-value text-cyan" id="sysOs">macOS Apple Silicon</div>
             </div>
 
             <div class="context-item">
                 <div class="context-label">ACTIVE APPLICATION</div>
-                <div class="context-value text-cyan" id="ctxActiveApp">Detecting...</div>
+                <div class="context-value text-white" id="ctxActiveApp">Detecting...</div>
             </div>
 
             <div class="context-item">
                 <div class="context-label">ACTIVE WINDOW TITLE</div>
-                <div class="context-value" id="ctxActiveTitle">Detecting...</div>
+                <div class="context-value text-muted truncate" id="ctxActiveTitle">Detecting...</div>
             </div>
 
             <div class="context-item">
                 <div class="context-label">WORKSPACE GIT BRANCH</div>
-                <div class="context-value text-accent" id="ctxGitBranch">Detecting...</div>
+                <div class="context-value text-emerald font-mono" id="ctxGitBranch">main</div>
             </div>
 
             <div class="meter-group">
                 <div class="meter-header">
-                    <span>CPU USAGE</span>
-                    <span id="cpuVal">0%</span>
+                    <span>CPU LOAD</span>
+                    <span id="cpuVal" class="meter-percentage text-cyan">0%</span>
                 </div>
                 <div class="meter-bar-bg">
-                    <div id="cpuBar" class="meter-bar-fill" style="width: 0%;"></div>
+                    <div id="cpuBar" class="meter-bar-fill bar-cyan" style="width: 0%;"></div>
                 </div>
             </div>
 
             <div class="meter-group">
                 <div class="meter-header">
-                    <span>RAM MEMORY</span>
-                    <span id="ramVal">0%</span>
+                    <span>MEMORY (RAM)</span>
+                    <span id="ramVal" class="meter-percentage text-violet">0%</span>
                 </div>
                 <div class="meter-bar-bg">
-                    <div id="ramBar" class="meter-bar-fill fill-cyan" style="width: 0%;"></div>
+                    <div id="ramBar" class="meter-bar-fill bar-violet" style="width: 0%;"></div>
                 </div>
             </div>
 
             <div class="system-security-box">
-                <div class="context-label">SECURITY POLICY</div>
-                <div class="text-accent" id="secPolicy">STRICT MODE (AUTO-APPROVE LOW RISK)</div>
+                <div class="context-label">SECURITY POLICY & GATE</div>
+                <div class="security-status" id="secPolicy">
+                    <span class="sec-dot"></span> STRICT MODE (AUTO-APPROVE LOW RISK)
+                </div>
             </div>
         </section>
 
@@ -80,34 +103,46 @@
             <!-- LangGraph Agentic Workflow Graph Visualizer -->
             <div class="card graph-container">
                 <div class="graph-header">
-                    <h2 class="panel-header">// LANGGRAPH AGENTIC WORKFLOW ENGINE</h2>
-                    <div class="iter-counter">ITERATIONS: <span id="graphIterCount" class="text-accent">0</span> / 10</div>
+                    <h2 class="panel-header"><span class="neon-hash">//</span> LANGGRAPH AGENTIC WORKFLOW ENGINE</h2>
+                    <div class="iter-counter">ITERATION: <span id="graphIterCount" class="text-cyan">0</span> / 10</div>
                 </div>
 
                 <div class="graph-nodes">
-                    <div id="nodeStart" class="graph-node node-done">[ START ]</div>
+                    <div id="nodeStart" class="graph-node node-done">
+                        <span class="node-icon">▶</span> [ START ]
+                    </div>
                     <div class="graph-connector">➔</div>
-                    <div id="nodeReasoner" class="graph-node">[ REASONER NODE ]</div>
+                    <div id="nodeReasoner" class="graph-node">
+                        <span class="node-icon">🧠</span> [ REASONER ]
+                    </div>
                     <div class="graph-connector">⇄</div>
-                    <div id="nodeExecutor" class="graph-node">[ TOOL EXECUTOR ]</div>
+                    <div id="nodeExecutor" class="graph-node">
+                        <span class="node-icon">⚙</span> [ TOOL EXECUTOR ]
+                    </div>
                     <div class="graph-connector">➔</div>
-                    <div id="nodeEnd" class="graph-node">[ END ]</div>
+                    <div id="nodeOutbox" class="graph-node">
+                        <span class="node-icon">📦</span> [ OUTBOX STORE ]
+                    </div>
+                    <div class="graph-connector">➔</div>
+                    <div id="nodeEnd" class="graph-node">
+                        <span class="node-icon">■</span> [ END ]
+                    </div>
                 </div>
                 
                 <div id="graphLogFeed" class="graph-log-feed">
-                    > System standby. Ready for user prompt.
+                    <span class="log-prefix">&gt;</span> System standby. Real-time DAG ready for execution.
                 </div>
             </div>
 
             <!-- Terminal Chat Feed -->
             <div class="card chat-container">
                 <div class="chat-header">
-                    <h2 class="panel-header">// TERMINAL REPL CHAT STREAM</h2>
+                    <h2 class="panel-header"><span class="neon-hash">//</span> TERMINAL REPL CHAT STREAM</h2>
                     <div class="preset-pills">
                         <button class="pill-btn" onclick="sendPresetPrompt('Tolong cek git status repository ini')">Git Status</button>
                         <button class="pill-btn" onclick="sendPresetPrompt('Capture screenshot layar sekarang')">Vision Screen</button>
                         <button class="pill-btn" onclick="sendPresetPrompt('Ingatkan saya untuk commit kode dalam 10 menit')">Reminder</button>
-                        <button class="pill-btn" onclick="sendPresetPrompt('Ingat fakta bahwa preferensi UI saya adalah Dark Mode')">Remember RAG</button>
+                        <button class="pill-btn" onclick="sendPresetPrompt('Cek server MCP yang aktif dan tools yang tersedia')">MCP Tools</button>
                     </div>
                 </div>
 
@@ -122,25 +157,46 @@
                 <!-- Input Prompt Box -->
                 <form id="chatForm" class="chat-input-form" onsubmit="handleChatSubmit(event)">
                     <span class="prompt-symbol">NexusAI ❯</span>
-                    <input type="text" id="promptInput" class="prompt-input" placeholder="Type command (e.g. 'Buka aplikasi Finder', 'Cari fakta tentang UI')..." autocomplete="off">
+                    <input type="text" id="promptInput" class="prompt-input" placeholder="Type command (e.g. 'Buka aplikasi Finder', 'Jalankan query database')..." autocomplete="off">
                     <button type="submit" id="sendBtn" class="btn btn-accent">[ EXECUTE ]</button>
                 </form>
             </div>
         </section>
 
-        <!-- Right Sidebar: Interactive Tool Execution Dashboard -->
+        <!-- Right Sidebar: Interactive Capability & MCP Registry -->
         <section class="card panel-tools">
-            <h2 class="panel-header">// CAPABILITY TOOL REGISTRY</h2>
+            <div class="tabs-header">
+                <button id="tabToolsBtn" class="tab-btn active" onclick="switchRightTab('TOOLS')">// TOOLS REGISTRY</button>
+                <button id="tabMcpBtn" class="tab-btn" onclick="switchRightTab('MCP')">// MCP ECOSYSTEM</button>
+            </div>
             
-            <div class="tool-filter-bar">
-                <button class="filter-btn active" onclick="filterTools('ALL')">ALL</button>
-                <button class="filter-btn text-accent" onclick="filterTools('LOW')">LOW</button>
-                <button class="filter-btn text-cyan" onclick="filterTools('HIGH')">HIGH</button>
-                <button class="filter-btn text-alert" onclick="filterTools('CRITICAL')">CRIT</button>
+            <!-- View 1: Builtin Tools Registry -->
+            <div id="viewToolsRegistry" class="tab-view">
+                <div class="tool-filter-bar">
+                    <button class="filter-btn active" onclick="filterTools('ALL')">ALL</button>
+                    <button class="filter-btn text-emerald" onclick="filterTools('LOW')">LOW</button>
+                    <button class="filter-btn text-cyan" onclick="filterTools('HIGH')">HIGH</button>
+                    <button class="filter-btn text-coral" onclick="filterTools('CRITICAL')">CRIT</button>
+                </div>
+
+                <div id="toolsListFeed" class="tools-list-feed">
+                    <div class="loading-text">Loading tool definitions...</div>
+                </div>
             </div>
 
-            <div id="toolsListFeed" class="tools-list-feed">
-                <div class="loading-text">Loading tool definitions...</div>
+            <!-- View 2: Model Context Protocol (MCP) Ecosystem -->
+            <div id="viewMcpEcosystem" class="tab-view" style="display: none;">
+                <div class="mcp-actions-bar">
+                    <button class="btn btn-sm btn-glass" onclick="fetchMcpServers()">
+                        <span class="icon">🔄</span> [ REFRESH ]
+                    </button>
+                    <button class="btn btn-sm btn-glass" onclick="reloadMcpConfig()">
+                        <span class="icon">📂</span> [ RELOAD CONFIG ]
+                    </button>
+                </div>
+                <div id="mcpServersFeed" class="mcp-servers-feed">
+                    <div class="loading-text">Loading connected MCP servers...</div>
+                </div>
             </div>
         </section>
 
@@ -151,7 +207,7 @@
         <div class="modal-card">
             <div class="modal-header">
                 <h3 id="modalToolTitle" class="modal-title">// EXECUTE TOOL</h3>
-                <button class="btn btn-alert" onclick="closeToolModal()">[ X ]</button>
+                <button class="btn btn-close" onclick="closeToolModal()">✕</button>
             </div>
             <p id="modalToolDesc" class="modal-desc"></p>
 
