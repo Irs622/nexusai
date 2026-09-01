@@ -23,7 +23,7 @@ import time
 import tracemalloc
 from typing import Any
 
-import psutil
+import psutil  # type: ignore[import-untyped]
 
 # Ensure src/ is on python path
 repo_root = Path(__file__).resolve().parent.parent
@@ -112,7 +112,7 @@ def calculate_percentiles(values: list[float]) -> dict[str, float]:
     n = len(sorted_vals)
 
     def p(pct: float) -> float:
-        idx = max(0, min(n - 1, int(math.ceil(pct / 100.0 * n)) - 1))
+        idx = max(0, min(n - 1, math.ceil(pct / 100.0 * n) - 1))
         return sorted_vals[idx]
 
     return {
@@ -226,7 +226,10 @@ async def run_soak_harness(
     lingering_tasks = len([t for t in asyncio.all_tasks() if not t.done()])
 
     total_growth_mb = final_rss_mb - initial_rss_mb
-    growth_slope_per_1k = (total_growth_mb / cycle_count * 1000.0) if cycle_count > 0 else 0.0
+    if cycle_count > 0:
+        growth_slope_per_1k = (total_growth_mb / cycle_count) * 1000.0
+    else:
+        growth_slope_per_1k = 0.0
 
     latency_stats = calculate_percentiles(cycle_latencies_ms)
 
