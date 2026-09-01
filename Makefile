@@ -16,8 +16,11 @@ help:
 	@echo "make test-contract    - Run public API contract tests"
 	@echo "make test-architecture- Run architecture complexity & DAG checks"
 	@echo "make quality-gate     - Run master quality gate sequence"
-	@echo "make clean            - Clean build & cache artifacts"
 	@echo "make build            - Build Python wheel and source package"
+	@echo "make vault            - Open AI Second Brain in Obsidian app"
+
+vault:
+	open -a "Obsidian" vault || open "obsidian://open?path=$(shell pwd)/vault"
 
 install:
 	$(PYTHON) -m venv $(VENV)

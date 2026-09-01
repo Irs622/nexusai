@@ -57,3 +57,6 @@ logs/
 
 # OS generated files
 Thumbs.db
+
+# Obsidian Second Brain (100% Private Local Vault — Never shared / committed)
+vault/

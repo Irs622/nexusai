@@ -19,7 +19,15 @@ This document defines the strict rules, conventions, and constraints for **AI Ag
 
 ## 📜 Core Directives for AI Agents
 
+0. **MANDATORY: Consult Second Brain Before Writing Any Code (Zero-Amnesia Protocol)**
+   - **BEFORE** generating, modifying, refactoring, or proposing ANY code (Python, JS, CSS, HTML, Config, Shell):
+     - The AI Agent **MUST ALWAYS FIRST READ** `vault/00-Index.md` and `vault/Status-Terkini.md` (and relevant architecture docs like `vault/Konteks-Proyek.md` or `vault/ANALISIS-TOTAL-ARSITEKTUR-NEXUSAI.md`).
+     - Never make blind code changes or assume architecture without verifying existing patterns and decisions in `vault/`.
+   - **AFTER** completing any code changes:
+     - The AI Agent **MUST UPDATE** `vault/Status-Terkini.md` and log the changes in `vault/Log-Sesi/YYYY-MM-DD.md`.
+
 1. **Do Not Over-Write or Fabricate Documentation**
+
    - Never invent fictional benchmarks, fake metrics, or unverified performance claims.
    - Always state *Target*, *Current Status*, and *Measurement Methodology*.
 
@@ -150,10 +158,13 @@ All runtime implementations MUST comply with systemic performance ceilings:
   - `PromptBundle`: Completely immutable after render.
   - `ExecutionPlan`: Completely immutable after resolution.
 
+
 ### 8. Repository Layout & Tooling Package Isolation
 - **Design Rationale**: Repository-level tooling (`benchmarks`, `tests`, `tools`) resides outside `src/` to prevent becoming an application dependency. All dependencies MUST flow toward the application (`src/nexusai`), never the reverse.
 - `benchmarks/` is a repository-level tooling package and explicitly resides outside `src/`. Root repository is added to `pythonpath` exclusively for tooling execution, not as an application package location.
 - Application code under `src/nexusai` MUST NOT import `benchmarks`, `tests`, or root tooling scripts.
 
-
+### 9. Persistent AI Context Management (Obsidian Second Brain)
+- **Second Brain Vault**: Located at `vault/` as an Obsidian-compatible Markdown vault for zero-context-loss across agent interactions.
+- **Context Synchronization**: Agents must consult `vault/00-Index.md` and `vault/Status-Terkini.md` before initiating major tasks and update relevant session logs under `vault/Log-Sesi/` upon task completion. Full rules in `.agents/rules/context_memory.md`.
 
