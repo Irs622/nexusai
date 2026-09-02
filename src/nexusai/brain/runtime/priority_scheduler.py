@@ -66,7 +66,11 @@ class PriorityScheduler(IScheduler):
                 raise SchedulerClosedError("Cannot submit task to a shutdown scheduler")
 
             now = time.time()
-            admitted_task = replace(task, queued_at=now)
+            if task.queued_at is not None and task.queued_at != task.created_at:
+                task_queued_at = task.queued_at
+            else:
+                task_queued_at = now
+            admitted_task = replace(task, queued_at=task_queued_at)
 
             if admitted_task.delay_until is not None and admitted_task.delay_until > now:
                 self._delayed_tasks.append(admitted_task)
@@ -114,8 +118,8 @@ class PriorityScheduler(IScheduler):
                     self._ready_tasks.sort(
                         key=lambda t: (
                             -compute_effective_priority(t, now, self.aging_rate),
-                            t.queued_at,
                             t.task_id,
+                            t.queued_at or 0.0,
                         )
                     )
 
@@ -124,7 +128,7 @@ class PriorityScheduler(IScheduler):
 
                     if self.telemetry:
                         try:
-                            wait_ms = (now - claimed_task.queued_at) * 1000.0
+                            wait_ms = (now - (claimed_task.queued_at or now)) * 1000.0
                             await self.telemetry.emit_event(
                                 RuntimeEvent(
                                     event_id=f"sched-claim-{claimed_task.task_id}-{int(now * 1000)}",

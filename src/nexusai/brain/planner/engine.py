@@ -231,6 +231,9 @@ class PlanGraphExecutionEngine:
                 await self._safe_telemetry_counter("nexusai_checkpoint_failures_total")
                 raise
 
+        if getattr(self.scheduler, "_is_shutdown", False):
+            self.scheduler = PriorityScheduler(aging_rate=0.5, telemetry=self.telemetry)
+
         res_tuple = await self._run_dag_execution(
             plan_graph=plan_graph,
             trace=trace,

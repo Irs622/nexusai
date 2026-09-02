@@ -33,7 +33,7 @@ class ScheduledTask:
     priority: TaskPriority = TaskPriority.NORMAL
     delay_until: float | None = None
     created_at: float = field(default_factory=time.time)
-    queued_at: float = field(default_factory=time.time)
+    queued_at: float | None = None
     metadata: Mapping[str, Any] = field(default_factory=dict)
 
 
@@ -48,5 +48,7 @@ def compute_effective_priority(
     Prevents low-priority task starvation during sustained high-priority submissions.
     """
     current_time = now if now is not None else time.time()
-    wait_time = max(0.0, current_time - task.queued_at)
+    q_time = task.queued_at if task.queued_at is not None else current_time
+    wait_time = max(0.0, current_time - q_time)
     return float(task.priority.value) + (wait_time * aging_rate)
+

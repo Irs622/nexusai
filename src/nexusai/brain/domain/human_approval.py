@@ -10,7 +10,7 @@ import time
 from typing import Any, Mapping
 
 from nexusai.brain.domain.governance import ToolCapability
-from nexusai.brain.domain.observability import sanitize_attributes
+from nexusai.brain.domain.observability import FORBIDDEN_SECRET_KEYS, sanitize_attributes
 
 
 class RiskLevel(str, Enum):
@@ -145,7 +145,11 @@ class HumanApprovalRequest:
             raise ValueError("expires_at must be greater than created_at")
 
         # Secret sanitization invariant across summary and metadata
-        sanitized_summary = sanitize_attributes({"summary": self.prompt_summary})["summary"]
+        prompt_lower = self.prompt_summary.lower()
+        if any(secret_kw in prompt_lower for secret_kw in FORBIDDEN_SECRET_KEYS):
+            sanitized_summary = "[REDACTED_SECRET]"
+        else:
+            sanitized_summary = self.prompt_summary
         object.__setattr__(self, "prompt_summary", sanitized_summary)
 
         sanitized_meta = sanitize_attributes(self.metadata)
@@ -169,7 +173,11 @@ class HumanApprovalDecision:
             raise ValueError("actor identifier cannot be empty")
 
         # Secret sanitization on decision reason
-        sanitized_reason = sanitize_attributes({"reason": self.reason})["reason"]
+        reason_lower = self.reason.lower()
+        if any(secret_kw in reason_lower for secret_kw in FORBIDDEN_SECRET_KEYS):
+            sanitized_reason = "[REDACTED_SECRET]"
+        else:
+            sanitized_reason = self.reason
         object.__setattr__(self, "reason", sanitized_reason)
 
 
