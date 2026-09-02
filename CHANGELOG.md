@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `feat(mesh)`: Implement Multi-Agent Collaboration Mesh (`A2AMessage`, `AgentCollaborationMesh`) and specialized agents (`PlannerSpecialist`, `CoderSpecialist`, `AuditorSpecialist`, `OrchestratorSpecialist`) for multi-round consensus and review-feedback loops (ADR-0017).
 - `feat(cli)`: Implement interactive Terminal UI (TUI) Live Monitor (`nexusai cluster top`, `nexusai top`, `make tui`) powered by Rich for real-time distributed cluster topology, worker loads, and auto-scaler events.
 - `feat(cli)`: Interactive API key onboarding and provider auto-detection (OpenRouter, Groq, OpenAI, Ollama, DeepSeek) upon starting interactive chat shell.
+- `feat(brain)`: Enable function tool-calling dispatch loop and multi-turn conversational memory integration in `BrainCoordinator`.
 - `feat(release)`: Automated Release Candidate verification runner (`tools/verify_release.py`) and modernized developer `Makefile`.
 
 

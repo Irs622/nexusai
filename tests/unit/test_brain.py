@@ -138,7 +138,9 @@ async def test_brain_coordinator_text_flow(
 
     result = await coordinator.process_user_input("Hi NexusAI")
 
-    assert result == {"type": "text", "content": "Hello User", "iterations": 1}
+    assert result["type"] == "text"
+    assert result["content"] == "Hello User"
+    assert result["iterations"] == 1
     assert len(mock_provider.last_messages) == 2
     assert mock_provider.last_tools is not None
 
@@ -166,7 +168,9 @@ async def test_brain_coordinator_context_engine_integration(
     )
 
     result = await coordinator.process_user_input("What is my current context?")
-    assert result == {"type": "text", "content": "I see your active context", "iterations": 1}
+    assert result["type"] == "text"
+    assert result["content"] == "I see your active context"
+    assert result["iterations"] == 1
 
     system_msg = mock_provider.last_messages[0]["content"]
     assert "Active Application: VS Code" in system_msg
@@ -177,3 +181,56 @@ def test_openai_provider_missing_api_key_raises_error() -> None:
     with patch.dict("os.environ", {}, clear=True):
         with pytest.raises(ConfigurationError):
             OpenAIProvider()
+
+
+@pytest.mark.asyncio
+async def test_brain_coordinator_tool_call_flow(
+    registry: ToolRegistry,
+    command_bus: CommandBus,
+) -> None:
+    """Verify coordinator receives tool_call, dispatches tool, and returns synthesized text."""
+    from unittest.mock import AsyncMock
+    from nexusai.tools.base import BaseTool
+    from pydantic import BaseModel
+
+    class DummyInput(BaseModel):
+        msg: str = "default"
+
+    class DummyTool(BaseTool):
+        name: str = "dummy_notify"
+        description: str = "Test notify tool"
+        input_schema: type[BaseModel] = DummyInput
+
+        async def execute(self, **kwargs: Any) -> str:
+            return "Notification sent successfully!"
+
+    registry.register(DummyTool())
+
+    # Provider returns tool_call first, then text response
+    calls = [
+        {"type": "tool_call", "tool_name": "dummy_notify", "arguments": {"msg": "Hello"}},
+        {"type": "text", "content": "I have sent the notification for you!"},
+    ]
+
+    class SequentialMockProvider:
+        def __init__(self) -> None:
+            self.call_count = 0
+            self.last_messages: list[dict[str, Any]] = []
+            self.last_tools: list[dict[str, Any]] | None = None
+
+        async def chat(self, messages: list[dict[str, Any]], tools: Any = None) -> dict[str, Any]:
+            self.last_messages = messages
+            ret = calls[min(self.call_count, len(calls) - 1)]
+            self.call_count += 1
+            return ret
+
+    provider = SequentialMockProvider()
+    coordinator = BrainCoordinator(provider, registry, command_bus)
+
+    result = await coordinator.process_user_input("Send notification")
+    assert result["type"] == "text"
+    assert result["content"] == "I have sent the notification for you!"
+    assert provider.call_count == 2
+    # Verify tool message was included in second prompt to LLM
+    assert any(m.get("role") == "tool" for m in provider.last_messages)
+
