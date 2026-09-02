@@ -161,6 +161,7 @@ def check_gate_4_core_tests() -> bool:
         "tests/unit/api/test_server_mcp_and_sse.py",
         "tests/unit/brain/test_multi_agent_collaboration_mesh.py",
         "tests/unit/cli/test_cluster_tui.py",
+        "tests/unit/cli/test_key_manager.py",
     ]
     code, out, err = run_cmd([".venv/bin/pytest", *test_files, "-q"])
     if code != 0:

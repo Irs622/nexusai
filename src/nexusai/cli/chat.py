@@ -44,6 +44,11 @@ async def start_chat_session(
 ) -> None:
     """Run the interactive CLI chat loop with Proactive Scheduler lifecycle."""
     print_banner()
+    from nexusai.cli.key_manager import prompt_and_configure_api_key
+
+    if custom_input is None:
+        prompt_and_configure_api_key(interactive=True)
+
     config = SystemConfig.load_from_yaml()
     setup_logger(config.logging)
 
