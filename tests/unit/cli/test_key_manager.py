@@ -49,3 +49,14 @@ def test_save_key_to_env_file(tmp_path: Path) -> None:
     content = test_env.read_text(encoding="utf-8")
     assert "OPENAI_API_KEY=gsk_testgroq123" in content
     assert "OPENAI_BASE_URL=https://api.groq.com/openai/v1" in content
+
+
+@pytest.mark.unit
+def test_prompt_and_configure_api_key_skips_when_configured(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Verify that when a key is already present, onboarding prompt is skipped."""
+    from nexusai.cli.key_manager import prompt_and_configure_api_key
+
+    monkeypatch.setenv("OPENROUTER_API_KEY", "sk-or-v1-existing-active-key")
+    # Should return immediately without asking for user input
+    prompt_and_configure_api_key(interactive=True, force=False)
+

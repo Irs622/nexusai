@@ -97,13 +97,15 @@ def save_key_to_env_file(key: str, env_path: str | Path = ".env") -> Tuple[str, 
     return provider, model
 
 
-def prompt_and_configure_api_key(interactive: bool = True) -> None:
-    """Prompt user to paste API key on terminal entry if interactive, and configure runtime."""
+def prompt_and_configure_api_key(interactive: bool = True, force: bool = False) -> None:
+    """Prompt user to paste API key on terminal entry only if not configured yet."""
     if not interactive or os.getenv("CI") == "1":
         return
 
     current_key = os.getenv("OPENROUTER_API_KEY") or os.getenv("OPENAI_API_KEY") or ""
-    has_key = bool(current_key.strip())
+    if current_key.strip() and not force:
+        # Key is already configured and saved, no need to ask or prompt again!
+        return
 
     header_msg = (
         "[bold cyan]🔑 Masukkan / Paste API Key AI Anda untuk memulai:[/bold cyan]\n"
@@ -116,19 +118,7 @@ def prompt_and_configure_api_key(interactive: bool = True) -> None:
 
     console.print(Panel(header_msg, title="[bold green]NexusAI Model Setup[/bold green]", border_style="cyan"))
 
-    if has_key:
-        masked = current_key[:8] + "..." + current_key[-4:] if len(current_key) > 14 else "***"
-        prompt_text = (
-            f"[bold white]Paste API Key baru[/bold white] "
-            f"[dim](Tekan Enter untuk gunakan key saat ini: {masked})[/dim]"
-        )
-        user_key = Prompt.ask(prompt_text, default="")
-        if not user_key.strip():
-            # Use existing key
-            return
-    else:
-        user_key = Prompt.ask("[bold white]Paste API Key Anda di sini[/bold white]")
-
+    user_key = Prompt.ask("[bold white]Paste API Key Anda di sini[/bold white]")
     clean_key = user_key.strip()
     if clean_key:
         provider, model = save_key_to_env_file(clean_key)
