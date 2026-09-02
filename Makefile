@@ -1,4 +1,4 @@
-.PHONY: help install format lint typecheck test test-unit test-contract test-architecture quality-gate clean build vault mcp-list mcp-ping soak p5-live web release-check
+.PHONY: help install format lint typecheck test test-unit test-contract test-architecture quality-gate clean build vault mcp-list mcp-ping soak p5-live web release-check tui cluster-status
 
 PYTHON ?= python3
 VENV ?= .venv
@@ -23,7 +23,10 @@ help:
 	@echo "make soak             - Run continuous endurance soak test harness"
 	@echo "make p5-live          - Run Level 4 staging chaos test scenarios"
 	@echo "make web              - Launch FastAPI Web OS Dashboard with SSE stream"
+	@echo "make tui              - Launch interactive Live Terminal UI (TUI) cluster monitor"
+	@echo "make cluster-status   - Display distributed worker cluster status snapshot"
 	@echo "make release-check    - Run automated release candidate verification gate"
+
 
 vault:
 	open -a "Obsidian" vault || open "obsidian://open?path=$(shell pwd)/vault"
@@ -75,6 +78,12 @@ web:
 
 release-check:
 	$(BIN)/python tools/verify_release.py
+
+tui:
+	$(BIN)/nexusai cluster top
+
+cluster-status:
+	$(BIN)/nexusai cluster status
 
 quality-gate: format lint typecheck test-contract test-architecture test
 

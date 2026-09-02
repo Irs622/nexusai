@@ -155,5 +155,62 @@ def mcp_ping(
     asyncio.run(_do_ping())
 
 
+cluster_app = typer.Typer(
+    name="cluster",
+    help="Manage and monitor distributed worker nodes & scaling",
+    add_completion=False,
+)
+app.add_typer(cluster_app, name="cluster")
+
+
+@cluster_app.command("status")
+def cluster_status(
+    config_path: str = typer.Option(
+        "config/cluster_workers.yaml", "--config", "-c", help="Path to cluster workers config YAML"
+    ),
+) -> None:
+    """Display real-time distributed worker cluster status snapshot."""
+    from nexusai.cli.tui.cluster_monitor import ClusterMonitorTUI
+
+    tui = ClusterMonitorTUI(config_path=config_path)
+    tui.render_once()
+
+
+@cluster_app.command("top")
+def cluster_top(
+    config_path: str = typer.Option(
+        "config/cluster_workers.yaml", "--config", "-c", help="Path to cluster workers config YAML"
+    ),
+    refresh_rate: float = typer.Option(
+        1.0, "--refresh", "-r", help="Refresh interval in seconds"
+    ),
+    once: bool = typer.Option(
+        False, "--once", help="Render snapshot once and exit immediately"
+    ),
+) -> None:
+    """Launch interactive Live Terminal UI (TUI) cluster monitor."""
+    from nexusai.cli.tui.cluster_monitor import ClusterMonitorTUI
+
+    tui = ClusterMonitorTUI(config_path=config_path)
+    tui.run(refresh_rate=refresh_rate, once=once)
+
+
+@app.command("top")
+def top_alias(
+    config_path: str = typer.Option(
+        "config/cluster_workers.yaml", "--config", "-c", help="Path to cluster workers config YAML"
+    ),
+    refresh_rate: float = typer.Option(
+        1.0, "--refresh", "-r", help="Refresh interval in seconds"
+    ),
+    once: bool = typer.Option(
+        False, "--once", help="Render snapshot once and exit immediately"
+    ),
+) -> None:
+    """Launch interactive Live Terminal UI (TUI) cluster monitor (alias for cluster top)."""
+    cluster_top(config_path=config_path, refresh_rate=refresh_rate, once=once)
+
+
 if __name__ == "__main__":
     app()
+
