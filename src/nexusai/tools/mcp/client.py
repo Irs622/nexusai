@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import sys
 from typing import Any
 
 from nexusai.core.errors import ToolExecutionError
@@ -59,12 +60,13 @@ class McpClient:
             env = os.environ.copy()
             env.update(self.config.env)
 
+            cmd = sys.executable if self.config.command in ("python", "python3") else self.config.command
             logger.info(
-                f"[McpClient:{self.config.name}] Spawning process: {self.config.command} {self.config.args}"
+                f"[McpClient:{self.config.name}] Spawning process: {cmd} {self.config.args}"
             )
             try:
                 self._process = await asyncio.create_subprocess_exec(
-                    self.config.command,
+                    cmd,
                     *self.config.args,
                     stdin=asyncio.subprocess.PIPE,
                     stdout=asyncio.subprocess.PIPE,
@@ -258,6 +260,13 @@ class McpClient:
             try:
                 line = await reader.readline()
                 if not line:
+                    if self._process and self._process.returncode is not None:
+                        exit_code = self._process.returncode
+                        err_msg = f"Server '{self.config.name}' closed stdout stream (exit code: {exit_code})"
+                        for fut in list(self._pending_requests.values()):
+                            if not fut.done():
+                                fut.set_exception(ToolExecutionError(err_msg))
+                        self._pending_requests.clear()
                     break  # EOF reached
 
                 line_str = line.decode("utf-8").strip()

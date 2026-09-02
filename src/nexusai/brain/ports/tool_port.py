@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Protocol
+from typing import Any, Protocol, runtime_checkable
 from uuid import UUID, uuid4
 
 
@@ -37,6 +37,7 @@ class ToolExecutionResult:
     result: Any = None
 
 
+@runtime_checkable
 class IToolPort(Protocol):
     """Abstract Tool Port interface decoupling Brain Runtime from tool registry implementations."""
 

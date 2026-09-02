@@ -91,6 +91,29 @@ class ValidationResult:
     is_valid: bool
     issues: tuple[ValidationIssue, ...] = ()
 
+    def add_issue(
+        self,
+        node_id: int | str | None = None,
+        rule_name: str = "ERROR",
+        message: str = "",
+        severity: ValidationSeverity = ValidationSeverity.ERROR,
+        step_id: int | str | None = None,
+    ) -> None:
+        """Helper for test compatibility to append validation issues."""
+        object.__setattr__(
+            self,
+            "issues",
+            self.issues
+            + (
+                ValidationIssue(
+                    severity=severity,
+                    code=rule_name,
+                    message=message,
+                    step_id=step_id or node_id,
+                ),
+            ),
+        )
+
 
 @dataclass(frozen=True)
 class CapabilityGraph:
@@ -299,6 +322,13 @@ class DecisionTrace:
     policy_used: PlanningPolicy = field(default_factory=PlanningPolicy)
     reasoning: DecisionReasoning = field(default_factory=DecisionReasoning)
     timestamp: float = field(default_factory=lambda: datetime.now(timezone.utc).timestamp())
+
+    @property
+    def chosen_action(self) -> str:
+        """Top candidate action name or fallback goal description."""
+        if self.candidate_rankings:
+            return self.candidate_rankings[0].name
+        return self.goal_description or "default_action"
 
 
 @dataclass(frozen=True)

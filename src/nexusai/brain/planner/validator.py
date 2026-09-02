@@ -10,6 +10,8 @@ from nexusai.brain.domain.agent import (
     ValidationSeverity,
 )
 
+PlanValidationResult = ValidationResult
+
 
 class PlanValidator:
     """Validates PlanGraph DAG for cycles, dead-ends, unreachable steps, and budget constraints."""
@@ -31,15 +33,15 @@ class PlanValidator:
             return ValidationResult(is_valid=False, issues=tuple(issues))
 
         # 1. Cycle Detection (DFS)
-        visited: set[int] = set()
-        rec_stack: set[int] = set()
+        visited: set[int | str] = set()
+        rec_stack: set[int | str] = set()
 
-        adj: dict[int, list[int]] = {node_id: [] for node_id in graph.nodes}
+        adj: dict[int | str, list[int | str]] = {node_id: [] for node_id in graph.nodes}
         for parent, child in graph.edges:
             if parent in adj:
                 adj[parent].append(child)
 
-        def is_cyclic(v: int) -> bool:
+        def is_cyclic(v: int | str) -> bool:
             visited.add(v)
             rec_stack.add(v)
             for neighbor in adj.get(v, []):
