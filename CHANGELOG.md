@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `feat(mcp)`: Auto-resolve `python` / `python3` command to active `sys.executable` and propagate process exit/stderr errors instantly in `McpClient`.
 - `feat(distributed)`: Implement `DistributedWorkerPool` and `DistributedExecutionScheduler` coordinating PlanGraph DAG branches across distributed worker nodes with monotonic fencing tokens (ADR-0014).
 - `feat(web)`: Real-time Server-Sent Events (SSE) stream (`/api/events/stream`), REST MCP endpoints (`/api/mcp/servers`, ping, reload), and Cyber-Glassmorphism Web OS dashboard.
+- `feat(distributed)`: Implement `WorkerHeartbeatSupervisor` for dead node eviction and auto-recovery, `WorkerAutoScaler` for queue-based dynamic scale-out/scale-in with anti-thrashing cooldown, and `ClusterOrchestrator` unified facade (ADR-0016).
 - `feat(test)`: Continuous soak & endurance test harness (`tools/run_soak_test.py`) tracking zero memory leak curves, GC object retention, and latency drift.
 
 ---
