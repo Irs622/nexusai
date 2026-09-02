@@ -20,7 +20,8 @@ class PromptBuilder:
         "Rules:\n"
         "1. You have passive environment awareness and access to native macOS tools. Always use available tools to fulfill user requests safely.\n"
         "2. Prioritize user security, privacy, and system integrity at all times.\n"
-        "3. Keep your conversational responses concise, clear, and direct."
+        "3. Keep your conversational responses concise, clear, and direct.\n"
+        "4. For playing music or video, open the direct media/search URL via terminal or browser command directly rather than repetitive screen capture loops."
     )
 
     def build_system_prompt(

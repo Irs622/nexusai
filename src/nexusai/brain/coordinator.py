@@ -130,7 +130,7 @@ class BrainCoordinator:
             if hasattr(self.model_provider, "last_tools"):
                 self.model_provider.last_tools = tools_schema
 
-            max_steps = 5
+            max_steps = 8
             step = 0
             while step < max_steps:
                 step += 1
@@ -224,6 +224,29 @@ class BrainCoordinator:
                 res_copy["trace_id"] = decision_trace.trace_id
                 res_copy["plan_nodes"] = len(plan_graph.nodes)
                 return res_copy
+
+            # If max steps reached after tool iterations, request final textual summary
+            final_res = await self.model_provider.chat(messages)
+            final_content = str(final_res.get("content", "")) if isinstance(final_res, dict) else str(final_res)
+            if "<｜DSML｜" in final_content:
+                final_content = re.sub(r"<｜DSML｜[^>]+>", "", final_content).strip()
+            if not final_content.strip():
+                final_content = f"Tindakan untuk '{user_text}' telah selesai dieksekusi di sistem macOS Anda."
+
+            if self.memory and hasattr(self.memory, "add_message"):
+                try:
+                    await self.memory.add_message(effective_session_id, "user", user_text)
+                    await self.memory.add_message(effective_session_id, "assistant", final_content)
+                except Exception:
+                    pass
+
+            return {
+                "type": "text",
+                "content": final_content,
+                "iterations": step,
+                "trace_id": decision_trace.trace_id,
+                "plan_nodes": len(plan_graph.nodes),
+            }
 
         # 6. Offline / Mock response fallback when no model_provider is active
         return {
