@@ -88,6 +88,8 @@ def check_gate_2_static_analysis() -> bool:
         "check",
         "src/nexusai/tools/mcp/",
         "src/nexusai/infrastructure/distributed/",
+        "src/nexusai/brain/domain/collaboration.py",
+        "src/nexusai/brain/runtime/collaboration/",
         "src/nexusai/brain/planner/validator.py",
     ])
     if code_ruff != 0:
@@ -99,12 +101,14 @@ def check_gate_2_static_analysis() -> bool:
         "--strict",
         "src/nexusai/tools/mcp/servers/",
         "src/nexusai/infrastructure/distributed/",
+        "src/nexusai/brain/domain/collaboration.py",
+        "src/nexusai/brain/runtime/collaboration/",
     ])
     if code_mypy != 0:
         log_gate(2, "Static Type Checking (mypy --strict)", "FAIL", out_mypy or err_mypy)
         return False
 
-    log_gate(2, "Static Analysis & Type Integrity", "PASS", "ruff: 0 issues | mypy --strict: 0 issues across 12 source files")
+    log_gate(2, "Static Analysis & Type Integrity", "PASS", "ruff: 0 issues | mypy --strict: 0 issues across 16 source files")
     return True
 
 
@@ -155,6 +159,7 @@ def check_gate_4_core_tests() -> bool:
         "tests/unit/infrastructure/test_worker_supervisor_and_autoscaler.py",
         "tests/unit/infrastructure/test_distributed_execution_scheduler.py",
         "tests/unit/api/test_server_mcp_and_sse.py",
+        "tests/unit/brain/test_multi_agent_collaboration_mesh.py",
     ]
     code, out, err = run_cmd([".venv/bin/pytest", *test_files, "-q"])
     if code != 0:

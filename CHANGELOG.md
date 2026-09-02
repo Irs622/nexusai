@@ -24,7 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `feat(distributed)`: Implement `WorkerHeartbeatSupervisor` for dead node eviction and auto-recovery, `WorkerAutoScaler` for queue-based dynamic scale-out/scale-in with anti-thrashing cooldown, and `ClusterOrchestrator` unified facade (ADR-0016).
 - `feat(web)`: Real-time Server-Sent Events (SSE) stream (`/api/events/stream`), REST MCP endpoints (`/api/mcp/servers`, ping, reload), and Cyber-Glassmorphism Web OS dashboard.
 - `feat(test)`: Continuous soak & endurance test harness (`tools/run_soak_test.py`) tracking zero memory leak curves, GC object retention, and latency drift.
+- `feat(mesh)`: Implement Multi-Agent Collaboration Mesh (`A2AMessage`, `AgentCollaborationMesh`) and specialized agents (`PlannerSpecialist`, `CoderSpecialist`, `AuditorSpecialist`, `OrchestratorSpecialist`) for multi-round consensus and review-feedback loops (ADR-0017).
 - `feat(release)`: Automated Release Candidate verification runner (`tools/verify_release.py`) and modernized developer `Makefile`.
+
 
 
 ---
