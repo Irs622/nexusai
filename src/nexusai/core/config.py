@@ -19,7 +19,7 @@ if _env_file.is_file():
 
 class AppSettings(BaseModel):
     name: str = "NexusAI"
-    version: str = "0.1.0"
+    version: str = "1.0.0"
     environment: str = "development"
     debug: bool = True
 

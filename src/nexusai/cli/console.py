@@ -7,6 +7,8 @@ from rich.markdown import Markdown
 from rich.panel import Panel
 from rich.text import Text
 
+from nexusai import __version__
+
 console = Console()
 
 
@@ -17,7 +19,7 @@ def print_banner() -> None:
     banner_text.append("  / |/ /__ ___ __ _____    / _ | /  _/ \n", style="bold blue")
     banner_text.append(" /    / -_) _// // (_-<   / __ |_/ /   \n", style="bold magenta")
     banner_text.append("/_/|_/\\__/\\__/\\_,_/___/  /_/ |_/___/   \n", style="bold green")
-    banner_text.append("\n  Personal AI Operating System for macOS v0.1.0\n", style="dim white")
+    banner_text.append(f"\n  Personal AI Operating System for macOS v{__version__}\n", style="dim white")
 
     console.print(Panel(banner_text, border_style="cyan", expand=False))
 
