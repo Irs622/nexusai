@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import time
 from typing import Any, Dict
 
@@ -123,17 +124,43 @@ class BrainCoordinator:
         self.facade.create_context(session=session, state=state)
 
         # 5. Synthesize LLM Response via ModelProvider if present
-        if self.model_provider:
+        if self.model_provider and hasattr(self.model_provider, "chat"):
             if hasattr(self.model_provider, "last_messages"):
                 self.model_provider.last_messages = messages
             if hasattr(self.model_provider, "last_tools"):
                 self.model_provider.last_tools = tools_schema
 
-            if hasattr(self.model_provider, "chat"):
+            max_steps = 5
+            step = 0
+            while step < max_steps:
+                step += 1
                 res = await self.model_provider.chat(messages, tools=tools_schema if tools_schema else None)
-                if isinstance(res, dict) and res.get("type") == "tool_call":
-                    tool_name = str(res.get("tool_name", ""))
-                    arguments = res.get("arguments", {})
+                if not isinstance(res, dict):
+                    res = {"type": "text", "content": str(res)}
+
+                is_tool_call = res.get("type") == "tool_call"
+                tool_name = str(res.get("tool_name", ""))
+                arguments = res.get("arguments", {})
+
+                # Check if model formatted DSML tool call inside text content
+                content_str = str(res.get("content", ""))
+                if not is_tool_call and "<｜DSML｜invoke" in content_str:
+                    match = re.search(r'<｜DSML｜invoke\s+name="([^"]+)">', content_str)
+                    if match:
+                        inferred_tool = match.group(1)
+                        if self.registry and hasattr(self.registry, "has_tool"):
+                            if self.registry.has_tool(inferred_tool):
+                                tool_name = inferred_tool
+                            elif "terminal" in inferred_tool and self.registry.has_tool("execute_terminal"):
+                                tool_name = "execute_terminal"
+                            elif "terminal" in inferred_tool and self.registry.has_tool("terminal"):
+                                tool_name = "terminal"
+                        cmd_match = re.search(r'<｜DSML｜parameter\s+name="command"[^>]*>(.*?)</｜DSML｜parameter>', content_str, re.DOTALL)
+                        if cmd_match:
+                            arguments = {"command": cmd_match.group(1).strip()}
+                            is_tool_call = bool(tool_name)
+
+                if is_tool_call and tool_name:
                     if not isinstance(arguments, dict):
                         arguments = {}
 
@@ -176,41 +203,27 @@ class BrainCoordinator:
                         "content": result_content,
                     })
 
-                    # Follow up to get final answer from model
-                    final_res = await self.model_provider.chat(messages)
-                    res_copy: dict[str, Any]
-                    if isinstance(final_res, dict):
-                        res_copy = dict(final_res)
-                        final_content = str(res_copy.get("content", ""))
-                    else:
-                        final_content = str(final_res)
-                        res_copy = {"type": "text", "content": final_content}
+                    # Loop continues so LLM can observe tool result and execute next tool or provide final response
+                    continue
 
-                    if self.memory and hasattr(self.memory, "add_message"):
-                        try:
-                            await self.memory.add_message(effective_session_id, "user", user_text)
-                            await self.memory.add_message(effective_session_id, "assistant", final_content)
-                        except Exception:
-                            pass
+                # Plain text final answer
+                final_content = content_str
+                if "<｜DSML｜" in final_content:
+                    final_content = re.sub(r"<｜DSML｜[^>]+>", "", final_content).strip()
 
-                    res_copy["trace_id"] = decision_trace.trace_id
-                    res_copy["plan_nodes"] = len(plan_graph.nodes)
-                    return res_copy
+                if self.memory and hasattr(self.memory, "add_message"):
+                    try:
+                        await self.memory.add_message(effective_session_id, "user", user_text)
+                        await self.memory.add_message(effective_session_id, "assistant", final_content)
+                    except Exception:
+                        pass
 
-                elif isinstance(res, dict):
-                    res_copy_text: dict[str, Any] = dict(res)
-                    content = res_copy_text.get("content", "")
-                    if self.memory and hasattr(self.memory, "add_message"):
-                        try:
-                            await self.memory.add_message(effective_session_id, "user", user_text)
-                            await self.memory.add_message(effective_session_id, "assistant", content)
-                        except Exception:
-                            pass
-                    if "iterations" not in res_copy_text:
-                        res_copy_text["iterations"] = 1
-                    res_copy_text["trace_id"] = decision_trace.trace_id
-                    res_copy_text["plan_nodes"] = len(plan_graph.nodes)
-                    return res_copy_text
+                res_copy: dict[str, Any] = dict(res)
+                res_copy["content"] = final_content
+                res_copy["iterations"] = step
+                res_copy["trace_id"] = decision_trace.trace_id
+                res_copy["plan_nodes"] = len(plan_graph.nodes)
+                return res_copy
 
         # 6. Offline / Mock response fallback when no model_provider is active
         return {
