@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.0.0-rc1] - 2026-09-02
+## [1.0.0] - 2026-09-02
 
 ### 🚀 Phase 7 / Level 4: Built-in MCP Server Pack & Autonomous Distributed Cluster (ADR-0014, ADR-0015, ADR-0016)
 - `feat(mcp)`: Implement native Python 3.12+ Built-in MCP Server Pack running over stdio JSON-RPC 2.0 out-of-the-box without requiring external `npm` or `uvx` dependencies.

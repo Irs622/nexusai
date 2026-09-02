@@ -222,7 +222,7 @@ def check_gate_6_build() -> bool:
         log_gate(6, "Python Package Wheel Build", "FAIL", err or out)
         return False
 
-    wheels = list((repo_root / "dist").glob("*.whl"))
+    wheels = sorted(list((repo_root / "dist").glob("*.whl")), key=lambda p: p.stat().st_mtime)
     latest_wheel = wheels[-1].name if wheels else "wheel"
     log_gate(6, "Python Package Wheel Build", "PASS", f"Successfully built wheel: {latest_wheel}")
     return True
