@@ -178,9 +178,10 @@ class BrainCoordinator:
 
                     # Follow up to get final answer from model
                     final_res = await self.model_provider.chat(messages)
+                    res_copy: dict[str, Any]
                     if isinstance(final_res, dict):
                         res_copy = dict(final_res)
-                        final_content = res_copy.get("content", "")
+                        final_content = str(res_copy.get("content", ""))
                     else:
                         final_content = str(final_res)
                         res_copy = {"type": "text", "content": final_content}
@@ -197,19 +198,19 @@ class BrainCoordinator:
                     return res_copy
 
                 elif isinstance(res, dict):
-                    res_copy = dict(res)
-                    content = res_copy.get("content", "")
+                    res_copy_text: dict[str, Any] = dict(res)
+                    content = res_copy_text.get("content", "")
                     if self.memory and hasattr(self.memory, "add_message"):
                         try:
                             await self.memory.add_message(effective_session_id, "user", user_text)
                             await self.memory.add_message(effective_session_id, "assistant", content)
                         except Exception:
                             pass
-                    if "iterations" not in res_copy:
-                        res_copy["iterations"] = 1
-                    res_copy["trace_id"] = decision_trace.trace_id
-                    res_copy["plan_nodes"] = len(plan_graph.nodes)
-                    return res_copy
+                    if "iterations" not in res_copy_text:
+                        res_copy_text["iterations"] = 1
+                    res_copy_text["trace_id"] = decision_trace.trace_id
+                    res_copy_text["plan_nodes"] = len(plan_graph.nodes)
+                    return res_copy_text
 
         # 6. Offline / Mock response fallback when no model_provider is active
         return {

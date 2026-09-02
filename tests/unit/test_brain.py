@@ -4,6 +4,7 @@ Unit tests for Model Providers, Prompt Builder, Brain Coordinator, and Context E
 
 from __future__ import annotations
 
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -38,13 +39,13 @@ class SampleAppTool(BaseTool):
 
 
 class MockModelProvider(BaseModelProvider):
-    def __init__(self, response: dict | list[dict]) -> None:
+    def __init__(self, response: dict[str, Any] | list[dict[str, Any]]) -> None:
         self.responses = response if isinstance(response, list) else [response]
         self.call_count = 0
-        self.last_messages: list = []
-        self.last_tools: list | None = None
+        self.last_messages: list[dict[str, Any]] = []
+        self.last_tools: list[dict[str, Any]] | None = None
 
-    async def chat(self, messages: list, tools: list | None = None) -> dict:
+    async def chat(self, messages: list[dict[str, Any]], tools: list[dict[str, Any]] | None = None) -> dict[str, Any]:
         self.last_messages = messages
         self.last_tools = tools
         resp = self.responses[min(self.call_count, len(self.responses) - 1)]
@@ -189,7 +190,6 @@ async def test_brain_coordinator_tool_call_flow(
     command_bus: CommandBus,
 ) -> None:
     """Verify coordinator receives tool_call, dispatches tool, and returns synthesized text."""
-    from unittest.mock import AsyncMock
     from nexusai.tools.base import BaseTool
     from pydantic import BaseModel
 
@@ -207,7 +207,7 @@ async def test_brain_coordinator_tool_call_flow(
     registry.register(DummyTool())
 
     # Provider returns tool_call first, then text response
-    calls = [
+    calls: list[dict[str, Any]] = [
         {"type": "tool_call", "tool_name": "dummy_notify", "arguments": {"msg": "Hello"}},
         {"type": "text", "content": "I have sent the notification for you!"},
     ]
