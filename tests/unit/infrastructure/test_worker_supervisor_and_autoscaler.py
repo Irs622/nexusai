@@ -117,7 +117,7 @@ async def test_heartbeat_supervisor_auto_recovery() -> None:
     # 2nd successful ping -> Auto-recovery triggered
     await supervisor.check_node(node)
     assert node.status == WorkerNodeStatus.ONLINE
-    assert tracker.is_evicted is False
+    assert not tracker.is_evicted
     assert len(recovered_nodes) == 1
     assert recovered_nodes[0].node_id == "recovered-worker"
 
@@ -254,4 +254,4 @@ async def test_cluster_orchestrator_lifecycle_and_snapshot() -> None:
 
     finally:
         await orchestrator.stop()
-        assert orchestrator.is_running is False
+        assert not orchestrator.is_running
