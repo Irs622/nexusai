@@ -1,4 +1,4 @@
-.PHONY: help install format lint typecheck test test-unit test-contract test-architecture quality-gate clean build
+.PHONY: help install format lint typecheck test test-unit test-contract test-architecture quality-gate clean build vault mcp-list mcp-ping soak p5-live web release-check
 
 PYTHON ?= python3
 VENV ?= .venv
@@ -18,6 +18,12 @@ help:
 	@echo "make quality-gate     - Run master quality gate sequence"
 	@echo "make build            - Build Python wheel and source package"
 	@echo "make vault            - Open AI Second Brain in Obsidian app"
+	@echo "make mcp-list         - List all configured Model Context Protocol servers"
+	@echo "make mcp-ping         - Ping all built-in MCP servers (filesystem, sqlite, web_fetcher)"
+	@echo "make soak             - Run continuous endurance soak test harness"
+	@echo "make p5-live          - Run Level 4 staging chaos test scenarios"
+	@echo "make web              - Launch FastAPI Web OS Dashboard with SSE stream"
+	@echo "make release-check    - Run automated release candidate verification gate"
 
 vault:
 	open -a "Obsidian" vault || open "obsidian://open?path=$(shell pwd)/vault"
@@ -50,6 +56,26 @@ test-contract:
 test-architecture:
 	$(BIN)/pytest tests/architecture/test_architecture_complexity.py
 
+mcp-list:
+	$(BIN)/nexusai mcp list
+
+mcp-ping:
+	$(BIN)/nexusai mcp ping filesystem
+	$(BIN)/nexusai mcp ping sqlite
+	$(BIN)/nexusai mcp ping web_fetcher
+
+soak:
+	$(BIN)/python tools/run_soak_test.py --cycles 1000
+
+p5-live:
+	$(BIN)/python tools/run_p5_live.py
+
+web:
+	$(BIN)/uvicorn nexusai.api.server:app --port 8000 --reload
+
+release-check:
+	$(BIN)/python tools/verify_release.py
+
 quality-gate: format lint typecheck test-contract test-architecture test
 
 clean:
@@ -58,3 +84,4 @@ clean:
 
 build: clean
 	$(BIN)/python -m build
+

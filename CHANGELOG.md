@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### 🚀 Phase 7 / Level 4: Built-in MCP Server Pack & Ecosystem Integration (ADR-0015)
+---
+
+## [1.0.0-rc1] - 2026-09-02
+
+### 🚀 Phase 7 / Level 4: Built-in MCP Server Pack & Autonomous Distributed Cluster (ADR-0014, ADR-0015, ADR-0016)
 - `feat(mcp)`: Implement native Python 3.12+ Built-in MCP Server Pack running over stdio JSON-RPC 2.0 out-of-the-box without requiring external `npm` or `uvx` dependencies.
   - `FilesystemMcpServer`: Secure sandboxed workspace operations (`read_file`, `write_file`, `list_directory`, `get_file_info`, `search_files`) with strict path traversal jail boundary enforcement.
   - `SqliteMcpServer`: Non-blocking async SQLite execution (`read_query`, `write_query`, `list_tables`, `describe_table`) with parameterized query support via `aiosqlite`.
@@ -17,9 +21,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `McpServerBase`: Resilient stdio JSON-RPC 2.0 base framework handling initialization, ping, tool discovery, and tool call dispatching with standard output flushing and error isolation.
 - `feat(mcp)`: Auto-resolve `python` / `python3` command to active `sys.executable` and propagate process exit/stderr errors instantly in `McpClient`.
 - `feat(distributed)`: Implement `DistributedWorkerPool` and `DistributedExecutionScheduler` coordinating PlanGraph DAG branches across distributed worker nodes with monotonic fencing tokens (ADR-0014).
-- `feat(web)`: Real-time Server-Sent Events (SSE) stream (`/api/events/stream`), REST MCP endpoints (`/api/mcp/servers`, ping, reload), and Cyber-Glassmorphism Web OS dashboard.
 - `feat(distributed)`: Implement `WorkerHeartbeatSupervisor` for dead node eviction and auto-recovery, `WorkerAutoScaler` for queue-based dynamic scale-out/scale-in with anti-thrashing cooldown, and `ClusterOrchestrator` unified facade (ADR-0016).
+- `feat(web)`: Real-time Server-Sent Events (SSE) stream (`/api/events/stream`), REST MCP endpoints (`/api/mcp/servers`, ping, reload), and Cyber-Glassmorphism Web OS dashboard.
 - `feat(test)`: Continuous soak & endurance test harness (`tools/run_soak_test.py`) tracking zero memory leak curves, GC object retention, and latency drift.
+- `feat(release)`: Automated Release Candidate verification runner (`tools/verify_release.py`) and modernized developer `Makefile`.
+
 
 ---
 
