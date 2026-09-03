@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 📚 Documentation
+- `docs(learn)`: Add comprehensive `LEARN.md` step-by-step educational guide for GitHub Community Exchange / GitHub Learning Program, detailing NexusAI architecture, DAG planning, tool port implementation, memory pipeline, and circuit breaker sandboxing.
+
 ---
 
 ## [1.0.0] - 2026-09-02
