@@ -2,9 +2,9 @@
 
 > **Model-Agnostic Agent Runtime & Orchestration Infrastructure**
 
-[![Version](https://img.shields.io/badge/version-v0.7.0-green.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-v1.0.0-green.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Python Version](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue.svg)](pyproject.toml)
+[![Python Version](https://img.shields.io/badge/python-3.12-blue.svg)](pyproject.toml)
 [![Architecture](https://img.shields.io/badge/architecture-P5%20Production%20Deployment-purple.svg)](docs/specs/core/architecture.md)
 [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Type Checked: Mypy](https://img.shields.io/badge/type--checked-mypy--strict-blue.svg)](https://mypy-lang.org/)
@@ -14,7 +14,7 @@
 
 It provides explicit DAG-based planning, execution scheduling, memory management, runtime policies, event-driven coordination, plugin capabilities, observability, and multi-provider model integration.
 
-NexusAI is currently a production-oriented runtime architecture (`v0.7.0`). Operational validation under real-world workloads is ongoing.
+NexusAI is a certified production-ready agent runtime architecture (`v1.0.0` Release Candidate). All 6-Gate Release certifications and architectural boundary fitness functions are strictly enforced in CI.
 
 Long-term, NexusAI aims to evolve from an agent runtime into a general-purpose AI Operating System.
 
@@ -41,9 +41,10 @@ J.A.R.V.I.S. / Jarfis
 git clone https://github.com/Irs622/nexusai.git
 cd nexusai
 
-# 2. Set up environment & install package
+# 2. Set up virtual environment & install package with dev tools
 python3 -m venv .venv
 source .venv/bin/activate
+pip install --upgrade pip setuptools wheel
 pip install -e ".[dev]"
 
 # 3. Copy default configuration
@@ -52,6 +53,42 @@ cp .env.example .env
 # 4. Run basic agent example (Offline mock execution)
 python examples/basic_agent.py
 ```
+
+---
+
+## 🚀 Running NexusAI
+
+NexusAI can be executed in multiple operational modes:
+
+| Mode | Command | Description |
+| :--- | :--- | :--- |
+| **Interactive CLI Chat** | `nexusai chat` | Chat directly with the autonomous agent in your terminal. |
+| **Web OS Dashboard** | `make web` *(or `uvicorn nexusai.api.server:app --port 8000 --reload`)* | Web UI dashboard with real-time Server-Sent Events (SSE) stream at `http://localhost:8000`. |
+| **Docker Compose** | `docker compose up -d` | Multi-container production stack (NexusAI runtime + Redis coordination). |
+| **Cluster Monitor TUI** | `nexusai cluster top` | Live Terminal UI (TUI) monitoring distributed worker nodes and leases. |
+
+---
+
+## 🧪 Testing & Quality Assurance
+
+Every release and PR must strictly pass the NexusAI quality gates:
+
+```bash
+# 1. Master Quality Gate (Linter, Formatter, Static Type Checker, 604 Unit Tests, & Benchmarks)
+python tools/run_quality_gate.py
+
+# 2. 6-Gate Release Candidate Certification Gate
+python tools/verify_release.py
+
+# 3. Full Integration Test Suite (104 E2E & Chaos Tests)
+pytest tests/integration -v
+
+# 4. Architecture Boundary Audit (Zero Rule A001-A020 Violations)
+python tools/audit_dependencies.py
+python tools/run_architecture_tests.py
+```
+
+> 📖 For detailed instructions, targeted testing, and debugging commands, read the **[Running & Testing Guide](docs/tutorials/running-and-testing.md)**.
 
 ---
 
@@ -116,11 +153,12 @@ if __name__ == "__main__":
 
 ## 📚 Documentation Index
 
+- **[Running & Testing Guide (docs/tutorials/running-and-testing.md)](docs/tutorials/running-and-testing.md)** — Comprehensive end-to-end guide for running all modes and executing test tiers.
 - **[Architecture Specification (docs/architecture.md)](docs/architecture.md)** — Clean Architecture layers & Mermaid pipeline diagrams.
 - **[Framework Comparison (docs/why-nexusai.md)](docs/why-nexusai.md)** — NexusAI vs. LangGraph, AutoGen, CrewAI, & Haystack.
 - **[Performance Benchmarks (docs/benchmarks.md)](docs/benchmarks.md)** — Sub-millisecond empirical benchmark metrics & reproducibility instructions.
 - **[Examples Directory (examples/)](examples/)** — Standalone executable demo scripts (`planner_demo.py`, `memory_demo.py`, `runtime_demo.py`).
-- **[Product Roadmap (ROADMAP.md)](ROADMAP.md)** — Milestone history & `v0.7.0` $\rightarrow$ `v1.0.0` roadmap.
+- **[Product Roadmap (ROADMAP.md)](ROADMAP.md)** — Milestone history & `v1.0.0` Production Release Candidate roadmap.
 
 ---
 
