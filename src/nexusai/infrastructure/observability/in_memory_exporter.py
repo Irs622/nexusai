@@ -119,6 +119,24 @@ class InMemoryMetricsExporter(IObservabilityPort):
         except Exception:
             pass
 
+    async def record_histogram(
+        self,
+        name: str,
+        value: float,
+        attributes: Mapping[str, Any] | None = None,
+    ) -> None:
+        """Record a histogram latency/value observation."""
+        await self.record_duration(name, value, attributes=attributes)
+
+    async def set_gauge(
+        self,
+        name: str,
+        value: float,
+        attributes: Mapping[str, Any] | None = None,
+    ) -> None:
+        """Set a gauge metric value."""
+        await self.record_gauge(name, value, attributes=attributes)
+
     def snapshot(self) -> MetricsSnapshot:
         """Create a thread-safe snapshot copy of current metrics state."""
         return MetricsSnapshot(

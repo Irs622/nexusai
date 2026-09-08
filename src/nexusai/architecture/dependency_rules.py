@@ -12,15 +12,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, NamedTuple, Set
 
-try:
-    from nexusai.architecture.rules import ARCHITECTURE_RULES, ArchitectureRule
-    from nexusai.architecture.whitelist import ArchitectureWhitelist
-except Exception:
-    import sys
-
-    ARCHITECTURE_RULES = getattr(sys.modules.get("nexusai_rules"), "ARCHITECTURE_RULES", [])
-    ArchitectureRule = getattr(sys.modules.get("nexusai_rules"), "ArchitectureRule", None)  # type: ignore[misc,assignment]
-    ArchitectureWhitelist = getattr(sys.modules.get("nexusai_whitelist"), "ArchitectureWhitelist", None)  # type: ignore[misc,assignment]
+from nexusai.architecture.rules import ARCHITECTURE_RULES, ArchitectureRule
+from nexusai.architecture.whitelist import ArchitectureWhitelist
 
 
 class ImportStatement(NamedTuple):
@@ -174,15 +167,13 @@ class DependencyRulesEngine:
         documentation_score = 100.0
         observability_score = 100.0
 
-        overall_health = int(
-            round(
-                (boundary_integrity * 0.25)
-                + (replaceability * 0.20)
-                + (dependency_health * 0.20)
-                + (technical_debt_score * 0.15)
-                + (documentation_score * 0.10)
-                + (observability_score * 0.10)
-            )
+        overall_health = round(
+            (boundary_integrity * 0.25)
+            + (replaceability * 0.20)
+            + (dependency_health * 0.20)
+            + (technical_debt_score * 0.15)
+            + (documentation_score * 0.10)
+            + (observability_score * 0.10)
         )
 
         return {

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any
+from typing import Any, Mapping
 from uuid import UUID, uuid4
 
 
@@ -209,7 +209,7 @@ class PlanGraphNode:
 class PlanGraph:
     """DAG Execution Plan container storing nodes and dependency edges."""
 
-    nodes: dict[int | str, PlanGraphNode] = field(default_factory=dict)
+    nodes: Mapping[int | str, PlanGraphNode] = field(default_factory=dict)
     edges: tuple[tuple[int | str, int | str], ...] = ()
 
 

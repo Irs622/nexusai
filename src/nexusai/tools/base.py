@@ -21,8 +21,8 @@ class BaseTool(ABC):
     input_schema: type[BaseModel]
 
     @abstractmethod
-    async def execute(self, *args: Any, **kwargs: Any) -> Any:
-        """Execute the tool capability asynchronously."""
+    def execute(self, *args: Any, **kwargs: Any) -> Any:
+        """Execute the tool capability asynchronously (coroutine) or synchronously."""
         ...
 
     def to_json_schema(self) -> dict[str, Any]:

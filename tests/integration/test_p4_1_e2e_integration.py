@@ -240,6 +240,7 @@ async def test_p4_1_e2e_08_cancellation_propagation_and_resource_release() -> No
 
     # Cancellation event occurs
     cancelled_cnt = await approval_engine.cancel_pending_requests("exec-e2e-cancel")
+    assert res.reservation_id is not None
     await gov_engine.release(res.reservation_id)
 
     assert cancelled_cnt == 1

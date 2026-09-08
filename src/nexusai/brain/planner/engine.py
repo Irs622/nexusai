@@ -121,7 +121,7 @@ class PlanGraphExecutionEngine:
                 event_type=event_type,
                 timestamp=now,
                 execution_id=exec_id,
-                node_id=str(node_id) if node_id is not None else None,
+                node_id=node_id,
                 task_id=task_id,
                 attempt=attempt,
                 attributes=attributes or {},

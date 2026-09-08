@@ -70,7 +70,7 @@ class SyncBlockingTool(BaseTool):
     risk_level = RiskLevel.LOW
     input_schema = SlowInputSchema
 
-    def execute(self, duration: float = 0.2, **kwargs: Any) -> str:
+    def execute(self, *args: Any, duration: float = 0.2, **kwargs: Any) -> str:
         time.sleep(duration)
         return f"Sync executed for {duration}s"
 

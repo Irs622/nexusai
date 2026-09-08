@@ -80,7 +80,7 @@ class SyncWorkerTool(BaseTool):
     risk_level = RiskLevel.LOW
     input_schema = QueryInputSchema
 
-    def execute(self, query: str, **kwargs: Any) -> str:
+    def execute(self, *args: Any, query: str = "", **kwargs: Any) -> str:
         time.sleep(0.1)
         return f"Sync result: {query}"
 
@@ -210,8 +210,8 @@ async def test_mixed_sync_async_tool_event_loop_responsiveness() -> None:
 
     res_async, res_sync, _ = await asyncio.gather(*tasks)
 
-    assert res_async.success is True
-    assert res_sync.success is True
+    assert res_async is not None and res_async.success is True
+    assert res_sync is not None and res_sync.success is True
     assert heartbeat_ticks >= 3, f"Event loop heartbeat was blocked! Ticks: {heartbeat_ticks}"
 
 
