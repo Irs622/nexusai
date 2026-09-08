@@ -70,6 +70,7 @@ async def test_p2_5_dag_with_authorized_and_unauthorized_tools() -> None:
 
     assert rec_graph.nodes[1].step.status == StepStatus.COMPLETED
     assert rec_graph.nodes[2].step.status == StepStatus.FAILED
+    assert results[1].error_message is not None
     assert "Governance denied" in results[1].error_message
     # Confirm reservation was released cleanly
     assert gov.get_active_reservation_count() == 0

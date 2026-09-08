@@ -44,6 +44,7 @@ async def test_filesystem_tool_sandbox_boundary_and_operations() -> None:
         )
         esc_res = await fs.execute(esc_req)
         assert esc_res.success is False
+        assert esc_res.error_message is not None
         assert "escapes sandbox root" in esc_res.error_message
 
         # 4. Delete file inside sandbox

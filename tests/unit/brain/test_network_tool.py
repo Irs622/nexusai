@@ -29,6 +29,7 @@ async def test_network_tool_allowlist_and_ssrf_protections() -> None:
     )
     res2 = await net_tool.execute(unauth_req)
     assert res2.success is False
+    assert res2.error_message is not None
     assert "not in the network destination allowlist" in res2.error_message
 
     # 3. SSRF Loopback destination (127.0.0.1) -> Blocked with ValueError
@@ -39,6 +40,7 @@ async def test_network_tool_allowlist_and_ssrf_protections() -> None:
     )
     res3 = await net_tool.execute(ssrf_req)
     assert res3.success is False
+    assert res3.error_message is not None
     assert "SSRF safety policy" in res3.error_message
 
 

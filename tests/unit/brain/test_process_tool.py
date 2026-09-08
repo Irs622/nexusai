@@ -32,6 +32,7 @@ async def test_process_tool_argv_execution_and_timeout_reaping() -> None:
     )
     timeout_res = await proc_tool.execute(timeout_req)
     assert timeout_res.success is False
+    assert timeout_res.error_message is not None
     assert "timed out" in timeout_res.error_message
 
 

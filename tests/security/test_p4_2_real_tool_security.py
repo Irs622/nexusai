@@ -44,6 +44,7 @@ async def test_security_filesystem_sandbox_escape_blocked() -> None:
             )
         )
         assert res1.success is False
+        assert res1.error_message is not None
         assert "escapes sandbox root" in res1.error_message
 
         # 2. Symlink escape attempt
@@ -54,6 +55,7 @@ async def test_security_filesystem_sandbox_escape_blocked() -> None:
                 )
             )
             assert res2.success is False
+            assert res2.error_message is not None
             assert "escapes sandbox root" in res2.error_message
 
 
@@ -81,6 +83,7 @@ async def test_security_process_execution_governance_and_timeout_reaping() -> No
         )
     )
     assert timeout_res.success is False
+    assert timeout_res.error_message is not None
     assert "timed out" in timeout_res.error_message
 
     await gov.release(res1.reservation_id)
@@ -99,6 +102,7 @@ async def test_security_network_destination_allowlist_and_ssrf() -> None:
         )
     )
     assert res_ssrf.success is False
+    assert res_ssrf.error_message is not None
     assert "SSRF safety policy" in res_ssrf.error_message
 
     # Unapproved host block
@@ -106,6 +110,7 @@ async def test_security_network_destination_allowlist_and_ssrf() -> None:
         ToolExecutionRequest("e2", "network_tool", {"url": "https://unauthorized-domain.com"})
     )
     assert res_unauth.success is False
+    assert res_unauth.error_message is not None
     assert "not in the network destination allowlist" in res_unauth.error_message
 
 

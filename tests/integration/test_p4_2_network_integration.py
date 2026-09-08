@@ -35,6 +35,7 @@ async def test_network_integration_governed_destination_validation() -> None:
     )
     res_bad = await net_tool.execute(req_bad)
     assert res_bad.success is False
+    assert res_bad.error_message is not None
     assert "not in the network destination allowlist" in res_bad.error_message
 
     await gov.release(res_gov.reservation_id)
