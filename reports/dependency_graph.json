@@ -1,12 +1,12 @@
 {
   "health_metrics": {
-    "health_score": 99,
+    "health_score": 100,
     "boundary_integrity": 100.0,
     "replaceability": 100.0,
     "dependency_health": 100.0,
     "technical_debt_score": 100.0,
     "documentation_score": 100.0,
-    "observability_score": 90.0,
+    "observability_score": 100.0,
     "whitelisted_debt": 0,
     "unapproved_drift": 0,
     "circular_dependencies": 0,

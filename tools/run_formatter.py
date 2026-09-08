@@ -1,6 +1,6 @@
 """
 Modular Code Formatter Runner Script for NexusAI.
-Runs Black and isort check across src, tests, benchmarks, and tools.
+Runs Black and isort check across src, tests, benchmarks, tools, and plugins.
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ def _is_module_available(module_name: str) -> bool:
 
 def run_formatter(fix: bool = False) -> int:
     """Execute formatting check or auto-formatting."""
-    target_dirs = ["src", "tests", "benchmarks", "tools"]
+    target_dirs = ["src", "tests", "benchmarks", "tools", "plugins"]
     existing_dirs = [d for d in target_dirs if (PROJECT_ROOT / d).exists()]
 
     print("=== [Quality Gate] Running Code Formatter Check (Black & isort) ===")

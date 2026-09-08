@@ -1,10 +1,15 @@
 """Official Calculator Tool Plugin for NexusAI."""
+
 from typing import List
+
 from pydantic import BaseModel, Field
+
 from nexusai.tools.base import BaseTool
+
 
 class CalculatorInput(BaseModel):
     expression: str = Field(description="Math expression to evaluate, e.g. '12 * 4'")
+
 
 class CalculatorTool(BaseTool):
     name = "calculator"
@@ -20,6 +25,7 @@ class CalculatorTool(BaseTool):
             return f"Result: {result}"
         except Exception as e:
             return f"Error: {e}"
+
 
 class CalculatorPlugin:
     name = "calculator_plugin"

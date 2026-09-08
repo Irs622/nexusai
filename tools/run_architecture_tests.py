@@ -97,20 +97,21 @@ def run_all_architecture_tests():
     with open(mmd_file, "w", encoding="utf-8") as f:
         f.write(mermaid_content.strip() + "\n")
 
+    a001_status = "PASS (Whitelisted Debt)" if total_whitelisted > 0 else "PASS (Clean)"
+    a001_violations = f"{total_whitelisted} Whitelisted" if total_whitelisted > 0 else "0"
+
     # 3. Markdown Report Export
     health = graph_data["health_metrics"]
-    md_content = f"""# NexusAI Multi-Dimensional Architecture Health Report
+    md_content = f"""# NexusAI Architectural Layer Dependency Graph & Rule Compliance
 
-> **Automated Architecture Governance & Boundary Health Analysis**
+Authoritative architectural audit report generated from Abstract Syntax Tree (AST) static analysis.
 
----
+## Executive Architecture Health Score
 
-## Multi-Dimensional Architecture Health Dashboard
-
-| Architecture Metric Dimension | Score / Status | Target Standard |
+| Health Metric | Current Value | Target Threshold |
 | :--- | :--- | :--- |
 | **Boundary Integrity** | **{health['boundary_integrity']}%** | 100.0% |
-| **Replaceability** | **{health['replaceability']}%** | 100.0% |
+| **Layer Replaceability** | **{health['replaceability']}%** | 100.0% |
 | **Dependency Health** | **{health['dependency_health']}%** | ≥ 95.0% |
 | **Technical Debt Score** | **{health['technical_debt_score']}%** ({health['whitelisted_debt']} exceptions) | 100.0% |
 | **Documentation Score** | **{health['documentation_score']}%** | 100.0% |
@@ -129,7 +130,7 @@ def run_all_architecture_tests():
 
 | Rule ID | Directive | Status | Violations |
 | :--- | :--- | :--- | :--- |
-| **A001** | `providers` MUST NOT import `runtime`, `brain`, `memory`, `workflow`, `automation` | `PASS (Whitelisted Debt)` | {total_whitelisted} Whitelisted |
+| **A001** | `providers` MUST NOT import `runtime`, `brain`, `memory`, `workflow`, `automation` | `{a001_status}` | {a001_violations} |
 | **A002** | `runtime` MUST NOT import concrete provider adapters | `PASS (Clean)` | 0 |
 | **A003** | `brain` MUST depend only on provider abstractions | `PASS (Clean)` | 0 |
 | **A004** | `memory` MUST remain provider-independent | `PASS (Clean)` | 0 |

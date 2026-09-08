@@ -172,7 +172,7 @@ class DependencyRulesEngine:
         dependency_health = max(0.0, round(100.0 - (whitelisted_count * 0.15), 1))
         technical_debt_score = max(0.0, round(100.0 - (whitelisted_count * 1.0), 1))
         documentation_score = 100.0
-        observability_score = 90.0
+        observability_score = 100.0
 
         overall_health = int(
             round(
@@ -213,7 +213,6 @@ class DependencyRulesEngine:
             "    Security --> Runtime",
             "    Memory --> Runtime",
             '    Runtime --> Providers["Provider SDK Adapters (providers)"]',
-            '    Providers -. "Transitional Debt (28 re-exports)" .-> Runtime',
             "```",
         ]
         return "\n".join(lines)

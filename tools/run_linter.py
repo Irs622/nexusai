@@ -1,6 +1,6 @@
 """
 Modular Linter Runner Script for NexusAI.
-Runs Ruff static analysis across src, tests, benchmarks, and tools.
+Runs Ruff static analysis across src, tests, benchmarks, tools, and plugins.
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ def _is_module_available(module_name: str) -> bool:
 
 def run_linter(fix: bool = False) -> int:
     """Execute Ruff linter check or auto-fixing."""
-    target_dirs = ["src", "tests", "benchmarks", "tools"]
+    target_dirs = ["src", "tests", "benchmarks", "tools", "plugins"]
     existing_dirs = [d for d in target_dirs if (PROJECT_ROOT / d).exists()]
 
     print("=== [Quality Gate] Running Static Linter Check (Ruff) ===")

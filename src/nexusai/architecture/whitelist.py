@@ -12,39 +12,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Set
 
-# Default fallback whitelist definitions if PyYAML is unavailable
-DEFAULT_WHITELIST: Dict[str, Set[str]] = {
-    "A001:src/nexusai/providers/__init__.py": {
-        "nexusai.runtime.circuit_breaker.CircuitBreaker",
-        "nexusai.runtime.circuit_breaker.CircuitState",
-        "nexusai.runtime.clock.Clock",
-        "nexusai.runtime.clock.SystemClock",
-        "nexusai.runtime.clock.TestClock",
-        "nexusai.runtime.context.CancellationToken",
-        "nexusai.runtime.context.Deadline",
-        "nexusai.runtime.context.ExecutionBudget",
-        "nexusai.runtime.context.ExecutionContext",
-        "nexusai.runtime.context.ExecutionHandle",
-        "nexusai.runtime.context.RequestContext",
-        "nexusai.runtime.context.ResourceContext",
-        "nexusai.runtime.context.RuntimeContext",
-        "nexusai.runtime.context.TraceContext",
-        "nexusai.runtime.engine.ExecutionEngine",
-        "nexusai.runtime.engine.RoutingDecision",
-        "nexusai.runtime.events.ProviderEvent",
-        "nexusai.runtime.events.ProviderHealthChangedEvent",
-        "nexusai.runtime.events.ProviderRegisteredEvent",
-        "nexusai.runtime.events.ProviderUnregisteredEvent",
-        "nexusai.runtime.events.RoutingDecisionEvent",
-        "nexusai.runtime.middleware.BaseMiddleware",
-        "nexusai.runtime.middleware.MiddlewarePipeline",
-        "nexusai.runtime.retry.RetryDecider",
-        "nexusai.runtime.retry.RetryMiddleware",
-        "nexusai.runtime.retry.RetryPolicy",
-        "nexusai.runtime.state_machine.ExecutionState",
-        "nexusai.runtime.state_machine.ExecutionStateMachine",
-    }
-}
+# Default fallback whitelist definitions (empty when no active technical debt)
+DEFAULT_WHITELIST: Dict[str, Set[str]] = {}
 
 
 @dataclass
@@ -69,47 +38,42 @@ class ArchitectureWhitelist:
         self._load_whitelist()
 
     def _load_whitelist(self) -> None:
-        # Default entry registered for baseline checking
-        norm_path = "src/nexusai/providers/__init__.py"
-        key = f"A001:{norm_path}"
-        allowed_set = set(DEFAULT_WHITELIST[key])
+        """Load whitelisted exceptions from config/architecture_whitelist.yaml."""
+        if not self.whitelist_file.exists():
+            return
 
-        rule_id = "A001"
-        file_path = norm_path
-        reason = "Transitional compatibility re-exports"
-        owner = "Core Architecture Team"
-        created = "2026-08-04"
-        expires = "2026-10-01"
+        try:
+            import yaml  # type: ignore[import-untyped]
 
-        if self.whitelist_file.exists():
-            try:
-                content = self.whitelist_file.read_text(encoding="utf-8")
-                for line in content.splitlines():
-                    line_str = line.strip()
-                    if line_str.startswith("owner:"):
-                        owner = line_str.split(":", 1)[1].strip().strip('"')
-                    elif line_str.startswith("created:"):
-                        created = line_str.split(":", 1)[1].strip().strip('"')
-                    elif line_str.startswith("expires:"):
-                        expires = line_str.split(":", 1)[1].strip().strip('"')
-                    elif line_str.startswith("file_path:"):
-                        file_path = line_str.split(":", 1)[1].strip().strip('"')
-                    elif line_str.startswith("rule_id:"):
-                        rule_id = line_str.split(":", 1)[1].strip().strip('"')
-            except Exception:
-                pass
+            content = self.whitelist_file.read_text(encoding="utf-8")
+            data = yaml.safe_load(content) or {}
+            exceptions_data = data.get("exceptions", [])
+            for item in exceptions_data:
+                rule_id = str(item.get("rule_id", ""))
+                file_path = str(item.get("file_path", "")).replace("\\", "/")
+                reason = str(item.get("reason", ""))
+                owner = str(item.get("owner", ""))
+                created = str(item.get("created", ""))
+                expires = str(item.get("expires", ""))
+                allowed_imports = set(item.get("allowed_imports", []))
 
-        self.entries.append(
-            WhitelistEntry(
-                rule_id=rule_id,
-                file_path=file_path.replace("\\", "/"),
-                reason=reason,
-                owner=owner,
-                created=created,
-                expires=expires,
-                allowed_imports=allowed_set,
-            )
-        )
+                key = f"{rule_id}:{file_path}"
+                self.allowed_map[key] = allowed_imports
+
+                self.entries.append(
+                    WhitelistEntry(
+                        rule_id=rule_id,
+                        file_path=file_path,
+                        reason=reason,
+                        owner=owner,
+                        created=created,
+                        expires=expires,
+                        allowed_imports=allowed_imports,
+                    )
+                )
+        except Exception:
+            # Fallback if parsing fails
+            pass
 
     def is_whitelisted(self, rule_id: str, file_path: str, import_name: str) -> bool:
         """Check whether a violation is an approved whitelisted exception."""

@@ -1,7 +1,10 @@
 """Official File System Plugin for NexusAI."""
+
 from typing import List
+
 from nexusai.tools.base import BaseTool
-from nexusai.tools.workspace.fs import ReadFileTool, ListDirectoryTool
+from nexusai.tools.workspace.fs import ListDirectoryTool, ReadFileTool
+
 
 class FileSystemPlugin:
     name = "filesystem_plugin"
