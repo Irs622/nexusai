@@ -5,7 +5,7 @@
 [![Version](https://img.shields.io/badge/version-v1.0.0-green.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python Version](https://img.shields.io/badge/python-3.12-blue.svg)](pyproject.toml)
-[![Architecture](https://img.shields.io/badge/architecture-P5%20Production%20Deployment-purple.svg)](docs/specs/core/architecture.md)
+[![Architecture](https://img.shields.io/badge/architecture-P5%20Production%20Deployment-purple.svg)](docs/architecture.md)
 [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Type Checked: Mypy](https://img.shields.io/badge/type--checked-mypy--strict-blue.svg)](https://mypy-lang.org/)
 [![Code of Conduct](https://img.shields.io/badge/Code%20of%20Conduct-v2.1-purple.svg)](CODE_OF_CONDUCT.md)
@@ -133,12 +133,12 @@ if __name__ == "__main__":
 
 ---
 
-## ⚠️ Current Limitations
+## ⚠️ Current Scope & Ongoing Milestones
 
-- **Single-Node Execution**: Distributed worker execution across remote SSH/Docker nodes is planned for future milestones.
-- **Production Telemetry Backends**: Tracing spans currently output to OpenTelemetry-compatible memory structures and logs; external Jaeger/Zipkin exporters are in active development.
+- **Multi-Node Production Clusters**: Distributed worker node orchestration is supported via Kubernetes Helm (`deploy/helm/nexusai/`) and Docker Compose; live multi-cloud cluster validation is ongoing.
+- **Production Telemetry Backends**: Tracing spans currently output to OpenTelemetry-compatible memory structures, SSE streams, and logs; native external Jaeger/Zipkin collector exporters are in active development.
 - **Heuristic Strategy Tuning**: Closed-loop policy tuning currently uses dataset win-rate heuristics rather than full deep reinforcement learning.
-- **Single-Machine Benchmarks**: Performance metrics are currently measured in single-machine local environments (`docs/benchmarks.md`).
+- **Single-Machine Benchmarks**: Performance metrics are currently measured in single-machine benchmark harnesses (`docs/benchmarks.md`).
 
 ---
 
