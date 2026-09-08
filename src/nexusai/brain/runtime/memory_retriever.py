@@ -18,7 +18,9 @@ def compute_lexical_similarity(text_a: str, text_b: str) -> float:
         return 0.0
     intersection = words_a.intersection(words_b)
     union = words_a.union(words_b)
-    return len(intersection) / float(len(union))
+    jaccard = len(intersection) / float(len(union))
+    overlap = len(intersection) / float(len(words_a))
+    return max(jaccard, overlap)
 
 
 class MemoryRetriever(IMemoryRetriever):

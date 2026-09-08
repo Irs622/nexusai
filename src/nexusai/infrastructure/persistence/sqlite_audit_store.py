@@ -216,6 +216,13 @@ class SQLiteAuditStore(IAuditStore):
                 "plan_fingerprint": ev.plan_fingerprint,
                 "sequence_number": ev.sequence_number,
                 "timestamp": ev.timestamp,
+                "node_id": ev.node_id,
+                "tool_id": ev.tool_id,
+                "worker_id": ev.worker_id,
+                "fencing_token": ev.fencing_token,
+                "actor": ev.actor,
+                "outcome": ev.outcome,
+                "severity": ev.severity,
                 "previous_event_hash": ev.previous_event_hash,
             }
             recalculated_hash = hashlib.sha256(

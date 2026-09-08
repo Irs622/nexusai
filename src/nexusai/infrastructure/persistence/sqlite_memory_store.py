@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import sqlite3
+import threading
 import time
 from enum import Enum
 
@@ -26,6 +27,7 @@ class SQLiteMemoryStore(IMemoryStore):
         db_path: str = ":memory:",
         telemetry: IObservabilityPort | None = None,
     ) -> None:
+        self._write_lock = threading.Lock()
         self._keepalive: sqlite3.Connection | None
         if db_path == ":memory:":
             from uuid import uuid4
@@ -41,9 +43,9 @@ class SQLiteMemoryStore(IMemoryStore):
     def _get_connection(self) -> sqlite3.Connection:
         """Create and configure thread-local SQLite connection with WAL mode."""
         if self.db_path.startswith("file:"):
-            conn = sqlite3.connect(self.db_path, uri=True, timeout=5.0)
+            conn = sqlite3.connect(self.db_path, uri=True, timeout=60.0)
         else:
-            conn = sqlite3.connect(self.db_path, timeout=5.0)
+            conn = sqlite3.connect(self.db_path, timeout=60.0)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA journal_mode=WAL;")
         conn.execute("PRAGMA foreign_keys=ON;")
@@ -84,67 +86,68 @@ class SQLiteMemoryStore(IMemoryStore):
         await asyncio.to_thread(self._sync_store, entry)
 
     def _sync_store(self, entry: MemoryEntry) -> None:
-        conn = self._get_connection()
-        try:
-            meta_json = json.dumps(dict(getattr(entry, "metadata", {}) or {}))
-            mt = getattr(entry, "memory_type", MemoryType.EPISODIC)
-            mem_type = mt.value if isinstance(mt, Enum) else str(mt)
-            pl = getattr(entry, "privacy_level", PrivacyLevel.INTERNAL)
-            priv_level = pl.value if isinstance(pl, Enum) else str(pl)
-            prov = getattr(entry, "provenance", None)
-            prov_source_type = getattr(prov, "source_type", "unknown") if prov else "unknown"
-            prov_source_id = getattr(prov, "source_id", None) if prov else None
+        with self._write_lock:
+            conn = self._get_connection()
             try:
-                prov_conf = float(getattr(prov, "confidence", 1.0))
-            except Exception:
-                prov_conf = 1.0
-            try:
-                prov_ver = int(getattr(prov, "version", 1))
-            except Exception:
-                prov_ver = 1
-            try:
-                prov_inv = 1 if getattr(prov, "invalidated", False) else 0
-            except Exception:
-                prov_inv = 0
+                meta_json = json.dumps(dict(getattr(entry, "metadata", {}) or {}))
+                mt = getattr(entry, "memory_type", MemoryType.EPISODIC)
+                mem_type = mt.value if isinstance(mt, Enum) else str(mt)
+                pl = getattr(entry, "privacy_level", PrivacyLevel.INTERNAL)
+                priv_level = pl.value if isinstance(pl, Enum) else str(pl)
+                prov = getattr(entry, "provenance", None)
+                prov_source_type = getattr(prov, "source_type", "unknown") if prov else "unknown"
+                prov_source_id = getattr(prov, "source_id", None) if prov else None
+                try:
+                    prov_conf = float(getattr(prov, "confidence", 1.0))
+                except Exception:
+                    prov_conf = 1.0
+                try:
+                    prov_ver = int(getattr(prov, "version", 1))
+                except Exception:
+                    prov_ver = 1
+                try:
+                    prov_inv = 1 if getattr(prov, "invalidated", False) else 0
+                except Exception:
+                    prov_inv = 0
 
-            try:
-                c_at = float(entry.created_at)
-            except Exception:
-                c_at = time.time()
-            try:
-                exp_at = float(entry.expires_at) if entry.expires_at is not None else None
-            except Exception:
-                exp_at = None
+                try:
+                    c_at = float(entry.created_at)
+                except Exception:
+                    c_at = time.time()
+                try:
+                    exp_at = float(entry.expires_at) if entry.expires_at is not None else None
+                except Exception:
+                    exp_at = None
 
-            with conn:
-                conn.execute(
-                    """
-                    INSERT OR REPLACE INTO memories (
-                        memory_id, session_id, execution_id, memory_type, content,
-                        source_type, source_id, confidence, version, invalidated,
-                        privacy_level, created_at, expires_at, metadata_json
+                with conn:
+                    conn.execute(
+                        """
+                        INSERT OR REPLACE INTO memories (
+                            memory_id, session_id, execution_id, memory_type, content,
+                            source_type, source_id, confidence, version, invalidated,
+                            privacy_level, created_at, expires_at, metadata_json
+                        )
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        """,
+                        (
+                            str(entry.memory_id),
+                            str(entry.session_id),
+                            str(entry.execution_id) if entry.execution_id is not None else None,
+                            mem_type,
+                            str(entry.content),
+                            str(prov_source_type),
+                            str(prov_source_id) if prov_source_id is not None else None,
+                            prov_conf,
+                            prov_ver,
+                            prov_inv,
+                            priv_level,
+                            c_at,
+                            exp_at,
+                            meta_json,
+                        ),
                     )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    (
-                        str(entry.memory_id),
-                        str(entry.session_id),
-                        str(entry.execution_id) if entry.execution_id is not None else None,
-                        mem_type,
-                        str(entry.content),
-                        str(prov_source_type),
-                        str(prov_source_id) if prov_source_id is not None else None,
-                        prov_conf,
-                        prov_ver,
-                        prov_inv,
-                        priv_level,
-                        c_at,
-                        exp_at,
-                        meta_json,
-                    ),
-                )
-        finally:
-            conn.close()
+            finally:
+                conn.close()
 
     async def load(self, memory_id: str, session_id: str) -> MemoryEntry | None:
         """Load a memory entry enforcing strict SQL session isolation (WHERE session_id = ?)."""
@@ -211,36 +214,39 @@ class SQLiteMemoryStore(IMemoryStore):
         return await asyncio.to_thread(self._sync_invalidate, memory_id, session_id)
 
     def _sync_invalidate(self, memory_id: str, session_id: str) -> bool:
-        conn = self._get_connection()
-        try:
-            with conn:
-                cursor = conn.execute(
-                    """
-                    UPDATE memories
-                    SET invalidated = 1, version = version + 1
-                    WHERE memory_id = ? AND session_id = ?
-                    """,
-                    (memory_id, session_id),
-                )
-                return cursor.rowcount > 0
-        finally:
-            conn.close()
+        with self._write_lock:
+            conn = self._get_connection()
+            try:
+                with conn:
+                    cursor = conn.execute(
+                        """
+                        UPDATE memories
+                        SET invalidated = 1, version = version + 1
+                        WHERE memory_id = ? AND session_id = ?
+                        """,
+                        (memory_id, session_id),
+                    )
+                    return cursor.rowcount > 0
+            finally:
+                conn.close()
 
     async def prune_expired(self) -> int:
         """Prune expired memory entries based on TTL timestamps."""
         return await asyncio.to_thread(self._sync_prune_expired)
 
     def _sync_prune_expired(self) -> int:
-        conn = self._get_connection()
-        now = time.time()
-        try:
-            with conn:
-                cursor = conn.execute(
-                    "DELETE FROM memories WHERE expires_at IS NOT NULL AND expires_at <= ?", (now,)
-                )
-                return cursor.rowcount
-        finally:
-            conn.close()
+        with self._write_lock:
+            conn = self._get_connection()
+            now = time.time()
+            try:
+                with conn:
+                    cursor = conn.execute(
+                        "DELETE FROM memories WHERE expires_at IS NOT NULL AND expires_at <= ?",
+                        (now,),
+                    )
+                    return cursor.rowcount
+            finally:
+                conn.close()
 
     async def clear_session(
         self,
@@ -255,21 +261,22 @@ class SQLiteMemoryStore(IMemoryStore):
         session_id: str,
         memory_type: MemoryType | None = None,
     ) -> int:
-        conn = self._get_connection()
-        try:
-            with conn:
-                if memory_type:
-                    cursor = conn.execute(
-                        "DELETE FROM memories WHERE session_id = ? AND memory_type = ?",
-                        (session_id, memory_type.value),
-                    )
-                else:
-                    cursor = conn.execute(
-                        "DELETE FROM memories WHERE session_id = ?", (session_id,)
-                    )
-                return cursor.rowcount
-        finally:
-            conn.close()
+        with self._write_lock:
+            conn = self._get_connection()
+            try:
+                with conn:
+                    if memory_type:
+                        cursor = conn.execute(
+                            "DELETE FROM memories WHERE session_id = ? AND memory_type = ?",
+                            (session_id, memory_type.value),
+                        )
+                    else:
+                        cursor = conn.execute(
+                            "DELETE FROM memories WHERE session_id = ?", (session_id,)
+                        )
+                    return cursor.rowcount
+            finally:
+                conn.close()
 
     def _row_to_entry(self, row: sqlite3.Row) -> MemoryEntry:
         meta_dict = json.loads(row["metadata_json"]) if row["metadata_json"] else {}

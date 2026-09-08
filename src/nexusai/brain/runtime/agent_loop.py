@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import time
 from typing import Any
+from uuid import uuid4
 
 from nexusai.brain.domain.agent import (
     AgentGoal,
@@ -89,7 +90,7 @@ class AgentLoop(IAgentLoop):
     ) -> AgentLoopResult:
         """Run the Planning -> Execution -> Observation loop under explicit iteration ceilings and state machine bounds."""
         t0 = time.perf_counter()
-        exec_id = f"loop-exec-{int(time.time() * 1000)}"
+        exec_id = f"loop-exec-{int(time.time() * 1000)}-{uuid4().hex[:8]}"
 
         # Active Controller Ownership (P3-4-INV-12)
         async with self._lock:

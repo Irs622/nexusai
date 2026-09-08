@@ -1,13 +1,13 @@
 {
   "health_metrics": {
-    "health_score": 94,
+    "health_score": 99,
     "boundary_integrity": 100.0,
     "replaceability": 100.0,
-    "dependency_health": 95.8,
-    "technical_debt_score": 72.0,
+    "dependency_health": 100.0,
+    "technical_debt_score": 100.0,
     "documentation_score": 100.0,
     "observability_score": 90.0,
-    "whitelisted_debt": 28,
+    "whitelisted_debt": 0,
     "unapproved_drift": 0,
     "circular_dependencies": 0,
     "forbidden_imports": 0,
@@ -40,7 +40,7 @@
     "voice",
     "workflow"
   ],
-  "edge_count": 2482,
+  "edge_count": 2454,
   "edges": [
     {
       "source": "root",
@@ -10044,146 +10044,6 @@
     },
     {
       "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
-      "target": "runtime",
-      "file": "providers/__init__.py"
-    },
-    {
-      "source": "providers",
       "target": "providers",
       "file": "providers/anthropic/__init__.py"
     },
@@ -12454,206 +12314,9 @@
     }
   ],
   "violations_summary": {
-    "total_violations": 28,
-    "whitelisted_exceptions": 28,
+    "total_violations": 0,
+    "whitelisted_exceptions": 0,
     "unapproved_regressions": 0
   },
-  "violations": [
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 56,
-      "import": "nexusai.runtime.circuit_breaker.CircuitBreaker",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 56,
-      "import": "nexusai.runtime.circuit_breaker.CircuitState",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 57,
-      "import": "nexusai.runtime.clock.Clock",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 57,
-      "import": "nexusai.runtime.clock.SystemClock",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 57,
-      "import": "nexusai.runtime.clock.TestClock",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 58,
-      "import": "nexusai.runtime.context.CancellationToken",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 58,
-      "import": "nexusai.runtime.context.Deadline",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 58,
-      "import": "nexusai.runtime.context.ExecutionBudget",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 58,
-      "import": "nexusai.runtime.context.ExecutionContext",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 58,
-      "import": "nexusai.runtime.context.ExecutionHandle",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 58,
-      "import": "nexusai.runtime.context.RequestContext",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 58,
-      "import": "nexusai.runtime.context.ResourceContext",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 58,
-      "import": "nexusai.runtime.context.RuntimeContext",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 58,
-      "import": "nexusai.runtime.context.TraceContext",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 69,
-      "import": "nexusai.runtime.engine.ExecutionEngine",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 69,
-      "import": "nexusai.runtime.engine.RoutingDecision",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 70,
-      "import": "nexusai.runtime.events.ProviderEvent",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 70,
-      "import": "nexusai.runtime.events.ProviderHealthChangedEvent",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 70,
-      "import": "nexusai.runtime.events.ProviderRegisteredEvent",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 70,
-      "import": "nexusai.runtime.events.ProviderUnregisteredEvent",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 70,
-      "import": "nexusai.runtime.events.RoutingDecisionEvent",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 77,
-      "import": "nexusai.runtime.middleware.BaseMiddleware",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 77,
-      "import": "nexusai.runtime.middleware.MiddlewarePipeline",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 78,
-      "import": "nexusai.runtime.retry.RetryDecider",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 78,
-      "import": "nexusai.runtime.retry.RetryMiddleware",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 78,
-      "import": "nexusai.runtime.retry.RetryPolicy",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 79,
-      "import": "nexusai.runtime.state_machine.ExecutionState",
-      "whitelisted": true
-    },
-    {
-      "rule_id": "A001",
-      "file": "src/nexusai/providers/__init__.py",
-      "line": 79,
-      "import": "nexusai.runtime.state_machine.ExecutionStateMachine",
-      "whitelisted": true
-    }
-  ]
+  "violations": []
 }

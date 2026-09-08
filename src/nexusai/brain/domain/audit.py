@@ -142,6 +142,13 @@ class AuditEvent:
                 "plan_fingerprint": self.plan_fingerprint,
                 "sequence_number": self.sequence_number,
                 "timestamp": self.timestamp,
+                "node_id": self.node_id,
+                "tool_id": self.tool_id,
+                "worker_id": self.worker_id,
+                "fencing_token": self.fencing_token,
+                "actor": self.actor,
+                "outcome": self.outcome,
+                "severity": self.severity,
                 "previous_event_hash": self.previous_event_hash,
             }
             raw_bytes = json.dumps(canonical_payload, sort_keys=True).encode("utf-8")

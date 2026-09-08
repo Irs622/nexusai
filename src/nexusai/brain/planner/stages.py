@@ -146,6 +146,7 @@ class TaskDecomposer:
                     step_id=1,
                     title="Direct Answer",
                     description=f"Formulate answer for goal: {ctx.goal.description}",
+                    tool_name="default_tool",
                     status=StepStatus.PENDING,
                 )
             )

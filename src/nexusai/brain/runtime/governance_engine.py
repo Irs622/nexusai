@@ -41,6 +41,10 @@ DEFAULT_TOOL_CAPABILITIES: dict[str, set[ToolCapability]] = {
     "echo_tool": {ToolCapability.PROCESS_EXEC},
     "fast_mock": {ToolCapability.PROCESS_EXEC},
     "auth_tool": {ToolCapability.PROCESS_EXEC},
+    "default_tool": set(),
+    "default_action": set(),
+    "dummy_tool": {ToolCapability.PROCESS_EXEC},
+    "mock_tool": {ToolCapability.PROCESS_EXEC},
 }
 
 

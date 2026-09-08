@@ -112,6 +112,8 @@ async def test_p4_1_e2e_02_high_risk_execution_with_human_approval() -> None:
     res = await tool_port.execute(ToolExecutionRequest("exec-e2e-02", "process_exec_tool", ()))
     assert res.success is True
     assert tool_port.call_count == 1
+    if gov_res.reservation_id:
+        await gov_engine.release(gov_res.reservation_id)
     assert gov_engine.get_active_reservation_count() == 0
 
 

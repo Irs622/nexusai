@@ -384,7 +384,8 @@ async def test_health_monitor_service() -> None:
 
 @pytest.mark.asyncio
 async def test_middleware_pipeline() -> None:
-    from nexusai.providers import BaseMiddleware, MiddlewarePipeline, ProviderSession
+    from nexusai.providers import ProviderSession
+    from nexusai.runtime.middleware import BaseMiddleware, MiddlewarePipeline
 
     execution_order: list[str] = []
 
@@ -423,7 +424,8 @@ def test_provider_session() -> None:
 
 
 def test_execution_context_and_cancellation() -> None:
-    from nexusai.providers import ExecutionContext, ExecutionHandle, ProviderTimeoutError
+    from nexusai.providers import ProviderTimeoutError
+    from nexusai.runtime.context import ExecutionContext, ExecutionHandle
 
     ctx = ExecutionContext()
     token = ctx.runtime.cancellation_token
@@ -440,7 +442,8 @@ def test_execution_context_and_cancellation() -> None:
 
 @pytest.mark.asyncio
 async def test_circuit_breaker() -> None:
-    from nexusai.providers import CircuitBreaker, CircuitState, ProviderCircuitOpenError
+    from nexusai.providers import ProviderCircuitOpenError
+    from nexusai.runtime.circuit_breaker import CircuitBreaker, CircuitState
 
     cb = CircuitBreaker("p1", failure_threshold=2, recovery_timeout_seconds=60.0)
     assert cb.state == CircuitState.CLOSED
@@ -460,7 +463,8 @@ async def test_circuit_breaker() -> None:
 
 @pytest.mark.asyncio
 async def test_retry_middleware() -> None:
-    from nexusai.providers import ProviderTimeoutError, RetryMiddleware, RetryPolicy
+    from nexusai.providers import ProviderTimeoutError
+    from nexusai.runtime.retry import RetryMiddleware, RetryPolicy
 
     policy = RetryPolicy(max_retries=2, initial_delay_seconds=0.01)
     middleware = RetryMiddleware(policy)
@@ -481,7 +485,7 @@ async def test_retry_middleware() -> None:
 
 
 def test_hierarchical_cancellation_token() -> None:
-    from nexusai.providers import CancellationToken
+    from nexusai.runtime.context import CancellationToken
 
     parent = CancellationToken()
     child = parent.create_child()
@@ -497,7 +501,8 @@ def test_hierarchical_cancellation_token() -> None:
 def test_test_clock_and_deadline() -> None:
     from datetime import datetime, timezone
 
-    from nexusai.providers import Deadline, TestClock
+    from nexusai.runtime.clock import TestClock
+    from nexusai.runtime.context import Deadline
 
     clock = TestClock(initial_time=1000.0)
     deadline_at = datetime.fromtimestamp(1010.0, tz=timezone.utc)
@@ -511,7 +516,8 @@ def test_test_clock_and_deadline() -> None:
 
 
 def test_execution_state_machine() -> None:
-    from nexusai.providers import ExecutionState, ExecutionStateMachine, ProviderSDKError
+    from nexusai.providers import ProviderSDKError
+    from nexusai.runtime.state_machine import ExecutionState, ExecutionStateMachine
 
     sm = ExecutionStateMachine(ExecutionState.CREATED)
     assert sm.current_state == ExecutionState.CREATED
@@ -528,7 +534,8 @@ def test_execution_state_machine() -> None:
 
 @pytest.mark.asyncio
 async def test_execution_engine_pipeline() -> None:
-    from nexusai.providers import ExecutionEngine, MockProvider
+    from nexusai.providers import MockProvider
+    from nexusai.runtime.engine import ExecutionEngine
 
     p = MockProvider("engine_mock")
     engine = ExecutionEngine()

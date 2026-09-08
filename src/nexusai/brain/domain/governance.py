@@ -39,7 +39,7 @@ class ResourceBudget:
     max_concurrent_tasks: int = 4
     max_cpu_seconds: float = 300.0
     max_memory_bytes: int = 512 * 1024 * 1024  # 512MB
-    max_subprocesses: int = 10
+    max_subprocesses: int = 50
     max_network_requests: int = 50
     max_tool_invocations: int = 100
 

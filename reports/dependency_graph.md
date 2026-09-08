@@ -10,11 +10,11 @@
 | :--- | :--- | :--- |
 | **Boundary Integrity** | **100.0%** | 100.0% |
 | **Replaceability** | **100.0%** | 100.0% |
-| **Dependency Health** | **95.8%** | ≥ 95.0% |
-| **Technical Debt Score** | **72.0%** (28 exceptions) | 100.0% |
+| **Dependency Health** | **100.0%** | ≥ 95.0% |
+| **Technical Debt Score** | **100.0%** (0 exceptions) | 100.0% |
 | **Documentation Score** | **100.0%** | 100.0% |
 | **Observability Score** | **90.0%** | ≥ 90.0% |
-| **OVERALL ARCHITECTURE HEALTH** | **94 / 100** | ≥ 90 / 100 |
+| **OVERALL ARCHITECTURE HEALTH** | **99 / 100** | ≥ 90 / 100 |
 
 ---
 
@@ -39,7 +39,7 @@ graph TD
 
 | Rule ID | Directive | Status | Violations |
 | :--- | :--- | :--- | :--- |
-| **A001** | `providers` MUST NOT import `runtime`, `brain`, `memory`, `workflow`, `automation` | `PASS (Whitelisted Debt)` | 28 Whitelisted |
+| **A001** | `providers` MUST NOT import `runtime`, `brain`, `memory`, `workflow`, `automation` | `PASS (Whitelisted Debt)` | 0 Whitelisted |
 | **A002** | `runtime` MUST NOT import concrete provider adapters | `PASS (Clean)` | 0 |
 | **A003** | `brain` MUST depend only on provider abstractions | `PASS (Clean)` | 0 |
 | **A004** | `memory` MUST remain provider-independent | `PASS (Clean)` | 0 |

@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import os
 import tempfile
+from unittest.mock import MagicMock
 
 import pytest
 from pydantic import BaseModel, Field

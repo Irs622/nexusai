@@ -43,6 +43,8 @@ dev = [
     "mutmut>=2.4.0",
     "pip-audit>=2.7.0",
     "pip-licenses>=4.4.0",
+    "hatchling>=1.21.0",
+    "build>=1.1.0",
 ]
 
 [project.scripts]

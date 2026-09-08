@@ -366,6 +366,9 @@ class PlanGraphExecutionEngine:
         limit = max_concurrency if max_concurrency is not None else self.max_concurrency
         semaphore = asyncio.Semaphore(limit)
 
+        if getattr(self.scheduler, "_is_shutdown", False):
+            self.scheduler = PriorityScheduler(aging_rate=0.5, telemetry=self.telemetry)
+
         results: list[ToolExecutionResult] = list(pre_results or [])
         completed_nodes: set[Any] = set(pre_completed_nodes or [])
         failed_nodes: set[Any] = set()
@@ -378,13 +381,6 @@ class PlanGraphExecutionEngine:
         if node_records_cache:
             for nid, nrec in node_records_cache.items():
                 attempt_counts[nid] = nrec.attempt_count
-
-        for comp_id in completed_nodes:
-            if comp_id in plan_graph.nodes:
-                try:
-                    ts.done(comp_id)
-                except ValueError:
-                    pass
 
         async def _run_single_node(node_id: Any) -> None:
             async with semaphore:
@@ -753,9 +749,14 @@ class PlanGraphExecutionEngine:
         try:
             while ts.is_active():
                 ready = sorted(ts.get_ready(), key=lambda n: (type(n).__name__, str(n)))
-                if ready:
-                    unexecuted_ready = [n for n in ready if n not in completed_nodes]
-                    for node_id in unexecuted_ready:
+                if not ready:
+                    break
+                has_completed = False
+                for node_id in ready:
+                    if node_id in completed_nodes:
+                        ts.done(node_id)
+                        has_completed = True
+                    else:
                         stask = ScheduledTask(
                             task_id=f"{exec_id}:{node_id}",
                             execution_id=exec_id,
@@ -763,7 +764,8 @@ class PlanGraphExecutionEngine:
                             priority=TaskPriority.NORMAL,
                         )
                         await self.scheduler.submit(stask)
-                break
+                if not has_completed:
+                    break
 
             while True:
                 while len(active_tasks) < limit:

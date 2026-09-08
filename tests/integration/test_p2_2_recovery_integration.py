@@ -42,9 +42,13 @@ from nexusai.infrastructure.persistence.sqlite_execution_store import SQLiteExec
 class FlakyToolPort(IToolPort):
     """ToolPort simulating flaky and side-effecting tool behaviors."""
 
-    def __init__(self, fail_until_attempt: dict[str, int] | None = None) -> None:
+    def __init__(
+        self,
+        fail_until_attempt: dict[str, int] | None = None,
+        initial_attempts: dict[str, int] | None = None,
+    ) -> None:
         self.fail_until_attempt = fail_until_attempt or {}
-        self.attempts: dict[str, int] = {}
+        self.attempts: dict[str, int] = dict(initial_attempts or {})
         self.executed_calls: list[str] = []
 
     async def execute(self, request: ToolExecutionRequest) -> ToolExecutionResult:
@@ -129,7 +133,7 @@ async def test_L_retry_state_survives_process_restart() -> None:
         )
         engine2.planner.plan = lambda ctx, session_id="": (graph, MagicMock())  # type: ignore[assignment]
 
-        flaky_port = FlakyToolPort(fail_until_attempt={"tool_1": 2})
+        flaky_port = FlakyToolPort(fail_until_attempt={"tool_1": 2}, initial_attempts={"tool_1": 2})
         ctx = create_15_node_context()
 
         # Resume execution

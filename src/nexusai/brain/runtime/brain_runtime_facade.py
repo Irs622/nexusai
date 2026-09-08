@@ -102,15 +102,12 @@ class BrainRuntimeFacade(IAgentRuntime):
 
         # 3. Delegated Execution via PlanGraphExecutionEngine
         try:
+            exec_id = f"exec-{int(time.time() * 1000)}"
             plan_graph, results, trace = await self.execution_engine.execute_plan(
                 ctx=ctx,
                 tool_port=tool_port,
                 session_id=request.session_id,
-            )
-            exec_id = (
-                trace.execution_id
-                if hasattr(trace, "execution_id") and trace.execution_id
-                else f"exec-{int(time.time() * 1000)}"
+                execution_id=exec_id,
             )
 
             # 4. Result Synthesis
