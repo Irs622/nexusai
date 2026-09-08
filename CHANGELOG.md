@@ -9,8 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### 📚 Documentation
-- `docs(learn)`: Add comprehensive `LEARN.md` step-by-step educational guide for GitHub Community Exchange / GitHub Learning Program, detailing NexusAI architecture, DAG planning, tool port implementation, memory pipeline, and circuit breaker sandboxing.
+### 🚀 Packaging & Architecture Governance
+- `fix(core)`: Resolve Python Package Wheel Build (Gate 6) via `hatchling` and `build` dev dependencies.
+- `fix(core)`: Pass 100% of full integration test suite (104/104 tests passed, 0 failures).
+- `fix(architecture)`: Eliminate Rule A001 architectural technical debt by removing 28 illegal runtime imports from `nexusai.providers`, achieving 100.0% Technical Debt Score and clean boundaries.
+- `fix(persistence)`: Implement process-level mutex lock (`threading.Lock()`) for SQLite memory writes to resolve table-locking contention under high concurrency.
+- `fix(audit)`: Synchronize canonical SHA-256 hash payload in `AuditEvent` and `SQLiteAuditStore.verify_chain` for cryptographic tamper detection.
+
+### 🐳 Deployment & Containerization
+- `feat(deploy)`: Implement production multi-stage `Dockerfile` (Python 3.12-slim, non-root user UID 10001, security capability drop, and internal healthcheck).
+- `feat(deploy)`: Add `.dockerignore` and `docker-compose.yml` for multi-container local runtime with persistent storage and Redis coordination.
+- `feat(api)`: Add `/health/live`, `/health/ready`, `/healthz`, and `/readyz` probe endpoints matching Kubernetes Helm specifications.
+
+### 📚 Documentation & Guides
+- `docs(tutorials)`: Add comprehensive `docs/tutorials/running-and-testing.md` guide detailing CLI, Web UI, Docker execution, and tiered test matrices.
+- `docs(readme)`: Modernize `README.md` with dedicated Running and Testing sections, updated `v1.0.0` badges, and operational scope clarification.
+- `docs(learn)`: Add comprehensive `LEARN.md` step-by-step educational guide for GitHub Community Exchange / GitHub Learning Program.
+- `docs(vault)`: Expand Obsidian Second Brain with `ANALISIS-TOTAL-ARSITEKTUR-NEXUSAI.md` and 4 subsystem architecture blueprints (`Brain`, `Runtime`, `Infrastructure`, `Governance`).
 
 ---
 

@@ -21,7 +21,7 @@ last_reviewed: 2026-08-04
 
 ## 📜 Purpose & Relationship to the Manifesto
 
-While [`docs/concepts/architecture_manifesto.md`](file:///Users/mac/Downloads/jarfis%20projek/docs/concepts/architecture_manifesto.md) serves as the lean, normative constitutional code defining **what** NexusAI is and **what baseline laws** it enforces, this document explains **why** those architectural choices were made, **how subsystems interact**, and **what trade-offs** were accepted.
+While [`architecture_manifesto.md`](architecture_manifesto.md) serves as the lean, normative constitutional code defining **what** NexusAI is and **what baseline laws** it enforces, this document explains **why** those architectural choices were made, **how subsystems interact**, and **what trade-offs** were accepted.
 
 This document exists to ensure future maintainers understand the deep engineering rationale behind every core abstraction, preventing short-term convenience shortcuts that would compromise the long-term integrity of NexusAI.
 
@@ -59,16 +59,16 @@ This document exists to ensure future maintainers understand the deep engineerin
 
 | Subsystem Package | Primary Responsibility | Architectural Guarantee | Governance Reference |
 | :--- | :--- | :--- | :--- |
-| `nexusai.providers` | Manages LLM transport adapters, wire format translators, health monitoring (`HealthMonitor`), policy routing (`ProviderRouter`), circuit breakers (`CircuitBreaker`), and middleware pipelines (`BaseMiddleware`). | 100% stateless wire translation. Zero state leakage. | [ADR-0006](file:///Users/mac/Downloads/jarfis%20projek/docs/adr/0006-provider-sdk.md), [ADR-0007](file:///Users/mac/Downloads/jarfis%20projek/docs/adr/0007-canonical-model-evolution.md) |
-| `nexusai.runtime` | Provides low-level execution kernel primitives: execution state machines (`ExecutionStateMachine`), cancellation tokens (`CancellationToken`), deadlines (`Deadline`), and execution contexts (`ExecutionContext`). | Deterministic task state transitions & cancellation propagation. | [ADR-0006](file:///Users/mac/Downloads/jarfis%20projek/docs/adr/0006-provider-sdk.md) |
-| `nexusai.brain` | Coordinates agent loop execution (`AgentLoop`), prompt compilation, reasoning strategy evaluation, planning, and immutable observation event recording (`Observation`). | Functional state reducers & frozen observation logs. | [ADR-0004](file:///Users/mac/Downloads/jarfis%20projek/docs/adr/0004-immutable-agent-context.md), [ADR-0005](file:///Users/mac/Downloads/jarfis%20projek/docs/adr/0005-reasoning-and-observation-architecture.md) |
+| `nexusai.providers` | Manages LLM transport adapters, wire format translators, health monitoring (`HealthMonitor`), policy routing (`ProviderRouter`), circuit breakers (`CircuitBreaker`), and middleware pipelines (`BaseMiddleware`). | 100% stateless wire translation. Zero state leakage. | [ADR-0006](../adr/0006-provider-sdk.md), [ADR-0007](../adr/0007-canonical-model-evolution.md) |
+| `nexusai.runtime` | Provides low-level execution kernel primitives: execution state machines (`ExecutionStateMachine`), cancellation tokens (`CancellationToken`), deadlines (`Deadline`), and execution contexts (`ExecutionContext`). | Deterministic task state transitions & cancellation propagation. | [ADR-0006](../adr/0006-provider-sdk.md) |
+| `nexusai.brain` | Coordinates agent loop execution (`AgentLoop`), prompt compilation, reasoning strategy evaluation, planning, and immutable observation event recording (`Observation`). | Functional state reducers & frozen observation logs. | [ADR-0004](../adr/0004-immutable-agent-context.md), [ADR-0005](../adr/0005-reasoning-and-observation-architecture.md) |
 | `nexusai.bus` | Dispatches system Commands (write operations), Queries (side-effect-free reads), and Events (system telemetry) ensuring strict CQRS decoupling. | Clean separation of safe queries from guarded state modifications. | Core Architectural Directives |
-| `nexusai.security` | Evaluates tool call requests against a zero-trust risk matrix (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`), sanitizes command strings (`CommandSanitizer`), and manages user approval prompts. | Pre-execution safety inspection boundary. | [ADR-0003](file:///Users/mac/Downloads/jarfis%20projek/docs/adr/0003-security-evaluator.md) |
-| `nexusai.memory` | Manages dual-tier conversation persistence (SQLite via `aiosqlite`) and hierarchical memory graphs. | Local offline history persistence. | [ADR-0002](file:///Users/mac/Downloads/jarfis%20projek/docs/adr/0002-memory-storage.md) |
-| `nexusai.knowledge` | Manages local vector embedding storage (`BaseVectorStore`) for workspace indexing and RAG retrieval. | Local context retrieval without cloud exfiltration. | [ADR-0002](file:///Users/mac/Downloads/jarfis%20projek/docs/adr/0002-memory-storage.md) |
+| `nexusai.security` | Evaluates tool call requests against a zero-trust risk matrix (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`), sanitizes command strings (`CommandSanitizer`), and manages user approval prompts. | Pre-execution safety inspection boundary. | [ADR-0003](../adr/0003-security-evaluator.md) |
+| `nexusai.memory` | Manages dual-tier conversation persistence (SQLite via `aiosqlite`) and hierarchical memory graphs. | Local offline history persistence. | [ADR-0002](../adr/0002-memory-storage.md) |
+| `nexusai.knowledge` | Manages local vector embedding storage (`BaseVectorStore`) for workspace indexing and RAG retrieval. | Local context retrieval without cloud exfiltration. | [ADR-0002](../adr/0002-memory-storage.md) |
 | `nexusai.workflow` | Executes multi-step declarative workflow graphs with state recovery and retry boundaries. | Durable multi-step workflow persistence. | Workflow Specification |
 | `nexusai.automation` | Manages background task scheduling, cron triggers, and time-based agent triggers (`Scheduler`). | Background task execution decoupling. | System Architecture |
-| `nexusai.tools` | Hosts tool registry (`ToolRegistry`), plugin loader (`plugin_loader.py`), sandboxing, and OS driver interfaces (`nexusai.tools.macos`, etc.). | Minimalist driver plugin extensions. | [ADR-0001](file:///Users/mac/Downloads/jarfis%20projek/docs/adr/0001-plugin-system.md) |
+| `nexusai.tools` | Hosts tool registry (`ToolRegistry`), plugin loader (`plugin_loader.py`), sandboxing, and OS driver interfaces (`nexusai.tools.macos`, etc.). | Minimalist driver plugin extensions. | [ADR-0001](../adr/0001-plugin-system.md) |
 
 ---
 
@@ -88,7 +88,7 @@ graph TD
 ### Trade-Off 1: Model Independence vs. Lowest Common Denominator & Adapter Overhead
 - **Chosen Path**: Enforce model-agnostic canonical contracts (`ChatRequest`, `ChatResponse`, `Capability`).
 - **Pros (+)**: Total vendor independence; swappable local and cloud brains; zero state loss when upgrading models.
-- **Cons (-)**: Advanced single-vendor features cannot enter canonical abstractions until supported by at least two independent providers ([ADR-0007](file:///Users/mac/Downloads/jarfis%20projek/docs/adr/0007-canonical-model-evolution.md)). Requires maintaining translator adapters for each vendor format.
+- **Cons (-)**: Advanced single-vendor features cannot enter canonical abstractions until supported by at least two independent providers ([ADR-0007](../adr/0007-canonical-model-evolution.md)). Requires maintaining translator adapters for each vendor format.
 - **Conscious Decision**: **Accepted**. Vendor isolation is vital for long-term project survival. Single-vendor features remain isolated in raw trace metadata (`response.trace`).
 
 ---

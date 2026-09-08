@@ -9,12 +9,12 @@ owner:
 applies_to:
   - architectural-decision-records
 review_cycle: quarterly
-last_reviewed: 2026-08-07
+last_reviewed: 2026-09-09
 ---
 
 # 📜 Architectural Decision Records (ADRs) Index
 
-This directory documents key architectural decisions made during the design and development of the NexusAI AI Operating System.
+This directory documents key architectural decisions made during the design, implementation, and hardening of the NexusAI AI Operating System.
 
 ---
 
@@ -22,21 +22,30 @@ This directory documents key architectural decisions made during the design and 
 
 | ADR ID | Title | Status | Scope |
 |---|---|---|---|
-| [ADR 0001](file:///Users/mac/Downloads/jarfis%20projek/docs/adr/0001-plugin-system.md) | Plugin System Architecture & Lifecycle Hooks | Accepted | Plugins |
-| [ADR 0002](file:///Users/mac/Downloads/jarfis%20projek/docs/adr/0002-memory-storage.md) | Local SQLite Vector & Key-Value Memory Storage | Accepted | Memory |
-| [ADR 0003](file:///Users/mac/Downloads/jarfis%20projek/docs/adr/0003-security-evaluator.md) | Command Security Guard & Risk Classification | Accepted | Security |
-| [ADR 0004](file:///Users/mac/Downloads/jarfis%20projek/docs/adr/0004-provider-interface.md) | Model-Agnostic Provider Interface | Superseded by 0006 | Models |
-| [ADR 0005](file:///Users/mac/Downloads/jarfis%20projek/docs/adr/0005-reasoning-and-observation-architecture.md) | Reasoning Engine & Observation Architecture | Accepted | Brain |
-| [ADR 0006](file:///Users/mac/Downloads/jarfis%20projek/docs/adr/0006-provider-sdk.md) | Vendor-Agnostic Provider SDK Foundation & Architecture | Accepted | Provider SDK |
-| [ADR 0007](file:///Users/mac/Downloads/jarfis%20projek/docs/adr/0007-canonical-model-evolution.md) | Governance Principles for Canonical Model Evolution | Accepted | Provider SDK |
-| [ADR 0008](file:///Users/mac/Downloads/jarfis%20projek/docs/adr/0008-brain-runtime-architecture.md) | Stateless Brain Runtime Architecture & Execution Pipeline | Accepted | Brain Runtime |
-| [ADR 0009](file:///Users/mac/Downloads/jarfis%20projek/docs/adr/0009-agent-runtime-architecture.md) | Multi-Turn Agent Runtime & Decoupled Loop Architecture | Accepted | Agent Runtime |
+| [ADR 0001](0001-plugin-system.md) | Extensible Tool Plugin Architecture & Lifecycle Hooks | Accepted | Plugins |
+| [ADR 0002](0002-memory-storage.md) | Dual-Tier Local Memory Architecture & SQLite Persistence | Accepted | Memory |
+| [ADR 0003](0003-security-evaluator.md) | Command Security Guard & Risk Classification Model | Accepted | Security |
+| [ADR 0004a](0004-immutable-agent-context.md) | Immutable AgentContext and Reducer Pattern | Accepted | Core State |
+| [ADR 0004b](0004-provider-interface.md) | Model-Agnostic Provider Interface | Superseded by 0006 | Models |
+| [ADR 0005](0005-reasoning-and-observation-architecture.md) | Pluggable ReasoningEngine and Immutable Observation Layer | Accepted | Brain |
+| [ADR 0006](0006-provider-sdk.md) | Vendor-Agnostic Provider SDK Foundation & Architecture | Accepted | Provider SDK |
+| [ADR 0007](0007-canonical-model-evolution.md) | Governance Principles for Canonical Model Evolution | Accepted | Provider SDK |
+| [ADR 0008](0008-brain-runtime-architecture.md) | Stateless Brain Runtime Architecture & Execution Pipeline | Accepted | Brain Runtime |
+| [ADR 0009](0009-agent-runtime-architecture.md) | Multi-Turn Agent Runtime & Decoupled Loop Orchestration Architecture | Accepted | Agent Runtime |
+| [ADR 0010](0010-context-compaction-and-memory-retention.md) | Context Compaction and Memory Retention Architecture | Accepted | Context & Memory |
+| [ADR 0011](0011-extensibility-and-extension-points.md) | Framework Extension Points and Plugin Boundaries | Accepted | Extensibility |
+| [ADR 0012](0012-modular-planner-and-memory-pipeline.md) | Modular Planner, Dynamic Capability Discovery & Memory Intelligence Architecture | Accepted | Planner & Memory |
+| [ADR 0013](0013-model-context-protocol-integration.md) | Model Context Protocol (MCP) Client & Tool Adapter Integration | Accepted | MCP Client |
+| [ADR 0014](0014-distributed-worker-node-scheduler.md) | Distributed Worker Node Scheduler & Cluster Execution | Accepted | Distributed |
+| [ADR 0015](0015-builtin-mcp-server-pack.md) | Built-in Model Context Protocol (MCP) Server Pack | Accepted | Built-in MCP |
+| [ADR 0016](0016-autonomous-worker-autoscaler-and-supervisor.md) | Autonomous Worker Auto-Scaler & Heartbeat Supervisor | Accepted | Distributed & Elasticity |
+| [ADR 0017](0017-multi-agent-collaboration-mesh.md) | Multi-Agent Collaboration Mesh (A2A Protocol & Mesh) | Accepted | Multi-Agent |
 
 ---
 
 ## 🛡️ Architecture Decision Coverage Matrix
 
-This matrix maps every architectural decision to its corresponding automated test suite and enforcement mechanism.
+This matrix maps architectural decisions to their corresponding automated test suite and enforcement mechanism.
 
 | Architectural Decision | ADR | Automated Test Suite | Enforcement Mechanism |
 | :--- | :--- | :--- | :--- |
@@ -50,11 +59,13 @@ This matrix maps every architectural decision to its corresponding automated tes
 | **Tool Port Isolation** | ADR-0009 | `tests/architecture/test_tool_boundary.py` | AST Tool Import Boundary Test |
 | **State Machine Transition Matrix** | ADR-0009 | `tests/architecture/test_state_machine_matrix.py` | Transition Matrix Permutation Test |
 | **Repository Layout Tooling Isolation** | AGENTS.md | `tests/architecture/test_repository_layout.py` | Import Linter (`.importlinter`) & Layout Test |
+| **Distributed Cluster & Elasticity** | ADR-0014, ADR-0016 | `tests/integration/test_p5_9_multi_node_cluster.py` | Cluster Chaos & Load Test |
+| **Multi-Agent Consensus & Mesh** | ADR-0017 | `tests/integration/test_p5_9_multi_node_cluster.py` | Multi-Agent Mesh Test |
 
 ---
 
 ## 📖 Guidelines for Creating New ADRs
 
-1. File naming convention: `XXXX-short-title.md` (e.g., `0010-memory-lifecycle.md`).
+1. File naming convention: `XXXX-short-title.md` (e.g., `0018-realtime-telemetry.md`).
 2. Every ADR must contain YAML frontmatter (`status`, `audience`, `owner`, `applies_to`, `review_cycle`, `last_reviewed`).
 3. Standard sections: **Context**, **Decision**, **Alternatives Considered**, **Consequences**, **Validation Criteria**, and **Review Phase**.

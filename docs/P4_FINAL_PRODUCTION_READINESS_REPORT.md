@@ -85,6 +85,6 @@ For unrestricted multi-node Kubernetes cluster deployments across separate physi
 
 ## 6. Generated Release Artifacts
 
-- [`artifacts/p4_final/production_readiness.json`](file:///Users/mac/Downloads/jarfis%20projek/artifacts/p4_final/production_readiness.json)
-- [`artifacts/p4_final/security_findings.json`](file:///Users/mac/Downloads/jarfis%20projek/artifacts/p4_final/security_findings.json)
-- [`artifacts/p4_final/performance_results.json`](file:///Users/mac/Downloads/jarfis%20projek/artifacts/p4_final/performance_results.json)
+- [`artifacts/p4_final/production_readiness.json`](../artifacts/p4_final/production_readiness.json)
+- [`artifacts/p4_final/security_findings.json`](../artifacts/p4_final/security_findings.json)
+- [`artifacts/p4_final/performance_results.json`](../artifacts/p4_final/performance_results.json)

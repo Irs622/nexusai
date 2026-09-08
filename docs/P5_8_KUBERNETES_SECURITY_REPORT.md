@@ -34,7 +34,7 @@ Kubernetes scheduling is strictly subordinate to the Authoritative Core. Obtaini
 
 ## 2. P5-8 Security Invariants Matrix (`P5-8-INV-01` to `P5-8-INV-35`)
 
-All 35 security invariants were verified in [`tests/security/test_p5_8_kubernetes_security.py`](file:///Users/mac/Downloads/jarfis%20projek/tests/security/test_p5_8_kubernetes_security.py):
+All 35 security invariants were verified in [`tests/security/test_p5_8_kubernetes_security.py`](../tests/security/test_p5_8_kubernetes_security.py):
 
 - ✅ `P5-8-INV-01 - INV-06`: Kubernetes, worker ServiceAccount CANNOT create execution authority, leases, fencing tokens, approvals, or bypass ToolRegistry/Governance.
 - ✅ `P5-8-INV-07 - INV-12`: Sandbox CANNOT access PostgreSQL, Redis, Vault, K8s API, host filesystem, or container socket.
@@ -57,16 +57,16 @@ Following Section 18 of the specification:
 
 ## 4. Files Created & Modified
 
-1. [`deploy/helm/nexusai/Chart.yaml`](file:///Users/mac/Downloads/jarfis%20projek/deploy/helm/nexusai/Chart.yaml) **[NEW]**: Helm Chart metadata.
-2. [`deploy/helm/nexusai/values.yaml`](file:///Users/mac/Downloads/jarfis%20projek/deploy/helm/nexusai/values.yaml) **[NEW]**: Helm default configuration values.
-3. [`deploy/helm/nexusai/values-production.yaml`](file:///Users/mac/Downloads/jarfis%20projek/deploy/helm/nexusai/values-production.yaml) **[NEW]**: Production configuration overrides.
-4. [`deploy/helm/nexusai/templates/serviceaccount.yaml`](file:///Users/mac/Downloads/jarfis%20projek/deploy/helm/nexusai/templates/serviceaccount.yaml) **[NEW]**: Dedicated ServiceAccount manifest.
-5. [`deploy/helm/nexusai/templates/rbac.yaml`](file:///Users/mac/Downloads/jarfis%20projek/deploy/helm/nexusai/templates/rbac.yaml) **[NEW]**: Least-privilege Role and RoleBinding.
-6. [`deploy/helm/nexusai/templates/networkpolicy.yaml`](file:///Users/mac/Downloads/jarfis%20projek/deploy/helm/nexusai/templates/networkpolicy.yaml) **[NEW]**: Default-deny Ingress/Egress NetworkPolicy.
-7. [`deploy/helm/nexusai/templates/deployment-worker.yaml`](file:///Users/mac/Downloads/jarfis%20projek/deploy/helm/nexusai/templates/deployment-worker.yaml) **[NEW]**: Restricted Pod Security Deployment manifest.
-8. [`tests/security/test_p5_8_kubernetes_security.py`](file:///Users/mac/Downloads/jarfis%20projek/tests/security/test_p5_8_kubernetes_security.py) **[NEW]**: Security test suite.
-9. [`tests/integration/test_p5_8_kubernetes_deployment.py`](file:///Users/mac/Downloads/jarfis%20projek/tests/integration/test_p5_8_kubernetes_deployment.py) **[NEW]**: Integration test suite.
-10. [`docs/deployment/P5_8_KUBERNETES_DEPLOYMENT.md`](file:///Users/mac/Downloads/jarfis%20projek/docs/deployment/P5_8_KUBERNETES_DEPLOYMENT.md), [`docs/P5_8_KUBERNETES_SECURITY_REPORT.md`](file:///Users/mac/Downloads/jarfis%20projek/docs/P5_8_KUBERNETES_SECURITY_REPORT.md) **[NEW]**: Documentation & reports.
+1. [`deploy/helm/nexusai/Chart.yaml`](../deploy/helm/nexusai/Chart.yaml) **[NEW]**: Helm Chart metadata.
+2. [`deploy/helm/nexusai/values.yaml`](../deploy/helm/nexusai/values.yaml) **[NEW]**: Helm default configuration values.
+3. [`deploy/helm/nexusai/values-production.yaml`](../deploy/helm/nexusai/values-production.yaml) **[NEW]**: Production configuration overrides.
+4. [`deploy/helm/nexusai/templates/serviceaccount.yaml`](../deploy/helm/nexusai/templates/serviceaccount.yaml) **[NEW]**: Dedicated ServiceAccount manifest.
+5. [`deploy/helm/nexusai/templates/rbac.yaml`](../deploy/helm/nexusai/templates/rbac.yaml) **[NEW]**: Least-privilege Role and RoleBinding.
+6. [`deploy/helm/nexusai/templates/networkpolicy.yaml`](../deploy/helm/nexusai/templates/networkpolicy.yaml) **[NEW]**: Default-deny Ingress/Egress NetworkPolicy.
+7. [`deploy/helm/nexusai/templates/deployment-worker.yaml`](../deploy/helm/nexusai/templates/deployment-worker.yaml) **[NEW]**: Restricted Pod Security Deployment manifest.
+8. [`tests/security/test_p5_8_kubernetes_security.py`](../tests/security/test_p5_8_kubernetes_security.py) **[NEW]**: Security test suite.
+9. [`tests/integration/test_p5_8_kubernetes_deployment.py`](../tests/integration/test_p5_8_kubernetes_deployment.py) **[NEW]**: Integration test suite.
+10. [`docs/deployment/P5_8_KUBERNETES_DEPLOYMENT.md`](deployment/P5_8_KUBERNETES_DEPLOYMENT.md), [`docs/P5_8_KUBERNETES_SECURITY_REPORT.md`](P5_8_KUBERNETES_SECURITY_REPORT.md) **[NEW]**: Documentation & reports.
 
 ---
 

@@ -79,17 +79,19 @@ flowchart TD
 - 🛝 **[Tool Sandbox](security/tool-sandbox.md)** — Execution boundaries & command sanitization.
 - 🛡️ **[Threat Model](security/threat-model.md)** — Defense-in-depth architecture.
 
-### 📖 Guides, Tutorials & FAQ
-- 📖 **[Developer Setup](development.md)** — Setting up local dev environment.
-- 📖 **[Coding Style Guide](coding-style.md)** — Formatting, typing, and quality standards.
+### 📖 Guides & Tutorials
+- 📖 **[Running & Testing Guide](tutorials/running-and-testing.md)** — Comprehensive execution modes and full test matrix guide.
+- 📖 **[Getting Started Tutorial](tutorials/getting-started.md)** — First interactive agent session walkthrough.
+- 📖 **[Building Your First Plugin](tutorials/building-first-plugin.md)** — Creating custom tools and plugins.
+- 📖 **[Configuring Custom LLMs](tutorials/configuring-custom-llm.md)** — Setting up local and cloud LLM providers.
 - 📖 **[System Lifecycle](lifecycle.md)** — App execution flowchart from boot to shutdown.
 - 📖 **[Glossary](glossary.md)** — Terminology dictionary (Brain, Bus, Guard, Adapter, etc.).
-- ❓ **[Frequently Asked Questions](faq.md)** — Targeted FAQs.
-- 🔧 **[Troubleshooting Guide](troubleshooting.md)** — Solutions for common issues.
+- 🤝 **[Contributing Guide](../CONTRIBUTING.md)** — Developer setup and PR workflows.
+- 🤖 **[AI Agent Contribution Rules](../AGENTS.md)** — Coding standards and strict governance for AI agents.
 
 ---
 
 ## 🏛️ Governance & ADRs
-- 📋 **[Architecture Decision Records](adr/)** — ADR 0001 to ADR 0004.
+- 📋 **[Architecture Decision Records](adr/)** — ADR 0001 to ADR 0017.
 - 🧠 **[Technical Decisions Rationale](decisions/)** — Why Python, Why SQLite, Why CQRS, Why Typer/Rich, Why Workflow Engine.
-- 📄 **[RFC Proposals](rfcs/)** — RFC 0001 Core Architecture.
+- 📄 **[RFC Proposals](../rfcs/)** — RFC 0001 Core Architecture.

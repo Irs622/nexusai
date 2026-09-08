@@ -44,7 +44,7 @@ System Ready ◄── Audit Chain Check ◄── Lease Invalidation & Epoch In
 
 ## 3. P5-6 Security Invariants Matrix (`P5-6-INV-01` to `P5-6-INV-25`)
 
-All 25 security invariants were verified in [`tests/security/test_p5_6_disaster_recovery_security.py`](file:///Users/mac/Downloads/jarfis%20projek/tests/security/test_p5_6_disaster_recovery_security.py):
+All 25 security invariants were verified in [`tests/security/test_p5_6_disaster_recovery_security.py`](../tests/security/test_p5_6_disaster_recovery_security.py):
 
 - ✅ `P5-6-INV-01`: Restore CANNOT create execution authority.
 - ✅ `P5-6-INV-02`: Old leases invalid after recovery.
@@ -59,12 +59,12 @@ All 25 security invariants were verified in [`tests/security/test_p5_6_disaster_
 
 ## 4. Files Created & Modified
 
-1. [`src/nexusai/brain/domain/recovery.py`](file:///Users/mac/Downloads/jarfis%20projek/src/nexusai/brain/domain/recovery.py) **[NEW]**: Recovery domain models.
-2. [`src/nexusai/brain/ports/disaster_recovery_port.py`](file:///Users/mac/Downloads/jarfis%20projek/src/nexusai/brain/ports/disaster_recovery_port.py) **[NEW]**: Recovery protocol interfaces.
-3. [`src/nexusai/infrastructure/recovery/postgres_backup_provider.py`](file:///Users/mac/Downloads/jarfis%20projek/src/nexusai/infrastructure/recovery/postgres_backup_provider.py) **[NEW]**: PostgreSQL backup provider.
-4. [`src/nexusai/infrastructure/recovery/backup_integrity_verifier.py`](file:///Users/mac/Downloads/jarfis%20projek/src/nexusai/infrastructure/recovery/backup_integrity_verifier.py) **[NEW]**: Backup integrity verifier.
-5. [`src/nexusai/infrastructure/recovery/recovery_manager.py`](file:///Users/mac/Downloads/jarfis%20projek/src/nexusai/infrastructure/recovery/recovery_manager.py) **[NEW]**: Disaster Recovery Manager.
-6. [`tests/contracts/test_disaster_recovery_contract.py`](file:///Users/mac/Downloads/jarfis%20projek/tests/contracts/test_disaster_recovery_contract.py) **[NEW]**: Disaster recovery contract tests.
-7. [`tests/security/test_p5_6_disaster_recovery_security.py`](file:///Users/mac/Downloads/jarfis%20projek/tests/security/test_p5_6_disaster_recovery_security.py) **[NEW]**: Security test suite for P5-6.
-8. [`tests/integration/test_p5_6_recovery_drill.py`](file:///Users/mac/Downloads/jarfis%20projek/tests/integration/test_p5_6_recovery_drill.py) **[NEW]**: Disaster recovery drill integration test suite.
-9. [`docs/recovery/P5_6_DISASTER_RECOVERY.md`](file:///Users/mac/Downloads/jarfis%20projek/docs/recovery/P5_6_DISASTER_RECOVERY.md) **[NEW]**: Architectural guide.
+1. [`src/nexusai/brain/domain/recovery.py`](../src/nexusai/brain/domain/recovery.py) **[NEW]**: Recovery domain models.
+2. [`src/nexusai/brain/ports/disaster_recovery_port.py`](../src/nexusai/brain/ports/disaster_recovery_port.py) **[NEW]**: Recovery protocol interfaces.
+3. [`src/nexusai/infrastructure/recovery/postgres_backup_provider.py`](../src/nexusai/infrastructure/recovery/postgres_backup_provider.py) **[NEW]**: PostgreSQL backup provider.
+4. [`src/nexusai/infrastructure/recovery/backup_integrity_verifier.py`](../src/nexusai/infrastructure/recovery/backup_integrity_verifier.py) **[NEW]**: Backup integrity verifier.
+5. [`src/nexusai/infrastructure/recovery/recovery_manager.py`](../src/nexusai/infrastructure/recovery/recovery_manager.py) **[NEW]**: Disaster Recovery Manager.
+6. [`tests/contracts/test_disaster_recovery_contract.py`](../tests/contracts/test_disaster_recovery_contract.py) **[NEW]**: Disaster recovery contract tests.
+7. [`tests/security/test_p5_6_disaster_recovery_security.py`](../tests/security/test_p5_6_disaster_recovery_security.py) **[NEW]**: Security test suite for P5-6.
+8. [`tests/integration/test_p5_6_recovery_drill.py`](../tests/integration/test_p5_6_recovery_drill.py) **[NEW]**: Disaster recovery drill integration test suite.
+9. [`docs/recovery/P5_6_DISASTER_RECOVERY.md`](recovery/P5_6_DISASTER_RECOVERY.md) **[NEW]**: Architectural guide.

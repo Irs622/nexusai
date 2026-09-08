@@ -1,7 +1,7 @@
 # 🎓 Learning Guide: Building & Mastering Agentic Systems with NexusAI
 
 > **Welcome to the NexusAI Educational Guide!**  
-> This document is designed for students, developers, and researchers participating in the **GitHub Community Exchange / GitHub Learning Program**. It provides a step-by-step educational breakdown of how **NexusAI** (`v0.7.0`) is engineered—from clean architecture principles to building DAG-based autonomous AI agents, multi-tier memory intelligence, and sandboxed execution policies.
+> This document is designed for students, developers, and researchers participating in the **GitHub Community Exchange / GitHub Learning Program**. It provides a step-by-step educational breakdown of how **NexusAI** (`v1.0.0`) is engineered—from clean architecture principles to building DAG-based autonomous AI agents, multi-tier memory intelligence, and sandboxed execution policies.
 
 ---
 
@@ -128,7 +128,7 @@ User Output ◄── Tool Execution ◄── PlanGraphExecutionEngine ◄┘
 
 Let's build a simple script that executes an autonomous goal using a mock tool port. 
 
-Create a file named `my_first_agent.py` or inspect [`examples/basic_agent.py`](file:///Users/mac/Downloads/nexusai/examples/basic_agent.py):
+Create a file named `my_first_agent.py` or inspect [`examples/basic_agent.py`](examples/basic_agent.py):
 
 ```python
 """Building a custom autonomous agent with NexusAI."""
@@ -210,7 +210,7 @@ Try running the planner demo script:
 python examples/planner_demo.py
 ```
 
-Code excerpt from [`examples/planner_demo.py`](file:///Users/mac/Downloads/nexusai/examples/planner_demo.py):
+Code excerpt from [`examples/planner_demo.py`](examples/planner_demo.py):
 ```python
 from nexusai.brain.planner.stages import ExecutionPlanner
 
@@ -272,7 +272,7 @@ Input Query
 5. Compressor & Assembler ──► Compresses memory items into optimal prompt context.
 ```
 
-Explore [`examples/memory_demo.py`](file:///Users/mac/Downloads/nexusai/examples/memory_demo.py) to see how agent memory is indexed and retrieved dynamically.
+Explore [`examples/memory_demo.py`](examples/memory_demo.py) to see how agent memory is indexed and retrieved dynamically.
 
 ---
 
@@ -319,7 +319,7 @@ Reinforce your understanding of NexusAI by completing these exercises:
 3. Observe how `PlanValidator` flags token budget issues.
 
 ### Exercise 3: Inspect Event Bus Notifications
-1. Run [`examples/event_bus_demo.py`](file:///Users/mac/Downloads/nexusai/examples/event_bus_demo.py).
+1. Run [`examples/event_bus_demo.py`](examples/event_bus_demo.py).
 2. Register a custom event handler for `AgentEventBus` to log whenever a DAG node starts and completes execution.
 
 ---
@@ -328,7 +328,7 @@ Reinforce your understanding of NexusAI by completing these exercises:
 
 | Issue / Symptom | Potential Cause | Recommended Fix |
 | :--- | :--- | :--- |
-| `ImportError` or cyclic import error in `src/nexusai/brain/` | Violated unidirectional DAG import hierarchy. | Ensure `domain` does not import `runtime` or `pipeline`. Refer to [AGENTS.md](file:///Users/mac/Downloads/nexusai/AGENTS.md). |
+| `ImportError` or cyclic import error in `src/nexusai/brain/` | Violated unidirectional DAG import hierarchy. | Ensure `domain` does not import `runtime` or `pipeline`. Refer to [AGENTS.md](AGENTS.md). |
 | `PlanValidationError: Cycle detected` | PlanGraph contains a circular dependency loop. | Inspect node dependencies in `DependencyResolver` to ensure DAG condition holds. |
 | Tool execution returns `ToolFailure` | Unhandled exception inside `IToolPort.execute()`. | Wrap tool calls in `try/except` inside your `IToolPort` implementation and return `ToolExecutionResult(success=False, ...)`. |
 | `mypy` strict type check failures | Missing explicit type annotations on functions. | Ensure all parameters and return types are annotated (e.g., `def fn(x: str) -> bool:`). |
@@ -339,12 +339,12 @@ Reinforce your understanding of NexusAI by completing these exercises:
 
 Expand your knowledge by diving deeper into the repository documentation:
 
-- 📖 **[Architecture Specification (`docs/architecture.md`)](file:///Users/mac/Downloads/nexusai/docs/architecture.md)** — Comprehensive architectural breakdown and Mermaid diagrams.
-- 📐 **[ADR Records (`docs/adr/`)](file:///Users/mac/Downloads/nexusai/docs/adr/)** — Architecture Decision Records detailing core design choices.
-- ⚡ **[Performance Benchmarks (`docs/benchmarks.md`)](file:///Users/mac/Downloads/nexusai/docs/benchmarks.md)** — Empirical benchmark metrics and latency budgets.
-- 🤝 **[Contribution Guidelines (`CONTRIBUTING.md`)](file:///Users/mac/Downloads/nexusai/CONTRIBUTING.md)** — Guidelines for contributing code and features.
-- 🤖 **[AI Agent Rules (`AGENTS.md`)](file:///Users/mac/Downloads/nexusai/AGENTS.md)** — Rules and Zero-Amnesia Protocol for AI contributors.
+- 📖 **[Architecture Specification (`docs/architecture.md`)](docs/architecture.md)** — Comprehensive architectural breakdown and Mermaid diagrams.
+- 📐 **[ADR Records (`docs/adr/`)](docs/adr/)** — Architecture Decision Records detailing core design choices.
+- ⚡ **[Performance Benchmarks (`docs/benchmarks.md`)](docs/benchmarks.md)** — Empirical benchmark metrics and latency budgets.
+- 🤝 **[Contribution Guidelines (`CONTRIBUTING.md`)](CONTRIBUTING.md)** — Guidelines for contributing code and features.
+- 🤖 **[AI Agent Rules (`AGENTS.md`)](AGENTS.md)** — Rules and Zero-Amnesia Protocol for AI contributors.
 
 ---
 
-*NexusAI is maintained under the [MIT License](file:///Users/mac/Downloads/nexusai/LICENSE).*
+*NexusAI is maintained under the [MIT License](LICENSE).*

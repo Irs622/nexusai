@@ -221,7 +221,7 @@ A new subsystem or core architectural feature is considered **DONE** only when:
 
 ---
 
-*For detailed explanations, trade-off matrices, and maintainer FAQs, refer to the companion document: [`docs/concepts/architecture_rationale.md`](file:///Users/mac/Downloads/jarfis%20projek/docs/concepts/architecture_rationale.md).*
+*For detailed explanations, trade-off matrices, and maintainer FAQs, refer to the companion document: [`architecture_rationale.md`](architecture_rationale.md).*
 
 ---
 

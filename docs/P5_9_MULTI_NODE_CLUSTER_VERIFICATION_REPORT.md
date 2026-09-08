@@ -33,7 +33,7 @@ Across all adversarial race scenarios, stale or rejected worker execution attemp
 
 ## 2. P5-9 Security Invariants Matrix (`P5-9-INV-01` to `P5-9-INV-30`)
 
-All 30 security invariants were verified in [`tests/security/test_p5_9_distributed_security.py`](file:///Users/mac/Downloads/jarfis%20projek/tests/security/test_p5_9_distributed_security.py):
+All 30 security invariants were verified in [`tests/security/test_p5_9_distributed_security.py`](../tests/security/test_p5_9_distributed_security.py):
 
 - ✅ `P5-9-INV-01`: Multi-node execution authority remains domain-owned.
 - ✅ `P5-9-INV-02`: Kubernetes node identity is NOT execution authority.
@@ -65,11 +65,11 @@ Therefore, the exact status is:
 
 ## 4. Files Created & Modified
 
-1. [`tests/security/test_p5_9_distributed_security.py`](file:///Users/mac/Downloads/jarfis%20projek/tests/security/test_p5_9_distributed_security.py) **[NEW]**: Security test suite for P5-9.
-2. [`tests/integration/test_p5_9_multi_node_cluster.py`](file:///Users/mac/Downloads/jarfis%20projek/tests/integration/test_p5_9_multi_node_cluster.py) **[NEW]**: Multi-node cluster integration test suite.
-3. [`tests/integration/test_p5_9_adversarial_chaos.py`](file:///Users/mac/Downloads/jarfis%20projek/tests/integration/test_p5_9_adversarial_chaos.py) **[NEW]**: Adversarial chaos test suite.
-4. [`artifacts/p5_9/cluster_topology.json`](file:///Users/mac/Downloads/jarfis%20projek/artifacts/p5_9/cluster_topology.json), [`artifacts/p5_9/side_effect_results.json`](file:///Users/mac/Downloads/jarfis%20projek/artifacts/p5_9/side_effect_results.json), [`artifacts/p5_9/security_findings.json`](file:///Users/mac/Downloads/jarfis%20projek/artifacts/p5_9/security_findings.json) **[NEW]**: JSON artifacts.
-5. [`docs/P5_9_MULTI_NODE_CLUSTER_VERIFICATION_REPORT.md`](file:///Users/mac/Downloads/jarfis%20projek/docs/P5_9_MULTI_NODE_CLUSTER_VERIFICATION_REPORT.md) **[NEW]**: Implementation report.
+1. [`tests/security/test_p5_9_distributed_security.py`](../tests/security/test_p5_9_distributed_security.py) **[NEW]**: Security test suite for P5-9.
+2. [`tests/integration/test_p5_9_multi_node_cluster.py`](../tests/integration/test_p5_9_multi_node_cluster.py) **[NEW]**: Multi-node cluster integration test suite.
+3. [`tests/integration/test_p5_9_adversarial_chaos.py`](../tests/integration/test_p5_9_adversarial_chaos.py) **[NEW]**: Adversarial chaos test suite.
+4. [`artifacts/p5_9/cluster_topology.json`](../artifacts/p5_9/cluster_topology.json), [`artifacts/p5_9/side_effect_results.json`](../artifacts/p5_9/side_effect_results.json), [`artifacts/p5_9/security_findings.json`](../artifacts/p5_9/security_findings.json) **[NEW]**: JSON artifacts.
+5. [`docs/P5_9_MULTI_NODE_CLUSTER_VERIFICATION_REPORT.md`](P5_9_MULTI_NODE_CLUSTER_VERIFICATION_REPORT.md) **[NEW]**: Implementation report.
 
 ---
 

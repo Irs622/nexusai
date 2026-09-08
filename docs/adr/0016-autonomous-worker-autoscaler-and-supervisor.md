@@ -9,74 +9,74 @@
 
 ## 1. Context
 
-Pada ADR-0014, NexusAI telah membangun fondasi eksekusi terdistribusi (`nexusai.infrastructure.distributed`) dengan abstraksi node pekerja (`WorkerNode`), pemilihan rute beban (`DistributedWorkerPool`), dan eksekusi konkuren branch PlanGraph DAG (`DistributedExecutionScheduler`) yang berkoordinasi dengan lease `IExecutionCoordinator` dan fencing tokens.
+In ADR-0014, NexusAI established the distributed execution foundation (`nexusai.infrastructure.distributed`), introducing worker node abstractions (`WorkerNode`), load routing (`DistributedWorkerPool`), and concurrent PlanGraph DAG branch execution (`DistributedExecutionScheduler`) coordinated via `IExecutionCoordinator` leases and fencing tokens.
 
-Namun, klaster pekerja tersebut sebelumnya masih bersifat statis:
-1. **Ketiadaan Deteksi Node Mati Dinamis**: Bila sebuah worker node mengalami kegagalan proses, partisi jaringan, atau macet (*hang*), status node di pool tidak otomatis terdeteksi sebagai mati (*silent failure*), yang dapat menyebabkan penjadwal terus mencoba mengirim sub-task ke node tersebut.
-2. **Ketiadaan Pemulihan Otomatis (*Self-Healing*)**: Tidak ada mekanisme rekonsiliasi yang secara otomatis mengembalikan node ke status `ONLINE` saat layanannya kembali aktif dan sehat.
-3. **Kapasitas Statis (*Zero Elasticity*)**: Jumlah node pekerja dalam pool tidak dapat membesar atau mengecil secara dinamis berdasarkan tekanan antrean tugas DAG (*backlog*) atau utilisasi klaster, yang berisiko menyebabkan *head-of-line blocking* saat lonjakan beban atau pemborosan sumber daya saat hening.
+However, the initial worker cluster implementation was static:
+1. **Lack of Dynamic Dead Node Detection**: If a worker node crashed, encountered network partitions, or hung, its status in the pool was not automatically flagged as dead (silent failure), leading the scheduler to route tasks to unreachable nodes.
+2. **Absence of Self-Healing**: There was no reconciliation mechanism to restore nodes to `ONLINE` status once their services recovered and ping latency stabilized.
+3. **Static Capacity (Zero Elasticity)**: The number of active worker nodes in the pool could not dynamically adjust to DAG task queue backlog or cluster utilization, risking head-of-line blocking during traffic spikes or resource waste during quiet periods.
 
 ---
 
 ## 2. Decision
 
-Kami memutuskan untuk mengimplementasikan sistem **Autonomous Worker Auto-Scaler & Heartbeat Supervisor** di dalam paket `nexusai.infrastructure.distributed`:
+We decided to implement an **Autonomous Worker Auto-Scaler & Heartbeat Supervisor** within `nexusai.infrastructure.distributed`:
 
 1. **`WorkerHeartbeatSupervisor` (`supervisor.py`)**:
-   - Menjalankan loop latar belakang asinkron (*heartbeat supervision loop*) dengan interval periodik terkonfigurasi (`check_interval_seconds`).
-   - Melakukan health ping (`node.ping()`) dan mencatat latensi serta stempel waktu terakhir.
-   - **Dead Node Eviction**: Bila suatu node gagal merespons sebanyak $N$ kali berturut-turut (`max_consecutive_failures`, default 3), supervisor otomatis mengubah status node menjadi `OFFLINE`, menghapusnya dari daftar kandidat rute tugas sehat, dan memicu callback `on_node_evicted`.
-   - **Auto-Recovery**: Bila node yang berstatus `OFFLINE` atau `DRAINING` kembali merespons ping secara stabil sebanyak `recovery_threshold` (default 2 kali), supervisor otomatis memulihkannya ke status `ONLINE` dan memicu callback `on_node_recovered`.
+   - Executes an asynchronous background supervision loop at configured periodic intervals (`check_interval_seconds`).
+   - Dispatches health pings (`node.ping()`) and tracks round-trip latency and last-seen timestamps.
+   - **Dead Node Eviction**: When a node fails to respond for $N$ consecutive checks (`max_consecutive_failures`, default 3), the supervisor transitions its status to `OFFLINE`, evicts it from the active candidate routing pool, and fires the `on_node_evicted` callback.
+   - **Auto-Recovery**: When an `OFFLINE` or `DRAINING` node consistently succeeds on health pings for `recovery_threshold` consecutive rounds (default 2), the supervisor automatically restores it to `ONLINE` status and triggers `on_node_recovered`.
 
 2. **`WorkerAutoScaler` (`autoscaler.py`)**:
-   - Menghitung metrik agregat beban klaster secara real-time (`ClusterMetrics`): utilisasi kapasitas aktif $\frac{\sum \text{active\_tasks}}{\sum \text{capacity}}$ dan jumlah antrean backlog tugas siap jalan.
-   - **Scale-Out**: Bila utilisasi $\ge 80\%$ atau antrean backlog tugas $> 0$, otomatis menambahkan node pekerja baru (menggunakan `node_factory`, hingga batas `max_nodes`).
-   - **Scale-In**: Bila antrean backlog kosong dan utilisasi $\le 20\%$ setelah periode *cooldown* (default 5 detik), otomatis melakukan *graceful draining* dan menderegistrasi node dinamis yang menganggur (tanpa pernah turun di bawah `min_nodes`).
-   - **Anti-Thrashing Guard**: Menerapkan jeda `cooldown_seconds` untuk mencegah osilasi cepat bolak-balik antara penambahan dan penghapusan worker.
+   - Calculates aggregate cluster load metrics in real-time (`ClusterMetrics`): active capacity utilization $\frac{\sum \text{active\_tasks}}{\sum \text{capacity}}$ and pending task backlog size.
+   - **Scale-Out**: When utilization $\ge 80\%$ or backlog queue size $> 0$, automatically instantiates new worker nodes (via `node_factory`, up to `max_nodes`).
+   - **Scale-In**: When backlog is empty and utilization $\le 20\%$ after an established cooldown period (default 5s), performs graceful draining and unregisters idle dynamic nodes (preserving at least `min_nodes`).
+   - **Anti-Thrashing Guard**: Enforces `cooldown_seconds` to eliminate thrashing oscillations between rapid scale-out and scale-in events.
 
 3. **`ClusterOrchestrator` (`cluster_manager.py`)**:
-   - Bertindak sebagai fasad terpadu yang menggabungkan `DistributedWorkerPool`, `WorkerHeartbeatSupervisor`, dan `WorkerAutoScaler`.
-   - Mengelola siklus hidup mulai/berhenti (*lifecycle orchestration*) seluruh background task dan menyediakan snapshot status klaster untuk konsumsi telemetri dashboard Web OS dan Server-Sent Events (SSE).
+   - Acts as the unified facade combining `DistributedWorkerPool`, `WorkerHeartbeatSupervisor`, and `WorkerAutoScaler`.
+   - Manages the start/stop lifecycle of all cluster background tasks and exports status snapshots for Web OS telemetry and Server-Sent Events (SSE).
 
 ---
 
 ## 3. Alternatives Considered
 
-1. **Mengandalkan Kubernetes HPA (Horizontal Pod Autoscaler) Saja**:
-   - *Ditolak*: K8s HPA lambat merespons fluktuasi antrean mikro-DAG (skala detik/milidetik) dan tidak dapat mengatur perutean in-process worker atau container lokal di mesin pengembang.
-2. **Polling Reaktif Saat Penjadwalan Saja Tanpa Background Loop**:
-   - *Ditolak*: Menimbulkan latensi tambahan (*scheduling overhead*) pada critical path eksekusi DAG dan tidak dapat mendeteksi kegagalan node saat klaster sedang idle.
+1. **Relying Exclusively on Kubernetes HPA (Horizontal Pod Autoscaler)**:
+   - *Rejected*: Kubernetes HPA is too slow for sub-second DAG task fluctuations (operates on 15–30 second scraping intervals) and cannot govern in-process worker routing or local developer environments.
+2. **Reactive Scheduling-Time Polling Without Background Supervision**:
+   - *Rejected*: Incurs unacceptable scheduling overhead on the critical DAG dispatch path and fails to detect dead nodes during idle periods.
 
 ---
 
 ## 4. Consequences
 
 ### Positive Consequences
-- **Resiliensi Mandiri (Self-Healing)**: Klaster secara otomatis mengisolasi node pekerja yang bermasalah tanpa campur tangan manual operator.
-- **Elastisitas Beban Cepat**: Menangani lonjakan beban DAG secara instan melalui penambahan worker dinamis dan memangkas penggunaan sumber daya saat idle.
-- **Auditabilitas Telemetri**: Setiap keputusan scaling tercatat dalam `ScalingEvent` terstruktur (`timestamp`, `direction`, `reason`, `nodes_before`, `nodes_after`).
-- **Zero Thrashing**: Dilindungi oleh batas jeda cooldown.
+- **Autonomous Self-Healing**: The cluster isolates unhealthy or unresponsive nodes automatically without human operator intervention.
+- **Rapid Elasticity**: Dynamically absorbs bursty DAG workloads and frees compute resources during quiet periods.
+- **Auditable Telemetry**: All scaling decisions are permanently recorded in structured `ScalingEvent` logs (`timestamp`, `direction`, `reason`, `nodes_before`, `nodes_after`).
+- **Zero Thrashing**: Cooldown guards guarantee stable node sizing.
 
 ### Negative Consequences
-- Terdapat overhead CPU/jaringan yang sangat kecil untuk pengiriman paket ping periodik antar worker (terukur $< 0.1\text{ms}$ per round).
+- Introduces minimal CPU and network overhead for periodic node pings (benchmarked at $< 0.1\text{ms}$ per round).
 
 ---
 
 ## 5. Validation Criteria
 
 1. **Heartbeat & Eviction Verification**:
-   - Uji node yang gagal merespons ping $3\times$ berturut-turut wajib beralih status ke `OFFLINE` dan ditandai `is_evicted = True`.
+   - A node failing $3\times$ consecutive pings transitions to `OFFLINE` and sets `is_evicted = True`.
 2. **Auto-Recovery Verification**:
-   - Uji node yang offline namun merespons sukses $2\times$ berturut-turut wajib otomatis kembali menjadi `ONLINE`.
+   - An offline node responding with 2 consecutive successful pings automatically transitions to `ONLINE`.
 3. **Auto-Scaling Elasticity Verification**:
-   - Uji lonjakan backlog memicu `SCALE_OUT` hingga `max_nodes`.
-   - Uji kondisi idle memicu `SCALE_IN` hingga `min_nodes` dengan mematuhi cooldown guard.
+   - Backlog spikes trigger `SCALE_OUT` up to `max_nodes`.
+   - Idle conditions trigger `SCALE_IN` down to `min_nodes` while observing cooldown limits.
 4. **Clean Concurrency & Zero Leaked Tasks**:
-   - Pengujian `ClusterOrchestrator.stop()` wajib mematikan seluruh background tasks tanpa meninggalkan uncollected async tasks.
+   - `ClusterOrchestrator.stop()` cleanly terminates all background tasks without leaving uncollected asyncio tasks.
 
 ---
 
 ## 6. Review Phase
 
 - Milestone: Phase 7 / Level 4 Production Hardening
-- Target Rilis: v0.8.0 / v1.0.0-rc1
+- Target Release: v1.0.0-rc1 / v1.0.0
