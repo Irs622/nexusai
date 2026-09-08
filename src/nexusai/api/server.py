@@ -154,8 +154,20 @@ def create_app(
     app.state.registry = registry
 
     # =========================================================================
-    # CORE REST ENDPOINTS
+    # CORE REST ENDPOINTS & HEALTH PROBES
     # =========================================================================
+
+    @app.get("/health/live")
+    @app.get("/healthz")
+    async def liveness() -> dict[str, str]:
+        """Kubernetes liveness probe endpoint."""
+        return {"status": "ok"}
+
+    @app.get("/health/ready")
+    @app.get("/readyz")
+    async def readiness() -> dict[str, str]:
+        """Kubernetes readiness probe endpoint."""
+        return {"status": "ready"}
 
     @app.get("/api/status")
     async def get_status() -> dict[str, Any]:
