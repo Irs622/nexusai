@@ -78,7 +78,7 @@ async def test_sustained_stress_workload_50_workers() -> None:
 
                 metrics.record_operation((t1 - t0) * 1000.0, success=res.allowed)
 
-                if res.allowed:
+                if res.allowed and res.reservation_id:
                     await gov.release(res.reservation_id)
                 await coord.release_execution_lease(lease.lease_id, w)
 

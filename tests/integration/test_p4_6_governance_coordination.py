@@ -32,6 +32,7 @@ async def test_governance_reservation_worker_isolation() -> None:
         # Worker B acquires governance reservation
         res_b = await gov.authorize("exec-gov-coord", frozenset({ToolCapability.PROCESS_EXEC}))
         assert res_b.allowed is True
+        assert res_b.reservation_id is not None
         assert gov.get_active_reservation_count() == 1
 
         # Attempting to release reservation by un-owned worker identity fails safely

@@ -42,6 +42,7 @@ async def test_p4_1_cancellation_propagation_and_resource_release() -> None:
     # 2. Reserve governance resources
     res = await gov_engine.authorize("exec-p4-cancel", frozenset({ToolCapability.PROCESS_EXEC}))
     assert res.allowed is True
+    assert res.reservation_id is not None
     assert gov_engine.get_active_reservation_count() == 1
 
     # 3. Cancellation occurs: Cancel pending approvals & release reservation

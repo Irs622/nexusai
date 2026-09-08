@@ -46,7 +46,7 @@ async def test_concurrent_execution_load_50_workers() -> None:
             success = (lease is not None) and res.allowed
             metrics.record_operation((t1 - t0) * 1000.0, success=success)
 
-            if res.allowed:
+            if res.allowed and res.reservation_id:
                 await gov.release(res.reservation_id)
 
         workers = [asyncio.create_task(worker_task(i)) for i in range(50)]

@@ -68,6 +68,7 @@ async def test_security_process_execution_governance_and_timeout_reaping() -> No
     # 1. Authorize process 1
     res1 = await gov.authorize("exec-proc-1", frozenset({ToolCapability.PROCESS_EXEC}))
     assert res1.allowed is True
+    assert res1.reservation_id is not None
 
     # 2. Process quota exhausted -> Next subprocess authorization DENIED!
     res2 = await gov.authorize("exec-proc-2", frozenset({ToolCapability.PROCESS_EXEC}))

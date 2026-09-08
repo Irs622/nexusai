@@ -90,6 +90,7 @@ async def test_durable_approval_restart_recovery_simulation() -> None:
         # 3. Re-validate Governance Admission
         gov_res = await gov_c.authorize("exec-restart-1", binding.requested_capabilities)
         assert gov_res.allowed is True
+        assert gov_res.reservation_id is not None
 
         # 4. Dispatch tool execution
         tool_port = ControlledTestToolPort()

@@ -38,6 +38,7 @@ async def test_p4_2_adversarial_real_tool_stress() -> None:
                 f"exec-fs-stress-{w_id}", frozenset({ToolCapability.FILE_WRITE})
             )
             assert res_gov.allowed is True
+            assert res_gov.reservation_id is not None
 
             w_req = ToolExecutionRequest(
                 f"exec-fs-stress-{w_id}",
@@ -55,6 +56,7 @@ async def test_p4_2_adversarial_real_tool_stress() -> None:
                 f"exec-proc-stress-{w_id}", frozenset({ToolCapability.PROCESS_EXEC})
             )
             assert res_gov.allowed is True
+            assert res_gov.reservation_id is not None
 
             p_req = ToolExecutionRequest(
                 f"exec-proc-stress-{w_id}",

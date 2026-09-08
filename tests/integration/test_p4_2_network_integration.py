@@ -28,6 +28,7 @@ async def test_network_integration_governed_destination_validation() -> None:
     )
     res_gov = await gov.authorize("exec-net-real", frozenset({ToolCapability.NETWORK_ACCESS}))
     assert res_gov.allowed is True
+    assert res_gov.reservation_id is not None
 
     # 2. Destination allowlist check for unapproved host fails closed
     req_bad = ToolExecutionRequest(

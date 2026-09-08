@@ -34,6 +34,7 @@ async def test_filesystem_integration_governed_real_side_effects() -> None:
         )
         res_gov = await gov.authorize("exec-fs-1", frozenset({ToolCapability.FILE_WRITE}))
         assert res_gov.allowed is True
+        assert res_gov.reservation_id is not None
 
         # 2. Perform actual file write side-effect
         w_req = ToolExecutionRequest(

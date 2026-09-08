@@ -37,6 +37,7 @@ async def test_process_integration_governed_real_execution() -> None:
         )
         res_gov = await gov.authorize("exec-proc-real", frozenset({ToolCapability.PROCESS_EXEC}))
         assert res_gov.allowed is True
+        assert res_gov.reservation_id is not None
 
         # 2. Perform actual subprocess execution
         req = ToolExecutionRequest(
