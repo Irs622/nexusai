@@ -8,10 +8,10 @@ import time
 from typing import Any, Dict
 
 from nexusai.brain.domain.agent import AgentGoal, PlanningContext, PlanningGoal, PlanningResources
+from nexusai.brain.domain.session import BrainSession
 from nexusai.brain.planner.engine import PlanGraphExecutionEngine
 from nexusai.brain.ports.tool_port import IToolPort
 from nexusai.brain.prompt import PromptBuilder
-from nexusai.brain.domain.session import BrainSession
 from nexusai.brain.runtime.state import SessionState
 from nexusai.brain.service import BrainRuntimeFacade
 from nexusai.tools.adapter import ToolRegistryAdapter
@@ -92,7 +92,9 @@ class BrainCoordinator:
                 available_tools = list(self.registry.list_tools())
             elif tools_schema:
                 available_tools = [
-                    t["function"]["name"] for t in tools_schema if "function" in t and "name" in t["function"]
+                    t["function"]["name"]
+                    for t in tools_schema
+                    if "function" in t and "name" in t["function"]
                 ]
 
         tool_port: IToolPort
@@ -134,7 +136,9 @@ class BrainCoordinator:
             step = 0
             while step < max_steps:
                 step += 1
-                res = await self.model_provider.chat(messages, tools=tools_schema if tools_schema else None)
+                res = await self.model_provider.chat(
+                    messages, tools=tools_schema if tools_schema else None
+                )
                 if not isinstance(res, dict):
                     res = {"type": "text", "content": str(res)}
 
@@ -151,11 +155,17 @@ class BrainCoordinator:
                         if self.registry and hasattr(self.registry, "has_tool"):
                             if self.registry.has_tool(inferred_tool):
                                 tool_name = inferred_tool
-                            elif "terminal" in inferred_tool and self.registry.has_tool("execute_terminal"):
+                            elif "terminal" in inferred_tool and self.registry.has_tool(
+                                "execute_terminal"
+                            ):
                                 tool_name = "execute_terminal"
                             elif "terminal" in inferred_tool and self.registry.has_tool("terminal"):
                                 tool_name = "terminal"
-                        cmd_match = re.search(r'<｜DSML｜parameter\s+name="command"[^>]*>(.*?)</｜DSML｜parameter>', content_str, re.DOTALL)
+                        cmd_match = re.search(
+                            r'<｜DSML｜parameter\s+name="command"[^>]*>(.*?)</｜DSML｜parameter>',
+                            content_str,
+                            re.DOTALL,
+                        )
                         if cmd_match:
                             arguments = {"command": cmd_match.group(1).strip()}
                             is_tool_call = bool(tool_name)
@@ -170,7 +180,9 @@ class BrainCoordinator:
                         try:
                             from nexusai.bus.commands import ExecuteToolCommand
 
-                            cmd = ExecuteToolCommand(tool_name=tool_name, arguments=arguments, user_confirmed=True)
+                            cmd = ExecuteToolCommand(
+                                tool_name=tool_name, arguments=arguments, user_confirmed=True
+                            )
                             tool_result = await self.command_bus.dispatch(cmd)
                         except Exception as err:
                             exec_error = str(err)
@@ -181,27 +193,37 @@ class BrainCoordinator:
                         except Exception as err:
                             exec_error = str(err)
 
-                    result_content = str(tool_result) if exec_error is None else f"Error executing {tool_name}: {exec_error}"
+                    result_content = (
+                        str(tool_result)
+                        if exec_error is None
+                        else f"Error executing {tool_name}: {exec_error}"
+                    )
                     call_id = f"call_{tool_name}_{int(time.time() * 1000)}"
 
-                    messages.append({
-                        "role": "assistant",
-                        "content": None,
-                        "tool_calls": [{
-                            "id": call_id,
-                            "type": "function",
-                            "function": {
-                                "name": tool_name,
-                                "arguments": json.dumps(arguments),
-                            },
-                        }],
-                    })
-                    messages.append({
-                        "role": "tool",
-                        "tool_call_id": call_id,
-                        "name": tool_name,
-                        "content": result_content,
-                    })
+                    messages.append(
+                        {
+                            "role": "assistant",
+                            "content": None,
+                            "tool_calls": [
+                                {
+                                    "id": call_id,
+                                    "type": "function",
+                                    "function": {
+                                        "name": tool_name,
+                                        "arguments": json.dumps(arguments),
+                                    },
+                                }
+                            ],
+                        }
+                    )
+                    messages.append(
+                        {
+                            "role": "tool",
+                            "tool_call_id": call_id,
+                            "name": tool_name,
+                            "content": result_content,
+                        }
+                    )
 
                     # Loop continues so LLM can observe tool result and execute next tool or provide final response
                     continue
@@ -214,7 +236,9 @@ class BrainCoordinator:
                 if self.memory and hasattr(self.memory, "add_message"):
                     try:
                         await self.memory.add_message(effective_session_id, "user", user_text)
-                        await self.memory.add_message(effective_session_id, "assistant", final_content)
+                        await self.memory.add_message(
+                            effective_session_id, "assistant", final_content
+                        )
                     except Exception:
                         pass
 
@@ -227,11 +251,15 @@ class BrainCoordinator:
 
             # If max steps reached after tool iterations, request final textual summary
             final_res = await self.model_provider.chat(messages)
-            final_content = str(final_res.get("content", "")) if isinstance(final_res, dict) else str(final_res)
+            final_content = (
+                str(final_res.get("content", "")) if isinstance(final_res, dict) else str(final_res)
+            )
             if "<｜DSML｜" in final_content:
                 final_content = re.sub(r"<｜DSML｜[^>]+>", "", final_content).strip()
             if not final_content.strip():
-                final_content = f"Tindakan untuk '{user_text}' telah selesai dieksekusi di sistem macOS Anda."
+                final_content = (
+                    f"Tindakan untuk '{user_text}' telah selesai dieksekusi di sistem macOS Anda."
+                )
 
             if self.memory and hasattr(self.memory, "add_message"):
                 try:

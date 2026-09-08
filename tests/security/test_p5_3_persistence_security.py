@@ -3,10 +3,18 @@
 from __future__ import annotations
 
 import asyncio
+
 import pytest
 
 from nexusai.brain.domain.governance import ToolCapability
-from nexusai.brain.domain.human_approval import ActionBinding, ApprovalReplayError, ApprovalStatus, HumanApprovalDecision, HumanApprovalRequest, RiskLevel
+from nexusai.brain.domain.human_approval import (
+    ActionBinding,
+    ApprovalReplayError,
+    ApprovalStatus,
+    HumanApprovalDecision,
+    HumanApprovalRequest,
+    RiskLevel,
+)
 from nexusai.infrastructure.persistence.postgres_approval_store import PostgresApprovalStore
 
 

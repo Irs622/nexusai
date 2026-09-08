@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import asyncio
+
 import pytest
 
-from nexusai.brain.domain.memory import MemoryType, PrivacyLevel
+from nexusai.brain.domain.memory import MemoryType
 from nexusai.brain.domain.memory_learning import (
     MemoryCandidate,
     MemoryPromotionDecision,

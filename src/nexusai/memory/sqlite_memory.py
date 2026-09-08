@@ -27,8 +27,7 @@ class SQLiteMemory(BaseMemory):
                 Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)
             self._db = await aiosqlite.connect(self.db_path)
 
-        await self._db.execute(
-            """
+        await self._db.execute("""
             CREATE TABLE IF NOT EXISTS messages (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 session_id TEXT NOT NULL,
@@ -37,8 +36,7 @@ class SQLiteMemory(BaseMemory):
                 name TEXT,
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
             );
-            """
-        )
+            """)
         await self._db.execute(
             "CREATE INDEX IF NOT EXISTS idx_messages_session ON messages(session_id, id);"
         )

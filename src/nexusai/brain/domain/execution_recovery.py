@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from enum import Enum
 import hashlib
 import json
 import time
+from dataclasses import dataclass, field
+from enum import Enum
 from typing import Any, Mapping
 
 from nexusai.brain.domain.observability import sanitize_attributes
@@ -44,12 +44,14 @@ class JournalLifecyclePhase(str, Enum):
     ABANDONED = "ABANDONED"
 
 
-TERMINAL_JOURNAL_PHASES = frozenset({
-    JournalLifecyclePhase.COMPLETED,
-    JournalLifecyclePhase.FAILED,
-    JournalLifecyclePhase.CANCELLED,
-    JournalLifecyclePhase.ABANDONED,
-})
+TERMINAL_JOURNAL_PHASES = frozenset(
+    {
+        JournalLifecyclePhase.COMPLETED,
+        JournalLifecyclePhase.FAILED,
+        JournalLifecyclePhase.CANCELLED,
+        JournalLifecyclePhase.ABANDONED,
+    }
+)
 
 
 @dataclass(frozen=True)

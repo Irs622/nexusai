@@ -5,14 +5,11 @@ from __future__ import annotations
 import json
 import sqlite3
 import time
-from typing import Any
 from uuid import uuid4
 
 from nexusai.brain.domain.governance import ToolCapability
 from nexusai.brain.domain.human_approval import (
     ActionBinding,
-    ApprovalCancelledError,
-    ApprovalError,
     ApprovalExpiredError,
     ApprovalGrant,
     ApprovalMismatchError,
@@ -75,10 +72,18 @@ class SQLiteApprovalStore(IApprovalStore):
                     consumed_at REAL
                 );
             """)
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_approval_session ON approval_requests(session_id);")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_approval_execution ON approval_requests(execution_id);")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_approval_status ON approval_requests(status);")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_approval_expires ON approval_requests(expires_at);")
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_approval_session ON approval_requests(session_id);"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_approval_execution ON approval_requests(execution_id);"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_approval_status ON approval_requests(status);"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_approval_expires ON approval_requests(expires_at);"
+            )
 
     async def save_request(self, request: HumanApprovalRequest) -> HumanApprovalRequest:
         """Persist a new safety approval request in PENDING status."""
@@ -115,14 +120,18 @@ class SQLiteApprovalStore(IApprovalStore):
                     ),
                 )
             except sqlite3.IntegrityError:
-                raise ValueError(f"Approval request '{request.approval_id}' already exists in store")
+                raise ValueError(
+                    f"Approval request '{request.approval_id}' already exists in store"
+                )
 
         return request
 
     async def get_request(self, approval_id: str) -> HumanApprovalRequest | None:
         """Retrieve approval request state by approval_id."""
         with self._get_connection() as conn:
-            row = conn.execute("SELECT * FROM approval_requests WHERE approval_id = ?", (approval_id,)).fetchone()
+            row = conn.execute(
+                "SELECT * FROM approval_requests WHERE approval_id = ?", (approval_id,)
+            ).fetchone()
             if not row:
                 return None
 
@@ -161,23 +170,38 @@ class SQLiteApprovalStore(IApprovalStore):
         now = time.time()
 
         with self._get_connection() as conn:
-            row = conn.execute("SELECT * FROM approval_requests WHERE approval_id = ?", (decision.approval_id,)).fetchone()
+            row = conn.execute(
+                "SELECT * FROM approval_requests WHERE approval_id = ?", (decision.approval_id,)
+            ).fetchone()
             if not row:
                 raise ValueError(f"Approval request '{decision.approval_id}' not found in store")
 
             if row["status"] != ApprovalStatus.PENDING.value:
-                raise ValueError(f"Cannot submit decision for request '{decision.approval_id}' in status '{row['status']}'")
+                raise ValueError(
+                    f"Cannot submit decision for request '{decision.approval_id}' in status '{row['status']}'"
+                )
 
             if now >= row["expires_at"]:
-                conn.execute("UPDATE approval_requests SET status = ? WHERE approval_id = ?", (ApprovalStatus.EXPIRED.value, decision.approval_id))
+                conn.execute(
+                    "UPDATE approval_requests SET status = ? WHERE approval_id = ?",
+                    (ApprovalStatus.EXPIRED.value, decision.approval_id),
+                )
                 raise ApprovalExpiredError(f"Approval request '{decision.approval_id}' has expired")
 
             if decision.status == ApprovalStatus.DENIED:
                 conn.execute(
                     "UPDATE approval_requests SET status = ?, actor = ?, reason = ?, decided_at = ? WHERE approval_id = ?",
-                    (ApprovalStatus.DENIED.value, decision.actor, decision.reason, now, decision.approval_id),
+                    (
+                        ApprovalStatus.DENIED.value,
+                        decision.actor,
+                        decision.reason,
+                        now,
+                        decision.approval_id,
+                    ),
                 )
-                raise ApprovalMismatchError(f"Human operator denied request '{decision.approval_id}': {decision.reason}")
+                raise ApprovalMismatchError(
+                    f"Human operator denied request '{decision.approval_id}': {decision.reason}"
+                )
 
             # APPROVED -> Record grant and audit hash
             caps_list = json.loads(row["requested_capabilities"])
@@ -210,11 +234,21 @@ class SQLiteApprovalStore(IApprovalStore):
                 SET status = ?, actor = ?, reason = ?, decided_at = ?, audit_hash = ?
                 WHERE approval_id = ? AND status = ?
                 """,
-                (ApprovalStatus.APPROVED.value, decision.actor, decision.reason, now, grant.audit_hash, decision.approval_id, ApprovalStatus.PENDING.value),
+                (
+                    ApprovalStatus.APPROVED.value,
+                    decision.actor,
+                    decision.reason,
+                    now,
+                    grant.audit_hash,
+                    decision.approval_id,
+                    ApprovalStatus.PENDING.value,
+                ),
             )
 
             if cursor.rowcount == 0:
-                raise ValueError(f"Atomic decision transition failed for request '{decision.approval_id}'")
+                raise ValueError(
+                    f"Atomic decision transition failed for request '{decision.approval_id}'"
+                )
 
             return grant
 
@@ -222,8 +256,13 @@ class SQLiteApprovalStore(IApprovalStore):
         """Retrieve approval grant state by grant_id."""
         approval_id = grant_id.replace("grant-", "")
         with self._get_connection() as conn:
-            row = conn.execute("SELECT * FROM approval_requests WHERE approval_id = ?", (approval_id,)).fetchone()
-            if not row or row["status"] not in (ApprovalStatus.APPROVED.value, ApprovalStatus.CONSUMED.value):
+            row = conn.execute(
+                "SELECT * FROM approval_requests WHERE approval_id = ?", (approval_id,)
+            ).fetchone()
+            if not row or row["status"] not in (
+                ApprovalStatus.APPROVED.value,
+                ApprovalStatus.CONSUMED.value,
+            ):
                 return None
 
             caps_list = json.loads(row["requested_capabilities"])
@@ -251,18 +290,26 @@ class SQLiteApprovalStore(IApprovalStore):
                 audit_hash=row["audit_hash"] or "",
             )
 
-    async def verify_and_consume_grant(self, grant_id: str, expected_binding: ActionBinding) -> bool:
+    async def verify_and_consume_grant(
+        self, grant_id: str, expected_binding: ActionBinding
+    ) -> bool:
         """Atomically verify binding digest, expiration, and consume single-use grant in durable store."""
         approval_id = grant_id.replace("grant-", "")
         now = time.time()
 
         with self._get_connection() as conn:
-            row = conn.execute("SELECT * FROM approval_requests WHERE approval_id = ?", (approval_id,)).fetchone()
+            row = conn.execute(
+                "SELECT * FROM approval_requests WHERE approval_id = ?", (approval_id,)
+            ).fetchone()
             if not row:
-                raise ApprovalMismatchError(f"Approval grant '{grant_id}' not found in durable store")
+                raise ApprovalMismatchError(
+                    f"Approval grant '{grant_id}' not found in durable store"
+                )
 
             if row["consumed_at"] is not None or row["status"] == ApprovalStatus.CONSUMED.value:
-                raise ApprovalReplayError(f"Approval grant '{grant_id}' has already been consumed at {row['consumed_at']}")
+                raise ApprovalReplayError(
+                    f"Approval grant '{grant_id}' has already been consumed at {row['consumed_at']}"
+                )
 
             if now >= row["expires_at"]:
                 raise ApprovalExpiredError(f"Approval grant '{grant_id}' has expired")
@@ -283,7 +330,9 @@ class SQLiteApprovalStore(IApprovalStore):
             )
 
             if cursor.rowcount == 0:
-                raise ApprovalReplayError(f"Approval grant '{grant_id}' single-use consumption failed (already consumed or non-approved status)")
+                raise ApprovalReplayError(
+                    f"Approval grant '{grant_id}' single-use consumption failed (already consumed or non-approved status)"
+                )
 
             return True
 

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 from nexusai.brain.domain.recovery import RecoveryStatus
 from nexusai.brain.ports.observability_port import IObservabilityHealth
 

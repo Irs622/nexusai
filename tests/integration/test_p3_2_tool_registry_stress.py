@@ -3,15 +3,13 @@
 from __future__ import annotations
 
 import asyncio
-import time
+
 import pytest
 
 from nexusai.brain.domain.governance import ToolCapability
 from nexusai.brain.domain.tool_registry import (
     ToolAlreadyRegisteredError,
     ToolMetadata,
-    ToolStatus,
-    ToolTrustLevel,
 )
 from nexusai.brain.runtime.tool_registry import ToolRegistry
 
@@ -67,11 +65,13 @@ async def test_p3_2_adversarial_tool_registry_stress() -> None:
     await asyncio.gather(*workers)
 
     final_tools = await registry.list_tools()
-    print(f"\n[P3-2 ADVERSARIAL REGISTRY STRESS VERIFICATION]")
+    print("\n[P3-2 ADVERSARIAL REGISTRY STRESS VERIFICATION]")
     print(f"Total Active Registered Tools: {len(final_tools)}")
 
     assert len(final_tools) >= 1030
-    assert len(set(m.tool_id for m in final_tools)) == len(final_tools), "Duplicate tool_ids detected in registry!"
+    assert len(set(m.tool_id for m in final_tools)) == len(
+        final_tools
+    ), "Duplicate tool_ids detected in registry!"
 
 
 if __name__ == "__main__":

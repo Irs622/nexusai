@@ -59,7 +59,9 @@ class ToolRegistryAdapter(IToolPort):
 
             if hasattr(tool_instance, "execute") and callable(tool_instance.execute):
                 sig = inspect.signature(tool_instance.execute)
-                has_kwargs = any(p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.parameters.values())
+                has_kwargs = any(
+                    p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.parameters.values()
+                )
                 if "timeout_seconds" in sig.parameters or has_kwargs:
                     if "timeout_seconds" not in exec_args:
                         exec_args["timeout_seconds"] = timeout_sec
@@ -129,7 +131,9 @@ class ToolRegistryAdapter(IToolPort):
             )
         except asyncio.CancelledError:
             elapsed = (time.perf_counter() - start_time) * 1000.0
-            logger.warning(f"[ToolRegistryAdapter] Tool execution cancelled for '{request.tool_name}'")
+            logger.warning(
+                f"[ToolRegistryAdapter] Tool execution cancelled for '{request.tool_name}'"
+            )
             raise
         except Exception as exc:
             elapsed = (time.perf_counter() - start_time) * 1000.0

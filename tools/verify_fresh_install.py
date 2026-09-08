@@ -15,11 +15,10 @@ Actions performed:
 
 from __future__ import annotations
 
-import os
-import sys
 import shutil
-import tempfile
 import subprocess
+import sys
+import tempfile
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -60,7 +59,7 @@ def verify_fresh_install(verbose: bool = False) -> int:
             "from nexusai.kernel import KernelOrchestrator; "
             "from nexusai.memory import MemoryEngineBootstrap; "
             "from nexusai.providers import BaseProvider; "
-            "print('✅ Core package imports verified successfully')"
+            "print('✅ Core package imports verified successfully')",
         ]
         res = subprocess.run(import_cmd, cwd=PROJECT_ROOT, check=False)
         if res.returncode != 0:
@@ -79,7 +78,9 @@ def verify_fresh_install(verbose: bool = False) -> int:
         example_script = PROJECT_ROOT / "examples" / "memory" / "custom_memory.py"
         if example_script.exists():
             print(f"Running example script: {example_script.relative_to(PROJECT_ROOT)}...")
-            res = subprocess.run([sys.executable, str(example_script)], cwd=PROJECT_ROOT, check=False)
+            res = subprocess.run(
+                [sys.executable, str(example_script)], cwd=PROJECT_ROOT, check=False
+            )
             if res.returncode != 0:
                 print("❌ Example script execution failed!")
                 return 1

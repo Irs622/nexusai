@@ -5,10 +5,8 @@ from __future__ import annotations
 import asyncio
 import os
 from pathlib import Path
-from typing import Any
 
 from nexusai.brain.domain.governance import ToolCapability
-from nexusai.brain.domain.observability import sanitize_attributes
 from nexusai.brain.domain.tool_registry import ToolMetadata, ToolStatus, ToolTrustLevel
 from nexusai.brain.ports.tool_port import IToolPort, ToolExecutionRequest, ToolExecutionResult
 
@@ -31,7 +29,10 @@ class ProcessTool(IToolPort):
         sanitized = {}
         for k, v in os.environ.items():
             low_k = k.lower()
-            if any(secret_kw in low_k for secret_kw in ("secret", "token", "password", "api_key", "auth", "private_key")):
+            if any(
+                secret_kw in low_k
+                for secret_kw in ("secret", "token", "password", "api_key", "auth", "private_key")
+            ):
                 continue
             sanitized[k] = v
         return sanitized
@@ -68,7 +69,9 @@ class ProcessTool(IToolPort):
             )
 
             try:
-                stdout_data, stderr_data = await asyncio.wait_for(proc.communicate(), timeout=timeout)
+                stdout_data, stderr_data = await asyncio.wait_for(
+                    proc.communicate(), timeout=timeout
+                )
             except asyncio.TimeoutError:
                 # Reaping invariant: Terminate and kill timed-out subprocess cleanly
                 proc.terminate()

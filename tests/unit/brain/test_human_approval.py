@@ -2,20 +2,15 @@
 
 from __future__ import annotations
 
-import asyncio
-import pytest
-
 from nexusai.brain.domain.governance import ToolCapability
 from nexusai.brain.domain.human_approval import (
     ActionBinding,
-    ApprovalGrant,
     ApprovalStatus,
     HumanApprovalDecision,
     HumanApprovalRequest,
     RiskLevel,
     evaluate_action_risk,
 )
-from nexusai.brain.runtime.human_approval_engine import HumanApprovalEngine
 
 
 def test_action_binding_digest_determinism() -> None:
@@ -41,7 +36,9 @@ def test_action_binding_digest_determinism() -> None:
         resource_scope="/app",
     )
 
-    assert b1.action_digest == b2.action_digest, "Action digests must match for identical binding parameters"
+    assert (
+        b1.action_digest == b2.action_digest
+    ), "Action digests must match for identical binding parameters"
 
 
 def test_risk_evaluator_hierarchical_precedence() -> None:
@@ -50,13 +47,22 @@ def test_risk_evaluator_hierarchical_precedence() -> None:
     assert evaluate_action_risk(frozenset({ToolCapability.FILE_READ})) == RiskLevel.LOW
 
     # FILE_READ + FILE_WRITE -> MEDIUM
-    assert evaluate_action_risk(frozenset({ToolCapability.FILE_READ, ToolCapability.FILE_WRITE})) == RiskLevel.MEDIUM
+    assert (
+        evaluate_action_risk(frozenset({ToolCapability.FILE_READ, ToolCapability.FILE_WRITE}))
+        == RiskLevel.MEDIUM
+    )
 
     # FILE_WRITE + PROCESS_EXEC -> HIGH
-    assert evaluate_action_risk(frozenset({ToolCapability.FILE_WRITE, ToolCapability.PROCESS_EXEC})) == RiskLevel.HIGH
+    assert (
+        evaluate_action_risk(frozenset({ToolCapability.FILE_WRITE, ToolCapability.PROCESS_EXEC}))
+        == RiskLevel.HIGH
+    )
 
     # FILE_WRITE + SECRET_ACCESS -> CRITICAL
-    assert evaluate_action_risk(frozenset({ToolCapability.FILE_WRITE, ToolCapability.SECRET_ACCESS})) == RiskLevel.CRITICAL
+    assert (
+        evaluate_action_risk(frozenset({ToolCapability.FILE_WRITE, ToolCapability.SECRET_ACCESS}))
+        == RiskLevel.CRITICAL
+    )
 
 
 def test_secret_sanitization_across_all_approval_fields() -> None:

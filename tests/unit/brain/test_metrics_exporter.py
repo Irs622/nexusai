@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+import asyncio
 import io
 import json
-import asyncio
+
 import pytest
 
 from nexusai.brain.domain.observability import RuntimeEvent, RuntimeEventType
@@ -12,7 +13,9 @@ from nexusai.infrastructure.observability.in_memory_exporter import (
     InMemoryMetricsExporter,
     sanitize_metric_attributes,
 )
-from nexusai.infrastructure.observability.structured_logging_exporter import StructuredLoggingExporter
+from nexusai.infrastructure.observability.structured_logging_exporter import (
+    StructuredLoggingExporter,
+)
 
 
 @pytest.mark.asyncio
@@ -20,7 +23,9 @@ async def test_in_memory_exporter_metrics_and_events() -> None:
     """Test InMemoryMetricsExporter counters, gauges, durations, events, snapshot, and reset."""
     exporter = InMemoryMetricsExporter()
 
-    await exporter.increment_counter("nexusai_executions_total", 1, attributes={"tool_name": "search"})
+    await exporter.increment_counter(
+        "nexusai_executions_total", 1, attributes={"tool_name": "search"}
+    )
     await exporter.record_gauge("nexusai_scheduler_queue_depth", 4.0)
     await exporter.record_duration("nexusai_execution_duration_ms", 120.5)
 
@@ -59,7 +64,9 @@ def test_cardinality_governance_attribute_filtering() -> None:
 
     assert "tool_name" in clean
     assert "status" in clean
-    assert "execution_id" not in clean, "High cardinality execution_id must be excluded from metric labels"
+    assert (
+        "execution_id" not in clean
+    ), "High cardinality execution_id must be excluded from metric labels"
     assert "node_id" not in clean, "High cardinality node_id must be excluded from metric labels"
     assert "task_id" not in clean, "High cardinality task_id must be excluded from metric labels"
 

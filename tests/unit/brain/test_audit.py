@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import pytest
-
-from nexusai.brain.domain.audit import AuditEvent, AuditEventType, AuditVerificationResult, GENESIS_HASH
+from nexusai.brain.domain.audit import GENESIS_HASH, AuditEvent, AuditEventType
 
 
 def test_audit_event_domain_model_and_hash_calculation() -> None:

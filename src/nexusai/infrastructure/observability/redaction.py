@@ -3,22 +3,23 @@
 from __future__ import annotations
 
 import hashlib
-import json
 from typing import Any
 
-SENSITIVE_KEY_PATTERNS = frozenset({
-    "api_key",
-    "access_token",
-    "refresh_token",
-    "authorization",
-    "cookie",
-    "password",
-    "secret",
-    "private_key",
-    "bearer",
-    "credential",
-    "token",
-})
+SENSITIVE_KEY_PATTERNS = frozenset(
+    {
+        "api_key",
+        "access_token",
+        "refresh_token",
+        "authorization",
+        "cookie",
+        "password",
+        "secret",
+        "private_key",
+        "bearer",
+        "credential",
+        "token",
+    }
+)
 
 
 def sanitize_secrets_recursive(data: Any) -> Any:

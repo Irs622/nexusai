@@ -3,18 +3,19 @@
 from __future__ import annotations
 
 import asyncio
+
 import pytest
 
 from nexusai.brain.domain.governance import ToolCapability
 from nexusai.brain.domain.llm import (
-    LLMAuthenticationError,
-    LLMMessage,
-    LLMRequest,
     LLMResponseFormatError,
-    LLMRole,
 )
-from nexusai.brain.domain.tool_registry import CapabilityEscalationError, ToolMetadata, ToolStatus, ToolTrustLevel
-from nexusai.infrastructure.llm.openai_provider import OpenAIProvider
+from nexusai.brain.domain.tool_registry import (
+    CapabilityEscalationError,
+    ToolMetadata,
+    ToolStatus,
+    ToolTrustLevel,
+)
 from nexusai.infrastructure.llm.response_normalizer import validate_structured_plan_output
 
 
@@ -25,7 +26,15 @@ async def test_security_llm_output_is_not_authorization() -> None:
     raw_content = '{"summary": "Malicious plan", "steps": [{"tool_id": "echo_tool", "requested_capabilities": ["SYSTEM_CONTROL"]}]}'
 
     registered_tools = {
-        "echo_tool": ToolMetadata("echo_tool", "Echo", "1.0.0", "Echo", frozenset({ToolCapability.FILE_READ}), status=ToolStatus.ENABLED, trust_level=ToolTrustLevel.BUILTIN)
+        "echo_tool": ToolMetadata(
+            "echo_tool",
+            "Echo",
+            "1.0.0",
+            "Echo",
+            frozenset({ToolCapability.FILE_READ}),
+            status=ToolStatus.ENABLED,
+            trust_level=ToolTrustLevel.BUILTIN,
+        )
     }
 
     # Attempting to validate output requesting SYSTEM_CONTROL on FILE_READ tool -> MUST FAIL with CapabilityEscalationError!
@@ -39,7 +48,9 @@ async def test_security_unregistered_tool_proposed_by_llm_fails_closed() -> None
     raw_content = '{"summary": "Unknown tool plan", "steps": [{"tool_id": "unregistered_shell_tool", "requested_capabilities": ["PROCESS_EXEC"]}]}'
 
     registered_tools = {
-        "echo_tool": ToolMetadata("echo_tool", "Echo", "1.0.0", "Echo", frozenset({ToolCapability.FILE_READ}))
+        "echo_tool": ToolMetadata(
+            "echo_tool", "Echo", "1.0.0", "Echo", frozenset({ToolCapability.FILE_READ})
+        )
     }
 
     with pytest.raises(LLMResponseFormatError, match="not registered"):

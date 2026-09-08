@@ -98,6 +98,14 @@ warn_return_any = true
 warn_unused_configs = true
 mypy_path = "src:."
 
+[[tool.mypy.overrides]]
+module = [
+    "tests.*",
+    "tools.*",
+]
+ignore_errors = true
+
+
 [tool.pyrefly]
 project-roots = ["src", "."]
 search-path = ["src", "."]

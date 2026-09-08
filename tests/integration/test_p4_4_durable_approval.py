@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import os
 import tempfile
+
 import pytest
 
 from nexusai.brain.domain.governance import ResourceBudget, ToolCapability
@@ -15,7 +16,7 @@ from nexusai.brain.domain.human_approval import (
     HumanApprovalRequest,
     RiskLevel,
 )
-from nexusai.brain.domain.tool_registry import ToolMetadata, ToolStatus, ToolTrustLevel
+from nexusai.brain.domain.tool_registry import ToolMetadata, ToolStatus
 from nexusai.brain.runtime.governance_engine import GovernanceEngine
 from nexusai.brain.runtime.human_approval_engine import HumanApprovalEngine
 from nexusai.brain.runtime.tool_registry import ToolRegistry
@@ -57,7 +58,9 @@ async def test_durable_approval_restart_recovery_simulation() -> None:
         assert req_b is not None
         assert req_b.status == ApprovalStatus.PENDING
 
-        dec_b = HumanApprovalDecision("app-restart-1", ApprovalStatus.APPROVED, "operator_b@co.com", "Approved post-restart")
+        dec_b = HumanApprovalDecision(
+            "app-restart-1", ApprovalStatus.APPROVED, "operator_b@co.com", "Approved post-restart"
+        )
         grant_b = await engine_b.submit_decision(dec_b)
 
         del engine_b, store_b
@@ -68,7 +71,14 @@ async def test_durable_approval_restart_recovery_simulation() -> None:
         registry_c = ToolRegistry()
         gov_c = GovernanceEngine(global_budget=ResourceBudget(max_tool_invocations=10))
 
-        tool_meta = ToolMetadata("process_exec_tool", "ProcessTool", "1.0.0", "ProcessTool", frozenset({ToolCapability.PROCESS_EXEC}), status=ToolStatus.ENABLED)
+        tool_meta = ToolMetadata(
+            "process_exec_tool",
+            "ProcessTool",
+            "1.0.0",
+            "ProcessTool",
+            frozenset({ToolCapability.PROCESS_EXEC}),
+            status=ToolStatus.ENABLED,
+        )
         await registry_c.register(tool_meta)
 
         # 1. Verify single-use grant
@@ -83,7 +93,11 @@ async def test_durable_approval_restart_recovery_simulation() -> None:
 
         # 4. Dispatch tool execution
         tool_port = ControlledTestToolPort()
-        res = await tool_port.execute(pytest.importorskip("nexusai.brain.ports.tool_port").ToolExecutionRequest("exec-restart-1", "process_exec_tool", ()))
+        res = await tool_port.execute(
+            pytest.importorskip("nexusai.brain.ports.tool_port").ToolExecutionRequest(
+                "exec-restart-1", "process_exec_tool", ()
+            )
+        )
         assert res.success is True
         assert tool_port.call_count == 1
 

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Mapping
+from typing import Mapping
 
 from nexusai.brain.ports.observability_port import IMetricRecorder
 
@@ -52,11 +52,15 @@ class PrometheusMetricRecorder(IMetricRecorder):
                     f"Label '{key}' is FORBIDDEN in metric attributes due to high-cardinality explosion risks!"
                 )
 
-    def increment_counter(self, name: str, value: float = 1.0, labels: Mapping[str, str] | None = None) -> None:
+    def increment_counter(
+        self, name: str, value: float = 1.0, labels: Mapping[str, str] | None = None
+    ) -> None:
         self._validate_labels(labels)
         self.counters[name] = self.counters.get(name, 0.0) + value
 
-    def record_histogram(self, name: str, value: float, labels: Mapping[str, str] | None = None) -> None:
+    def record_histogram(
+        self, name: str, value: float, labels: Mapping[str, str] | None = None
+    ) -> None:
         self._validate_labels(labels)
         if name not in self.histograms:
             self.histograms[name] = []

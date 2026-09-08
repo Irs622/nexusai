@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+
 import pytest
 
 from nexusai.brain.domain.governance import ToolCapability
@@ -12,7 +13,6 @@ from nexusai.brain.domain.tool_registry import (
     ToolStatus,
     ToolTrustLevel,
     ToolUnavailableError,
-    ToolVersionMismatchError,
     TrustPolicyError,
 )
 from nexusai.brain.runtime.tool_registry import ToolRegistry
@@ -35,7 +35,9 @@ async def test_security_capability_escalation_blocked() -> None:
     with pytest.raises(CapabilityEscalationError):
         await registry.validate_tool(
             "file_read_only",
-            requested_capabilities=frozenset({ToolCapability.FILE_READ, ToolCapability.PROCESS_EXEC}),
+            requested_capabilities=frozenset(
+                {ToolCapability.FILE_READ, ToolCapability.PROCESS_EXEC}
+            ),
         )
 
 

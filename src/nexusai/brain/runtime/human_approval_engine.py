@@ -8,8 +8,6 @@ from typing import Any
 
 from nexusai.brain.domain.human_approval import (
     ActionBinding,
-    ApprovalCancelledError,
-    ApprovalError,
     ApprovalExpiredError,
     ApprovalGrant,
     ApprovalMismatchError,
@@ -71,7 +69,10 @@ class HumanApprovalEngine(IHumanApprovalPort):
             await self._safe_telemetry_event(
                 RuntimeEventType.EXECUTION_STARTED,
                 approval_id=request.approval_id,
-                attributes={"risk_level": request.risk_level.value, "tool_id": request.binding.tool_id},
+                attributes={
+                    "risk_level": request.risk_level.value,
+                    "tool_id": request.binding.tool_id,
+                },
             )
             return res
 
@@ -149,7 +150,9 @@ class HumanApprovalEngine(IHumanApprovalPort):
                     metadata=req.metadata,
                 )
                 self._requests[req.approval_id] = updated_req
-                raise ApprovalMismatchError(f"Human operator denied request '{decision.approval_id}': {decision.reason}")
+                raise ApprovalMismatchError(
+                    f"Human operator denied request '{decision.approval_id}': {decision.reason}"
+                )
 
             # Operator APPROVED -> Issue single-use ApprovalGrant
             updated_req = HumanApprovalRequest(
@@ -192,7 +195,9 @@ class HumanApprovalEngine(IHumanApprovalPort):
 
             # INV-HA-08: Single-Use Replay Protection
             if grant.consumed_at is not None:
-                raise ApprovalReplayError(f"Approval grant '{grant_id}' has already been consumed at {grant.consumed_at}")
+                raise ApprovalReplayError(
+                    f"Approval grant '{grant_id}' has already been consumed at {grant.consumed_at}"
+                )
 
             # INV-HA-04: Expiration Defense-in-Depth
             now = time.time()
@@ -240,7 +245,10 @@ class HumanApprovalEngine(IHumanApprovalPort):
         async with self._lock:
             cancelled_cnt = 0
             for app_id, req in list(self._requests.items()):
-                if req.binding.execution_id == execution_id and req.status == ApprovalStatus.PENDING:
+                if (
+                    req.binding.execution_id == execution_id
+                    and req.status == ApprovalStatus.PENDING
+                ):
                     self._requests[app_id] = HumanApprovalRequest(
                         approval_id=req.approval_id,
                         binding=req.binding,

@@ -33,7 +33,9 @@ def validate_structured_plan_output(
 
             tool_id = step.get("tool_id")
             if not tool_id or not isinstance(tool_id, str):
-                raise LLMResponseFormatError(f"Step at index {idx} missing required string 'tool_id'")
+                raise LLMResponseFormatError(
+                    f"Step at index {idx} missing required string 'tool_id'"
+                )
 
             # P4-3-INV-11: LLM-generated tool identifiers must resolve through ToolRegistry
             if tool_id not in registered_tools:
@@ -43,9 +45,16 @@ def validate_structured_plan_output(
 
             tool_meta = registered_tools[tool_id]
 
-            # P4-3-INV-10: LLM-generated capabilities CANNOT escalate registered tool capabilities!
             raw_caps = step.get("requested_capabilities", [])
-            req_caps = frozenset({ToolCapability(c) for c in raw_caps if c in ToolCapability.__members__ or any(c == tc.value for tc in ToolCapability)})
+            parsed_caps = set()
+            for c in raw_caps:
+                if c in ToolCapability.__members__:
+                    parsed_caps.add(ToolCapability[c])
+                elif any(c == tc.value for tc in ToolCapability):
+                    parsed_caps.add(ToolCapability(c))
+                else:
+                    raise CapabilityEscalationError(f"Unknown capability requested: '{c}'")
+            req_caps = frozenset(parsed_caps)
 
             if not req_caps.issubset(tool_meta.capabilities):
                 raise CapabilityEscalationError(

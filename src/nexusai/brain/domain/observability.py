@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass, field
 from enum import Enum
-import time
 from typing import Any, Mapping
 
 
@@ -15,6 +15,9 @@ class RuntimeEventType(str, Enum):
     EXECUTION_COMPLETED = "EXECUTION_COMPLETED"
     EXECUTION_FAILED = "EXECUTION_FAILED"
     EXECUTION_CANCELLED = "EXECUTION_CANCELLED"
+
+    PLANNING_STARTED = "PLANNING_STARTED"
+    PLANNING_COMPLETED = "PLANNING_COMPLETED"
 
     NODE_SUBMITTED = "NODE_SUBMITTED"
     NODE_CLAIMED = "NODE_CLAIMED"
@@ -60,9 +63,25 @@ class RuntimeEventType(str, Enum):
 
 # Sensitive keys forbidden from telemetry attributes
 FORBIDDEN_SECRET_KEYS = {
-    "password", "secret", "token", "api_key", "apikey", "auth",
-    "authorization", "private_key", "credential", "bearer"
+    "password",
+    "secret",
+    "token",
+    "api_key",
+    "apikey",
+    "authorization",
+    "private_key",
+    "credential",
+    "bearer",
 }
+
+
+def _is_secret_key(key: str) -> bool:
+    low = key.lower()
+    if any(k in low for k in FORBIDDEN_SECRET_KEYS):
+        return True
+    if low == "auth" or low.startswith("auth_") or low.endswith("_auth") or "_auth_" in low:
+        return True
+    return False
 
 
 def sanitize_attributes(attributes: Mapping[str, Any] | None) -> dict[str, Any]:
@@ -72,8 +91,7 @@ def sanitize_attributes(attributes: Mapping[str, Any] | None) -> dict[str, Any]:
 
     sanitized: dict[str, Any] = {}
     for key, val in attributes.items():
-        key_lower = str(key).lower()
-        if any(secret_kw in key_lower for secret_kw in FORBIDDEN_SECRET_KEYS):
+        if _is_secret_key(str(key)):
             sanitized[key] = "[REDACTED_SECRET]"
         elif isinstance(val, (int, float, bool, str)):
             sanitized[key] = val

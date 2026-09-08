@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
-
 from nexusai.brain.domain.recovery import BackupMetadata
 from nexusai.brain.ports.disaster_recovery_port import IBackupIntegrityVerifier
 

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Protocol, Sequence
+from typing import Protocol
 
 from nexusai.brain.domain.human_approval import (
     ActionBinding,
@@ -27,7 +27,9 @@ class IApprovalStore(Protocol):
         """Atomically record operator decision (APPROVED or DENIED). Returns single-use ApprovalGrant if APPROVED."""
         ...
 
-    async def verify_and_consume_grant(self, grant_id: str, expected_binding: ActionBinding) -> bool:
+    async def verify_and_consume_grant(
+        self, grant_id: str, expected_binding: ActionBinding
+    ) -> bool:
         """Atomically verify binding digest, expiration, and consume single-use grant in durable store."""
         ...
 

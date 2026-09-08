@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import asyncio
+
 import pytest
 
 from nexusai.brain.domain.recovery import RecoveryStatus
-from nexusai.infrastructure.coordination.postgres_execution_coordinator import PostgresExecutionCoordinator
+from nexusai.infrastructure.coordination.postgres_execution_coordinator import (
+    PostgresExecutionCoordinator,
+)
 from nexusai.infrastructure.persistence.postgres_audit_store import PostgresAuditStore
 from nexusai.infrastructure.recovery.backup_integrity_verifier import BackupIntegrityVerifier
 from nexusai.infrastructure.recovery.postgres_backup_provider import PostgresBackupProvider

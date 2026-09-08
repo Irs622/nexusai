@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+
 import pytest
 
 from nexusai.brain.domain.governance import ToolCapability
@@ -49,7 +50,9 @@ async def test_p4_1_cancellation_propagation_and_resource_release() -> None:
 
     # 4. Verify invariants
     assert cancelled_cnt == 1
-    assert gov_engine.get_active_reservation_count() == 0, "Governance reservation MUST be released!"
+    assert (
+        gov_engine.get_active_reservation_count() == 0
+    ), "Governance reservation MUST be released!"
 
     req_state = await approval_engine.get_request("app-p4-cancel")
     assert req_state is not None

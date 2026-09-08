@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import os
 import tempfile
+
 import pytest
 
 from nexusai.brain.domain.execution_recovery import (
@@ -12,11 +13,8 @@ from nexusai.brain.domain.execution_recovery import (
     JournalLifecyclePhase,
     RecoveryStatus,
 )
-from nexusai.brain.domain.governance import ResourceBudget, ToolCapability
-from nexusai.brain.domain.tool_registry import ToolIdempotency, ToolMetadata, ToolStatus
+from nexusai.brain.domain.tool_registry import ToolIdempotency
 from nexusai.brain.runtime.crash_recovery_manager import CrashRecoveryManager
-from nexusai.brain.runtime.governance_engine import GovernanceEngine
-from nexusai.brain.runtime.tool_registry import ToolRegistry
 from nexusai.infrastructure.persistence.sqlite_execution_journal import SQLiteExecutionJournal
 
 

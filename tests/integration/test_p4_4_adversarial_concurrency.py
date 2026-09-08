@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import os
 import tempfile
+
 import pytest
 
 from nexusai.brain.domain.governance import ToolCapability
@@ -44,14 +45,21 @@ async def test_p4_4_adversarial_sqlite_concurrency() -> None:
                 requested_capabilities=frozenset({ToolCapability.PROCESS_EXEC}),
             )
             bindings.append(binding)
-            req = HumanApprovalRequest(f"app-dur-stress-{i}", binding, RiskLevel.HIGH, f"Execute task {i}")
+            req = HumanApprovalRequest(
+                f"app-dur-stress-{i}", binding, RiskLevel.HIGH, f"Execute task {i}"
+            )
             await init_store.save_request(req)
 
         # Concurrent Decision Submissions across separate SQLite connection stores
         async def decision_worker(app_idx: int) -> None:
             store = SQLiteApprovalStore(db_path=db_path)
             try:
-                dec = HumanApprovalDecision(f"app-dur-stress-{app_idx}", ApprovalStatus.APPROVED, f"operator_{app_idx}@co.com", "Approved")
+                dec = HumanApprovalDecision(
+                    f"app-dur-stress-{app_idx}",
+                    ApprovalStatus.APPROVED,
+                    f"operator_{app_idx}@co.com",
+                    "Approved",
+                )
                 await store.record_decision(dec)
             except Exception:
                 pass
@@ -73,10 +81,14 @@ async def test_p4_4_adversarial_sqlite_concurrency() -> None:
                 consumer_worker(grant_id, bindings[i]),
                 consumer_worker(grant_id, bindings[i]),
             )
-            assert sum(1 for r in (res1, res2) if r is True) == 1, f"Single-use replay protection failed for grant '{grant_id}'!"
+            assert (
+                sum(1 for r in (res1, res2) if r is True) == 1
+            ), f"Single-use replay protection failed for grant '{grant_id}'!"
 
-        print(f"\n[P4-4 ADVERSARIAL STRESS VERIFICATION]")
-        print("20 Concurrent Durable Approval Requests verified with 100% Single-Use Replay Protection!")
+        print("\n[P4-4 ADVERSARIAL STRESS VERIFICATION]")
+        print(
+            "20 Concurrent Durable Approval Requests verified with 100% Single-Use Replay Protection!"
+        )
 
     finally:
         if os.path.exists(db_path):

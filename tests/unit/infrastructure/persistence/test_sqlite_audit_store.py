@@ -5,9 +5,10 @@ from __future__ import annotations
 import asyncio
 import os
 import tempfile
+
 import pytest
 
-from nexusai.brain.domain.audit import AuditEvent, AuditEventType, GENESIS_HASH
+from nexusai.brain.domain.audit import GENESIS_HASH, AuditEvent, AuditEventType
 from nexusai.infrastructure.persistence.sqlite_audit_store import SQLiteAuditStore
 
 

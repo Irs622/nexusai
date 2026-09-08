@@ -6,9 +6,9 @@ import asyncio
 import os
 import tempfile
 import time
+
 import pytest
 
-from nexusai.brain.coordinator import BrainCoordinator
 from nexusai.brain.domain.memory import (
     MemoryEntry,
     MemoryProvenance,
@@ -16,7 +16,6 @@ from nexusai.brain.domain.memory import (
     MemoryType,
     PrivacyLevel,
 )
-from nexusai.brain.planner.engine import PlanGraphExecutionEngine
 from nexusai.brain.runtime.context_builder import ContextBuilder
 from nexusai.brain.runtime.memory_retriever import MemoryRetriever
 from nexusai.infrastructure.persistence.sqlite_memory_store import SQLiteMemoryStore
@@ -104,7 +103,9 @@ async def test_p2_6_fact_versioning_and_invalidation_lifecycle() -> None:
     await store.store(fact_v2)
 
     # 3. Query memory: Must return ONLY Fact v2
-    query = MemoryQuery(session_id="sess-fact-test", query_text="Laravel framework version", top_k=5)
+    query = MemoryQuery(
+        session_id="sess-fact-test", query_text="Laravel framework version", top_k=5
+    )
     recalled = await retriever.retrieve(query)
 
     assert len(recalled) == 1
@@ -129,8 +130,14 @@ async def test_p2_6_adversarial_security_invariants() -> None:
 
     # Invariant 3: Sensitive memory MUST be sanitized before persistence
     sens_mem = MemoryEntry(
-        "m-sens", "sess-A", None, MemoryType.WORKING, "Secret Data", prov,
-        privacy_level=PrivacyLevel.SENSITIVE, metadata={"token": "bearer-abc-secret"}
+        "m-sens",
+        "sess-A",
+        None,
+        MemoryType.WORKING,
+        "Secret Data",
+        prov,
+        privacy_level=PrivacyLevel.SENSITIVE,
+        metadata={"token": "bearer-abc-secret"},
     )
     await store.store(sens_mem)
     loaded_sens = await store.load("m-sens", session_id="sess-A")
@@ -139,8 +146,13 @@ async def test_p2_6_adversarial_security_invariants() -> None:
 
     # Invariant 4: Expired memory MUST NOT be returned by retrieval
     expired_mem = MemoryEntry(
-        "m-exp", "sess-A", None, MemoryType.WORKING, "Expired Data", prov,
-        expires_at=time.time() - 10.0
+        "m-exp",
+        "sess-A",
+        None,
+        MemoryType.WORKING,
+        "Expired Data",
+        prov,
+        expires_at=time.time() - 10.0,
     )
     await store.store(expired_mem)
     res_exp = await retriever.retrieve(MemoryQuery(session_id="sess-A", query_text="Expired Data"))

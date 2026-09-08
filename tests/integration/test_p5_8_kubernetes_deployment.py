@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import os
-import pytest
 
 
 def test_helm_chart_manifest_structure() -> None:

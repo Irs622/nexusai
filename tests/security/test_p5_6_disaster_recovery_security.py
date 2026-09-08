@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import asyncio
+
 import pytest
 
 from nexusai.brain.domain.recovery import BackupMetadata, RecoveryStatus
-from nexusai.infrastructure.coordination.postgres_execution_coordinator import PostgresExecutionCoordinator
+from nexusai.infrastructure.coordination.postgres_execution_coordinator import (
+    PostgresExecutionCoordinator,
+)
 from nexusai.infrastructure.persistence.postgres_audit_store import PostgresAuditStore
 from nexusai.infrastructure.recovery.backup_integrity_verifier import BackupIntegrityVerifier
 from nexusai.infrastructure.recovery.postgres_backup_provider import PostgresBackupProvider
@@ -14,7 +17,9 @@ from nexusai.infrastructure.recovery.recovery_manager import DisasterRecoveryMan
 
 
 @pytest.mark.asyncio
-async def test_security_disaster_recovery_increments_epoch_and_invalidates_old_fencing_tokens() -> None:
+async def test_security_disaster_recovery_increments_epoch_and_invalidates_old_fencing_tokens() -> (
+    None
+):
     """Security Test (P5-6-INV-02 & P5-6-INV-03): Disaster recovery increments recovery epoch and invalidates old worker fencing tokens."""
     backup_prov = PostgresBackupProvider()
     verifier = BackupIntegrityVerifier()
@@ -24,7 +29,7 @@ async def test_security_disaster_recovery_increments_epoch_and_invalidates_old_f
     rec_mgr = DisasterRecoveryManager(backup_prov, verifier, coord, audit_store)
     epoch_before = await rec_mgr.get_current_recovery_epoch()
 
-    meta = await backup_prov.create_backup("bak-sec-1")
+    await backup_prov.create_backup("bak-sec-1")
     res = await rec_mgr.execute_disaster_recovery("bak-sec-1")
 
     assert res.status == RecoveryStatus.READY
@@ -76,7 +81,9 @@ async def test_security_corrupted_backup_causes_quarantine() -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(test_security_disaster_recovery_increments_epoch_and_invalidates_old_fencing_tokens())
+    asyncio.run(
+        test_security_disaster_recovery_increments_epoch_and_invalidates_old_fencing_tokens()
+    )
     asyncio.run(test_security_raw_secrets_never_appear_in_backup_metadata())
     asyncio.run(test_security_corrupted_backup_causes_quarantine())
     print("ALL P5-6 DISASTER RECOVERY SECURITY TESTS PASSED SUCCESSFULLY!")

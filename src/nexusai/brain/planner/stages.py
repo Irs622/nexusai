@@ -163,15 +163,18 @@ class DependencyResolver:
     ) -> PlanGraph:
         cap_graph = graph or CapabilityGraph()
         final_steps: list[PlanStep] = []
-        tool_to_step_id: dict[str, int] = {}
+        tool_to_step_id: dict[str, Any] = {}
         seen_tools: set[str] = set()
 
+        existing_ids: set[Any] = set()
         for step in steps:
             if auto_insert and step.tool_name and step.tool_name in cap_graph.requirements:
                 reqs = cap_graph.requirements[step.tool_name]
                 for req_tool in reqs:
                     if req_tool not in seen_tools:
                         req_step_id = len(final_steps) + 1
+                        while req_step_id in existing_ids:
+                            req_step_id += 1
                         req_step = PlanStep(
                             step_id=req_step_id,
                             title=f"Auto-Prerequisite: {req_tool}",
@@ -180,13 +183,23 @@ class DependencyResolver:
                             status=StepStatus.PENDING,
                         )
                         final_steps.append(req_step)
+                        existing_ids.add(req_step_id)
                         seen_tools.add(req_tool)
                         tool_to_step_id[req_tool] = req_step_id
 
-            if step.step_id is None or step.step_id <= 0:
-                step.step_id = len(final_steps) + 1
+            if (
+                step.step_id is None
+                or (isinstance(step.step_id, int) and step.step_id <= 0)
+                or step.step_id in existing_ids
+            ):
+                if isinstance(step.step_id, int) or step.step_id is None:
+                    next_id = len(final_steps) + 1
+                    while next_id in existing_ids:
+                        next_id += 1
+                    step.step_id = next_id
 
             final_steps.append(step)
+            existing_ids.add(step.step_id)
             if step.tool_name:
                 seen_tools.add(step.tool_name)
                 tool_to_step_id[step.tool_name] = step.step_id

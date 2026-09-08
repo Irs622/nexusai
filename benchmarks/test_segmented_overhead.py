@@ -1,11 +1,12 @@
 """Segmented Runtime Overhead Benchmark measuring per-phase execution latency breakdown."""
 
 import time
+
 import pytest
 
 from nexusai.providers import ChatMessage, ChatRequest, MessageRole, MockProvider
 from nexusai.providers.translators import OpenAITranslator
-from nexusai.runtime import ExecutionContext, ExecutionEngine, ExecutionReport, Trace
+from nexusai.runtime import ExecutionEngine, ExecutionReport, Trace
 
 
 @pytest.mark.asyncio
@@ -15,7 +16,9 @@ async def test_segmented_runtime_overhead_breakdown() -> None:
     engine = ExecutionEngine()
     engine.manager.registry.register(p)
 
-    req = ChatRequest(messages=[ChatMessage(role=MessageRole.USER, content="Segmented overhead test")])
+    req = ChatRequest(
+        messages=[ChatMessage(role=MessageRole.USER, content="Segmented overhead test")]
+    )
     translator = OpenAITranslator()
 
     # 1. Routing Overhead
@@ -25,13 +28,13 @@ async def test_segmented_runtime_overhead_breakdown() -> None:
     routing_ms = (t1 - t0) * 1000.0
 
     # 2. Translator Overhead
-    wire_req = translator.from_canonical_request(req)
+    translator.from_canonical_request(req)
     t2 = time.perf_counter()
     raw_payload = {
         "id": "mock_1",
         "choices": [{"index": 0, "message": {"role": "assistant", "content": "hello"}}],
     }
-    canonical_res = translator.to_canonical_response(raw_payload, provider_id="segmented_mock")
+    translator.to_canonical_response(raw_payload, provider_id="segmented_mock")
     t3 = time.perf_counter()
     translator_ms = (t3 - t2) * 1000.0
 
@@ -45,7 +48,7 @@ async def test_segmented_runtime_overhead_breakdown() -> None:
 
     # 4. ExecutionReport Overhead
     t6 = time.perf_counter()
-    report = ExecutionReport(
+    ExecutionReport(
         request_id="r1",
         provider_id=decision_p.id,
         model="mock",

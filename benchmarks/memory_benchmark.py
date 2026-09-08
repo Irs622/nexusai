@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import time
+
 from nexusai.brain.memory import (
     ContextAssembler,
     IndexedMemoryItem,
@@ -42,7 +43,7 @@ def run_memory_benchmark(items_count: int = 1000) -> dict[str, float]:
     candidates = retriever.retrieve_candidates(query="Python editor", max_results=50)
     ranked = ranker.rank_memories(query="Python editor", candidates=candidates)
     resolved = resolver.resolve_conflicts(ranked)
-    summary = assembler.assemble_memory_context(query="Python editor")
+    assembler.assemble_memory_context(query="Python editor")
     retrieval_time_ms = (time.perf_counter() - t1) * 1000.0
 
     print(f"=== Memory Intelligence Benchmark Results ({items_count} items) ===")

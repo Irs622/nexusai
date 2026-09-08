@@ -8,7 +8,6 @@ from typing import Any
 
 from nexusai.brain.domain.agent import (
     AgentGoal,
-    PlanGraph,
     PlanningContext,
     PlanningGoal,
     PlanningResources,
@@ -18,21 +17,19 @@ from nexusai.brain.domain.agent_loop import (
     AgentLoopConfig,
     AgentLoopResult,
     AgentLoopState,
-    LoopDecision,
     Observation,
     compute_plan_fingerprint,
 )
 from nexusai.brain.domain.agent_runtime import AgentRequest
 from nexusai.brain.domain.memory import MemoryEntry, MemoryProvenance, MemoryType
 from nexusai.brain.domain.observability import RuntimeEvent, RuntimeEventType
-from nexusai.brain.domain.tool_registry import ToolMetadata
 from nexusai.brain.planner.engine import PlanGraphExecutionEngine
 from nexusai.brain.ports.agent_loop_port import IAgentLoop
 from nexusai.brain.ports.llm_provider_port import ILLMProvider
 from nexusai.brain.ports.memory_port import IContextBuilder, IMemoryStore
 from nexusai.brain.ports.observability_port import IObservabilityPort
 from nexusai.brain.ports.outcome_evaluator_port import IOutcomeEvaluator
-from nexusai.brain.ports.tool_port import IToolPort, ToolExecutionResult
+from nexusai.brain.ports.tool_port import IToolPort
 from nexusai.brain.ports.tool_registry_port import IToolRegistry
 from nexusai.brain.runtime.deterministic_evaluator import DeterministicOutcomeEvaluator
 
@@ -97,7 +94,9 @@ class AgentLoop(IAgentLoop):
         # Active Controller Ownership (P3-4-INV-12)
         async with self._lock:
             if exec_id in self._active_controllers:
-                raise ValueError(f"Execution '{exec_id}' is already owned by an active AgentLoop controller")
+                raise ValueError(
+                    f"Execution '{exec_id}' is already owned by an active AgentLoop controller"
+                )
             self._active_controllers.add(exec_id)
 
         try:
@@ -120,7 +119,9 @@ class AgentLoop(IAgentLoop):
         observations: list[Observation] = []
         seen_fingerprints: set[str] = set()
 
-        await self._safe_telemetry_event(RuntimeEventType.EXECUTION_STARTED, exec_id, request.session_id, iteration)
+        await self._safe_telemetry_event(
+            RuntimeEventType.EXECUTION_STARTED, exec_id, request.session_id, iteration
+        )
 
         final_output = ""
 
@@ -130,12 +131,16 @@ class AgentLoop(IAgentLoop):
             # P3-4-INV-01: max_iterations ceiling enforcement
             if iteration > config.max_iterations:
                 state = AgentLoopState.FAILED
-                final_output = f"Loop terminated: max_iterations limit ({config.max_iterations}) reached"
+                final_output = (
+                    f"Loop terminated: max_iterations limit ({config.max_iterations}) reached"
+                )
                 break
 
             # 1. PLANNING STAGE
             state = AgentLoopState.PLANNING
-            await self._safe_telemetry_event(RuntimeEventType.PLANNING_STARTED, exec_id, request.session_id, iteration)
+            await self._safe_telemetry_event(
+                RuntimeEventType.PLANNING_STARTED, exec_id, request.session_id, iteration
+            )
 
             context_text = ""
             if self.context_builder:
@@ -156,13 +161,17 @@ class AgentLoop(IAgentLoop):
             )
 
             # Generate PlanGraph
-            plan_graph, planner_trace = self.execution_engine.planner.plan(ctx, session_id=request.session_id)
+            plan_graph, planner_trace = self.execution_engine.planner.plan(
+                ctx, session_id=request.session_id
+            )
             fingerprint = compute_plan_fingerprint(plan_graph)
 
             # P3-4-INV-07: Infinite Loop Protection via Plan Fingerprinting
             if fingerprint in seen_fingerprints:
                 state = AgentLoopState.FAILED
-                final_output = "Loop terminated: repeated plan graph fingerprint generated without progress"
+                final_output = (
+                    "Loop terminated: repeated plan graph fingerprint generated without progress"
+                )
                 break
             seen_fingerprints.add(fingerprint)
 
@@ -170,17 +179,18 @@ class AgentLoop(IAgentLoop):
             state = AgentLoopState.PLAN_VALIDATION
             if config.require_plan_validation and self.tool_registry:
                 for node_id, node in plan_graph.nodes.items():
-                    try:
-                        await self.tool_registry.validate_tool(node.step.tool_name)
-                    except Exception as err:
-                        if config.allow_replanning and replan_count < config.max_replans:
-                            replan_count += 1
-                            state = AgentLoopState.REPLANNING
-                            continue
-                        else:
-                            state = AgentLoopState.FAILED
-                            final_output = f"Plan validation failed for tool '{node.step.tool_name}': {err}"
-                            break
+                    if node.step.tool_name:
+                        try:
+                            await self.tool_registry.validate_tool(node.step.tool_name)
+                        except Exception as err:
+                            if config.allow_replanning and replan_count < config.max_replans:
+                                replan_count += 1
+                                state = AgentLoopState.REPLANNING
+                                continue
+                            else:
+                                state = AgentLoopState.FAILED
+                                final_output = f"Plan validation failed for tool '{node.step.tool_name}': {err}"
+                                break
 
             if state == AgentLoopState.FAILED:
                 break
@@ -188,7 +198,9 @@ class AgentLoop(IAgentLoop):
             # 3. EXECUTING STAGE
             state = AgentLoopState.READY_FOR_EXECUTION
             state = AgentLoopState.EXECUTING
-            await self._safe_telemetry_event(RuntimeEventType.EXECUTION_STARTED, exec_id, request.session_id, iteration)
+            await self._safe_telemetry_event(
+                RuntimeEventType.EXECUTION_STARTED, exec_id, request.session_id, iteration
+            )
 
             rec_graph, results, trace = await self.execution_engine.execute_plan(
                 ctx=ctx,
@@ -201,7 +213,9 @@ class AgentLoop(IAgentLoop):
             state = AgentLoopState.OBSERVING
             success_cnt = sum(1 for r in results if r.success)
             fail_cnt = sum(1 for r in results if not r.success)
-            pending_cnt = sum(1 for n in rec_graph.nodes.values() if n.step.status.value == "PENDING")
+            pending_cnt = sum(
+                1 for n in rec_graph.nodes.values() if n.step.status.value == "PENDING"
+            )
 
             obs = Observation(
                 execution_id=exec_id,
@@ -222,7 +236,9 @@ class AgentLoop(IAgentLoop):
             if decision.action == "COMPLETED":
                 state = AgentLoopState.COMPLETED
                 outputs = [r.output for r in results if r.success and r.output]
-                final_output = "\n".join(outputs) if outputs else "Agent loop completed successfully"
+                final_output = (
+                    "\n".join(outputs) if outputs else "Agent loop completed successfully"
+                )
             elif decision.action == "REPLAN":
                 # P3-4-INV-02: max_replans ceiling enforcement
                 if config.allow_replanning and replan_count < config.max_replans:
@@ -253,7 +269,11 @@ class AgentLoop(IAgentLoop):
                 pass
 
         await self._safe_telemetry_event(
-            RuntimeEventType.EXECUTION_COMPLETED if state == AgentLoopState.COMPLETED else RuntimeEventType.EXECUTION_FAILED,
+            (
+                RuntimeEventType.EXECUTION_COMPLETED
+                if state == AgentLoopState.COMPLETED
+                else RuntimeEventType.EXECUTION_FAILED
+            ),
             exec_id,
             request.session_id,
             iteration,
@@ -272,5 +292,7 @@ class AgentLoop(IAgentLoop):
 
     async def cancel(self, execution_id: str) -> bool:
         """Cancel an active agent loop execution task."""
-        await self._safe_telemetry_event(RuntimeEventType.EXECUTION_CANCELLED, execution_id, "unknown")
+        await self._safe_telemetry_event(
+            RuntimeEventType.EXECUTION_CANCELLED, execution_id, "unknown"
+        )
         return True

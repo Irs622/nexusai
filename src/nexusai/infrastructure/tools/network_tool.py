@@ -6,7 +6,6 @@ import ipaddress
 import socket
 import urllib.parse
 import urllib.request
-from typing import Any
 
 from nexusai.brain.domain.governance import ToolCapability
 from nexusai.brain.domain.tool_registry import ToolMetadata, ToolStatus, ToolTrustLevel
@@ -34,13 +33,19 @@ class NetworkTool(IToolPort):
         parsed = urllib.parse.urlparse(raw_url)
 
         if parsed.scheme not in ("http", "https"):
-            raise ValueError(f"Network scheme '{parsed.scheme}' is not allowed (must be http or https)")
+            raise ValueError(
+                f"Network scheme '{parsed.scheme}' is not allowed (must be http or https)"
+            )
 
         hostname = (parsed.hostname or "").lower()
         if not hostname:
             raise ValueError("URL must contain a valid hostname")
 
-        if hostname in self.blocked_hosts or hostname.startswith("127.") or hostname.startswith("192.168."):
+        if (
+            hostname in self.blocked_hosts
+            or hostname.startswith("127.")
+            or hostname.startswith("192.168.")
+        ):
             raise ValueError(f"Host '{hostname}' is blocked due to SSRF safety policy")
 
         if self.allowed_hosts and hostname not in self.allowed_hosts:
@@ -59,7 +64,9 @@ class NetworkTool(IToolPort):
                     or ip_obj.is_reserved
                     or ip_obj.is_multicast
                 ):
-                    raise ValueError(f"Host '{hostname}' resolved to private/blocked IP '{ip_str}' (SSRF protection)")
+                    raise ValueError(
+                        f"Host '{hostname}' resolved to private/blocked IP '{ip_str}' (SSRF protection)"
+                    )
         except socket.gaierror:
             pass  # Let request level handle unreachable hosts
 
@@ -67,7 +74,11 @@ class NetworkTool(IToolPort):
 
     async def execute(self, request: ToolExecutionRequest) -> ToolExecutionResult:
         """Execute governed HTTP GET/POST request with destination validation."""
-        params = request.parameters if isinstance(request.parameters, dict) else request.arguments if isinstance(request.arguments, dict) else {}
+        params = (
+            request.parameters
+            if isinstance(request.parameters, dict)
+            else request.arguments if isinstance(request.arguments, dict) else {}
+        )
         raw_url = params.get("url", "")
         method = params.get("method", "GET").upper()
 

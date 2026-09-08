@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import time
 from typing import Any
 
@@ -27,7 +26,7 @@ from nexusai.brain.planner.engine import PlanGraphExecutionEngine
 from nexusai.brain.ports.agent_runtime_port import IAgentRuntime
 from nexusai.brain.ports.memory_port import IContextBuilder, IMemoryStore
 from nexusai.brain.ports.observability_port import IObservabilityPort
-from nexusai.brain.ports.tool_port import IToolPort, ToolExecutionResult
+from nexusai.brain.ports.tool_port import IToolPort
 
 
 class BrainRuntimeFacade(IAgentRuntime):
@@ -76,7 +75,9 @@ class BrainRuntimeFacade(IAgentRuntime):
         t0 = time.perf_counter()
 
         await self._safe_telemetry_event(
-            RuntimeEventType.EXECUTION_STARTED, session_id=request.session_id, attributes={"agent_id": request.agent_id}
+            RuntimeEventType.EXECUTION_STARTED,
+            session_id=request.session_id,
+            attributes={"agent_id": request.agent_id},
         )
 
         # 1. Context Assembly via P2-6 IContextBuilder
@@ -106,16 +107,24 @@ class BrainRuntimeFacade(IAgentRuntime):
                 tool_port=tool_port,
                 session_id=request.session_id,
             )
-            exec_id = trace.execution_id if hasattr(trace, "execution_id") and trace.execution_id else f"exec-{int(time.time() * 1000)}"
+            exec_id = (
+                trace.execution_id
+                if hasattr(trace, "execution_id") and trace.execution_id
+                else f"exec-{int(time.time() * 1000)}"
+            )
 
             # 4. Result Synthesis
             successful_outputs = [r.output for r in results if r.success and r.output]
-            final_output = "\n".join(successful_outputs) if successful_outputs else "Agent task completed."
+            final_output = (
+                "\n".join(successful_outputs) if successful_outputs else "Agent task completed."
+            )
 
             # 5. Episodic Memory Persistence via P2-6 IMemoryStore
             if self.memory_store:
                 try:
-                    prov = MemoryProvenance(source_type="agent_execution", source_id=exec_id, confidence=1.0)
+                    prov = MemoryProvenance(
+                        source_type="agent_execution", source_id=exec_id, confidence=1.0
+                    )
                     mem_entry = MemoryEntry(
                         memory_id=f"mem-epi-{exec_id}",
                         session_id=request.session_id,
@@ -130,7 +139,10 @@ class BrainRuntimeFacade(IAgentRuntime):
 
             dur_ms = (time.perf_counter() - t0) * 1000.0
             await self._safe_telemetry_event(
-                RuntimeEventType.EXECUTION_COMPLETED, exec_id=exec_id, session_id=request.session_id, attributes={"dur_ms": dur_ms}
+                RuntimeEventType.EXECUTION_COMPLETED,
+                exec_id=exec_id,
+                session_id=request.session_id,
+                attributes={"dur_ms": dur_ms},
             )
 
             return AgentResponse(
@@ -146,7 +158,9 @@ class BrainRuntimeFacade(IAgentRuntime):
         except Exception as err:
             dur_ms = (time.perf_counter() - t0) * 1000.0
             await self._safe_telemetry_event(
-                RuntimeEventType.EXECUTION_FAILED, session_id=request.session_id, attributes={"error": str(err)}
+                RuntimeEventType.EXECUTION_FAILED,
+                session_id=request.session_id,
+                attributes={"error": str(err)},
             )
             return AgentResponse(
                 session_id=request.session_id,
@@ -191,7 +205,9 @@ class BrainRuntimeFacade(IAgentRuntime):
         )
 
         successful_outputs = [r.output for r in results if r.success and r.output]
-        final_output = "\n".join(successful_outputs) if successful_outputs else "Resumed agent task completed."
+        final_output = (
+            "\n".join(successful_outputs) if successful_outputs else "Resumed agent task completed."
+        )
         dur_ms = (time.perf_counter() - t0) * 1000.0
 
         return AgentResponse(

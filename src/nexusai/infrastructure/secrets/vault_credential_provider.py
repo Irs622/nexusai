@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import asyncio
 import time
-from typing import Dict
 
 from nexusai.brain.domain.credential import CredentialReference, ResolvedCredential
 from nexusai.brain.ports.credential_provider_port import ICredentialProvider
@@ -36,7 +34,9 @@ class VaultCredentialProvider(ICredentialProvider):
             expires_at=time.time() + 3600.0,
         )
 
-    async def rotate_credential(self, ref: CredentialReference, new_secret_value: str) -> CredentialReference:
+    async def rotate_credential(
+        self, ref: CredentialReference, new_secret_value: str
+    ) -> CredentialReference:
         """Rotate secret in Vault and issue new version pointer."""
         path_key = f"{ref.tool_id}/{ref.credential_ref}"
         if path_key not in self._vault_store:

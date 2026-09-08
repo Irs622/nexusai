@@ -1,11 +1,10 @@
 """Automated Compatibility Matrix Generator reading provider.describe() snapshots."""
 
-from pathlib import Path
 import asyncio
+from pathlib import Path
 
 from nexusai.providers import (
     MockProvider,
-    ProviderCapabilities,
     ProviderRegistry,
 )
 

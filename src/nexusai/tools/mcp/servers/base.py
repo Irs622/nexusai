@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import asyncio
-from collections.abc import AsyncIterator, Awaitable, Callable
 import json
 import sys
+from collections.abc import AsyncIterator, Awaitable, Callable
 from typing import Any
 
 from nexusai.tools.mcp.models import (

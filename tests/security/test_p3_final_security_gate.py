@@ -3,54 +3,38 @@
 from __future__ import annotations
 
 import asyncio
-import time
 from typing import Any
 from unittest.mock import MagicMock
+
 import pytest
 
-from nexusai.brain.domain.agent import AgentGoal, PlanGraph, PlanGraphNode, PlanningContext, PlanningGoal, PlanningResources, PlanStep
-from nexusai.brain.domain.agent_loop import AgentLoopConfig, AgentLoopState, compute_plan_fingerprint
-from nexusai.brain.domain.agent_runtime import AgentRequest, AgentResponse
+from nexusai.brain.domain.agent_loop import AgentLoopConfig, AgentLoopState
+from nexusai.brain.domain.agent_runtime import AgentRequest
 from nexusai.brain.domain.governance import ResourceBudget, ToolCapability
 from nexusai.brain.domain.human_approval import (
     ActionBinding,
-    ApprovalExpiredError,
-    ApprovalMismatchError,
     ApprovalReplayError,
     ApprovalStatus,
     HumanApprovalDecision,
     HumanApprovalRequest,
     RiskLevel,
 )
-from nexusai.brain.domain.llm import (
-    LLMAuthenticationError,
-    LLMMessage,
-    LLMRequest,
-    LLMRole,
-    LLMTimeoutError,
-)
 from nexusai.brain.domain.memory import MemoryType
 from nexusai.brain.domain.memory_learning import MemoryCandidate
 from nexusai.brain.domain.tool_registry import (
     CapabilityEscalationError,
-    ToolAlreadyRegisteredError,
     ToolMetadata,
     ToolStatus,
-    ToolTrustLevel,
     ToolUnavailableError,
 )
 from nexusai.brain.planner.engine import PlanGraphExecutionEngine
 from nexusai.brain.ports.tool_port import IToolPort, ToolExecutionRequest, ToolExecutionResult
 from nexusai.brain.runtime.agent_loop import AgentLoop
-from nexusai.brain.runtime.brain_runtime_facade import BrainRuntimeFacade
 from nexusai.brain.runtime.governance_engine import GovernanceEngine
 from nexusai.brain.runtime.human_approval_engine import HumanApprovalEngine
-from nexusai.brain.runtime.llm_provider_registry import LLMProviderRegistry
 from nexusai.brain.runtime.memory_lifecycle import MemoryLifecycle
 from nexusai.brain.runtime.memory_retriever import MemoryRetriever
 from nexusai.brain.runtime.tool_registry import ToolRegistry
-from nexusai.infrastructure.llm.mock_provider import MockLLMProvider
-from nexusai.infrastructure.observability.in_memory_exporter import InMemoryMetricsExporter
 from nexusai.infrastructure.persistence.sqlite_memory_store import SQLiteMemoryStore
 
 
@@ -62,12 +46,15 @@ class GateSpyToolPort(IToolPort):
     async def execute(self, request: ToolExecutionRequest) -> ToolExecutionResult:
         self.call_count += 1
         self.executed_tools.append(request.tool_name)
-        return ToolExecutionResult(request.execution_id, request.tool_name, True, f"Output for {request.tool_name}")
+        return ToolExecutionResult(
+            request.execution_id, request.tool_name, True, f"Output for {request.tool_name}"
+        )
 
 
 # ------------------------------------------------------------------
 # 1. Authority & Governance Invariants (INV-01 to INV-04)
 # ------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_p3_final_inv_01_and_02_tool_execution_and_governance_authority() -> None:
@@ -88,7 +75,7 @@ async def test_p3_final_inv_01_and_02_tool_execution_and_governance_authority() 
     req = HumanApprovalRequest("app-gate-1", binding, RiskLevel.HIGH, "Run process")
     await approval_engine.request_approval(req)
     dec = HumanApprovalDecision("app-gate-1", ApprovalStatus.APPROVED, "op@co.com", "Approved")
-    grant = await approval_engine.submit_decision(dec)
+    await approval_engine.submit_decision(dec)
 
     # Human approves, but another task consumes the quota
     res1 = await gov_engine.authorize("exec-other", frozenset({ToolCapability.PROCESS_EXEC}))
@@ -115,7 +102,9 @@ async def test_p3_final_inv_03_and_04_capability_integrity_and_tool_lifecycle() 
 
     # Escalation: Requesting PROCESS_EXEC on FILE_READ tool raises CapabilityEscalationError
     with pytest.raises(CapabilityEscalationError):
-        await registry.validate_tool("reader_tool", requested_capabilities=frozenset({ToolCapability.PROCESS_EXEC}))
+        await registry.validate_tool(
+            "reader_tool", requested_capabilities=frozenset({ToolCapability.PROCESS_EXEC})
+        )
 
     # Lifecycle: REVOKED status raises ToolUnavailableError
     revoked_meta = ToolMetadata(
@@ -134,6 +123,7 @@ async def test_p3_final_inv_03_and_04_capability_integrity_and_tool_lifecycle() 
 # ------------------------------------------------------------------
 # 2. Plan & Approval Integrity (INV-05 to INV-09)
 # ------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_p3_final_inv_05_to_09_approval_integrity_replay_and_revalidation() -> None:
@@ -166,12 +156,13 @@ async def test_p3_final_inv_05_to_09_approval_integrity_replay_and_revalidation(
 # 3. Session & Secret Isolation (INV-10 to INV-12)
 # ------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_p3_final_inv_10_to_12_session_and_secret_isolation() -> None:
     """P3-FINAL-INV-10 to INV-12: Session isolation enforced; Secrets redacted across metadata, summaries, and reasons."""
     store = SQLiteMemoryStore(":memory:")
     retriever = MemoryRetriever(store=store)
-    lifecycle = MemoryLifecycle(memory_store=store, retriever=retriever, context_builder=MagicMock())
+    MemoryLifecycle(memory_store=store, retriever=retriever, context_builder=MagicMock())
 
     # Store memory in Session A
     cand = MemoryCandidate(
@@ -184,8 +175,15 @@ async def test_p3_final_inv_10_to_12_session_and_secret_isolation() -> None:
         metadata={"token": "bearer-sk-secret-token-123"},
     )
     await store.store(
-        from_candidate(cand) if hasattr(cand, "to_entry") else
-        MagicMock(memory_id="m1", session_id="sess-A-gate", memory_type=MemoryType.EPISODIC, content="Secret A", metadata={"token": "[REDACTED_SECRET]"})
+        from_candidate(cand)
+        if hasattr(cand, "to_entry")
+        else MagicMock(
+            memory_id="m1",
+            session_id="sess-A-gate",
+            memory_type=MemoryType.EPISODIC,
+            content="Secret A",
+            metadata={"token": "[REDACTED_SECRET]"},
+        )
     )
 
     # SQL Session Isolation check
@@ -200,6 +198,7 @@ def from_candidate(cand: Any) -> Any:
 # ------------------------------------------------------------------
 # 4. LLM & Loop Control Invariants (INV-13 to INV-20)
 # ------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_p3_final_inv_13_to_20_loop_control_and_terminal_states() -> None:

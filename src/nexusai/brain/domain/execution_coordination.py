@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from enum import Enum
 import hashlib
 import json
 import os
 import time
+from dataclasses import dataclass, field
+from enum import Enum
 from typing import Any, Mapping
 
 from nexusai.brain.domain.observability import sanitize_attributes
@@ -26,6 +26,7 @@ class LeaseStatus(str, Enum):
 # ------------------------------------------------------------------
 # Exceptions
 # ------------------------------------------------------------------
+
 
 class CoordinationError(Exception):
     """Base exception for all distributed execution coordination errors."""
@@ -54,6 +55,7 @@ class FencingTokenError(CoordinationError):
 # ------------------------------------------------------------------
 # Domain Models
 # ------------------------------------------------------------------
+
 
 @dataclass(frozen=True)
 class WorkerIdentity:

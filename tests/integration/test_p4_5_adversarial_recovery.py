@@ -5,9 +5,10 @@ from __future__ import annotations
 import asyncio
 import os
 import tempfile
+
 import pytest
 
-from nexusai.brain.domain.execution_recovery import JournalEntry, JournalLifecyclePhase, RecoveryStatus
+from nexusai.brain.domain.execution_recovery import JournalEntry, JournalLifecyclePhase
 from nexusai.brain.domain.governance import ResourceBudget, ToolCapability
 from nexusai.brain.domain.tool_registry import ToolIdempotency
 from nexusai.brain.runtime.crash_recovery_manager import CrashRecoveryManager
@@ -26,7 +27,9 @@ async def test_p4_5_adversarial_crash_recovery_stress() -> None:
 
     try:
         journal = SQLiteExecutionJournal(db_path=db_path)
-        gov = GovernanceEngine(global_budget=ResourceBudget(max_concurrent_tasks=50, max_tool_invocations=100))
+        gov = GovernanceEngine(
+            global_budget=ResourceBudget(max_concurrent_tasks=50, max_tool_invocations=100)
+        )
 
         # 1. Register 50 executions in write-ahead journal with governance reservations
         for i in range(50):
@@ -34,7 +37,11 @@ async def test_p4_5_adversarial_crash_recovery_stress() -> None:
             assert res.allowed is True
 
             idem = ToolIdempotency.IDEMPOTENT if i % 2 == 0 else ToolIdempotency.NON_IDEMPOTENT
-            phase = JournalLifecyclePhase.GOVERNANCE_RESERVED if i % 3 == 0 else JournalLifecyclePhase.EXECUTING_TOOL
+            phase = (
+                JournalLifecyclePhase.GOVERNANCE_RESERVED
+                if i % 3 == 0
+                else JournalLifecyclePhase.EXECUTING_TOOL
+            )
 
             entry = JournalEntry(
                 entry_id=f"j-adv-rec-{i}",
@@ -52,16 +59,20 @@ async def test_p4_5_adversarial_crash_recovery_stress() -> None:
 
         # 2. 10 Concurrent Recovery Workers recovering executions in parallel
         async def recovery_worker(w_id: int) -> None:
-            mgr = CrashRecoveryManager(journal=SQLiteExecutionJournal(db_path=db_path), governance=gov)
+            mgr = CrashRecoveryManager(
+                journal=SQLiteExecutionJournal(db_path=db_path), governance=gov
+            )
             await mgr.recover_all_active()
 
         recovery_tasks = [asyncio.create_task(recovery_worker(w)) for w in range(10)]
         await asyncio.gather(*recovery_tasks)
 
-        print(f"\n[P4-5 ADVERSARIAL CRASH RECOVERY STRESS VERIFICATION]")
+        print("\n[P4-5 ADVERSARIAL CRASH RECOVERY STRESS VERIFICATION]")
         print(f"Active Governance Reservations at Teardown: {gov.get_active_reservation_count()}")
 
-        assert gov.get_active_reservation_count() == 0, "Zero leaked governance reservations invariant MUST hold!"
+        assert (
+            gov.get_active_reservation_count() == 0
+        ), "Zero leaked governance reservations invariant MUST hold!"
 
     finally:
         if os.path.exists(db_path):

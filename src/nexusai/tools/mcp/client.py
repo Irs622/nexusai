@@ -60,7 +60,11 @@ class McpClient:
             env = os.environ.copy()
             env.update(self.config.env)
 
-            cmd = sys.executable if self.config.command in ("python", "python3") else self.config.command
+            cmd = (
+                sys.executable
+                if self.config.command in ("python", "python3")
+                else self.config.command
+            )
             logger.info(
                 f"[McpClient:{self.config.name}] Spawning process: {cmd} {self.config.args}"
             )

@@ -4,14 +4,13 @@ from __future__ import annotations
 
 import json
 import sqlite3
-import time
 from typing import Sequence
 
 from nexusai.brain.domain.execution_recovery import (
+    TERMINAL_JOURNAL_PHASES,
     JournalEntry,
     JournalLifecyclePhase,
     RecoveryStatus,
-    TERMINAL_JOURNAL_PHASES,
 )
 from nexusai.brain.domain.tool_registry import ToolIdempotency
 from nexusai.brain.ports.execution_recovery_port import IExecutionJournal
@@ -21,12 +20,23 @@ class SQLiteExecutionJournal(IExecutionJournal):
     """Durable SQLite write-ahead journal recording lifecycle phase transitions and recovery classifications."""
 
     def __init__(self, db_path: str = ":memory:", busy_timeout_ms: int = 10000) -> None:
-        self.db_path = db_path
+        self._keepalive: sqlite3.Connection | None
+        if db_path == ":memory:":
+            from uuid import uuid4
+
+            self.db_path = f"file:mem_journal_{uuid4().hex}?mode=memory&cache=shared"
+            self._keepalive = sqlite3.connect(self.db_path, uri=True)
+        else:
+            self.db_path = db_path
+            self._keepalive = None
         self.busy_timeout_ms = busy_timeout_ms
         self._init_db()
 
     def _get_connection(self) -> sqlite3.Connection:
-        conn = sqlite3.connect(self.db_path, timeout=self.busy_timeout_ms / 1000.0)
+        if self.db_path.startswith("file:"):
+            conn = sqlite3.connect(self.db_path, uri=True, timeout=self.busy_timeout_ms / 1000.0)
+        else:
+            conn = sqlite3.connect(self.db_path, timeout=self.busy_timeout_ms / 1000.0)
         conn.execute("PRAGMA journal_mode=WAL;")
         conn.execute(f"PRAGMA busy_timeout={self.busy_timeout_ms};")
         conn.row_factory = sqlite3.Row
@@ -55,10 +65,18 @@ class SQLiteExecutionJournal(IExecutionJournal):
                     metadata TEXT NOT NULL
                 );
             """)
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_journal_session ON execution_journal(session_id);")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_journal_execution ON execution_journal(execution_id);")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_journal_phase ON execution_journal(phase);")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_journal_timestamp ON execution_journal(timestamp);")
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_journal_session ON execution_journal(session_id);"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_journal_execution ON execution_journal(execution_id);"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_journal_phase ON execution_journal(phase);"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_journal_timestamp ON execution_journal(timestamp);"
+            )
 
     async def append_entry(self, entry: JournalEntry) -> JournalEntry:
         """Append a durable lifecycle transition entry to the write-ahead journal."""

@@ -8,6 +8,7 @@ import tracemalloc
 from typing import Any
 from uuid import uuid4
 
+import pytest
 from loguru import logger
 from pydantic import BaseModel
 
@@ -37,6 +38,8 @@ class FastMockTool(BaseTool):
         return "ok"
 
 
+@pytest.mark.stress
+@pytest.mark.slow
 async def test_50k_iterations():
     logger.disable("nexusai")
     registry = ToolRegistry()

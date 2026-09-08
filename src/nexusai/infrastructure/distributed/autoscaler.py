@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import asyncio
+import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
-import time
 
 from nexusai.infrastructure.distributed.pool import DistributedWorkerPool
 from nexusai.infrastructure.distributed.worker_node import WorkerNode

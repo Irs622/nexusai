@@ -7,8 +7,6 @@ from typing import Protocol, Sequence, runtime_checkable
 from nexusai.brain.domain.recovery import (
     BackupMetadata,
     RecoveryResult,
-    RecoveryStatus,
-    RecoveryVerificationResult,
 )
 
 

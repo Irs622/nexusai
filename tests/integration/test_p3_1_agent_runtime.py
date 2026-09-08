@@ -5,18 +5,9 @@ from __future__ import annotations
 import asyncio
 import os
 import tempfile
-from unittest.mock import MagicMock
+
 import pytest
 
-from nexusai.brain.domain.agent import (
-    AgentGoal,
-    PlanGraph,
-    PlanGraphNode,
-    PlanningContext,
-    PlanningGoal,
-    PlanningResources,
-    PlanStep,
-)
 from nexusai.brain.domain.agent_runtime import (
     AgentExecutionState,
     AgentRequest,

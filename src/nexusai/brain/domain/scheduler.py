@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass, field
 from enum import Enum
-import time
 from typing import Any, Mapping
 
 
@@ -51,4 +51,3 @@ def compute_effective_priority(
     q_time = task.queued_at if task.queued_at is not None else current_time
     wait_time = max(0.0, current_time - q_time)
     return float(task.priority.value) + (wait_time * aging_rate)
-

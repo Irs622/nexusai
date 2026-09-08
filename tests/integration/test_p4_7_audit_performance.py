@@ -6,6 +6,7 @@ import asyncio
 import os
 import tempfile
 import time
+
 import pytest
 
 from nexusai.brain.domain.audit import AuditEvent, AuditEventType
@@ -45,8 +46,10 @@ async def test_audit_performance_benchmarks() -> None:
         assert res.valid is True
         assert res.event_count == 1000
 
-        print(f"\n[P4-7 EMPIRICAL AUDIT PERFORMANCE RESULTS]")
-        print(f"1,000 Sequential Event Appends: {append_duration_ms:.2f} ms ({append_duration_ms/1000.0:.3f} ms/event)")
+        print("\n[P4-7 EMPIRICAL AUDIT PERFORMANCE RESULTS]")
+        print(
+            f"1,000 Sequential Event Appends: {append_duration_ms:.2f} ms ({append_duration_ms/1000.0:.3f} ms/event)"
+        )
         print(f"1,000 Event Chain Verification: {verify_duration_ms:.2f} ms")
 
     finally:

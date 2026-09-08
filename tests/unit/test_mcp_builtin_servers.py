@@ -391,9 +391,7 @@ async def test_end_to_end_mcp_client_with_builtin_server(tmp_path: Path) -> None
         # 2. Call tool: write_query
         res_create = await client.call_tool(
             "write_query",
-            {
-                "query": "CREATE TABLE clusters (id INTEGER PRIMARY KEY, region TEXT, nodes INT);"
-            },
+            {"query": "CREATE TABLE clusters (id INTEGER PRIMARY KEY, region TEXT, nodes INT);"},
         )
         assert not res_create.is_error
 
@@ -410,7 +408,10 @@ async def test_end_to_end_mcp_client_with_builtin_server(tmp_path: Path) -> None
         # 4. Call tool: read_query
         res_read = await client.call_tool(
             "read_query",
-            {"query": "SELECT region, nodes FROM clusters WHERE region = ?;", "params": ["us-east-1"]},
+            {
+                "query": "SELECT region, nodes FROM clusters WHERE region = ?;",
+                "params": ["us-east-1"],
+            },
         )
         assert not res_read.is_error
         assert "us-east-1" in res_read.extract_text()
@@ -418,4 +419,3 @@ async def test_end_to_end_mcp_client_with_builtin_server(tmp_path: Path) -> None
     finally:
         await client.stop()
         assert not client.is_connected
-

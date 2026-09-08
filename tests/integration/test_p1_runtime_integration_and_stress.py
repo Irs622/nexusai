@@ -19,12 +19,12 @@ from __future__ import annotations
 
 import asyncio
 import os
-import signal
 import sys
 import tempfile
 import time
 from typing import Any
 from unittest.mock import MagicMock
+
 import pytest
 from pydantic import BaseModel, Field
 
@@ -41,7 +41,6 @@ from nexusai.brain.domain.agent import (
 )
 from nexusai.brain.planner.engine import PlanGraphExecutionEngine
 from nexusai.brain.ports.tool_port import IToolPort, ToolExecutionRequest, ToolExecutionResult
-from nexusai.brain.runtime.execution_policy import CircuitBreaker
 from nexusai.security.guard import RiskLevel
 from nexusai.tools.adapter import ToolRegistryAdapter
 from nexusai.tools.base import BaseTool
@@ -116,7 +115,9 @@ def create_context(description: str = "P1 Integration Test") -> PlanningContext:
     goal = AgentGoal(description=description)
     return PlanningContext(
         goal_component=PlanningGoal(goal=goal),
-        resources_component=PlanningResources(available_tools=("tool_a", "tool_b", "tool_c", "tool_d")),
+        resources_component=PlanningResources(
+            available_tools=("tool_a", "tool_b", "tool_c", "tool_d")
+        ),
     )
 
 
@@ -139,10 +140,18 @@ async def test_multi_branch_partial_failure_state_consistency() -> None:
     spy_port = StressSpyToolPort(timeout_tools={"tool_b"})
 
     nodes = {
-        1: PlanGraphNode(step=PlanStep(step_id=1, title="Step A", tool_name="tool_a"), dependencies=()),
-        2: PlanGraphNode(step=PlanStep(step_id=2, title="Step B", tool_name="tool_b"), dependencies=(1,)),
-        3: PlanGraphNode(step=PlanStep(step_id=3, title="Step C", tool_name="tool_c"), dependencies=(1,)),
-        4: PlanGraphNode(step=PlanStep(step_id=4, title="Step D", tool_name="tool_d"), dependencies=(2,)),
+        1: PlanGraphNode(
+            step=PlanStep(step_id=1, title="Step A", tool_name="tool_a"), dependencies=()
+        ),
+        2: PlanGraphNode(
+            step=PlanStep(step_id=2, title="Step B", tool_name="tool_b"), dependencies=(1,)
+        ),
+        3: PlanGraphNode(
+            step=PlanStep(step_id=3, title="Step C", tool_name="tool_c"), dependencies=(1,)
+        ),
+        4: PlanGraphNode(
+            step=PlanStep(step_id=4, title="Step D", tool_name="tool_d"), dependencies=(2,)
+        ),
     }
     plan_graph = PlanGraph(nodes=nodes, edges=((1, 2), (1, 3), (2, 4)))
     engine.planner.plan = lambda ctx, session_id="": (plan_graph, MagicMock())  # type: ignore[assignment]
@@ -218,10 +227,10 @@ async def test_subprocess_group_cleanup_under_timeout_stress() -> None:
         pid_file = tf.name
 
     try:
-        cmd = f'sh -c "sleep 20 & echo $! > {pid_file}; sleep 20"'
+        cmd = f'sh -c "sleep 20 & echo \\$! > {pid_file}; sleep 20"'
 
         with pytest.raises(asyncio.TimeoutError):
-            await terminal_tool.execute(cmd, timeout_seconds=0.15)
+            await terminal_tool.execute(cmd, timeout_seconds=1.5)
 
         await asyncio.sleep(0.1)
         with open(pid_file, "r") as f:
@@ -245,9 +254,15 @@ async def test_cancellation_during_concurrent_dag_execution() -> None:
     spy_port = StressSpyToolPort()
 
     nodes = {
-        1: PlanGraphNode(step=PlanStep(step_id=1, title="Step A", tool_name="tool_a"), dependencies=()),
-        2: PlanGraphNode(step=PlanStep(step_id=2, title="Step B", tool_name="tool_b"), dependencies=()),
-        3: PlanGraphNode(step=PlanStep(step_id=3, title="Step C", tool_name="tool_c"), dependencies=()),
+        1: PlanGraphNode(
+            step=PlanStep(step_id=1, title="Step A", tool_name="tool_a"), dependencies=()
+        ),
+        2: PlanGraphNode(
+            step=PlanStep(step_id=2, title="Step B", tool_name="tool_b"), dependencies=()
+        ),
+        3: PlanGraphNode(
+            step=PlanStep(step_id=3, title="Step C", tool_name="tool_c"), dependencies=()
+        ),
     }
     plan_graph = PlanGraph(nodes=nodes)
     engine.planner.plan = lambda ctx, session_id="": (plan_graph, MagicMock())  # type: ignore[assignment]

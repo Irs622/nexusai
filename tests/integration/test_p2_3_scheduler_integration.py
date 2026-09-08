@@ -3,13 +3,10 @@
 from __future__ import annotations
 
 import asyncio
-import os
-import tempfile
 import time
-from typing import Any
 from unittest.mock import MagicMock
+
 import pytest
-from pydantic import BaseModel, Field
 
 from nexusai.brain.coordinator import BrainCoordinator
 from nexusai.brain.domain.agent import (
@@ -26,7 +23,6 @@ from nexusai.brain.domain.scheduler import ScheduledTask, SchedulerClosedError, 
 from nexusai.brain.planner.engine import PlanGraphExecutionEngine
 from nexusai.brain.ports.tool_port import IToolPort, ToolExecutionRequest, ToolExecutionResult
 from nexusai.brain.runtime.priority_scheduler import PriorityScheduler
-from nexusai.infrastructure.persistence.sqlite_execution_store import SQLiteExecutionStateStore
 
 
 class PrioritySpyToolPort(IToolPort):
@@ -59,12 +55,20 @@ def create_p2_3_context() -> PlanningContext:
 async def test_p2_3_priority_dispatch_order() -> None:
     """Test P2-3: PriorityScheduler dispatches tasks in order of effective priority (CRITICAL/HIGH before LOW)."""
     scheduler = PriorityScheduler(aging_rate=0.0)  # Disable aging for pure priority test
-    engine = PlanGraphExecutionEngine(scheduler=scheduler, max_concurrency=1)  # Sequential concurrency for order check
+    engine = PlanGraphExecutionEngine(
+        scheduler=scheduler, max_concurrency=1
+    )  # Sequential concurrency for order check
 
     nodes = {
-        1: PlanGraphNode(step=PlanStep(step_id=1, title="Root", tool_name="tool_low"), dependencies=()),
-        2: PlanGraphNode(step=PlanStep(step_id=2, title="Low Node", tool_name="tool_normal"), dependencies=(1,)),
-        3: PlanGraphNode(step=PlanStep(step_id=3, title="High Node", tool_name="tool_high"), dependencies=(1,)),
+        1: PlanGraphNode(
+            step=PlanStep(step_id=1, title="Root", tool_name="tool_low"), dependencies=()
+        ),
+        2: PlanGraphNode(
+            step=PlanStep(step_id=2, title="Low Node", tool_name="tool_normal"), dependencies=(1,)
+        ),
+        3: PlanGraphNode(
+            step=PlanStep(step_id=3, title="High Node", tool_name="tool_high"), dependencies=(1,)
+        ),
     }
     plan_graph = PlanGraph(nodes=nodes, edges=((1, 2), (1, 3)))
     engine.planner.plan = lambda ctx, session_id="": (plan_graph, MagicMock())  # type: ignore[assignment]
@@ -162,7 +166,9 @@ async def test_p2_3_dag_unlock_deadlock_safety() -> None:
     await asyncio.sleep(0.03)
 
     # Submit task from external coroutine
-    task = ScheduledTask(task_id="t_unlock", execution_id="e1", node_id=1, priority=TaskPriority.HIGH)
+    task = ScheduledTask(
+        task_id="t_unlock", execution_id="e1", node_id=1, priority=TaskPriority.HIGH
+    )
     await scheduler.submit(task)
 
     await asyncio.wait_for(consumer_task, timeout=1.0)
@@ -193,7 +199,9 @@ async def test_p2_3_shutdown_with_delayed_heap() -> None:
 
     now = time.time()
     # Add task delayed by 10 seconds
-    task = ScheduledTask(task_id="t_delayed_heap", execution_id="e1", node_id=1, delay_until=now + 10.0)
+    task = ScheduledTask(
+        task_id="t_delayed_heap", execution_id="e1", node_id=1, delay_until=now + 10.0
+    )
     await scheduler.submit(task)
 
     consumer_task = asyncio.create_task(scheduler.next())

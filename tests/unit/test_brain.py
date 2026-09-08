@@ -45,7 +45,9 @@ class MockModelProvider(BaseModelProvider):
         self.last_messages: list[dict[str, Any]] = []
         self.last_tools: list[dict[str, Any]] | None = None
 
-    async def chat(self, messages: list[dict[str, Any]], tools: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    async def chat(
+        self, messages: list[dict[str, Any]], tools: list[dict[str, Any]] | None = None
+    ) -> dict[str, Any]:
         self.last_messages = messages
         self.last_tools = tools
         resp = self.responses[min(self.call_count, len(self.responses) - 1)]
@@ -190,8 +192,9 @@ async def test_brain_coordinator_tool_call_flow(
     command_bus: CommandBus,
 ) -> None:
     """Verify coordinator receives tool_call, dispatches tool, and returns synthesized text."""
-    from nexusai.tools.base import BaseTool
     from pydantic import BaseModel
+
+    from nexusai.tools.base import BaseTool
 
     class DummyInput(BaseModel):
         msg: str = "default"
@@ -233,4 +236,3 @@ async def test_brain_coordinator_tool_call_flow(
     assert provider.call_count == 2
     # Verify tool message was included in second prompt to LLM
     assert any(m.get("role") == "tool" for m in provider.last_messages)
-

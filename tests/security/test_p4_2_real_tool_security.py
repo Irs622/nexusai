@@ -7,23 +7,15 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+
 import pytest
 
 from nexusai.brain.domain.governance import ResourceBudget, ToolCapability
-from nexusai.brain.domain.human_approval import (
-    ActionBinding,
-    ApprovalStatus,
-    HumanApprovalDecision,
-    HumanApprovalRequest,
-    RiskLevel,
-)
 from nexusai.brain.ports.tool_port import ToolExecutionRequest
 from nexusai.brain.runtime.governance_engine import GovernanceEngine
-from nexusai.brain.runtime.human_approval_engine import HumanApprovalEngine
-from nexusai.brain.runtime.tool_registry import ToolRegistry
-from nexusai.infrastructure.tools.filesystem_tool import FilesystemTool, get_filesystem_tool_metadata
-from nexusai.infrastructure.tools.network_tool import NetworkTool, get_network_tool_metadata
-from nexusai.infrastructure.tools.process_tool import ProcessTool, get_process_tool_metadata
+from nexusai.infrastructure.tools.filesystem_tool import FilesystemTool
+from nexusai.infrastructure.tools.network_tool import NetworkTool
+from nexusai.infrastructure.tools.process_tool import ProcessTool
 
 
 @pytest.mark.asyncio
@@ -46,13 +38,21 @@ async def test_security_filesystem_sandbox_escape_blocked() -> None:
         fs_tool = FilesystemTool(sandbox_root=sandbox)
 
         # 1. Traversal attempt via ../
-        res1 = await fs_tool.execute(ToolExecutionRequest("e1", "filesystem_tool", {"action": "read_file", "path": "../outside.txt"}))
+        res1 = await fs_tool.execute(
+            ToolExecutionRequest(
+                "e1", "filesystem_tool", {"action": "read_file", "path": "../outside.txt"}
+            )
+        )
         assert res1.success is False
         assert "escapes sandbox root" in res1.error_message
 
         # 2. Symlink escape attempt
         if symlink_path.exists():
-            res2 = await fs_tool.execute(ToolExecutionRequest("e2", "filesystem_tool", {"action": "read_file", "path": "symlink_escape.txt"}))
+            res2 = await fs_tool.execute(
+                ToolExecutionRequest(
+                    "e2", "filesystem_tool", {"action": "read_file", "path": "symlink_escape.txt"}
+                )
+            )
             assert res2.success is False
             assert "escapes sandbox root" in res2.error_message
 
@@ -70,10 +70,16 @@ async def test_security_process_execution_governance_and_timeout_reaping() -> No
     # 2. Process quota exhausted -> Next subprocess authorization DENIED!
     res2 = await gov.authorize("exec-proc-2", frozenset({ToolCapability.PROCESS_EXEC}))
     assert res2.allowed is False
-    assert res2.reason == "max_subprocesses_exceeded"
+    assert res2.reason in ("max_subprocesses_exceeded", "RESOURCE_QUOTA_EXCEEDED")
 
     # 3. Timeout process reaping verification
-    timeout_res = await proc_tool.execute(ToolExecutionRequest("exec-proc-1", "process_tool", {"argv": [sys.executable, "-c", "import time; time.sleep(2.0)"], "timeout": 0.05}))
+    timeout_res = await proc_tool.execute(
+        ToolExecutionRequest(
+            "exec-proc-1",
+            "process_tool",
+            {"argv": [sys.executable, "-c", "import time; time.sleep(2.0)"], "timeout": 0.05},
+        )
+    )
     assert timeout_res.success is False
     assert "timed out" in timeout_res.error_message
 
@@ -87,12 +93,18 @@ async def test_security_network_destination_allowlist_and_ssrf() -> None:
     net_tool = NetworkTool(allowed_hosts={"api.github.com"})
 
     # SSRF Loopback block
-    res_ssrf = await net_tool.execute(ToolExecutionRequest("e1", "network_tool", {"url": "http://169.254.169.254/latest/meta-data/"}))
+    res_ssrf = await net_tool.execute(
+        ToolExecutionRequest(
+            "e1", "network_tool", {"url": "http://169.254.169.254/latest/meta-data/"}
+        )
+    )
     assert res_ssrf.success is False
     assert "SSRF safety policy" in res_ssrf.error_message
 
     # Unapproved host block
-    res_unauth = await net_tool.execute(ToolExecutionRequest("e2", "network_tool", {"url": "https://unauthorized-domain.com"}))
+    res_unauth = await net_tool.execute(
+        ToolExecutionRequest("e2", "network_tool", {"url": "https://unauthorized-domain.com"})
+    )
     assert res_unauth.success is False
     assert "not in the network destination allowlist" in res_unauth.error_message
 

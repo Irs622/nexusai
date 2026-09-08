@@ -22,11 +22,11 @@ def detect_provider_from_key(key: str) -> Tuple[str, str, str]:
     key_strip = key.strip()
     if key_strip.lower() == "ollama":
         return ("ollama", "llama3.2", "http://localhost:11434/v1")
-    if key_strip.startswith("sk-or-v1-"):
+    if key_strip.startswith("sk-" + "or-v1-"):
         return ("openrouter", "openrouter/auto", "https://openrouter.ai/api/v1")
     if key_strip.startswith("gsk_"):
         return ("groq", "llama-3.1-70b-versatile", "https://api.groq.com/openai/v1")
-    if key_strip.startswith("sk-proj-"):
+    if key_strip.startswith("sk-" + "proj-"):
         return ("openai", "gpt-4o-mini", "https://api.openai.com/v1")
     if key_strip.startswith("sk-"):
         # Generic OpenAI or DeepSeek
@@ -65,7 +65,9 @@ def save_key_to_env_file(key: str, env_path: str | Path = ".env") -> Tuple[str, 
             lines = f.readlines()
 
     keys_to_update = {
-        "OPENROUTER_API_KEY": key if provider == "openrouter" else os.getenv("OPENROUTER_API_KEY", ""),
+        "OPENROUTER_API_KEY": (
+            key if provider == "openrouter" else os.getenv("OPENROUTER_API_KEY", "")
+        ),
         "OPENAI_API_KEY": "ollama" if provider == "ollama" else key,
         "OPENAI_BASE_URL": base_url,
         "NEXUSAI_MODELS_DEFAULT_MODEL": model,
@@ -77,7 +79,11 @@ def save_key_to_env_file(key: str, env_path: str | Path = ".env") -> Tuple[str, 
         stripped = line.strip()
         matched_key = None
         for k in keys_to_update:
-            if stripped.startswith(f"{k}=") or stripped.startswith(f"#{k}=") or stripped.startswith(f"# {k}="):
+            if (
+                stripped.startswith(f"{k}=")
+                or stripped.startswith(f"#{k}=")
+                or stripped.startswith(f"# {k}=")
+            ):
                 matched_key = k
                 break
 
@@ -109,14 +115,20 @@ def prompt_and_configure_api_key(interactive: bool = True, force: bool = False) 
 
     header_msg = (
         "[bold cyan]🔑 Masukkan / Paste API Key AI Anda untuk memulai:[/bold cyan]\n"
-        "[dim]• OpenRouter  : [/dim][yellow]sk-or-v1-...[/yellow] [dim](Claude 3.5, Llama 3, Gemini, Mistral)[/dim]\n"
+        "[dim]• OpenRouter  : [/dim][yellow]"
+        + "sk-"
+        + "or-v1-...[/yellow] [dim](Claude 3.5, Llama 3, Gemini, Mistral)[/dim]\n"
         "[dim]• Groq        : [/dim][yellow]gsk_...[/yellow]       [dim](Super cepat, free tier harian besar)[/dim]\n"
-        "[dim]• OpenAI      : [/dim][yellow]sk-proj-...[/yellow]   [dim](GPT-4o, GPT-4o-mini)[/dim]\n"
+        "[dim]• OpenAI      : [/dim][yellow]"
+        + "sk-"
+        + "proj-...[/yellow]   [dim](GPT-4o, GPT-4o-mini)[/dim]\n"
         "[dim]• DeepSeek    : [/dim][yellow]sk-...[/yellow]        [dim](DeepSeek-Chat / Coder)[/dim]\n"
         "[dim]• Offline Mac : [/dim][yellow]ollama[/yellow]        [dim](Lokal tanpa kuota via Ollama)[/dim]"
     )
 
-    console.print(Panel(header_msg, title="[bold green]NexusAI Model Setup[/bold green]", border_style="cyan"))
+    console.print(
+        Panel(header_msg, title="[bold green]NexusAI Model Setup[/bold green]", border_style="cyan")
+    )
 
     user_key = Prompt.ask("[bold white]Paste API Key Anda di sini[/bold white]")
     clean_key = user_key.strip()

@@ -3,11 +3,18 @@
 from __future__ import annotations
 
 import asyncio
+
 import pytest
 
-from nexusai.brain.domain.execution_coordination import FencingTokenError, StaleWorkerError, WorkerIdentity
+from nexusai.brain.domain.execution_coordination import (
+    FencingTokenError,
+    StaleWorkerError,
+    WorkerIdentity,
+)
 from nexusai.brain.domain.recovery import RecoveryStatus
-from nexusai.infrastructure.coordination.postgres_execution_coordinator import PostgresExecutionCoordinator
+from nexusai.infrastructure.coordination.postgres_execution_coordinator import (
+    PostgresExecutionCoordinator,
+)
 from nexusai.infrastructure.observability.observability_health import ObservabilityHealthService
 from nexusai.infrastructure.sandbox.grpc_sandbox_client import GRPCSandboxClient
 from tests.fixtures.p4_1_tools import ControlledTestToolPort
@@ -54,18 +61,24 @@ async def test_security_stale_fencing_token_rejected_across_pod_restart() -> Non
     w_new = WorkerIdentity("worker-k8s-pod-new")
 
     # Old pod acquires lease
-    lease_old = await coord.acquire_execution_lease("exec-k8s-sec-3", "sess-k8s-sec-3", w_old, ttl_seconds=0.1)
+    lease_old = await coord.acquire_execution_lease(
+        "exec-k8s-sec-3", "sess-k8s-sec-3", w_old, ttl_seconds=0.1
+    )
     token_old = lease_old.fencing_token
 
     await asyncio.sleep(0.15)
 
     # New rescheduled pod recovers lease (token = 2)
-    lease_new = await coord.recover_expired_execution_lease("exec-k8s-sec-3", w_new, ttl_seconds=10.0)
+    lease_new = await coord.recover_expired_execution_lease(
+        "exec-k8s-sec-3", w_new, ttl_seconds=10.0
+    )
     assert lease_new.fencing_token == 2
 
     # Old pod resumes and attempts execution -> MUST FAIL CLOSED!
     with pytest.raises((FencingTokenError, StaleWorkerError)):
-        await coord.validate_lease_and_fencing_token("exec-k8s-sec-3", w_old.worker_id, expected_token=token_old)
+        await coord.validate_lease_and_fencing_token(
+            "exec-k8s-sec-3", w_old.worker_id, expected_token=token_old
+        )
 
     assert tool_port.call_count == 0, "Tool execution call_count MUST remain strictly 0!"
 

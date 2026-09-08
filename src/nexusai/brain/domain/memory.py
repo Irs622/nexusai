@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass, field
 from enum import Enum
-import time
 from typing import Any, Mapping
 
 from nexusai.brain.domain.observability import sanitize_attributes
@@ -13,9 +13,9 @@ from nexusai.brain.domain.observability import sanitize_attributes
 class MemoryType(str, Enum):
     """Tiered taxonomy for agent memory types."""
 
-    WORKING = "working"      # Short-term execution buffer
-    EPISODIC = "episodic"    # Historical execution trajectories
-    SEMANTIC = "semantic"    # Long-term knowledge & facts
+    WORKING = "working"  # Short-term execution buffer
+    EPISODIC = "episodic"  # Historical execution trajectories
+    SEMANTIC = "semantic"  # Long-term knowledge & facts
 
 
 class PrivacyLevel(str, Enum):
@@ -65,7 +65,9 @@ class MemoryQuery:
     session_id: str
     query_text: str
     memory_types: frozenset[MemoryType] = field(
-        default_factory=lambda: frozenset({MemoryType.WORKING, MemoryType.EPISODIC, MemoryType.SEMANTIC})
+        default_factory=lambda: frozenset(
+            {MemoryType.WORKING, MemoryType.EPISODIC, MemoryType.SEMANTIC}
+        )
     )
     top_k: int = 5
     min_relevance: float = 0.6

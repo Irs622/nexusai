@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+
 import pytest
 
 from nexusai.brain.domain.governance import ResourceBudget, ToolCapability
@@ -22,12 +23,16 @@ async def test_network_integration_governed_destination_validation() -> None:
     await registry.register(get_network_tool_metadata())
 
     # 1. Validate & Authorize NETWORK_ACCESS
-    await registry.validate_tool("network_tool", requested_capabilities=frozenset({ToolCapability.NETWORK_ACCESS}))
+    await registry.validate_tool(
+        "network_tool", requested_capabilities=frozenset({ToolCapability.NETWORK_ACCESS})
+    )
     res_gov = await gov.authorize("exec-net-real", frozenset({ToolCapability.NETWORK_ACCESS}))
     assert res_gov.allowed is True
 
     # 2. Destination allowlist check for unapproved host fails closed
-    req_bad = ToolExecutionRequest("exec-net-real", "network_tool", {"url": "https://unauthorized-host.org"})
+    req_bad = ToolExecutionRequest(
+        "exec-net-real", "network_tool", {"url": "https://unauthorized-host.org"}
+    )
     res_bad = await net_tool.execute(req_bad)
     assert res_bad.success is False
     assert "not in the network destination allowlist" in res_bad.error_message

@@ -18,16 +18,15 @@ from __future__ import annotations
 
 import asyncio
 import os
-import signal
 import sys
 import tempfile
 import time
 from typing import Any
+
 import pytest
 from pydantic import BaseModel, Field
 
-from nexusai.brain.planner.engine import PlanGraphExecutionEngine
-from nexusai.brain.ports.tool_port import ToolExecutionRequest, ToolExecutionResult
+from nexusai.brain.ports.tool_port import ToolExecutionRequest
 from nexusai.brain.runtime.execution_policy import CircuitBreaker
 from nexusai.security.guard import RiskLevel
 from nexusai.tools.adapter import ToolRegistryAdapter
@@ -150,7 +149,9 @@ async def test_D_and_J_timed_out_subprocess_terminated_no_orphans() -> None:
 
     assert captured_process is not None
     await asyncio.sleep(0.1)
-    assert captured_process.returncode is not None, "Subprocess returncode must not be None after termination"
+    assert (
+        captured_process.returncode is not None
+    ), "Subprocess returncode must not be None after termination"
 
 
 @pytest.mark.asyncio
@@ -276,10 +277,10 @@ async def test_P1_5_matrix_background_child_termination_on_timeout() -> None:
 
     try:
         # Command spawns background sleep process, writes child PID to file, then sleeps in foreground
-        cmd = f'sh -c "sleep 30 & echo $! > {pid_file}; sleep 30"'
+        cmd = f'sh -c "sleep 30 & echo \\$! > {pid_file}; sleep 30"'
 
         with pytest.raises(asyncio.TimeoutError):
-            await terminal_tool.execute(cmd, timeout_seconds=0.2)
+            await terminal_tool.execute(cmd, timeout_seconds=1.5)
 
         # Read child PID from temp file
         await asyncio.sleep(0.1)
@@ -309,10 +310,10 @@ async def test_P1_5_matrix_background_child_termination_on_cancellation() -> Non
         pid_file = tf.name
 
     try:
-        cmd = f'sh -c "sleep 30 & echo $! > {pid_file}; sleep 30"'
+        cmd = f'sh -c "sleep 30 & echo \\$! > {pid_file}; sleep 30"'
 
         task = asyncio.create_task(terminal_tool.execute(cmd, timeout_seconds=10.0))
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.5)
         task.cancel()
 
         with pytest.raises(asyncio.CancelledError):
@@ -368,7 +369,9 @@ async def test_P1_5_matrix_unrelated_process_group_safety() -> None:
     except Exception:
         pass
 
-    assert unrelated_alive is True, "Unrelated process must remain alive during TerminalTool cleanup!"
+    assert (
+        unrelated_alive is True
+    ), "Unrelated process must remain alive during TerminalTool cleanup!"
 
 
 @pytest.mark.asyncio
@@ -395,4 +398,6 @@ if __name__ == "__main__":
     asyncio.run(test_P1_5_matrix_background_child_termination_on_cancellation())
     asyncio.run(test_P1_5_matrix_unrelated_process_group_safety())
     asyncio.run(test_P1_5_idempotent_cleanup_handling())
-    print("ALL P1-1, P1-4, & P1-5 TIMEOUT, CANCELLATION, SYNC ISOLATION, AND PROCESS GROUP TESTS PASSED SUCCESSFULLY!")
+    print(
+        "ALL P1-1, P1-4, & P1-5 TIMEOUT, CANCELLATION, SYNC ISOLATION, AND PROCESS GROUP TESTS PASSED SUCCESSFULLY!"
+    )

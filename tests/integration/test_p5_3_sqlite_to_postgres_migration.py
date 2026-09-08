@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import os
 import tempfile
+
 import pytest
 
 from nexusai.brain.domain.audit import AuditEvent, AuditEventType
@@ -26,9 +27,15 @@ async def test_sqlite_to_postgres_migration_and_audit_chain_verification() -> No
         e_id = "exec-mig-1"
         fp = "fp-mig-1"
 
-        ev1 = await sqlite_store.append_event(AuditEvent("e1", AuditEventType.EXECUTION_CREATED.value, s_id, e_id, fp, 0))
-        ev2 = await sqlite_store.append_event(AuditEvent("e2", AuditEventType.EXECUTION_STARTED.value, s_id, e_id, fp, 0))
-        ev3 = await sqlite_store.append_event(AuditEvent("e3", AuditEventType.EXECUTION_COMPLETED.value, s_id, e_id, fp, 0))
+        await sqlite_store.append_event(
+            AuditEvent("e1", AuditEventType.EXECUTION_CREATED.value, s_id, e_id, fp, 0)
+        )
+        await sqlite_store.append_event(
+            AuditEvent("e2", AuditEventType.EXECUTION_STARTED.value, s_id, e_id, fp, 0)
+        )
+        await sqlite_store.append_event(
+            AuditEvent("e3", AuditEventType.EXECUTION_COMPLETED.value, s_id, e_id, fp, 0)
+        )
 
         sqlite_events = await sqlite_store.get_events(e_id)
         assert len(sqlite_events) == 3

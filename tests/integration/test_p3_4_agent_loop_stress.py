@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 import asyncio
-import os
-import tempfile
+
 import pytest
 
-from nexusai.brain.domain.agent import AgentGoal, PlanGraph, PlanGraphNode, PlanStep
 from nexusai.brain.domain.agent_loop import AgentLoopConfig, AgentLoopState
 from nexusai.brain.domain.agent_runtime import AgentRequest
 from nexusai.brain.domain.governance import ResourceBudget, ToolCapability
@@ -71,7 +69,9 @@ async def test_p3_4_adversarial_agent_loop_stress() -> None:
     await registry.register(t2)
 
     gov = GovernanceEngine(
-        global_budget=ResourceBudget(max_concurrent_tasks=10, max_subprocesses=15, max_tool_invocations=200),
+        global_budget=ResourceBudget(
+            max_concurrent_tasks=10, max_subprocesses=15, max_tool_invocations=200
+        ),
         telemetry=telemetry,
     )
     engine = PlanGraphExecutionEngine(governance=gov, telemetry=telemetry)
@@ -96,10 +96,12 @@ async def test_p3_4_adversarial_agent_loop_stress() -> None:
     workers = [asyncio.create_task(run_worker(w)) for w in range(20)]
     await asyncio.gather(*workers)
 
-    print(f"\n[P3-4 ADVERSARIAL AGENT LOOP STRESS VERIFICATION]")
+    print("\n[P3-4 ADVERSARIAL AGENT LOOP STRESS VERIFICATION]")
     print(f"Active Governance Reservations at Teardown: {gov.get_active_reservation_count()}")
 
-    assert gov.get_active_reservation_count() == 0, "Zero resource leak invariant must hold after loop teardown"
+    assert (
+        gov.get_active_reservation_count() == 0
+    ), "Zero resource leak invariant must hold after loop teardown"
 
 
 if __name__ == "__main__":

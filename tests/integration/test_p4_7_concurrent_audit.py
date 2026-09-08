@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import os
 import tempfile
+
 import pytest
 
 from nexusai.brain.domain.audit import AuditEvent, AuditEventType

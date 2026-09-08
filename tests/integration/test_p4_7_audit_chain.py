@@ -6,6 +6,7 @@ import asyncio
 import os
 import sqlite3
 import tempfile
+
 import pytest
 
 from nexusai.brain.domain.audit import AuditEvent, AuditEventType
@@ -21,9 +22,17 @@ async def test_audit_chain_tamper_detection() -> None:
     try:
         store = SQLiteAuditStore(db_path=db_path)
 
-        ev1 = await store.append_event(AuditEvent("e1", AuditEventType.EXECUTION_CREATED.value, "s1", "exec-chain-1", "fp1", 0))
-        ev2 = await store.append_event(AuditEvent("e2", AuditEventType.EXECUTION_STARTED.value, "s1", "exec-chain-1", "fp1", 0))
-        ev3 = await store.append_event(AuditEvent("e3", AuditEventType.EXECUTION_COMPLETED.value, "s1", "exec-chain-1", "fp1", 0))
+        await store.append_event(
+            AuditEvent("e1", AuditEventType.EXECUTION_CREATED.value, "s1", "exec-chain-1", "fp1", 0)
+        )
+        await store.append_event(
+            AuditEvent("e2", AuditEventType.EXECUTION_STARTED.value, "s1", "exec-chain-1", "fp1", 0)
+        )
+        await store.append_event(
+            AuditEvent(
+                "e3", AuditEventType.EXECUTION_COMPLETED.value, "s1", "exec-chain-1", "fp1", 0
+            )
+        )
 
         # Initial chain verification -> PASS
         res_before = await store.verify_chain("exec-chain-1")

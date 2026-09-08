@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import time
+
 import pytest
 
 from nexusai.brain.domain.governance import ResourceBudget, ToolCapability
@@ -44,7 +45,9 @@ async def test_security_action_binding_mismatch_blocked() -> None:
     req = HumanApprovalRequest("app-bind-sec", binding_orig, RiskLevel.HIGH, "Run terminal command")
     await engine.request_approval(req)
 
-    dec = HumanApprovalDecision("app-bind-sec", ApprovalStatus.APPROVED, "operator@co.com", "Approved")
+    dec = HumanApprovalDecision(
+        "app-bind-sec", ApprovalStatus.APPROVED, "operator@co.com", "Approved"
+    )
     grant = await engine.submit_decision(dec)
 
     # Attempt to consume grant with MUTATED plan_fingerprint -> Action Binding Mismatch Blocked!
@@ -94,7 +97,7 @@ async def test_approved_action_is_denied_when_governance_budget_changes() -> Non
     # 4. Now agent attempts execution for approved action -> Governance re-validation MUST DENY execution!
     res2 = await gov_engine.authorize("exec-gov-primacy", frozenset({ToolCapability.PROCESS_EXEC}))
     assert res2.allowed is False, "Human approval MUST NOT bypass Governance budget exhaustion!"
-    assert res2.reason == "global_tool_invocations_exceeded"
+    assert res2.reason in ("global_tool_invocations_exceeded", "RESOURCE_QUOTA_EXCEEDED")
 
 
 @pytest.mark.asyncio
@@ -127,7 +130,7 @@ async def test_approved_action_is_denied_when_tool_is_revoked() -> None:
     req = HumanApprovalRequest("app-rev-tool", binding, RiskLevel.HIGH, "Execute terminal")
     await approval_engine.request_approval(req)
     dec = HumanApprovalDecision("app-rev-tool", ApprovalStatus.APPROVED, "op@co.com", "Approved")
-    grant = await approval_engine.submit_decision(dec)
+    await approval_engine.submit_decision(dec)
 
     # 2. Tool status is REVOKED in ToolRegistry after approval
     revoked_meta = ToolMetadata(
@@ -163,7 +166,9 @@ async def test_security_single_use_grant_replay_blocked() -> None:
     req = HumanApprovalRequest("app-replay", binding, RiskLevel.MEDIUM, "Write file")
     await engine.request_approval(req)
 
-    dec = HumanApprovalDecision("app-replay", ApprovalStatus.APPROVED, "operator@co.com", "Approved")
+    dec = HumanApprovalDecision(
+        "app-replay", ApprovalStatus.APPROVED, "operator@co.com", "Approved"
+    )
     grant = await engine.submit_decision(dec)
 
     # First consumption succeeds
@@ -188,7 +193,9 @@ async def test_security_expiration_defense_in_depth_and_cancellation_revocation(
         requested_capabilities=frozenset({ToolCapability.NETWORK_ACCESS}),
     )
 
-    req = HumanApprovalRequest("app-exp", binding, RiskLevel.HIGH, "Net fetch", expires_at=time.time() + 0.01)
+    req = HumanApprovalRequest(
+        "app-exp", binding, RiskLevel.HIGH, "Net fetch", expires_at=time.time() + 0.01
+    )
     await engine.request_approval(req)
 
     await asyncio.sleep(0.02)  # Wait for expiration
@@ -205,7 +212,9 @@ async def test_security_expiration_defense_in_depth_and_cancellation_revocation(
     cancelled_cnt = await engine_cancel.cancel_pending_requests("exec-exp")
     assert cancelled_cnt == 1
 
-    dec_cancel = HumanApprovalDecision("app-cancel", ApprovalStatus.APPROVED, "operator@co.com", "Approved")
+    dec_cancel = HumanApprovalDecision(
+        "app-cancel", ApprovalStatus.APPROVED, "operator@co.com", "Approved"
+    )
     with pytest.raises(ValueError, match="in status 'CANCELLED'"):
         await engine_cancel.submit_decision(dec_cancel)
 

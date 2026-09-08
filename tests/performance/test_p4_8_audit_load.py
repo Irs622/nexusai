@@ -6,6 +6,7 @@ import asyncio
 import os
 import tempfile
 import time
+
 import pytest
 
 from nexusai.brain.domain.audit import AuditEvent, AuditEventType
@@ -23,7 +24,7 @@ async def test_audit_load_10k_event_scaling() -> None:
         store = SQLiteAuditStore(db_path=db_path)
         metrics = PerformanceMetrics(benchmark_name="P4-8-E Audit 10k Scaling Load", workers=1)
 
-        t_append_start = time.perf_counter()
+        time.perf_counter()
         for i in range(1, 10001):
             t0 = time.perf_counter()
             ev = AuditEvent(
@@ -49,9 +50,13 @@ async def test_audit_load_10k_event_scaling() -> None:
         metrics.export_json()
         d = metrics.to_dict()
 
-        print(f"\n[P4-8-E AUDIT 10,000 EVENT SCALING RESULTS]")
-        print(f"Append Total Events: {d['total_operations']} | Append Throughput: {d['throughput_ops_sec']} ops/sec")
-        print(f"Append Latencies (ms) -> p50: {d['latency_ms']['p50']} | p95: {d['latency_ms']['p95']} | p99: {d['latency_ms']['p99']} | max: {d['latency_ms']['max']}")
+        print("\n[P4-8-E AUDIT 10,000 EVENT SCALING RESULTS]")
+        print(
+            f"Append Total Events: {d['total_operations']} | Append Throughput: {d['throughput_ops_sec']} ops/sec"
+        )
+        print(
+            f"Append Latencies (ms) -> p50: {d['latency_ms']['p50']} | p95: {d['latency_ms']['p95']} | p99: {d['latency_ms']['p99']} | max: {d['latency_ms']['max']}"
+        )
         print(f"10,000 Event Chain Verification Latency: {verify_ms:.2f} ms")
 
         assert res.valid is True

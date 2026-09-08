@@ -5,10 +5,9 @@ from __future__ import annotations
 import asyncio
 import os
 import tempfile
-from typing import Any
 from unittest.mock import MagicMock
+
 import pytest
-from pydantic import BaseModel, Field
 
 from nexusai.brain.domain.agent import (
     AgentGoal,
@@ -125,7 +124,9 @@ async def test_L_retry_state_survives_process_restart() -> None:
         # Process restart: fresh engine instance
         store2 = SQLiteExecutionStateStore(db_path=db_path)
         policy_tool1 = ToolExecutionPolicy(idempotent=True, max_retries=3, backoff_factor=1.1)
-        engine2 = PlanGraphExecutionEngine(state_store=store2, tool_policies={"tool_1": policy_tool1})
+        engine2 = PlanGraphExecutionEngine(
+            state_store=store2, tool_policies={"tool_1": policy_tool1}
+        )
         engine2.planner.plan = lambda ctx, session_id="": (graph, MagicMock())  # type: ignore[assignment]
 
         flaky_port = FlakyToolPort(fail_until_attempt={"tool_1": 2})
@@ -172,7 +173,9 @@ async def test_P_15_node_dag_with_mixed_retry_and_reconciliation() -> None:
             success=True,
             output="Reconciled external side effect success for tool_5",
         )
-        reconciler = DefaultReconciliationAdapter(deterministic_outcomes={idempotency_key_5: reconciled_res})
+        reconciler = DefaultReconciliationAdapter(
+            deterministic_outcomes={idempotency_key_5: reconciled_res}
+        )
 
         engine = PlanGraphExecutionEngine(
             state_store=store,
@@ -229,7 +232,9 @@ def test_R_recovery_decision_determinism() -> None:
     """Test R: RecoveryPolicyEngine produces 100% deterministic decisions across repeated evaluations."""
     policy = ToolExecutionPolicy(idempotent=True, max_retries=3, backoff_factor=2.0)
     for _ in range(50):
-        decision = RecoveryPolicyEngine.evaluate(policy, FailureClass.TIMEOUT, attempt_number=2, current_time=1000.0)
+        decision = RecoveryPolicyEngine.evaluate(
+            policy, FailureClass.TIMEOUT, attempt_number=2, current_time=1000.0
+        )
         assert decision.action == RecoveryAction.RETRY
         assert decision.retry_delay_seconds == 1.0
         assert decision.next_retry_at == 1001.0

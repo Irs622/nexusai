@@ -9,11 +9,15 @@ from typing import Any, Mapping, Protocol, runtime_checkable
 class IMetricRecorder(Protocol):
     """Protocol interface for Prometheus-compatible metric recording with strict cardinality bounds."""
 
-    def increment_counter(self, name: str, value: float = 1.0, labels: Mapping[str, str] | None = None) -> None:
+    def increment_counter(
+        self, name: str, value: float = 1.0, labels: Mapping[str, str] | None = None
+    ) -> None:
         """Increment a counter metric."""
         ...
 
-    def record_histogram(self, name: str, value: float, labels: Mapping[str, str] | None = None) -> None:
+    def record_histogram(
+        self, name: str, value: float, labels: Mapping[str, str] | None = None
+    ) -> None:
         """Record a histogram latency/value observation."""
         ...
 
@@ -61,30 +65,36 @@ class IObservabilityHealth(Protocol):
 class IObservabilityPort(Protocol):
     """Aggregate protocol interface combining metric recording, tracing, structured logging, and health probes."""
 
-    async def increment_counter(self, name: str, value: float = 1.0, *, attributes: Mapping[str, Any] | None = None) -> None:
+    async def increment_counter(
+        self, name: str, value: float = 1.0, *, attributes: Mapping[str, Any] | None = None
+    ) -> None:
         """Increment a counter metric."""
         ...
 
-    async def record_histogram(self, name: str, value: float, attributes: Mapping[str, Any] | None = None) -> None:
+    async def record_histogram(
+        self, name: str, value: float, attributes: Mapping[str, Any] | None = None
+    ) -> None:
         """Record a histogram latency/value observation."""
         ...
 
-    async def set_gauge(self, name: str, value: float, attributes: Mapping[str, Any] | None = None) -> None:
+    async def set_gauge(
+        self, name: str, value: float, attributes: Mapping[str, Any] | None = None
+    ) -> None:
         """Set a gauge metric value."""
         ...
 
-    async def record_gauge(self, name: str, value: float, *, attributes: Mapping[str, Any] | None = None) -> None:
+    async def record_gauge(
+        self, name: str, value: float, *, attributes: Mapping[str, Any] | None = None
+    ) -> None:
         """Record a gauge metric value."""
         ...
 
-    async def record_duration(self, name: str, duration_ms: float, *, attributes: Mapping[str, Any] | None = None) -> None:
+    async def record_duration(
+        self, name: str, duration_ms: float, *, attributes: Mapping[str, Any] | None = None
+    ) -> None:
         """Record a duration metric value."""
         ...
 
     async def emit_event(self, event: Any) -> None:
         """Emit an observability telemetry event."""
         ...
-
-
-
-

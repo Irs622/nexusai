@@ -6,16 +6,16 @@ import asyncio
 import os
 import tempfile
 import time
+
 import pytest
 
 from nexusai.brain.domain.memory import (
     MemoryEntry,
     MemoryProvenance,
-    MemoryQuery,
     MemoryType,
     PrivacyLevel,
 )
-from nexusai.brain.runtime.context_builder import ContextBuilder, estimate_token_count
+from nexusai.brain.runtime.context_builder import ContextBuilder
 from nexusai.brain.runtime.memory_retriever import MemoryRetriever
 from nexusai.infrastructure.persistence.sqlite_memory_store import SQLiteMemoryStore
 
@@ -38,7 +38,9 @@ async def test_memory_entry_provenance_and_privacy_redaction() -> None:
     assert entry.memory_id == "mem-1"
     assert entry.provenance.source_type == "user_input"
     assert entry.metadata["user"] == "alice"
-    assert entry.metadata["api_key"] == "[REDACTED_SECRET]", "Secret keys must be redacted at post-init"
+    assert (
+        entry.metadata["api_key"] == "[REDACTED_SECRET]"
+    ), "Secret keys must be redacted at post-init"
 
 
 @pytest.mark.asyncio
@@ -52,12 +54,20 @@ async def test_strict_sql_session_isolation() -> None:
         prov = MemoryProvenance(source_type="test")
 
         mem_a = MemoryEntry(
-            memory_id="mem-a", session_id="sess-A", execution_id=None,
-            memory_type=MemoryType.EPISODIC, content="Secret for Session A", provenance=prov,
+            memory_id="mem-a",
+            session_id="sess-A",
+            execution_id=None,
+            memory_type=MemoryType.EPISODIC,
+            content="Secret for Session A",
+            provenance=prov,
         )
         mem_b = MemoryEntry(
-            memory_id="mem-b", session_id="sess-B", execution_id=None,
-            memory_type=MemoryType.EPISODIC, content="Secret for Session B", provenance=prov,
+            memory_id="mem-b",
+            session_id="sess-B",
+            execution_id=None,
+            memory_type=MemoryType.EPISODIC,
+            content="Secret for Session B",
+            provenance=prov,
         )
 
         await store.store(mem_a)
@@ -65,7 +75,9 @@ async def test_strict_sql_session_isolation() -> None:
 
         # SQL load for Session A must NOT return mem_b
         assert await store.load("mem-a", session_id="sess-A") is not None
-        assert await store.load("mem-b", session_id="sess-A") is None, "Cross-session load must return None"
+        assert (
+            await store.load("mem-b", session_id="sess-A") is None
+        ), "Cross-session load must return None"
 
         mems_a = await store.list_session_memories("sess-A")
         assert len(mems_a) == 1
@@ -87,12 +99,20 @@ async def test_memory_invalidation_and_ttl_pruning() -> None:
         now = time.time()
 
         valid_mem = MemoryEntry(
-            memory_id="m-valid", session_id="sess-1", execution_id=None,
-            memory_type=MemoryType.EPISODIC, content="Valid Memory", provenance=prov,
+            memory_id="m-valid",
+            session_id="sess-1",
+            execution_id=None,
+            memory_type=MemoryType.EPISODIC,
+            content="Valid Memory",
+            provenance=prov,
         )
         expired_mem = MemoryEntry(
-            memory_id="m-expired", session_id="sess-1", execution_id=None,
-            memory_type=MemoryType.WORKING, content="Expired Memory", provenance=prov,
+            memory_id="m-expired",
+            session_id="sess-1",
+            execution_id=None,
+            memory_type=MemoryType.WORKING,
+            content="Expired Memory",
+            provenance=prov,
             expires_at=now - 5.0,  # Expired 5s ago
         )
 
@@ -138,7 +158,9 @@ async def test_non_destructive_context_compaction_and_token_budgeting() -> None:
         await store.store(entry)
 
     # Build context with budget limit of 150 tokens
-    context_str, selected = await builder.build_context("sess-budget", "execution notes", max_tokens=150)
+    context_str, selected = await builder.build_context(
+        "sess-budget", "execution notes", max_tokens=150
+    )
 
     assert "[RECALLED MEMORY CONTEXT]" in context_str
     assert len(selected) < 10, "Compaction must select only memories fitting within token budget"
@@ -146,7 +168,9 @@ async def test_non_destructive_context_compaction_and_token_budgeting() -> None:
     # Confirm original memory entries in store were NOT mutated or summarized
     stored_entry = await store.load("m-0", session_id="sess-budget")
     assert stored_entry is not None
-    assert stored_entry.content == "Important memory item number 0 containing detailed execution notes"
+    assert (
+        stored_entry.content == "Important memory item number 0 containing detailed execution notes"
+    )
 
 
 if __name__ == "__main__":

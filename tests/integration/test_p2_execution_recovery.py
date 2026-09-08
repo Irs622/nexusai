@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import os
 import tempfile
-from typing import Any
+
 import pytest
 from pydantic import BaseModel, Field
 
@@ -147,15 +147,15 @@ async def test_full_15_node_crash_recovery() -> None:
         # Assertions
         # 1. Nodes 1-6 were SKIPPED and NOT re-executed
         for i in range(1, 7):
-            assert f"tool_{i}" not in spy_port.executed_tools, (
-                f"Completed node tool_{i} must NOT be re-executed upon recovery!"
-            )
+            assert (
+                f"tool_{i}" not in spy_port.executed_tools
+            ), f"Completed node tool_{i} must NOT be re-executed upon recovery!"
 
         # 2. Node 7 and Nodes 8-15 WERE executed
         for i in range(7, 16):
-            assert f"tool_{i}" in spy_port.executed_tools, (
-                f"Uncompleted/recovered node tool_{i} must be executed!"
-            )
+            assert (
+                f"tool_{i}" in spy_port.executed_tools
+            ), f"Uncompleted/recovered node tool_{i} must be executed!"
 
         # 3. Final recovered graph status
         assert all(n.step.status == StepStatus.COMPLETED for n in recovered_graph.nodes.values())
@@ -188,7 +188,10 @@ async def test_plan_structural_hash_mismatch_rejection() -> None:
 
         # Create modified graph with different node title/structure
         nodes_mod = {
-            1: PlanGraphNode(step=PlanStep(step_id=1, title="Step 1 MODIFIED", tool_name="tool_1"), dependencies=()),
+            1: PlanGraphNode(
+                step=PlanStep(step_id=1, title="Step 1 MODIFIED", tool_name="tool_1"),
+                dependencies=(),
+            ),
         }
         graph_mod = PlanGraph(nodes=nodes_mod)
 
@@ -207,6 +210,7 @@ async def test_plan_structural_hash_mismatch_rejection() -> None:
 
 if __name__ == "__main__":
     from unittest.mock import MagicMock
+
     asyncio.run(test_full_15_node_crash_recovery())
     asyncio.run(test_plan_structural_hash_mismatch_rejection())
     print("ALL P2-1 PERSISTENCE & CRASH RECOVERY INTEGRATION TESTS PASSED SUCCESSFULLY!")

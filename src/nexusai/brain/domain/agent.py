@@ -17,6 +17,7 @@ class StepStatus(str, Enum):
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
     SKIPPED = "SKIPPED"
+    CANCELLED = "CANCELLED"
 
 
 class LoopDecision(str, Enum):

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import asyncio
 import time
-from typing import Any
 
 from nexusai.brain.domain.llm import (
     FinishReason,
@@ -48,7 +47,9 @@ class MockLLMProvider(ILLMProvider):
         # Simulate failure modes
         if self.failure_mode == "timeout":
             await asyncio.sleep(0.01)
-            raise LLMTimeoutError(f"Model request to provider '{self._name}' timed out after {request.timeout_seconds}s")
+            raise LLMTimeoutError(
+                f"Model request to provider '{self._name}' timed out after {request.timeout_seconds}s"
+            )
         elif self.failure_mode == "auth_error":
             raise LLMAuthenticationError(f"Invalid API Key for provider '{self._name}'")
         elif self.failure_mode == "rate_limit":

@@ -52,3 +52,22 @@ def query_bus() -> QueryBus:
 @pytest.fixture
 def event_bus() -> EventBus:
     return EventBus()
+
+
+def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
+    for item in items:
+        fspath = str(item.fspath)
+        if "/tests/integration/" in fspath:
+            item.add_marker(pytest.mark.integration)
+        elif "/tests/stress/" in fspath:
+            item.add_marker(pytest.mark.stress)
+        elif "/tests/performance/" in fspath or "/tests/benchmarks/" in fspath:
+            item.add_marker(pytest.mark.benchmark)
+        elif "/tests/contract/" in fspath:
+            item.add_marker(pytest.mark.contract)
+        elif "/tests/security/" in fspath:
+            item.add_marker(pytest.mark.security)
+        elif "/tests/architecture/" in fspath:
+            item.add_marker(pytest.mark.architecture)
+        elif "/tests/unit/" in fspath:
+            item.add_marker(pytest.mark.unit)

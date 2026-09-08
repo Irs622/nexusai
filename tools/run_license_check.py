@@ -9,9 +9,9 @@ Flagged as WARNING: LGPL (conditional)
 Flagged as FAIL:    GPL-2.0, GPL-3.0, AGPL-3.0
 """
 
-import sys
 import json
 import subprocess
+import sys
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -50,8 +50,11 @@ def run_license_check() -> int:
     print("=== [Quality Gate] Running Dependency License Compliance Check ===\n")
 
     cmd = [
-        sys.executable, "-m", "piplicenses",
-        "--format", "json",
+        sys.executable,
+        "-m",
+        "piplicenses",
+        "--format",
+        "json",
         "--with-system",
     ]
 
@@ -77,9 +80,7 @@ def run_license_check() -> int:
         license_str = pkg.get("License", "UNKNOWN")
 
         is_blocked = any(blocked in license_str for blocked in BLOCKED_LICENSES)
-        is_allowed = any(
-            license_str.startswith(prefix) for prefix in ALLOWED_LICENSE_PREFIXES
-        )
+        is_allowed = any(license_str.startswith(prefix) for prefix in ALLOWED_LICENSE_PREFIXES)
 
         if is_blocked:
             violations.append({"package": name, "license": license_str})

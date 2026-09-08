@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass, field
 from enum import Enum
-import hashlib
-import json
 from typing import Any, Mapping
 
 from nexusai.brain.domain.memory import MemoryType, PrivacyLevel

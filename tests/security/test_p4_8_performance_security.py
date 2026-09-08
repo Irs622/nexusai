@@ -5,14 +5,23 @@ from __future__ import annotations
 import asyncio
 import os
 import tempfile
+
 import pytest
 
-from nexusai.brain.domain.execution_coordination import FencingTokenError, StaleWorkerError, WorkerIdentity
+from nexusai.brain.domain.execution_coordination import WorkerIdentity
 from nexusai.brain.domain.governance import ToolCapability
-from nexusai.brain.domain.human_approval import ActionBinding, ApprovalStatus, HumanApprovalDecision, HumanApprovalRequest, RiskLevel
+from nexusai.brain.domain.human_approval import (
+    ActionBinding,
+    ApprovalStatus,
+    HumanApprovalDecision,
+    HumanApprovalRequest,
+    RiskLevel,
+)
 from nexusai.brain.runtime.human_approval_engine import HumanApprovalEngine
 from nexusai.infrastructure.persistence.sqlite_approval_store import SQLiteApprovalStore
-from nexusai.infrastructure.persistence.sqlite_execution_coordinator import SQLiteExecutionCoordinator
+from nexusai.infrastructure.persistence.sqlite_execution_coordinator import (
+    SQLiteExecutionCoordinator,
+)
 
 
 @pytest.mark.asyncio
@@ -37,7 +46,9 @@ async def test_security_high_concurrency_cannot_create_duplicate_authority() -> 
 
         req = HumanApprovalRequest("app-p8-sec-1", binding, RiskLevel.HIGH, "Run process")
         await engine.request_approval(req)
-        dec = HumanApprovalDecision("app-p8-sec-1", ApprovalStatus.APPROVED, "op@co.com", "Approved")
+        dec = HumanApprovalDecision(
+            "app-p8-sec-1", ApprovalStatus.APPROVED, "op@co.com", "Approved"
+        )
         grant = await engine.submit_decision(dec)
 
         # 20 Workers attempt concurrent consumption
@@ -48,7 +59,9 @@ async def test_security_high_concurrency_cannot_create_duplicate_authority() -> 
                 return False
 
         results = await asyncio.gather(*[consumer() for _ in range(20)])
-        assert sum(1 for r in results if r is True) == 1, "Exactly ONE grant consumption MUST succeed under load!"
+        assert (
+            sum(1 for r in results if r is True) == 1
+        ), "Exactly ONE grant consumption MUST succeed under load!"
 
     finally:
         if os.path.exists(db_path):

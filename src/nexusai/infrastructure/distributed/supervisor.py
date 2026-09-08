@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import asyncio
+import time
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
-import time
 
 from nexusai.infrastructure.distributed.pool import DistributedWorkerPool
 from nexusai.infrastructure.distributed.worker_node import WorkerNode, WorkerNodeStatus
@@ -94,9 +94,7 @@ class WorkerHeartbeatSupervisor:
         is_healthy = False
 
         try:
-            is_healthy = await asyncio.wait_for(
-                node.ping(), timeout=self.heartbeat_timeout_seconds
-            )
+            is_healthy = await asyncio.wait_for(node.ping(), timeout=self.heartbeat_timeout_seconds)
             elapsed_ms = (time.perf_counter() - start_time) * 1000.0
             tracker.last_ping_latency_ms = round(elapsed_ms, 2)
             tracker.last_ping_time = time.time()

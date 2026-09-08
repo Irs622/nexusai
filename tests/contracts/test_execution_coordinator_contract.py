@@ -5,17 +5,19 @@ from __future__ import annotations
 import asyncio
 import os
 import tempfile
+
 import pytest
 
 from nexusai.brain.domain.execution_coordination import (
     FencingTokenError,
     LeaseAcquisitionError,
-    LeaseStatus,
     StaleWorkerError,
     WorkerIdentity,
 )
 from nexusai.brain.ports.execution_coordinator_port import IExecutionCoordinator
-from nexusai.infrastructure.persistence.sqlite_execution_coordinator import SQLiteExecutionCoordinator
+from nexusai.infrastructure.persistence.sqlite_execution_coordinator import (
+    SQLiteExecutionCoordinator,
+)
 
 
 async def verify_coordinator_contract(coord: IExecutionCoordinator) -> None:
@@ -48,7 +50,10 @@ async def verify_coordinator_contract(coord: IExecutionCoordinator) -> None:
         await coord.validate_lease_and_fencing_token(exec_id, w1.worker_id, expected_token=1)
 
     # 6. Worker 2 validates active token 2 -> Must succeed!
-    assert await coord.validate_lease_and_fencing_token(exec_id, w2.worker_id, expected_token=2) is True
+    assert (
+        await coord.validate_lease_and_fencing_token(exec_id, w2.worker_id, expected_token=2)
+        is True
+    )
 
     # 7. Worker 2 releases lease
     assert await coord.release_execution_lease(lease2.lease_id, w2) is True

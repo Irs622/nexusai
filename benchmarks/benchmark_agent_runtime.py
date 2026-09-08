@@ -63,11 +63,7 @@ async def run_benchmark(num_iterations: int = 1000) -> dict[str, Any]:
     registry.register(BenchmarkMockTool())
     tool_port = ToolRegistryAdapter(registry)
 
-    facade = (
-        AgentRuntimeBuilder()
-        .with_tool_port(tool_port)
-        .build()
-    )
+    facade = AgentRuntimeBuilder().with_tool_port(tool_port).build()
 
     session = BrainSession(session_id=uuid4(), conversation_id=uuid4())
     goal = AgentGoal(description="Benchmark goal task")
@@ -76,7 +72,7 @@ async def run_benchmark(num_iterations: int = 1000) -> dict[str, Any]:
     # Warm-up run / Cold start measurement
     tracemalloc.start()
     t0 = time.perf_counter()
-    cold_response = await facade.run_agent_session(session, goal, state)
+    await facade.run_agent_session(session, goal, state)
     cold_duration_ms = (time.perf_counter() - t0) * 1000.0
     _, peak_mem_bytes = tracemalloc.get_traced_memory()
     tracemalloc.stop()
@@ -87,7 +83,7 @@ async def run_benchmark(num_iterations: int = 1000) -> dict[str, Any]:
     tracemalloc.start()
     for _ in range(num_iterations):
         t_start = time.perf_counter()
-        resp = await facade.run_agent_session(session, goal, state)
+        await facade.run_agent_session(session, goal, state)
         t_elapsed = (time.perf_counter() - t_start) * 1000.0
         durations.append(t_elapsed)
 

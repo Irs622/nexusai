@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 from unittest.mock import MagicMock
+
 import pytest
 
 from nexusai.brain.coordinator import BrainCoordinator
@@ -17,7 +18,6 @@ from nexusai.brain.domain.agent import (
     PlanStep,
     StepStatus,
 )
-from nexusai.brain.domain.governance import ResourceBudget, ToolCapability
 from nexusai.brain.planner.engine import PlanGraphExecutionEngine
 from nexusai.brain.ports.tool_port import IToolPort, ToolExecutionRequest, ToolExecutionResult
 from nexusai.brain.runtime.governance_engine import GovernanceEngine
@@ -52,8 +52,13 @@ async def test_p2_5_dag_with_authorized_and_unauthorized_tools() -> None:
     engine = PlanGraphExecutionEngine(governance=gov)
 
     nodes = {
-        1: PlanGraphNode(step=PlanStep(step_id=1, title="Authorized", tool_name="terminal"), dependencies=()),
-        2: PlanGraphNode(step=PlanStep(step_id=2, title="Unauthorized", tool_name="unregistered_tool"), dependencies=(1,)),
+        1: PlanGraphNode(
+            step=PlanStep(step_id=1, title="Authorized", tool_name="terminal"), dependencies=()
+        ),
+        2: PlanGraphNode(
+            step=PlanStep(step_id=2, title="Unauthorized", tool_name="unregistered_tool"),
+            dependencies=(1,),
+        ),
     }
     plan_graph = PlanGraph(nodes=nodes, edges=((1, 2),))
     engine.planner.plan = lambda ctx, session_id="": (plan_graph, MagicMock())  # type: ignore[assignment]

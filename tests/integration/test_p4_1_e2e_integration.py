@@ -3,12 +3,9 @@
 from __future__ import annotations
 
 import asyncio
-import os
-import tempfile
+
 import pytest
 
-from nexusai.brain.domain.agent import AgentGoal, PlanGraph, PlanGraphNode, PlanStep
-from nexusai.brain.domain.agent_loop import AgentLoopConfig, AgentLoopState
 from nexusai.brain.domain.agent_runtime import AgentExecutionState, AgentRequest
 from nexusai.brain.domain.governance import ResourceBudget, ToolCapability
 from nexusai.brain.domain.human_approval import (
@@ -22,7 +19,7 @@ from nexusai.brain.domain.human_approval import (
 )
 from nexusai.brain.domain.tool_registry import ToolMetadata, ToolStatus, ToolUnavailableError
 from nexusai.brain.planner.engine import PlanGraphExecutionEngine
-from nexusai.brain.runtime.agent_loop import AgentLoop
+from nexusai.brain.ports.tool_port import ToolExecutionRequest
 from nexusai.brain.runtime.brain_runtime_facade import BrainRuntimeFacade
 from nexusai.brain.runtime.context_builder import ContextBuilder
 from nexusai.brain.runtime.governance_engine import GovernanceEngine
@@ -42,15 +39,24 @@ async def test_p4_1_e2e_01_low_risk_execution_without_approval() -> None:
     mem_store = SQLiteMemoryStore(":memory:")
     retriever = MemoryRetriever(store=mem_store, telemetry=telemetry)
     builder = ContextBuilder(retriever=retriever, store=mem_store)
-    lifecycle = MemoryLifecycle(memory_store=mem_store, retriever=retriever, context_builder=builder, telemetry=telemetry)
+    MemoryLifecycle(
+        memory_store=mem_store, retriever=retriever, context_builder=builder, telemetry=telemetry
+    )
 
     registry = ToolRegistry(telemetry=telemetry)
     for tool_meta in get_p4_1_test_tools():
         await registry.register(tool_meta)
 
-    gov = GovernanceEngine(global_budget=ResourceBudget(max_tool_invocations=50), telemetry=telemetry)
+    gov = GovernanceEngine(
+        global_budget=ResourceBudget(max_tool_invocations=50), telemetry=telemetry
+    )
     engine = PlanGraphExecutionEngine(governance=gov, telemetry=telemetry)
-    facade = BrainRuntimeFacade(execution_engine=engine, memory_store=mem_store, context_builder=builder, telemetry=telemetry)
+    facade = BrainRuntimeFacade(
+        execution_engine=engine,
+        memory_store=mem_store,
+        context_builder=builder,
+        telemetry=telemetry,
+    )
 
     tool_port = ControlledTestToolPort()
     req = AgentRequest(session_id="sess-e2e-01", user_prompt="Read sandbox file echo")
@@ -89,7 +95,9 @@ async def test_p4_1_e2e_02_high_risk_execution_with_human_approval() -> None:
     # 2. Agent submits approval request & Operator APPROVES
     req = HumanApprovalRequest("app-e2e-02", binding, risk, "Run process tool")
     await approval_engine.request_approval(req)
-    dec = HumanApprovalDecision("app-e2e-02", ApprovalStatus.APPROVED, "operator@co.com", "Approved for test")
+    dec = HumanApprovalDecision(
+        "app-e2e-02", ApprovalStatus.APPROVED, "operator@co.com", "Approved for test"
+    )
     grant = await approval_engine.submit_decision(dec)
 
     # 3. Re-validation & Grant Verification
@@ -126,7 +134,12 @@ async def test_p4_1_e2e_03_human_deny_blocks_tool_execution() -> None:
     req = HumanApprovalRequest("app-e2e-03", binding, RiskLevel.MEDIUM, "Write file")
     await approval_engine.request_approval(req)
 
-    dec = HumanApprovalDecision("app-e2e-03", ApprovalStatus.DENIED, "security_guard@co.com", "Denied: Security policy violation")
+    dec = HumanApprovalDecision(
+        "app-e2e-03",
+        ApprovalStatus.DENIED,
+        "security_guard@co.com",
+        "Denied: Security policy violation",
+    )
 
     # Submitting DENIED decision raises ApprovalMismatchError
     with pytest.raises(ApprovalMismatchError, match="denied"):
@@ -143,7 +156,9 @@ async def test_p4_1_e2e_04_to_07_revalidation_failures_fail_closed() -> None:
     gov_engine = GovernanceEngine(global_budget=ResourceBudget(max_tool_invocations=1))
     registry = ToolRegistry()
 
-    tool_meta = ToolMetadata("revocable_tool", "Revocable", "1.0.0", "Revocable", frozenset({ToolCapability.FILE_WRITE}))
+    tool_meta = ToolMetadata(
+        "revocable_tool", "Revocable", "1.0.0", "Revocable", frozenset({ToolCapability.FILE_WRITE})
+    )
     await registry.register(tool_meta)
 
     binding = ActionBinding(
@@ -176,7 +191,16 @@ async def test_p4_1_e2e_04_to_07_revalidation_failures_fail_closed() -> None:
 
     # 2. Tool Revocation post-approval fails ToolRegistry re-validation
     await registry.unregister("revocable_tool")
-    await registry.register(ToolMetadata("revocable_tool", "Revocable", "1.0.0", "Revocable", frozenset({ToolCapability.FILE_WRITE}), status=ToolStatus.REVOKED))
+    await registry.register(
+        ToolMetadata(
+            "revocable_tool",
+            "Revocable",
+            "1.0.0",
+            "Revocable",
+            frozenset({ToolCapability.FILE_WRITE}),
+            status=ToolStatus.REVOKED,
+        )
+    )
     with pytest.raises(ToolUnavailableError):
         await registry.validate_tool("revocable_tool")
 
@@ -217,7 +241,9 @@ async def test_p4_1_e2e_08_cancellation_propagation_and_resource_release() -> No
     await gov_engine.release(res.reservation_id)
 
     assert cancelled_cnt == 1
-    assert gov_engine.get_active_reservation_count() == 0, "Governance reservation MUST be released upon cancellation!"
+    assert (
+        gov_engine.get_active_reservation_count() == 0
+    ), "Governance reservation MUST be released upon cancellation!"
 
     req_cancelled = await approval_engine.get_request("app-cancel-e2e")
     assert req_cancelled is not None

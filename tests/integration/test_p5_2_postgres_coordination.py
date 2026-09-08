@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import asyncio
+
 import pytest
 
-from nexusai.infrastructure.coordination.postgres_execution_coordinator import PostgresExecutionCoordinator
+from nexusai.infrastructure.coordination.postgres_execution_coordinator import (
+    PostgresExecutionCoordinator,
+)
 from tests.contracts.test_execution_coordinator_contract import verify_coordinator_contract
 
 

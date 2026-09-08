@@ -17,10 +17,10 @@ import gc
 import json
 import math
 import os
-from pathlib import Path
 import sys
 import time
 import tracemalloc
+from pathlib import Path
 from typing import Any
 
 import psutil  # type: ignore[import-untyped]

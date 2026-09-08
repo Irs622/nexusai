@@ -5,14 +5,13 @@ from __future__ import annotations
 import hashlib
 import json
 import sqlite3
-import time
 from typing import Sequence
 from uuid import uuid4
 
 from nexusai.brain.domain.audit import (
+    GENESIS_HASH,
     AuditEvent,
     AuditVerificationResult,
-    GENESIS_HASH,
 )
 from nexusai.brain.ports.audit_store_port import IAuditStore
 
@@ -64,11 +63,19 @@ class SQLiteAuditStore(IAuditStore):
                     metadata TEXT NOT NULL
                 );
             """)
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_audit_session ON audit_events(session_id);")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_audit_execution ON audit_events(execution_id);")
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_audit_session ON audit_events(session_id);"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_audit_execution ON audit_events(execution_id);"
+            )
             conn.execute("CREATE INDEX IF NOT EXISTS idx_audit_type ON audit_events(event_type);")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_audit_timestamp ON audit_events(timestamp);")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_audit_seq ON audit_events(execution_id, sequence_number);")
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_audit_timestamp ON audit_events(timestamp);"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_audit_seq ON audit_events(execution_id, sequence_number);"
+            )
 
     async def append_event(self, event: AuditEvent) -> AuditEvent:
         """Atomically append a correlated audit event with tamper-evident SHA-256 hash chaining."""
@@ -145,7 +152,9 @@ class SQLiteAuditStore(IAuditStore):
     async def get_event(self, event_id: str) -> AuditEvent | None:
         """Retrieve a specific audit event by event_id."""
         with self._get_connection() as conn:
-            row = conn.execute("SELECT * FROM audit_events WHERE event_id = ?", (event_id,)).fetchone()
+            row = conn.execute(
+                "SELECT * FROM audit_events WHERE event_id = ?", (event_id,)
+            ).fetchone()
             if not row:
                 return None
             return self._row_to_event(row)
@@ -188,11 +197,15 @@ class SQLiteAuditStore(IAuditStore):
         for ev in events:
             if ev.sequence_number != expected_seq:
                 seq_valid = False
-                violations.append(f"Sequence gap/disorder at event {ev.event_id}: expected {expected_seq}, got {ev.sequence_number}")
+                violations.append(
+                    f"Sequence gap/disorder at event {ev.event_id}: expected {expected_seq}, got {ev.sequence_number}"
+                )
 
             if ev.previous_event_hash != expected_prev_hash:
                 chain_valid = False
-                violations.append(f"Hash chain broken at sequence {ev.sequence_number}: expected prev {expected_prev_hash[:8]}, got {ev.previous_event_hash[:8]}")
+                violations.append(
+                    f"Hash chain broken at sequence {ev.sequence_number}: expected prev {expected_prev_hash[:8]}, got {ev.previous_event_hash[:8]}"
+                )
 
             # Verify payload SHA-256 hash match
             canonical_payload = {
@@ -205,11 +218,15 @@ class SQLiteAuditStore(IAuditStore):
                 "timestamp": ev.timestamp,
                 "previous_event_hash": ev.previous_event_hash,
             }
-            recalculated_hash = hashlib.sha256(json.dumps(canonical_payload, sort_keys=True).encode("utf-8")).hexdigest()
+            recalculated_hash = hashlib.sha256(
+                json.dumps(canonical_payload, sort_keys=True).encode("utf-8")
+            ).hexdigest()
 
             if recalculated_hash != ev.event_hash:
                 chain_valid = False
-                violations.append(f"Payload tampered at sequence {ev.sequence_number}: calculated {recalculated_hash[:8]} != stored {ev.event_hash[:8]}")
+                violations.append(
+                    f"Payload tampered at sequence {ev.sequence_number}: calculated {recalculated_hash[:8]} != stored {ev.event_hash[:8]}"
+                )
 
             if ev.session_id != first_sess or ev.plan_fingerprint != first_fp:
                 corr_valid = False

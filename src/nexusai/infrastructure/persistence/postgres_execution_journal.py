@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 from typing import Sequence
 
 from nexusai.brain.domain.execution_recovery import JournalEntry, RecoveryStatus

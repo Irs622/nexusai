@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import asyncio
+
 import pytest
 
 from nexusai.brain.domain.llm import (
     LLMAuthenticationError,
-    LLMError,
     LLMMessage,
     LLMProviderUnavailableError,
     LLMRequest,

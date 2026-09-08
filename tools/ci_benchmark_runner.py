@@ -27,7 +27,9 @@ async def main() -> int:
     print("=" * 70)
 
     corpus = generate_golden_scenario_corpus()
-    print(f"Loaded Golden Corpus: '{corpus.corpus_name}' (Version {corpus.version}, {len(corpus.scenarios)} scenarios)")
+    print(
+        f"Loaded Golden Corpus: '{corpus.corpus_name}' (Version {corpus.version}, {len(corpus.scenarios)} scenarios)"
+    )
 
     # 1. Coverage Analysis
     analyzer = CoverageAnalyzer()
@@ -58,7 +60,9 @@ async def main() -> int:
     print(f"Average Turn Latency      : {report.average_latency_ms:.2f} ms")
     print(f"P95 Turn Latency          : {report.p95_latency_ms:.2f} ms")
     print(f"Average Decision Score    : {report.average_decision_score:.2f}")
-    print(f"Environment Platform      : {report.environment.operating_system} ({report.environment.architecture})")
+    print(
+        f"Environment Platform      : {report.environment.operating_system} ({report.environment.architecture})"
+    )
     print("-" * 70)
 
     if report.pass_rate < 1.0:

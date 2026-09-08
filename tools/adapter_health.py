@@ -1,10 +1,7 @@
 """Adapter Health Score & Kernel Stability Score Analyzer."""
 
 from dataclasses import dataclass
-import inspect
 from pathlib import Path
-
-from nexusai.providers.openrouter import OpenRouterProvider
 
 
 @dataclass

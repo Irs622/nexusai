@@ -30,14 +30,26 @@ class SerializationError(ValueError):
 class SQLiteExecutionStateStore(IExecutionStateStore):
     """Durable SQLite storage engine with WAL mode, schema version 2 migration, and atomic recovery checkpoints."""
 
-    def __init__(self, db_path: str = ":memory:", max_payload_bytes: int = MAX_PAYLOAD_BYTES) -> None:
-        self.db_path = db_path
+    def __init__(
+        self, db_path: str = ":memory:", max_payload_bytes: int = MAX_PAYLOAD_BYTES
+    ) -> None:
+        if db_path == ":memory:":
+            self._is_memory = True
+            self._db_uri = f"file:memdb_{id(self)}_{time.time_ns()}?mode=memory&cache=shared"
+            self._keepalive: sqlite3.Connection | None = sqlite3.connect(
+                self._db_uri, uri=True, check_same_thread=False
+            )
+            self.db_path = self._db_uri
+        else:
+            self._is_memory = False
+            self._keepalive = None
+            self.db_path = db_path
         self.max_payload_bytes = max_payload_bytes
         self._init_db()
 
     def _get_connection(self) -> sqlite3.Connection:
         """Create and configure a thread-local SQLite connection with WAL mode."""
-        conn = sqlite3.connect(self.db_path, timeout=5.0)
+        conn = sqlite3.connect(self.db_path, timeout=5.0, uri=self._is_memory)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA journal_mode=WAL;")
         conn.execute("PRAGMA foreign_keys=ON;")
@@ -93,7 +105,10 @@ class SQLiteExecutionStateStore(IExecutionStateStore):
                 current_ver = row["ver"] if row and row["ver"] is not None else 0
 
                 if current_ver < 1:
-                    conn.execute("INSERT INTO schema_migrations (version, applied_at) VALUES (1, ?)", (time.time(),))
+                    conn.execute(
+                        "INSERT INTO schema_migrations (version, applied_at) VALUES (1, ?)",
+                        (time.time(),),
+                    )
                     current_ver = 1
 
                 if current_ver < 2:
@@ -108,7 +123,10 @@ class SQLiteExecutionStateStore(IExecutionStateStore):
                             conn.execute(f"ALTER TABLE node_executions ADD COLUMN {col_def}")
                         except sqlite3.OperationalError:
                             pass
-                    conn.execute("INSERT OR REPLACE INTO schema_migrations (version, applied_at) VALUES (2, ?)", (time.time(),))
+                    conn.execute(
+                        "INSERT OR REPLACE INTO schema_migrations (version, applied_at) VALUES (2, ?)",
+                        (time.time(),),
+                    )
         finally:
             conn.close()
 
@@ -232,10 +250,22 @@ class SQLiteExecutionStateStore(IExecutionStateStore):
                     output=self._deserialize_json(n_row["output_json"]),
                     error_message=n_row["error_message"],
                     attempt_count=n_row["attempt_count"],
-                    idempotency_key=n_row["idempotency_key"] if "idempotency_key" in n_row.keys() else None,
-                    last_failure_class=n_row["last_failure_class"] if "last_failure_class" in n_row.keys() else None,
-                    last_recovery_action=n_row["last_recovery_action"] if "last_recovery_action" in n_row.keys() else None,
-                    next_retry_at=n_row["next_retry_at"] if "next_retry_at" in n_row.keys() else None,
+                    idempotency_key=(
+                        n_row["idempotency_key"] if "idempotency_key" in n_row.keys() else None
+                    ),
+                    last_failure_class=(
+                        n_row["last_failure_class"]
+                        if "last_failure_class" in n_row.keys()
+                        else None
+                    ),
+                    last_recovery_action=(
+                        n_row["last_recovery_action"]
+                        if "last_recovery_action" in n_row.keys()
+                        else None
+                    ),
+                    next_retry_at=(
+                        n_row["next_retry_at"] if "next_retry_at" in n_row.keys() else None
+                    ),
                     started_at=n_row["started_at"],
                     completed_at=n_row["completed_at"],
                     updated_at=n_row["updated_at"],
@@ -318,7 +348,11 @@ class SQLiteExecutionStateStore(IExecutionStateStore):
     ) -> None:
         """Atomically persist recovery policy decision, idempotency key, failure class, and next_retry_at timestamp."""
         await asyncio.to_thread(
-            self._sync_save_recovery_decision_atomically, execution_id, str(node_id), status, decision
+            self._sync_save_recovery_decision_atomically,
+            execution_id,
+            str(node_id),
+            status,
+            decision,
         )
 
     def _sync_save_recovery_decision_atomically(

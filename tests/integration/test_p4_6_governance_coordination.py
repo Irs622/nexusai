@@ -5,12 +5,15 @@ from __future__ import annotations
 import asyncio
 import os
 import tempfile
+
 import pytest
 
 from nexusai.brain.domain.execution_coordination import WorkerIdentity
 from nexusai.brain.domain.governance import ResourceBudget, ToolCapability
 from nexusai.brain.runtime.governance_engine import GovernanceEngine
-from nexusai.infrastructure.persistence.sqlite_execution_coordinator import SQLiteExecutionCoordinator
+from nexusai.infrastructure.persistence.sqlite_execution_coordinator import (
+    SQLiteExecutionCoordinator,
+)
 
 
 @pytest.mark.asyncio
@@ -20,11 +23,11 @@ async def test_governance_reservation_worker_isolation() -> None:
         db_path = tf.name
 
     try:
-        coord = SQLiteExecutionCoordinator(db_path=db_path)
+        SQLiteExecutionCoordinator(db_path=db_path)
         gov = GovernanceEngine(global_budget=ResourceBudget(max_tool_invocations=5))
 
-        w_a = WorkerIdentity("worker-a")
-        w_b = WorkerIdentity("worker-b")
+        WorkerIdentity("worker-a")
+        WorkerIdentity("worker-b")
 
         # Worker B acquires governance reservation
         res_b = await gov.authorize("exec-gov-coord", frozenset({ToolCapability.PROCESS_EXEC}))

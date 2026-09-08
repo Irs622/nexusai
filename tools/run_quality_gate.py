@@ -13,11 +13,11 @@ Usage:
 from __future__ import annotations
 
 import argparse
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from pathlib import Path
 import subprocess
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent
 
@@ -41,7 +41,9 @@ def _run_stage1_task(name: str, script_name: str) -> tuple[str, int, float]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="NexusAI Master Quality Gate")
-    parser.add_argument("--release", action="store_true", help="Execute full Release Candidate validation pipeline")
+    parser.add_argument(
+        "--release", action="store_true", help="Execute full Release Candidate validation pipeline"
+    )
     args = parser.parse_args()
 
     start_time = time.perf_counter()
@@ -63,8 +65,7 @@ def main() -> int:
     stage1_failed = False
     with ThreadPoolExecutor(max_workers=3) as executor:
         futures = {
-            executor.submit(_run_stage1_task, name, script): name
-            for name, script in stage1_tasks
+            executor.submit(_run_stage1_task, name, script): name for name, script in stage1_tasks
         }
         for future in as_completed(futures):
             name, code, elapsed = future.result()
@@ -85,17 +86,37 @@ def main() -> int:
     # ------------------------------------------------------------------
     print("🔹 STAGE 2: Running Sequential System & Compliance Verification...")
     stage2_tasks = [
-        ("Architecture Compliance", [sys.executable, str(PROJECT_ROOT / "tools" / "run_architecture_tests.py")]),
-        ("API Compatibility Snapshots", [sys.executable, "-m", "pytest", "tests/api_compatibility/"]),
-        ("Test Suite Verification", [sys.executable, str(PROJECT_ROOT / "tools" / "run_tests.py"), "--mode=local"]),
-        ("Benchmark Quality Gate", [sys.executable, str(PROJECT_ROOT / "benchmarks" / "check_regressions.py")]),
+        (
+            "Architecture Compliance",
+            [sys.executable, str(PROJECT_ROOT / "tools" / "run_architecture_tests.py")],
+        ),
+        (
+            "API Compatibility Snapshots",
+            [sys.executable, "-m", "pytest", "tests/api_compatibility/"],
+        ),
+        (
+            "Test Suite Verification",
+            [sys.executable, str(PROJECT_ROOT / "tools" / "run_tests.py"), "--mode=local"],
+        ),
+        (
+            "Benchmark Quality Gate",
+            [sys.executable, str(PROJECT_ROOT / "benchmarks" / "check_regressions.py")],
+        ),
     ]
 
     if args.release:
-        stage2_tasks.extend([
-            ("Security Audit", [sys.executable, str(PROJECT_ROOT / "tools" / "run_security_audit.py")]),
-            ("Fresh Install Validation", [sys.executable, str(PROJECT_ROOT / "tools" / "verify_fresh_install.py")]),
-        ])
+        stage2_tasks.extend(
+            [
+                (
+                    "Security Audit",
+                    [sys.executable, str(PROJECT_ROOT / "tools" / "run_security_audit.py")],
+                ),
+                (
+                    "Fresh Install Validation",
+                    [sys.executable, str(PROJECT_ROOT / "tools" / "verify_fresh_install.py")],
+                ),
+            ]
+        )
 
     for name, cmd in stage2_tasks:
         t0 = time.perf_counter()

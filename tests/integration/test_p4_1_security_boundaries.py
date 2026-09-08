@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+
 import pytest
 
 from nexusai.brain.domain.governance import ResourceBudget, ToolCapability
@@ -14,7 +15,7 @@ from nexusai.brain.domain.human_approval import (
     HumanApprovalRequest,
     RiskLevel,
 )
-from nexusai.brain.domain.tool_registry import CapabilityEscalationError, ToolMetadata, ToolStatus, ToolUnavailableError
+from nexusai.brain.domain.tool_registry import ToolMetadata, ToolStatus, ToolUnavailableError
 from nexusai.brain.runtime.governance_engine import GovernanceEngine
 from nexusai.brain.runtime.human_approval_engine import HumanApprovalEngine
 from nexusai.brain.runtime.tool_registry import ToolRegistry
@@ -41,7 +42,12 @@ async def test_p4_1_fail_closed_tool_never_called_on_human_deny() -> None:
     await approval_engine.request_approval(req)
 
     # Human operator DENIES
-    dec = HumanApprovalDecision("app-sec-deny", ApprovalStatus.DENIED, "operator@co.com", "Denied: Security policy violation")
+    dec = HumanApprovalDecision(
+        "app-sec-deny",
+        ApprovalStatus.DENIED,
+        "operator@co.com",
+        "Denied: Security policy violation",
+    )
     with pytest.raises(ApprovalError):
         await approval_engine.submit_decision(dec)
 
@@ -57,7 +63,9 @@ async def test_p4_1_fail_closed_tool_never_called_on_tool_revocation() -> None:
     registry = ToolRegistry()
     tool_port = ControlledTestToolPort()
 
-    meta = ToolMetadata("rev_tool", "Revocable", "1.0.0", "Revocable", frozenset({ToolCapability.FILE_WRITE}))
+    meta = ToolMetadata(
+        "rev_tool", "Revocable", "1.0.0", "Revocable", frozenset({ToolCapability.FILE_WRITE})
+    )
     await registry.register(meta)
 
     binding = ActionBinding(
@@ -72,12 +80,23 @@ async def test_p4_1_fail_closed_tool_never_called_on_tool_revocation() -> None:
 
     req = HumanApprovalRequest("app-sec-rev", binding, RiskLevel.MEDIUM, "Write file")
     await approval_engine.request_approval(req)
-    dec = HumanApprovalDecision("app-sec-rev", ApprovalStatus.APPROVED, "operator@co.com", "Approved")
-    grant = await approval_engine.submit_decision(dec)
+    dec = HumanApprovalDecision(
+        "app-sec-rev", ApprovalStatus.APPROVED, "operator@co.com", "Approved"
+    )
+    await approval_engine.submit_decision(dec)
 
     # Tool status becomes REVOKED before execution dispatch
     await registry.unregister("rev_tool")
-    await registry.register(ToolMetadata("rev_tool", "Revocable", "1.0.0", "Revocable", frozenset({ToolCapability.FILE_WRITE}), status=ToolStatus.REVOKED))
+    await registry.register(
+        ToolMetadata(
+            "rev_tool",
+            "Revocable",
+            "1.0.0",
+            "Revocable",
+            frozenset({ToolCapability.FILE_WRITE}),
+            status=ToolStatus.REVOKED,
+        )
+    )
 
     # ToolRegistry re-validation fails with ToolUnavailableError
     with pytest.raises(ToolUnavailableError):
@@ -106,8 +125,10 @@ async def test_p4_1_fail_closed_tool_never_called_on_governance_exhaustion() -> 
 
     req = HumanApprovalRequest("app-sec-gov", binding, RiskLevel.HIGH, "Run process")
     await approval_engine.request_approval(req)
-    dec = HumanApprovalDecision("app-sec-gov", ApprovalStatus.APPROVED, "operator@co.com", "Approved")
-    grant = await approval_engine.submit_decision(dec)
+    dec = HumanApprovalDecision(
+        "app-sec-gov", ApprovalStatus.APPROVED, "operator@co.com", "Approved"
+    )
+    await approval_engine.submit_decision(dec)
 
     # Consume the last invocation quota
     res1 = await gov_engine.authorize("exec-other", frozenset({ToolCapability.PROCESS_EXEC}))

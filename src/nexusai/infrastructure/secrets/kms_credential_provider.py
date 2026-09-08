@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import time
 
 from nexusai.brain.domain.credential import CredentialReference, ResolvedCredential
@@ -25,7 +24,9 @@ class KMSCredentialProvider(ICredentialProvider):
             expires_at=time.time() + 1800.0,
         )
 
-    async def rotate_credential(self, ref: CredentialReference, new_secret_value: str) -> CredentialReference:
+    async def rotate_credential(
+        self, ref: CredentialReference, new_secret_value: str
+    ) -> CredentialReference:
         """Rotate KMS key version pointer."""
         curr_ver = int(ref.version.replace("v", "")) if ref.version.startswith("v") else 1
         new_ver = f"v{curr_ver + 1}"

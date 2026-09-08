@@ -12,7 +12,6 @@ from nexusai.brain.domain.memory import (
     MemoryType,
 )
 from nexusai.brain.domain.memory_learning import (
-    MemoryCandidate,
     MemoryLearningResult,
     MemoryPromotionDecision,
     compute_memory_fingerprint,
@@ -118,7 +117,9 @@ class MemoryLifecycle(IMemoryLifecycle):
 
             for candidate in extraction.candidates:
                 # 1. Deduplication Check via SHA-256 Memory Fingerprint
-                fingerprint = compute_memory_fingerprint(session_id, candidate.memory_type, candidate.content)
+                fingerprint = compute_memory_fingerprint(
+                    session_id, candidate.memory_type, candidate.content
+                )
                 if fingerprint in seen_fingerprints:
                     discarded += 1
                     continue
@@ -155,7 +156,9 @@ class MemoryLifecycle(IMemoryLifecycle):
 
                 elif decision == MemoryPromotionDecision.PROMOTE_SEMANTIC:
                     # Check existing semantic memories for contradiction / update invalidation
-                    existing_semantic = await self.memory_store.list_session_memories(session_id, memory_type=MemoryType.SEMANTIC)
+                    existing_semantic = await self.memory_store.list_session_memories(
+                        session_id, memory_type=MemoryType.SEMANTIC
+                    )
                     for old_mem in existing_semantic:
                         if old_mem.content.split(":")[0] == candidate.content.split(":")[0]:
                             await self.memory_store.invalidate(old_mem.memory_id, session_id)

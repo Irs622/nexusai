@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import asyncio
-import os
+
 import pytest
 
 from nexusai.brain.domain.llm import LLMMessage, LLMRequest, LLMRole
@@ -35,7 +35,7 @@ async def test_p4_3_adversarial_llm_provider_stress() -> None:
     workers = [asyncio.create_task(worker(i)) for i in range(30)]
     await asyncio.gather(*workers)
 
-    print(f"\n[P4-3 ADVERSARIAL LLM PROVIDER STRESS VERIFICATION]")
+    print("\n[P4-3 ADVERSARIAL LLM PROVIDER STRESS VERIFICATION]")
     print("30 Concurrent Provider Requests completed cleanly with 100% Secret Isolation!")
 
 

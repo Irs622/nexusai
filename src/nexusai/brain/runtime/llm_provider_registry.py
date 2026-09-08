@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any
 
 from nexusai.brain.domain.llm import LLMProviderUnavailableError
 from nexusai.brain.ports.llm_provider_port import ILLMProvider
@@ -37,7 +36,9 @@ class LLMProviderRegistry(ILLMProviderRegistry):
             provider = self._providers.get(name)
 
         if provider is None:
-            raise LLMProviderUnavailableError(f"Provider '{provider_name}' is not registered in registry")
+            raise LLMProviderUnavailableError(
+                f"Provider '{provider_name}' is not registered in registry"
+            )
         return provider
 
     async def list_providers(self) -> tuple[str, ...]:

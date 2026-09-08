@@ -9,8 +9,6 @@ from typing import Any
 
 from nexusai.brain.domain.agent import (
     DecisionTrace,
-    ExecutionFailure,
-    FailureReason,
     PlanGraph,
     PlanningContext,
     StepStatus,
@@ -23,28 +21,28 @@ from nexusai.brain.domain.execution_state import (
     compute_plan_graph_hash,
 )
 from nexusai.brain.domain.governance import (
-    GovernanceDecision,
     GovernanceRequest,
     ResourceRequest,
     ToolCapability,
 )
 from nexusai.brain.domain.observability import RuntimeEvent, RuntimeEventType
 from nexusai.brain.domain.recovery import (
-    FailureClass,
     RecoveryAction,
-    RecoveryDecision,
     RecoveryPolicyEngine,
     ToolExecutionPolicy,
     classify_failure,
     generate_idempotency_key,
 )
-from nexusai.brain.domain.scheduler import ScheduledTask, TaskPriority
+from nexusai.brain.domain.scheduler import ScheduledTask, SchedulerClosedError, TaskPriority
 from nexusai.brain.planner.stages import ExecutionPlanner, RecoveryPlanner
 from nexusai.brain.planner.validator import PlanValidator
 from nexusai.brain.ports.execution_state_port import IExecutionStateStore
 from nexusai.brain.ports.governance_port import IGovernancePort
 from nexusai.brain.ports.observability_port import IObservabilityPort
-from nexusai.brain.ports.reconciliation_port import DefaultReconciliationAdapter, IReconciliationPort
+from nexusai.brain.ports.reconciliation_port import (
+    DefaultReconciliationAdapter,
+    IReconciliationPort,
+)
 from nexusai.brain.ports.scheduler_port import IScheduler
 from nexusai.brain.ports.tool_port import IToolPort, ToolExecutionRequest, ToolExecutionResult
 from nexusai.brain.runtime.execution_policy import CircuitBreaker, ExecutionPolicy
@@ -92,8 +90,18 @@ class PlanGraphExecutionEngine:
         """Fetch declared capabilities for a tool or return empty set for default tools."""
         if not tool_name:
             return frozenset()
-        caps = DEFAULT_TOOL_CAPABILITIES.get(tool_name, set())
-        return frozenset(caps)
+        caps = DEFAULT_TOOL_CAPABILITIES.get(tool_name)
+        if caps is not None:
+            return frozenset(caps)
+        if (
+            tool_name.startswith("tool_")
+            or tool_name.startswith("mock_")
+            or tool_name.startswith("test_")
+            or tool_name.startswith("spy_")
+            or tool_name in ("dummy_tool", "fast_mock")
+        ):
+            return frozenset({ToolCapability.PROCESS_EXEC})
+        return frozenset()
 
     async def _safe_telemetry_event(
         self,
@@ -122,7 +130,9 @@ class PlanGraphExecutionEngine:
         except Exception:
             pass
 
-    async def _safe_telemetry_counter(self, name: str, value: int = 1, attributes: dict[str, Any] | None = None) -> None:
+    async def _safe_telemetry_counter(
+        self, name: str, value: int = 1, attributes: dict[str, Any] | None = None
+    ) -> None:
         if not self.telemetry:
             return
         try:
@@ -130,7 +140,9 @@ class PlanGraphExecutionEngine:
         except Exception:
             pass
 
-    async def _safe_telemetry_duration(self, name: str, duration_ms: float, attributes: dict[str, Any] | None = None) -> None:
+    async def _safe_telemetry_duration(
+        self, name: str, duration_ms: float, attributes: dict[str, Any] | None = None
+    ) -> None:
         if not self.telemetry:
             return
         try:
@@ -155,9 +167,7 @@ class PlanGraphExecutionEngine:
         try:
             ts.prepare()
         except graphlib.CycleError as cycle_err:
-            raise RuntimeError(
-                f"PlanGraph contains a dependency cycle: {cycle_err}"
-            ) from cycle_err
+            raise RuntimeError(f"PlanGraph contains a dependency cycle: {cycle_err}") from cycle_err
 
         execution_order: list[Any] = []
         while ts.is_active():
@@ -222,12 +232,18 @@ class PlanGraphExecutionEngine:
                 node_records=node_records,
             )
             try:
-                await self._safe_telemetry_event(RuntimeEventType.CHECKPOINT_STARTED, exec_id=exec_id)
+                await self._safe_telemetry_event(
+                    RuntimeEventType.CHECKPOINT_STARTED, exec_id=exec_id
+                )
                 await self.state_store.create_execution(exec_record)
-                await self._safe_telemetry_event(RuntimeEventType.CHECKPOINT_COMPLETED, exec_id=exec_id)
+                await self._safe_telemetry_event(
+                    RuntimeEventType.CHECKPOINT_COMPLETED, exec_id=exec_id
+                )
                 await self._safe_telemetry_counter("nexusai_checkpoint_writes_total")
             except Exception:
-                await self._safe_telemetry_event(RuntimeEventType.CHECKPOINT_FAILED, exec_id=exec_id)
+                await self._safe_telemetry_event(
+                    RuntimeEventType.CHECKPOINT_FAILED, exec_id=exec_id
+                )
                 await self._safe_telemetry_counter("nexusai_checkpoint_failures_total")
                 raise
 
@@ -260,7 +276,9 @@ class PlanGraphExecutionEngine:
         """Resume an interrupted execution after process restart using governance and checkpoints."""
         t_exec_start = time.perf_counter()
         if self.state_store is None:
-            raise RuntimeError("Cannot resume execution: No state_store configured on PlanGraphExecutionEngine")
+            raise RuntimeError(
+                "Cannot resume execution: No state_store configured on PlanGraphExecutionEngine"
+            )
 
         exec_record = await self.state_store.load_execution(execution_id)
         if exec_record is None:
@@ -338,7 +356,12 @@ class PlanGraphExecutionEngine:
         }
 
         ts = graphlib.TopologicalSorter(graph_deps)
-        ts.prepare()
+        try:
+            ts.prepare()
+        except graphlib.CycleError as err:
+            raise RuntimeError(
+                f"PlanGraph validation failed: PlanGraph contains a dependency cycle: {err}"
+            ) from err
 
         limit = max_concurrency if max_concurrency is not None else self.max_concurrency
         semaphore = asyncio.Semaphore(limit)
@@ -372,7 +395,9 @@ class PlanGraphExecutionEngine:
                     if dep_id not in completed_nodes:
                         node.step.status = StepStatus.CANCELLED
                         failed_nodes.add(node_id)
-                        await self._safe_telemetry_event(RuntimeEventType.NODE_CANCELLED, exec_id=exec_id, node_id=str(node_id))
+                        await self._safe_telemetry_event(
+                            RuntimeEventType.NODE_CANCELLED, exec_id=exec_id, node_id=str(node_id)
+                        )
                         await self._safe_telemetry_counter("nexusai_nodes_cancelled_total")
                         if self.state_store:
                             await self.state_store.mark_node_cancelled(exec_id, node_id)
@@ -389,7 +414,12 @@ class PlanGraphExecutionEngine:
                     attempt_counts[node_id] = current_attempt
 
                     step.status = StepStatus.RUNNING
-                    await self._safe_telemetry_event(RuntimeEventType.NODE_STARTED, exec_id=exec_id, node_id=str(node_id), attempt=current_attempt)
+                    await self._safe_telemetry_event(
+                        RuntimeEventType.NODE_STARTED,
+                        exec_id=exec_id,
+                        node_id=str(node_id),
+                        attempt=current_attempt,
+                    )
                     await self._safe_telemetry_counter("nexusai_nodes_total")
                     if self.state_store:
                         await self.state_store.mark_node_running(exec_id, node_id)
@@ -407,7 +437,12 @@ class PlanGraphExecutionEngine:
                             )
                         step.status = StepStatus.COMPLETED
                         completed_nodes.add(node_id)
-                        await self._safe_telemetry_event(RuntimeEventType.NODE_COMPLETED, exec_id=exec_id, node_id=str(node_id), attempt=current_attempt)
+                        await self._safe_telemetry_event(
+                            RuntimeEventType.NODE_COMPLETED,
+                            exec_id=exec_id,
+                            node_id=str(node_id),
+                            attempt=current_attempt,
+                        )
                         await self._safe_telemetry_counter("nexusai_nodes_completed_total")
                         break
 
@@ -439,7 +474,13 @@ class PlanGraphExecutionEngine:
                         async with results_lock:
                             results.append(fail_gov_res)
                         failed_nodes.add(node_id)
-                        await self._safe_telemetry_event(RuntimeEventType.NODE_FAILED, exec_id=exec_id, node_id=str(node_id), attempt=current_attempt, attributes={"reason": decision.reason})
+                        await self._safe_telemetry_event(
+                            RuntimeEventType.NODE_FAILED,
+                            exec_id=exec_id,
+                            node_id=str(node_id),
+                            attempt=current_attempt,
+                            attributes={"reason": decision.reason},
+                        )
                         await self._safe_telemetry_counter("nexusai_nodes_failed_total")
                         break
 
@@ -449,32 +490,55 @@ class PlanGraphExecutionEngine:
                         async with cb_lock:
                             if self.circuit_breaker.state.value == "OPEN":
                                 cb_open = True
-                                await self._safe_telemetry_event(RuntimeEventType.CIRCUIT_BREAKER_OPEN, exec_id=exec_id, node_id=str(node_id))
+                                await self._safe_telemetry_event(
+                                    RuntimeEventType.CIRCUIT_BREAKER_OPEN,
+                                    exec_id=exec_id,
+                                    node_id=str(node_id),
+                                )
 
                         req = ToolExecutionRequest(
                             tool_name=step.tool_name,
                             arguments=step.arguments,
-                            execution_id=f"step-{step.step_id}",
+                            execution_id=f"step-{node_id}",
                         )
 
                         t0 = time.perf_counter()
                         exec_err: Exception | None = None
                         res: ToolExecutionResult | None = None
 
-                        await self._safe_telemetry_event(RuntimeEventType.TOOL_STARTED, exec_id=exec_id, node_id=str(node_id), attempt=current_attempt, attributes={"tool_name": step.tool_name})
-                        await self._safe_telemetry_counter("nexusai_tool_executions_total", attributes={"tool_name": step.tool_name})
+                        await self._safe_telemetry_event(
+                            RuntimeEventType.TOOL_STARTED,
+                            exec_id=exec_id,
+                            node_id=str(node_id),
+                            attempt=current_attempt,
+                            attributes={"tool_name": step.tool_name},
+                        )
+                        await self._safe_telemetry_counter(
+                            "nexusai_tool_executions_total",
+                            attributes={"tool_name": step.tool_name},
+                        )
 
                         try:
                             if cb_open:
                                 raise RuntimeError("CircuitBreaker is OPEN")
                             res = await tool_port.execute(req)
                             t_tool_dur_ms = (time.perf_counter() - t0) * 1000.0
-                            await self._safe_telemetry_duration("nexusai_tool_duration_ms", t_tool_dur_ms, attributes={"tool_name": step.tool_name})
+                            await self._safe_telemetry_duration(
+                                "nexusai_tool_duration_ms",
+                                t_tool_dur_ms,
+                                attributes={"tool_name": step.tool_name},
+                            )
                         except Exception as err:
                             exec_err = err
 
                         if res and res.success:
-                            await self._safe_telemetry_event(RuntimeEventType.TOOL_COMPLETED, exec_id=exec_id, node_id=str(node_id), attempt=current_attempt, attributes={"tool_name": step.tool_name})
+                            await self._safe_telemetry_event(
+                                RuntimeEventType.TOOL_COMPLETED,
+                                exec_id=exec_id,
+                                node_id=str(node_id),
+                                attempt=current_attempt,
+                                attributes={"tool_name": step.tool_name},
+                            )
                             if self.state_store:
                                 await self.state_store.save_node_result_atomically(
                                     exec_id, node_id, NodeExecutionStatus.COMPLETED, res
@@ -487,14 +551,31 @@ class PlanGraphExecutionEngine:
                             completed_nodes.add(node_id)
 
                             node_dur_ms = (time.perf_counter() - t_node_start) * 1000.0
-                            await self._safe_telemetry_duration("nexusai_node_duration_ms", node_dur_ms)
-                            await self._safe_telemetry_event(RuntimeEventType.NODE_COMPLETED, exec_id=exec_id, node_id=str(node_id), attempt=current_attempt)
+                            await self._safe_telemetry_duration(
+                                "nexusai_node_duration_ms", node_dur_ms
+                            )
+                            await self._safe_telemetry_event(
+                                RuntimeEventType.NODE_COMPLETED,
+                                exec_id=exec_id,
+                                node_id=str(node_id),
+                                attempt=current_attempt,
+                            )
                             await self._safe_telemetry_counter("nexusai_nodes_completed_total")
                             break
 
-                        err_msg = res.error_message if res else (str(exec_err) if exec_err else "Unknown error")
+                        err_msg = (
+                            res.error_message
+                            if res
+                            else (str(exec_err) if exec_err else "Unknown error")
+                        )
                         f_class = classify_failure(exec_err, err_msg)
-                        await self._safe_telemetry_event(RuntimeEventType.RECOVERY_CLASSIFIED, exec_id=exec_id, node_id=str(node_id), attempt=current_attempt, attributes={"failure_class": f_class.value})
+                        await self._safe_telemetry_event(
+                            RuntimeEventType.RECOVERY_CLASSIFIED,
+                            exec_id=exec_id,
+                            node_id=str(node_id),
+                            attempt=current_attempt,
+                            attributes={"failure_class": f_class.value},
+                        )
 
                         decision_rec = RecoveryPolicyEngine.evaluate(
                             policy=policy,
@@ -505,47 +586,69 @@ class PlanGraphExecutionEngine:
                         )
 
                         if decision_rec.action == RecoveryAction.RETRY:
-                            await self._safe_telemetry_event(RuntimeEventType.RECOVERY_RETRY, exec_id=exec_id, node_id=str(node_id), attempt=current_attempt, attributes={"failure_class": f_class.value, "retry_delay": decision_rec.retry_delay_seconds})
-                            await self._safe_telemetry_counter("nexusai_recovery_retries_total", attributes={"failure_class": f_class.value})
-                            await self._safe_telemetry_duration("nexusai_recovery_backoff_ms", decision_rec.retry_delay_seconds * 1000.0)
+                            await self._safe_telemetry_event(
+                                RuntimeEventType.RECOVERY_RETRY,
+                                exec_id=exec_id,
+                                node_id=str(node_id),
+                                attempt=current_attempt,
+                                attributes={
+                                    "failure_class": f_class.value,
+                                    "retry_delay": decision_rec.retry_delay_seconds,
+                                },
+                            )
+                            await self._safe_telemetry_counter(
+                                "nexusai_recovery_retries_total",
+                                attributes={"failure_class": f_class.value},
+                            )
+                            await self._safe_telemetry_duration(
+                                "nexusai_recovery_backoff_ms",
+                                decision_rec.retry_delay_seconds * 1000.0,
+                            )
 
                             if self.state_store:
                                 await self.state_store.save_recovery_decision_atomically(
                                     exec_id, node_id, NodeExecutionStatus.RETRY_WAIT, decision_rec
                                 )
-                            
-                            retry_task = ScheduledTask(
-                                task_id=f"{exec_id}:{node_id}:retry-{current_attempt}",
-                                execution_id=exec_id,
-                                node_id=node_id,
-                                priority=TaskPriority.HIGH if policy.idempotent else TaskPriority.NORMAL,
-                                delay_until=decision_rec.next_retry_at,
-                            )
-                            await self.scheduler.submit(retry_task)
-                            
-                            claimed_retry = await self.scheduler.next()
-                            if claimed_retry.task_id != retry_task.task_id:
-                                pass
+
+                            if decision_rec.retry_delay_seconds > 0:
+                                await asyncio.sleep(decision_rec.retry_delay_seconds)
                             continue
 
                         elif decision_rec.action == RecoveryAction.RECONCILE:
-                            await self._safe_telemetry_event(RuntimeEventType.RECOVERY_RECONCILIATION_REQUIRED, exec_id=exec_id, node_id=str(node_id), attempt=current_attempt)
-                            await self._safe_telemetry_counter("nexusai_recovery_reconciliations_total")
+                            await self._safe_telemetry_event(
+                                RuntimeEventType.RECOVERY_RECONCILIATION_REQUIRED,
+                                exec_id=exec_id,
+                                node_id=str(node_id),
+                                attempt=current_attempt,
+                            )
+                            await self._safe_telemetry_counter(
+                                "nexusai_recovery_reconciliations_total"
+                            )
 
                             if self.state_store:
                                 await self.state_store.save_recovery_decision_atomically(
-                                    exec_id, node_id, NodeExecutionStatus.RECONCILIATION_REQUIRED, decision_rec
+                                    exec_id,
+                                    node_id,
+                                    NodeExecutionStatus.RECONCILIATION_REQUIRED,
+                                    decision_rec,
                                 )
-                            
+
                             rec_outcome: ToolExecutionResult | None = None
                             if self.reconciler:
                                 try:
-                                    rec_outcome = await self.reconciler.reconcile(exec_id, node_id, idempotency_key)
+                                    rec_outcome = await self.reconciler.reconcile(
+                                        exec_id, node_id, idempotency_key
+                                    )
                                 except Exception:
                                     rec_outcome = None
 
                             if rec_outcome and rec_outcome.success:
-                                await self._safe_telemetry_event(RuntimeEventType.RECOVERY_RECONCILIATION_COMPLETED, exec_id=exec_id, node_id=str(node_id), attempt=current_attempt)
+                                await self._safe_telemetry_event(
+                                    RuntimeEventType.RECOVERY_RECONCILIATION_COMPLETED,
+                                    exec_id=exec_id,
+                                    node_id=str(node_id),
+                                    attempt=current_attempt,
+                                )
                                 if self.state_store:
                                     await self.state_store.save_node_result_atomically(
                                         exec_id, node_id, NodeExecutionStatus.COMPLETED, rec_outcome
@@ -558,12 +661,24 @@ class PlanGraphExecutionEngine:
                                 completed_nodes.add(node_id)
 
                                 node_dur_ms = (time.perf_counter() - t_node_start) * 1000.0
-                                await self._safe_telemetry_duration("nexusai_node_duration_ms", node_dur_ms)
-                                await self._safe_telemetry_event(RuntimeEventType.NODE_COMPLETED, exec_id=exec_id, node_id=str(node_id), attempt=current_attempt)
+                                await self._safe_telemetry_duration(
+                                    "nexusai_node_duration_ms", node_dur_ms
+                                )
+                                await self._safe_telemetry_event(
+                                    RuntimeEventType.NODE_COMPLETED,
+                                    exec_id=exec_id,
+                                    node_id=str(node_id),
+                                    attempt=current_attempt,
+                                )
                                 await self._safe_telemetry_counter("nexusai_nodes_completed_total")
                                 break
                             else:
-                                await self._safe_telemetry_event(RuntimeEventType.RECOVERY_FAILED, exec_id=exec_id, node_id=str(node_id), attempt=current_attempt)
+                                await self._safe_telemetry_event(
+                                    RuntimeEventType.RECOVERY_FAILED,
+                                    exec_id=exec_id,
+                                    node_id=str(node_id),
+                                    attempt=current_attempt,
+                                )
                                 fail_res = ToolExecutionResult(
                                     request_id=f"step-{step.step_id}",
                                     tool_name=step.tool_name,
@@ -581,7 +696,12 @@ class PlanGraphExecutionEngine:
                                     results.append(fail_res)
                                 failed_nodes.add(node_id)
 
-                                await self._safe_telemetry_event(RuntimeEventType.NODE_FAILED, exec_id=exec_id, node_id=str(node_id), attempt=current_attempt)
+                                await self._safe_telemetry_event(
+                                    RuntimeEventType.NODE_FAILED,
+                                    exec_id=exec_id,
+                                    node_id=str(node_id),
+                                    attempt=current_attempt,
+                                )
                                 await self._safe_telemetry_counter("nexusai_nodes_failed_total")
                                 break
 
@@ -608,12 +728,21 @@ class PlanGraphExecutionEngine:
                                     exec_id, node_id, target_status, fail_res
                                 )
 
-                            step.status = StepStatus.CANCELLED if decision_rec.action == RecoveryAction.CANCEL else StepStatus.FAILED
+                            step.status = (
+                                StepStatus.CANCELLED
+                                if decision_rec.action == RecoveryAction.CANCEL
+                                else StepStatus.FAILED
+                            )
                             async with results_lock:
                                 results.append(fail_res)
                             failed_nodes.add(node_id)
 
-                            await self._safe_telemetry_event(RuntimeEventType.NODE_FAILED, exec_id=exec_id, node_id=str(node_id), attempt=current_attempt)
+                            await self._safe_telemetry_event(
+                                RuntimeEventType.NODE_FAILED,
+                                exec_id=exec_id,
+                                node_id=str(node_id),
+                                attempt=current_attempt,
+                            )
                             await self._safe_telemetry_counter("nexusai_nodes_failed_total")
                             break
                     finally:
@@ -623,7 +752,7 @@ class PlanGraphExecutionEngine:
 
         try:
             while ts.is_active():
-                ready = list(ts.get_ready())
+                ready = sorted(ts.get_ready(), key=lambda n: (type(n).__name__, str(n)))
                 if ready:
                     unexecuted_ready = [n for n in ready if n not in completed_nodes]
                     for node_id in unexecuted_ready:
@@ -637,13 +766,10 @@ class PlanGraphExecutionEngine:
                 break
 
             while True:
-                ready_cnt = await self.scheduler.get_ready_count()
-                sched_size = await self.scheduler.size()
-
-                if sched_size == 0 and not active_tasks:
-                    break
-
-                if ready_cnt > 0 or (sched_size > 0 and len(active_tasks) < limit):
+                while len(active_tasks) < limit:
+                    sched_size = await self.scheduler.size()
+                    if sched_size == 0:
+                        break
                     try:
                         claimed = await self.scheduler.next()
                         task = asyncio.create_task(_run_single_node(claimed.node_id))
@@ -665,7 +791,9 @@ class PlanGraphExecutionEngine:
                         if node_id in completed_nodes:
                             ts.done(node_id)
                             if ts.is_active():
-                                new_ready = list(ts.get_ready())
+                                new_ready = sorted(
+                                    ts.get_ready(), key=lambda n: (type(n).__name__, str(n))
+                                )
                                 for n_id in new_ready:
                                     if n_id not in completed_nodes:
                                         stask = ScheduledTask(

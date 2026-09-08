@@ -3,16 +3,20 @@
 from __future__ import annotations
 
 import asyncio
-from dataclasses import dataclass, field
-import time
+from dataclasses import dataclass
 from typing import Any, Mapping
 
-from nexusai.brain.domain.observability import RuntimeEvent, sanitize_attributes
+from nexusai.brain.domain.observability import RuntimeEvent
 from nexusai.brain.ports.observability_port import IObservabilityPort
 
 FORBIDDEN_METRIC_LABELS = {
-    "execution_id", "node_id", "task_id", "idempotency_key",
-    "tool_arguments", "arguments", "payload"
+    "execution_id",
+    "node_id",
+    "task_id",
+    "idempotency_key",
+    "tool_arguments",
+    "arguments",
+    "payload",
 }
 
 

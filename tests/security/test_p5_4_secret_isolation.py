@@ -3,13 +3,11 @@
 from __future__ import annotations
 
 import asyncio
-import os
-import tempfile
+
 import pytest
 
 from nexusai.brain.domain.audit import AuditEvent, AuditEventType
 from nexusai.brain.domain.credential import CredentialReference
-from nexusai.infrastructure.observability.redaction import sanitize_secrets_recursive
 from nexusai.infrastructure.persistence.postgres_audit_store import PostgresAuditStore
 from nexusai.infrastructure.secrets.vault_credential_provider import VaultCredentialProvider
 
@@ -46,7 +44,9 @@ async def test_security_raw_secrets_never_appear_in_audit_events() -> None:
     retrieved = await audit_store.get_event(saved.event_id)
     assert retrieved is not None
     payload_str = str(retrieved.metadata)
-    assert resolved.secret_value not in payload_str, "Raw secret MUST NEVER be persisted in audit store!"
+    assert (
+        resolved.secret_value not in payload_str
+    ), "Raw secret MUST NEVER be persisted in audit store!"
 
 
 @pytest.mark.asyncio

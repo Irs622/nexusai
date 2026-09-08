@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+
 import pytest
 
 from nexusai.infrastructure.persistence.postgres_approval_store import PostgresApprovalStore

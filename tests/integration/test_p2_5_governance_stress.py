@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import asyncio
-import time
 from unittest.mock import MagicMock
+
 import pytest
 
 from nexusai.brain.domain.agent import (
@@ -16,7 +16,7 @@ from nexusai.brain.domain.agent import (
     PlanningResources,
     PlanStep,
 )
-from nexusai.brain.domain.governance import ResourceBudget, ToolCapability
+from nexusai.brain.domain.governance import ResourceBudget
 from nexusai.brain.planner.engine import PlanGraphExecutionEngine
 from nexusai.brain.ports.tool_port import IToolPort, ToolExecutionRequest, ToolExecutionResult
 from nexusai.brain.runtime.governance_engine import GovernanceEngine
@@ -69,9 +69,11 @@ async def test_p2_5_adversarial_governance_stress_and_zero_leakage() -> None:
 
     Verification Invariant: reserved_resources <= configured_capacity AND active_reservations == 0 at teardown.
     """
-    global_budget = ResourceBudget(max_concurrent_tasks=6, max_subprocesses=10, max_tool_invocations=30)
+    global_budget = ResourceBudget(
+        max_concurrent_tasks=6, max_subprocesses=10, max_tool_invocations=30
+    )
     gov = GovernanceEngine(global_budget=global_budget)
-    engine = PlanGraphExecutionEngine(governance=gov, max_concurrency=4)
+    PlanGraphExecutionEngine(governance=gov, max_concurrency=4)
 
     tool_port = FlakyGovToolPort()
     ctx = create_stress_context()
@@ -91,10 +93,12 @@ async def test_p2_5_adversarial_governance_stress_and_zero_leakage() -> None:
 
     # FINAL INVARIANT VERIFICATION: Zero resource leakage
     active_count = gov.get_active_reservation_count()
-    print(f"\n[P2-5 ADVERSARIAL STRESS VERIFICATION]")
+    print("\n[P2-5 ADVERSARIAL STRESS VERIFICATION]")
     print(f"Active Reservations at Teardown: {active_count}")
 
-    assert active_count == 0, f"RESOURCE LEAK DETECTED: {active_count} active reservations remained unreleased!"
+    assert (
+        active_count == 0
+    ), f"RESOURCE LEAK DETECTED: {active_count} active reservations remained unreleased!"
 
 
 if __name__ == "__main__":

@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import asyncio
+
 import pytest
 
-from nexusai.brain.domain.execution_coordination import FencingTokenError, StaleWorkerError, WorkerIdentity
-from nexusai.infrastructure.coordination.postgres_execution_coordinator import PostgresExecutionCoordinator
-from tests.fixtures.p4_1_tools import ControlledTestToolPort
+from nexusai.brain.domain.execution_coordination import WorkerIdentity
+from nexusai.infrastructure.coordination.postgres_execution_coordinator import (
+    PostgresExecutionCoordinator,
+)
 
 
 @pytest.mark.asyncio
@@ -19,7 +21,9 @@ async def test_adversarial_chaos_network_partition_reconnect() -> None:
     w_b = WorkerIdentity("chaos-node-b")
 
     # Node A acquires lease (fencing_token = 1)
-    lease_a = await coord.acquire_execution_lease("exec-chaos-1", "sess-chaos-1", w_a, ttl_seconds=0.1)
+    lease_a = await coord.acquire_execution_lease(
+        "exec-chaos-1", "sess-chaos-1", w_a, ttl_seconds=0.1
+    )
 
     await asyncio.sleep(0.15)
 

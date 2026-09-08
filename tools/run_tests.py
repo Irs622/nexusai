@@ -11,9 +11,9 @@ Provides explicit execution modes for tiered test matrix:
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent
 
@@ -35,10 +35,20 @@ def run_tests(
 
     # Marker expression selection based on mode
     if mode == "unit":
-        pytest_cmd.extend(["-m", "not network and not integration and not contract and not benchmark and not stress and not snapshot"])
+        pytest_cmd.extend(
+            [
+                "-m",
+                "not network and not integration and not contract and not benchmark and not stress and not snapshot",
+            ]
+        )
     elif mode == "local":
         # Local default: unit, architecture, snapshot
-        pytest_cmd.extend(["-m", "not network and not integration and not contract and not benchmark and not stress"])
+        pytest_cmd.extend(
+            [
+                "-m",
+                "not network and not integration and not contract and not benchmark and not stress",
+            ]
+        )
     elif mode == "ci-pr":
         # CI PR: unit, architecture, snapshot, integration, contract
         pytest_cmd.extend(["-m", "not network and not benchmark and not stress"])
@@ -60,12 +70,14 @@ def run_tests(
     pytest_cmd.append("--ignore=tests/acceptance")
 
     if coverage:
-        pytest_cmd.extend([
-            "--cov=src/nexusai",
-            "--cov-branch",
-            "--cov-report=term-missing",
-            "--ignore=tests/acceptance",
-        ])
+        pytest_cmd.extend(
+            [
+                "--cov=src/nexusai",
+                "--cov-branch",
+                "--cov-report=term-missing",
+                "--ignore=tests/acceptance",
+            ]
+        )
 
     pytest_cmd.append("tests")
 
@@ -86,7 +98,18 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="NexusAI Tiered Test Runner")
     parser.add_argument(
         "--mode",
-        choices=["local", "unit", "ci-pr", "nightly", "all", "integration", "contract", "network", "snapshot", "architecture"],
+        choices=[
+            "local",
+            "unit",
+            "ci-pr",
+            "nightly",
+            "all",
+            "integration",
+            "contract",
+            "network",
+            "snapshot",
+            "architecture",
+        ],
         default="local",
         help="Test execution mode (default: local)",
     )

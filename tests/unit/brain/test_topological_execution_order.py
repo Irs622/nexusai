@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from typing import Any
 from unittest.mock import MagicMock
+
 import pytest
 
 from nexusai.brain.coordinator import BrainCoordinator
@@ -89,9 +90,15 @@ async def test_topological_order_sequential_dag() -> None:
     spy = SpyToolPort()
 
     nodes = {
-        1: PlanGraphNode(step=PlanStep(step_id=1, title="Step 1", tool_name="dummy_tool"), dependencies=()),
-        2: PlanGraphNode(step=PlanStep(step_id=2, title="Step 2", tool_name="dummy_tool"), dependencies=(1,)),
-        3: PlanGraphNode(step=PlanStep(step_id=3, title="Step 3", tool_name="dummy_tool"), dependencies=(2,)),
+        1: PlanGraphNode(
+            step=PlanStep(step_id=1, title="Step 1", tool_name="dummy_tool"), dependencies=()
+        ),
+        2: PlanGraphNode(
+            step=PlanStep(step_id=2, title="Step 2", tool_name="dummy_tool"), dependencies=(1,)
+        ),
+        3: PlanGraphNode(
+            step=PlanStep(step_id=3, title="Step 3", tool_name="dummy_tool"), dependencies=(2,)
+        ),
     }
     edges = ((1, 2), (2, 3))
     plan_graph = PlanGraph(nodes=nodes, edges=edges)
@@ -111,9 +118,17 @@ async def test_topological_order_reverse_lexical_ids() -> None:
     spy = SpyToolPort()
 
     nodes: dict[Any, PlanGraphNode] = {
-        "zeta": PlanGraphNode(step=PlanStep(step_id=1, title="Zeta Root", tool_name="dummy_tool"), dependencies=()),
-        "alpha": PlanGraphNode(step=PlanStep(step_id=2, title="Alpha Child", tool_name="dummy_tool"), dependencies=("zeta",)),
-        "beta": PlanGraphNode(step=PlanStep(step_id=3, title="Beta Leaf", tool_name="dummy_tool"), dependencies=("alpha",)),
+        "zeta": PlanGraphNode(
+            step=PlanStep(step_id=1, title="Zeta Root", tool_name="dummy_tool"), dependencies=()
+        ),
+        "alpha": PlanGraphNode(
+            step=PlanStep(step_id=2, title="Alpha Child", tool_name="dummy_tool"),
+            dependencies=("zeta",),
+        ),
+        "beta": PlanGraphNode(
+            step=PlanStep(step_id=3, title="Beta Leaf", tool_name="dummy_tool"),
+            dependencies=("alpha",),
+        ),
     }
     plan_graph = PlanGraph(nodes=nodes)
 
@@ -122,7 +137,11 @@ async def test_topological_order_reverse_lexical_ids() -> None:
     ctx = create_planning_context("Reverse Lexical")
     await engine.execute_plan(ctx, tool_port=spy)
 
-    assert spy.executed_order == ["zeta", "alpha", "beta"], f"Expected ['zeta', 'alpha', 'beta'], got {spy.executed_order}"
+    assert spy.executed_order == [
+        "zeta",
+        "alpha",
+        "beta",
+    ], f"Expected ['zeta', 'alpha', 'beta'], got {spy.executed_order}"
 
 
 @pytest.mark.asyncio
@@ -132,10 +151,19 @@ async def test_topological_order_branching_dag() -> None:
     spy = SpyToolPort()
 
     nodes: dict[Any, PlanGraphNode] = {
-        "A": PlanGraphNode(step=PlanStep(step_id=1, title="A Root", tool_name="dummy_tool"), dependencies=()),
-        "B": PlanGraphNode(step=PlanStep(step_id=2, title="B Branch", tool_name="dummy_tool"), dependencies=("A",)),
-        "C": PlanGraphNode(step=PlanStep(step_id=3, title="C Branch", tool_name="dummy_tool"), dependencies=("A",)),
-        "D": PlanGraphNode(step=PlanStep(step_id=4, title="D Join", tool_name="dummy_tool"), dependencies=("B", "C")),
+        "A": PlanGraphNode(
+            step=PlanStep(step_id=1, title="A Root", tool_name="dummy_tool"), dependencies=()
+        ),
+        "B": PlanGraphNode(
+            step=PlanStep(step_id=2, title="B Branch", tool_name="dummy_tool"), dependencies=("A",)
+        ),
+        "C": PlanGraphNode(
+            step=PlanStep(step_id=3, title="C Branch", tool_name="dummy_tool"), dependencies=("A",)
+        ),
+        "D": PlanGraphNode(
+            step=PlanStep(step_id=4, title="D Join", tool_name="dummy_tool"),
+            dependencies=("B", "C"),
+        ),
     }
     plan_graph = PlanGraph(nodes=nodes)
 
@@ -158,9 +186,15 @@ async def test_topological_order_non_sequential_node_ids() -> None:
     spy = SpyToolPort()
 
     nodes = {
-        100: PlanGraphNode(step=PlanStep(step_id=100, title="Node 100", tool_name="dummy_tool"), dependencies=()),
-        2: PlanGraphNode(step=PlanStep(step_id=2, title="Node 2", tool_name="dummy_tool"), dependencies=(100,)),
-        57: PlanGraphNode(step=PlanStep(step_id=57, title="Node 57", tool_name="dummy_tool"), dependencies=(2,)),
+        100: PlanGraphNode(
+            step=PlanStep(step_id=100, title="Node 100", tool_name="dummy_tool"), dependencies=()
+        ),
+        2: PlanGraphNode(
+            step=PlanStep(step_id=2, title="Node 2", tool_name="dummy_tool"), dependencies=(100,)
+        ),
+        57: PlanGraphNode(
+            step=PlanStep(step_id=57, title="Node 57", tool_name="dummy_tool"), dependencies=(2,)
+        ),
     }
     plan_graph = PlanGraph(nodes=nodes)
 
@@ -179,16 +213,24 @@ async def test_topological_order_cycle_detection() -> None:
     spy = SpyToolPort()
 
     nodes: dict[Any, PlanGraphNode] = {
-        "A": PlanGraphNode(step=PlanStep(step_id=1, title="A", tool_name="dummy_tool"), dependencies=("C",)),
-        "B": PlanGraphNode(step=PlanStep(step_id=2, title="B", tool_name="dummy_tool"), dependencies=("A",)),
-        "C": PlanGraphNode(step=PlanStep(step_id=3, title="C", tool_name="dummy_tool"), dependencies=("B",)),
+        "A": PlanGraphNode(
+            step=PlanStep(step_id=1, title="A", tool_name="dummy_tool"), dependencies=("C",)
+        ),
+        "B": PlanGraphNode(
+            step=PlanStep(step_id=2, title="B", tool_name="dummy_tool"), dependencies=("A",)
+        ),
+        "C": PlanGraphNode(
+            step=PlanStep(step_id=3, title="C", tool_name="dummy_tool"), dependencies=("B",)
+        ),
     }
     plan_graph = PlanGraph(nodes=nodes)
 
     engine.planner.plan = lambda ctx, session_id="": (plan_graph, MagicMock())  # type: ignore[assignment]
 
     ctx = create_planning_context("Cycle Test")
-    with pytest.raises(RuntimeError, match="PlanGraph validation failed|PlanGraph contains a dependency cycle"):
+    with pytest.raises(
+        RuntimeError, match="PlanGraph validation failed|PlanGraph contains a dependency cycle"
+    ):
         await engine.execute_plan(ctx, tool_port=spy)
 
     assert len(spy.executed_order) == 0, "No nodes should execute if graph is cyclic"
@@ -201,7 +243,9 @@ async def test_topological_order_missing_dependency() -> None:
     spy = SpyToolPort()
 
     nodes: dict[Any, PlanGraphNode] = {
-        "A": PlanGraphNode(step=PlanStep(step_id=1, title="A", tool_name="dummy_tool"), dependencies=("UNKNOWN",)),
+        "A": PlanGraphNode(
+            step=PlanStep(step_id=1, title="A", tool_name="dummy_tool"), dependencies=("UNKNOWN",)
+        ),
     }
     plan_graph = PlanGraph(nodes=nodes)
 

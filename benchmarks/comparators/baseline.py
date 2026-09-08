@@ -75,9 +75,7 @@ def compare_results(results: list[BenchmarkResult]) -> list[ComparisonResult]:
 
         current = result.value
         delta_pct = (
-            ((current - baseline_median) / baseline_median * 100)
-            if baseline_median > 0
-            else 0.0
+            ((current - baseline_median) / baseline_median * 100) if baseline_median > 0 else 0.0
         )
         passed = current <= max_threshold
 

@@ -5,8 +5,8 @@ from __future__ import annotations
 import argparse
 import asyncio
 import os
-from pathlib import Path
 import time
+from pathlib import Path
 from typing import Any
 
 from nexusai.tools.mcp.servers.base import McpServerBase
@@ -155,9 +155,7 @@ class FilesystemMcpServer(McpServerBase):
         max_bytes = int(args.get("max_bytes", 1048576))
         file_size = safe_path.stat().st_size
         if file_size > max_bytes:
-            raise ValueError(
-                f"File size ({file_size} bytes) exceeds limit ({max_bytes} bytes)"
-            )
+            raise ValueError(f"File size ({file_size} bytes) exceeds limit ({max_bytes} bytes)")
 
         return safe_path.read_text(encoding="utf-8")
 

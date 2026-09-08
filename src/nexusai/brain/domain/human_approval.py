@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from enum import Enum
 import hashlib
 import json
 import time
+from dataclasses import dataclass, field
+from enum import Enum
 from typing import Any, Mapping
 
 from nexusai.brain.domain.governance import ToolCapability
@@ -16,10 +16,10 @@ from nexusai.brain.domain.observability import FORBIDDEN_SECRET_KEYS, sanitize_a
 class RiskLevel(str, Enum):
     """Action risk classification levels in hierarchical precedence order: CRITICAL > HIGH > MEDIUM > LOW."""
 
-    LOW = "LOW"            # e.g., read-only file queries
-    MEDIUM = "MEDIUM"        # e.g., local file writes
-    HIGH = "HIGH"          # e.g., process execution, external network calls
-    CRITICAL = "CRITICAL"    # e.g., system control, secret access, destructive deletion
+    LOW = "LOW"  # e.g., read-only file queries
+    MEDIUM = "MEDIUM"  # e.g., local file writes
+    HIGH = "HIGH"  # e.g., process execution, external network calls
+    CRITICAL = "CRITICAL"  # e.g., system control, secret access, destructive deletion
 
 
 class ApprovalStatus(str, Enum):
@@ -33,18 +33,21 @@ class ApprovalStatus(str, Enum):
     CONSUMED = "CONSUMED"
 
 
-TERMINAL_APPROVAL_STATUSES = frozenset({
-    ApprovalStatus.APPROVED,
-    ApprovalStatus.DENIED,
-    ApprovalStatus.EXPIRED,
-    ApprovalStatus.CANCELLED,
-    ApprovalStatus.CONSUMED,
-})
+TERMINAL_APPROVAL_STATUSES = frozenset(
+    {
+        ApprovalStatus.APPROVED,
+        ApprovalStatus.DENIED,
+        ApprovalStatus.EXPIRED,
+        ApprovalStatus.CANCELLED,
+        ApprovalStatus.CONSUMED,
+    }
+)
 
 
 # ------------------------------------------------------------------
 # Exceptions
 # ------------------------------------------------------------------
+
 
 class ApprovalError(Exception):
     """Base exception for all human approval domain errors."""
@@ -79,6 +82,7 @@ class ApprovalCancelledError(ApprovalError):
 # ------------------------------------------------------------------
 # Action Binding & Canonical Digest Helpers
 # ------------------------------------------------------------------
+
 
 @dataclass(frozen=True)
 class ActionBinding:

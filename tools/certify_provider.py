@@ -3,10 +3,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-import httpx
-
-from nexusai.providers import OpenRouterProvider
-from tests.contracts.conformance_reporter import generate_conformance_report
 
 
 class CertificationLevel(str, Enum):
@@ -38,7 +34,7 @@ class TieredCertificationReport:
             f"====================================================\n"
             f"Provider ID:              {self.provider_id}\n"
             f"Highest Level Achieved:   {self.highest_level_achieved.value}\n"
-            f"Levels Passed:            {', '.join([l.value for l in self.levels_passed])}\n"
+            f"Levels Passed:            {', '.join([lvl.value for lvl in self.levels_passed])}\n"
             f"Kernel Mutations:         {self.kernel_mutation_count}\n"
             f"Pain Points Count:        {self.pain_points_count}\n"
             f"Timestamp:                {self.timestamp.isoformat()}\n"
@@ -84,6 +80,7 @@ async def certify_ollama_tiered() -> TieredCertificationReport:
 
 def main() -> None:
     import asyncio
+
     rep_openrouter = asyncio.run(certify_openrouter_tiered())
     print(rep_openrouter.summary())
     rep_ollama = asyncio.run(certify_ollama_tiered())

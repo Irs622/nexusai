@@ -29,7 +29,9 @@ class IReconciliationPort(Protocol):
 class DefaultReconciliationAdapter(IReconciliationPort):
     """Default fallback reconciler for offline mode and deterministic testing."""
 
-    def __init__(self, deterministic_outcomes: dict[str, ToolExecutionResult | None] | None = None) -> None:
+    def __init__(
+        self, deterministic_outcomes: dict[str, ToolExecutionResult | None] | None = None
+    ) -> None:
         self.outcomes = deterministic_outcomes or {}
 
     async def reconcile(

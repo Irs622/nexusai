@@ -8,19 +8,16 @@ import os
 import time
 import urllib.error
 import urllib.request
-from typing import Any
 
 from nexusai.brain.domain.llm import (
     FinishReason,
     LLMAuthenticationError,
     LLMError,
     LLMInvalidRequestError,
-    LLMMessage,
     LLMRateLimitError,
     LLMRequest,
     LLMResponse,
     LLMResponseError,
-    LLMRole,
     LLMTimeoutError,
     LLMUnavailableError,
     LLMUsage,
@@ -37,8 +34,10 @@ class OpenAIProvider(ILLMProvider):
         default_model: str = "gpt-4o",
         endpoint: str = "https://api.openai.com/v1/chat/completions",
         default_timeout_seconds: float = 60.0,
+        api_key_env: str = "OPENAI_API_KEY",
     ) -> None:
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY", "")
+        self.api_key_env = api_key_env
+        self.api_key = api_key if api_key is not None else os.getenv(api_key_env, "")
         self.default_model = default_model
         self.endpoint = endpoint
         self.default_timeout_seconds = default_timeout_seconds
@@ -111,7 +110,9 @@ class OpenAIProvider(ILLMProvider):
     def _send_http_request(self, req: urllib.request.Request, timeout: float) -> bytes:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             data = resp.read()
-            return bytes(data) if isinstance(data, (bytes, bytearray)) else str(data).encode("utf-8")
+            return (
+                bytes(data) if isinstance(data, (bytes, bytearray)) else str(data).encode("utf-8")
+            )
 
     def _handle_http_error(self, err: urllib.error.HTTPError) -> None:
         """Map HTTP error status codes to normalized domain exceptions."""
@@ -124,7 +125,9 @@ class OpenAIProvider(ILLMProvider):
         elif err.code in (500, 502, 503, 504):
             raise LLMUnavailableError(f"OpenAI service unavailable (HTTP {err.code})")
 
-    def _parse_openai_response(self, raw_bytes: bytes, model: str, latency_ms: float) -> LLMResponse:
+    def _parse_openai_response(
+        self, raw_bytes: bytes, model: str, latency_ms: float
+    ) -> LLMResponse:
         """Normalize raw OpenAI JSON response payload into LLMResponse."""
         try:
             data = json.loads(raw_bytes.decode("utf-8"))

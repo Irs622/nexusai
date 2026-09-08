@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import math
 import time
-from typing import Any
 
 from nexusai.brain.domain.memory import MemoryEntry, MemoryQuery
 from nexusai.brain.ports.memory_port import IMemoryRetriever, IMemoryStore
@@ -55,7 +54,9 @@ class MemoryRetriever(IMemoryRetriever):
             # Calculate relevance score
             relevance_score = compute_lexical_similarity(query.query_text, entry.content)
 
-            hybrid_score = (recency_score * query.recency_weight) + (relevance_score * query.semantic_weight)
+            hybrid_score = (recency_score * query.recency_weight) + (
+                relevance_score * query.semantic_weight
+            )
 
             if hybrid_score >= query.min_relevance:
                 scored_entries.append((hybrid_score, entry))

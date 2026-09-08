@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from enum import Enum
 import re
 import time
+from dataclasses import dataclass, field
+from enum import Enum
 from typing import Any, Mapping
 
 from nexusai.brain.domain.governance import ResourceRequest, ToolCapability
@@ -37,7 +37,6 @@ class ToolIdempotency(str, Enum):
     IDEMPOTENT = "IDEMPOTENT"
     NON_IDEMPOTENT = "NON_IDEMPOTENT"
     UNKNOWN = "UNKNOWN"
-
 
 
 class ToolAlreadyRegisteredError(ValueError):
@@ -103,7 +102,9 @@ class ToolMetadata:
         if not self.source.strip():
             raise ValueError("source cannot be empty")
         if not SEMVER_REGEX.match(self.version):
-            raise ValueError(f"Invalid semantic version format: '{self.version}' (must match X.Y.Z)")
+            raise ValueError(
+                f"Invalid semantic version format: '{self.version}' (must match X.Y.Z)"
+            )
         if self.max_execution_seconds is not None and self.max_execution_seconds <= 0:
             raise ValueError("max_execution_seconds must be greater than 0")
 

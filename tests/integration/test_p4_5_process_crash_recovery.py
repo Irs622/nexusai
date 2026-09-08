@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import asyncio
 import os
-import sys
 import tempfile
+
 import pytest
 
 from nexusai.brain.domain.execution_recovery import (
@@ -56,7 +56,9 @@ async def test_process_crash_recovery_with_subprocess_injection() -> None:
         status = await recovery_mgr.recover_execution("exec-crash-child")
 
         assert status == RecoveryStatus.RECOVERABLE_WITH_REVALIDATION
-        assert gov.get_active_reservation_count() == 0, "Orphaned governance reservation MUST be released!"
+        assert (
+            gov.get_active_reservation_count() == 0
+        ), "Orphaned governance reservation MUST be released!"
 
     finally:
         if os.path.exists(db_path):

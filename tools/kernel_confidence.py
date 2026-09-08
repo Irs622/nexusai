@@ -1,7 +1,6 @@
 """Kernel Confidence Score Framework & Calculator with Auditable Weighted Component Breakdown."""
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
 
 
 @dataclass
@@ -9,10 +8,10 @@ class KernelConfidenceMetrics:
     """Quantitative auditable metrics evaluating confidence in runtime kernel abstractions."""
 
     validated_providers_score: float  # 35% weight (3/4 providers = 26.25%)
-    zero_mutations_score: float       # 20% weight (0 mutations = 20.0%)
-    architecture_tests_score: float   # 15% weight (5/5 AST rules = 15.0%)
-    shared_pain_points_score: float   # 20% weight (3 shared pain points identified = 15.0%)
-    stability_score: float            # 10% weight (Pending Ollama local stress tests = 0.0%)
+    zero_mutations_score: float  # 20% weight (0 mutations = 20.0%)
+    architecture_tests_score: float  # 15% weight (5/5 AST rules = 15.0%)
+    shared_pain_points_score: float  # 20% weight (3 shared pain points identified = 15.0%)
+    stability_score: float  # 10% weight (Pending Ollama local stress tests = 0.0%)
 
     @property
     def total_confidence_score(self) -> float:

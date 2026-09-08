@@ -36,16 +36,14 @@ class SQLiteMemoryStore(MemoryStorage):
 
     def _init_db(self) -> None:
         with self._get_connection() as conn:
-            conn.execute(
-                """
+            conn.execute("""
                 CREATE TABLE IF NOT EXISTS memory_records (
                     id TEXT PRIMARY KEY,
                     payload_bytes BLOB NOT NULL,
                     created_at REAL NOT NULL,
                     updated_at REAL NOT NULL
                 )
-                """
-            )
+                """)
             conn.commit()
 
     async def save(self, record: MemoryRecord) -> None:

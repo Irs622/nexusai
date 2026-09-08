@@ -5,13 +5,17 @@ from __future__ import annotations
 import asyncio
 import tempfile
 from pathlib import Path
+
 import pytest
 
 from nexusai.brain.domain.governance import ResourceBudget, ToolCapability
 from nexusai.brain.ports.tool_port import ToolExecutionRequest
 from nexusai.brain.runtime.governance_engine import GovernanceEngine
 from nexusai.brain.runtime.tool_registry import ToolRegistry
-from nexusai.infrastructure.tools.filesystem_tool import FilesystemTool, get_filesystem_tool_metadata
+from nexusai.infrastructure.tools.filesystem_tool import (
+    FilesystemTool,
+    get_filesystem_tool_metadata,
+)
 
 
 @pytest.mark.asyncio
@@ -25,12 +29,22 @@ async def test_filesystem_integration_governed_real_side_effects() -> None:
         await registry.register(get_filesystem_tool_metadata())
 
         # 1. Validate & Authorize write operation
-        await registry.validate_tool("filesystem_tool", requested_capabilities=frozenset({ToolCapability.FILE_WRITE}))
+        await registry.validate_tool(
+            "filesystem_tool", requested_capabilities=frozenset({ToolCapability.FILE_WRITE})
+        )
         res_gov = await gov.authorize("exec-fs-1", frozenset({ToolCapability.FILE_WRITE}))
         assert res_gov.allowed is True
 
         # 2. Perform actual file write side-effect
-        w_req = ToolExecutionRequest("exec-fs-1", "filesystem_tool", {"action": "write_file", "path": "notes.txt", "content": "NexusAI P4-2 Real Filesystem"})
+        w_req = ToolExecutionRequest(
+            "exec-fs-1",
+            "filesystem_tool",
+            {
+                "action": "write_file",
+                "path": "notes.txt",
+                "content": "NexusAI P4-2 Real Filesystem",
+            },
+        )
         w_res = await fs_tool.execute(w_req)
         assert w_res.success is True
 

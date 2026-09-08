@@ -120,7 +120,9 @@ class CoderSpecialist(BaseSpecializedAgent):
     ) -> A2AMessage:
         """Generate code solution or revise based on feedback, sending proposal to Auditor."""
         if self.generator_fn:
-            code, rationale = self.generator_fn(goal, {"steps": plan_steps, "feedback": feedback or []})
+            code, rationale = self.generator_fn(
+                goal, {"steps": plan_steps, "feedback": feedback or []}
+            )
         else:
             status_text = "Revised" if feedback else "Initial draft"
             code = f"# Solution for: {goal}\n# Iteration: {iteration}\n# {status_text}\ndef execute() -> bool:\n    return True\n"
@@ -179,7 +181,10 @@ class AuditorSpecialist(BaseSpecializedAgent):
                 feedback = ["All safety invariants satisfied", "DAG DAG compliance verified"]
             else:
                 verdict = ReviewVerdict.CHANGES_REQUESTED
-                feedback = ["Add explicit error handling boundary", "Include typing return signature"]
+                feedback = [
+                    "Add explicit error handling boundary",
+                    "Include typing return signature",
+                ]
 
         payload = {
             "verdict": verdict.value,
@@ -222,7 +227,9 @@ class OrchestratorSpecialist(BaseSpecializedAgent):
         task_id = f"task-{uuid4().hex[:8]}"
         conv_id = f"conv-{task_id}"
 
-        logger.info(f"[A2A Orchestrator] Starting collaboration for goal: '{goal}' (Task: {task_id})")
+        logger.info(
+            f"[A2A Orchestrator] Starting collaboration for goal: '{goal}' (Task: {task_id})"
+        )
 
         # 1. Step: Planner creates decomposition
         plan_msg = await planner.create_plan(
@@ -261,7 +268,9 @@ class OrchestratorSpecialist(BaseSpecializedAgent):
             current_feedback = list(feedback_msg.payload.get("critique_points", []))
 
             if is_approved:
-                logger.info(f"[A2A Orchestrator] Consensus reached in round {r}! Solution APPROVED.")
+                logger.info(
+                    f"[A2A Orchestrator] Consensus reached in round {r}! Solution APPROVED."
+                )
                 break
             else:
                 logger.warning(

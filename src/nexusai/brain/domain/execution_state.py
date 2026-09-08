@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from enum import Enum
 import hashlib
 import json
 import time
+from dataclasses import dataclass, field
+from enum import Enum
 from typing import Any
 
 from nexusai.brain.domain.agent import PlanGraph
@@ -94,9 +94,7 @@ def compute_plan_graph_hash(plan_graph: PlanGraph) -> str:
             }
         )
 
-    normalized_edges = sorted(
-        [(str(parent), str(child)) for parent, child in plan_graph.edges]
-    )
+    normalized_edges = sorted([(str(parent), str(child)) for parent, child in plan_graph.edges])
 
     hash_payload = {
         "nodes": normalized_nodes,

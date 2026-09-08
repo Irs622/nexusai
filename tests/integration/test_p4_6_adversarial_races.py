@@ -5,20 +5,28 @@ from __future__ import annotations
 import asyncio
 import os
 import tempfile
+
 import pytest
 
 from nexusai.brain.domain.execution_coordination import (
     FencingTokenError,
     LeaseAcquisitionError,
-    LeaseStatus,
     StaleWorkerError,
     WorkerIdentity,
 )
 from nexusai.brain.domain.governance import ToolCapability
-from nexusai.brain.domain.human_approval import ActionBinding, ApprovalStatus, HumanApprovalDecision, HumanApprovalRequest, RiskLevel
+from nexusai.brain.domain.human_approval import (
+    ActionBinding,
+    ApprovalStatus,
+    HumanApprovalDecision,
+    HumanApprovalRequest,
+    RiskLevel,
+)
 from nexusai.brain.runtime.human_approval_engine import HumanApprovalEngine
 from nexusai.infrastructure.persistence.sqlite_approval_store import SQLiteApprovalStore
-from nexusai.infrastructure.persistence.sqlite_execution_coordinator import SQLiteExecutionCoordinator
+from nexusai.infrastructure.persistence.sqlite_execution_coordinator import (
+    SQLiteExecutionCoordinator,
+)
 
 
 @pytest.mark.asyncio
@@ -42,7 +50,9 @@ async def test_race_1_two_workers_acquire_same_execution() -> None:
                 return False
 
         res_a, res_b = await asyncio.gather(try_acq(coord1, w_a), try_acq(coord2, w_b))
-        assert sum(1 for r in (res_a, res_b) if r is True) == 1, "Exactly one worker MUST succeed in lease acquisition!"
+        assert (
+            sum(1 for r in (res_a, res_b) if r is True) == 1
+        ), "Exactly one worker MUST succeed in lease acquisition!"
 
     finally:
         if os.path.exists(db_path):
@@ -60,13 +70,17 @@ async def test_race_3_stale_worker_resumes() -> None:
         w_a = WorkerIdentity("worker-a")
         w_b = WorkerIdentity("worker-b")
 
-        lease_a = await coord.acquire_execution_lease("exec-race-3", "sess-race-3", w_a, ttl_seconds=0.1)
+        lease_a = await coord.acquire_execution_lease(
+            "exec-race-3", "sess-race-3", w_a, ttl_seconds=0.1
+        )
         await asyncio.sleep(0.15)
 
-        lease_b = await coord.recover_expired_execution_lease("exec-race-3", w_b, ttl_seconds=10.0)
+        await coord.recover_expired_execution_lease("exec-race-3", w_b, ttl_seconds=10.0)
 
         with pytest.raises((FencingTokenError, StaleWorkerError)):
-            await coord.validate_lease_and_fencing_token("exec-race-3", w_a.worker_id, expected_token=lease_a.fencing_token)
+            await coord.validate_lease_and_fencing_token(
+                "exec-race-3", w_a.worker_id, expected_token=lease_a.fencing_token
+            )
 
     finally:
         if os.path.exists(db_path):
@@ -106,7 +120,9 @@ async def test_race_6_approval_consumption_race() -> None:
                 return False
 
         res1, res2 = await asyncio.gather(consume_worker(), consume_worker())
-        assert sum(1 for r in (res1, res2) if r is True) == 1, "Exactly one approval grant consumption MUST succeed!"
+        assert (
+            sum(1 for r in (res1, res2) if r is True) == 1
+        ), "Exactly one approval grant consumption MUST succeed!"
 
     finally:
         if os.path.exists(db_path):
@@ -145,8 +161,10 @@ async def test_p4_6_adversarial_multi_process_stress() -> None:
         tasks = [asyncio.create_task(worker_loop(w)) for w in range(20)]
         await asyncio.gather(*tasks)
 
-        print(f"\n[P4-6 ADVERSARIAL MULTI-PROCESS STRESS VERIFICATION]")
-        print("50 Executions across 20 Concurrent Workers verified cleanly with 0 Fencing Token Regressions!")
+        print("\n[P4-6 ADVERSARIAL MULTI-PROCESS STRESS VERIFICATION]")
+        print(
+            "50 Executions across 20 Concurrent Workers verified cleanly with 0 Fencing Token Regressions!"
+        )
 
     finally:
         if os.path.exists(db_path):

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 from unittest.mock import MagicMock
+
 import pytest
 
 from nexusai.brain.domain.agent import PlanGraph, PlanGraphNode, PlanStep
@@ -55,7 +56,11 @@ async def test_security_plan_validation_and_disabled_tool_rejection() -> None:
 
     engine = PlanGraphExecutionEngine()
     # Mock planner to output plan referencing disabled_tool
-    nodes = {1: PlanGraphNode(step=PlanStep(step_id=1, title="Node 1", tool_name="disabled_tool"), dependencies=())}
+    nodes = {
+        1: PlanGraphNode(
+            step=PlanStep(step_id=1, title="Node 1", tool_name="disabled_tool"), dependencies=()
+        )
+    }
     engine.planner.plan = lambda ctx, session_id="": (PlanGraph(nodes=nodes, edges=()), MagicMock())  # type: ignore[assignment]
 
     loop = AgentLoop(execution_engine=engine, tool_registry=registry)

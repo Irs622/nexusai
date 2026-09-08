@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+
 import pytest
 
 from nexusai.brain.domain.governance import ToolCapability
@@ -38,7 +39,9 @@ async def test_p3_6_adversarial_human_approval_stress() -> None:
             tool_version="1.0.0",
             requested_capabilities=frozenset({ToolCapability.PROCESS_EXEC}),
         )
-        req = HumanApprovalRequest(f"app-stress-{r_id}", binding, RiskLevel.HIGH, f"Execute process {r_id}")
+        req = HumanApprovalRequest(
+            f"app-stress-{r_id}", binding, RiskLevel.HIGH, f"Execute process {r_id}"
+        )
         await engine.request_approval(req)
         return binding
 
@@ -47,7 +50,9 @@ async def test_p3_6_adversarial_human_approval_stress() -> None:
     # 2. Simulate concurrent APPROVE vs DENY decision race for request 'app-stress-0'
     async def submit_approve() -> None:
         try:
-            dec = HumanApprovalDecision("app-stress-0", ApprovalStatus.APPROVED, "op1@co.com", "Approve")
+            dec = HumanApprovalDecision(
+                "app-stress-0", ApprovalStatus.APPROVED, "op1@co.com", "Approve"
+            )
             await engine.submit_decision(dec)
         except ValueError:
             pass
@@ -63,13 +68,18 @@ async def test_p3_6_adversarial_human_approval_stress() -> None:
 
     req0 = await engine.get_request("app-stress-0")
     assert req0 is not None
-    assert req0.status in (ApprovalStatus.APPROVED, ApprovalStatus.DENIED), "Exactly one terminal decision must win race!"
+    assert req0.status in (
+        ApprovalStatus.APPROVED,
+        ApprovalStatus.DENIED,
+    ), "Exactly one terminal decision must win race!"
 
     # 3. Concurrent verification & replay protection test over approved grants
     approved_grants = []
     for i in range(1, 50):
         try:
-            dec = HumanApprovalDecision(f"app-stress-{i}", ApprovalStatus.APPROVED, "op@co.com", "Approve")
+            dec = HumanApprovalDecision(
+                f"app-stress-{i}", ApprovalStatus.APPROVED, "op@co.com", "Approve"
+            )
             grant = await engine.submit_decision(dec)
             approved_grants.append((grant, bindings[i]))
         except Exception:
@@ -87,9 +97,11 @@ async def test_p3_6_adversarial_human_approval_stress() -> None:
             consumer_worker(grant, binding),
             consumer_worker(grant, binding),
         )
-        assert sum(1 for r in results if r is True) == 1, f"Grant '{grant.grant_id}' replay protection failed!"
+        assert (
+            sum(1 for r in results if r is True) == 1
+        ), f"Grant '{grant.grant_id}' replay protection failed!"
 
-    print(f"\n[P3-6 ADVERSARIAL HUMAN APPROVAL STRESS VERIFICATION]")
+    print("\n[P3-6 ADVERSARIAL HUMAN APPROVAL STRESS VERIFICATION]")
     print(f"Verified {len(approved_grants)} Single-Use Grants with 100% Replay Protection!")
 
 

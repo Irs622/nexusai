@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+
 from nexusai.brain.domain.agent import PlanGraph
 
 

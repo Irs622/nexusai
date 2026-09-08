@@ -5,14 +5,12 @@ from __future__ import annotations
 import asyncio
 import os
 import tempfile
-import time
-from typing import Any
+
 import pytest
 
-from nexusai.brain.domain.agent import AgentGoal, PlanGraph, PlanGraphNode, PlanningGoal, PlanStep
+from nexusai.brain.domain.agent import PlanGraph, PlanGraphNode, PlanStep
 from nexusai.brain.domain.execution_state import (
     ExecutionRecord,
-    ExecutionStatus,
     NodeExecutionRecord,
     NodeExecutionStatus,
     compute_plan_graph_hash,
@@ -26,8 +24,12 @@ from nexusai.infrastructure.persistence.sqlite_execution_store import (
 
 def create_test_graph() -> PlanGraph:
     nodes = {
-        1: PlanGraphNode(step=PlanStep(step_id=1, title="Step 1", tool_name="tool_1"), dependencies=()),
-        2: PlanGraphNode(step=PlanStep(step_id=2, title="Step 2", tool_name="tool_2"), dependencies=(1,)),
+        1: PlanGraphNode(
+            step=PlanStep(step_id=1, title="Step 1", tool_name="tool_1"), dependencies=()
+        ),
+        2: PlanGraphNode(
+            step=PlanStep(step_id=2, title="Step 2", tool_name="tool_2"), dependencies=(1,)
+        ),
     }
     return PlanGraph(nodes=nodes, edges=((1, 2),))
 
@@ -189,8 +191,12 @@ async def test_G_plan_mismatch_hash_protection() -> None:
 
     # Modify graph structure
     nodes2 = {
-        1: PlanGraphNode(step=PlanStep(step_id=1, title="Step 1", tool_name="tool_1"), dependencies=()),
-        2: PlanGraphNode(step=PlanStep(step_id=2, title="Step 2 MODIFIED", tool_name="tool_2"), dependencies=(1,)),
+        1: PlanGraphNode(
+            step=PlanStep(step_id=1, title="Step 1", tool_name="tool_1"), dependencies=()
+        ),
+        2: PlanGraphNode(
+            step=PlanStep(step_id=2, title="Step 2 MODIFIED", tool_name="tool_2"), dependencies=(1,)
+        ),
     }
     graph2 = PlanGraph(nodes=nodes2, edges=((1, 2),))
     hash2 = compute_plan_graph_hash(graph2)
@@ -217,15 +223,22 @@ async def test_H_concurrent_checkpoints() -> None:
 
         async def checkpoint_node(node_id: int) -> None:
             await store.mark_node_running("exec-h", node_id)
-            res = ToolExecutionResult(request_id=f"step-{node_id}", tool_name=f"tool_{node_id}", success=True, output=f"res_{node_id}")
-            await store.save_node_result_atomically("exec-h", node_id, NodeExecutionStatus.COMPLETED, res)
+            res = ToolExecutionResult(
+                request_id=f"step-{node_id}",
+                tool_name=f"tool_{node_id}",
+                success=True,
+                output=f"res_{node_id}",
+            )
+            await store.save_node_result_atomically(
+                "exec-h", node_id, NodeExecutionStatus.COMPLETED, res
+            )
 
         tasks = [checkpoint_node(i) for i in range(1, 10)]
         await asyncio.gather(*tasks)
 
         loaded = await store.load_execution("exec-h")
         assert loaded is not None
-        assert all(n.status == NodeExecutionStatus.COMPLETED for n.values in [loaded.node_records] for n in n.values())
+        assert all(n.status == NodeExecutionStatus.COMPLETED for n in loaded.node_records.values())
     finally:
         if os.path.exists(db_path):
             os.remove(db_path)
@@ -255,7 +268,9 @@ async def test_I_serialization_safety_and_payload_limits() -> None:
         output=CustomUnserializableObj(),
     )
     with pytest.raises(SerializationError, match="not JSON-serializable"):
-        await store.save_node_result_atomically("exec-i", 1, NodeExecutionStatus.COMPLETED, unserializable_res)
+        await store.save_node_result_atomically(
+            "exec-i", 1, NodeExecutionStatus.COMPLETED, unserializable_res
+        )
 
     # 2. Oversized payload exceeding 100 bytes limit
     oversized_res = ToolExecutionResult(
@@ -265,7 +280,9 @@ async def test_I_serialization_safety_and_payload_limits() -> None:
         output={"large_data": "x" * 200},
     )
     with pytest.raises(SerializationError, match="exceeds max limit"):
-        await store.save_node_result_atomically("exec-i", 1, NodeExecutionStatus.COMPLETED, oversized_res)
+        await store.save_node_result_atomically(
+            "exec-i", 1, NodeExecutionStatus.COMPLETED, oversized_res
+        )
 
 
 @pytest.mark.asyncio
@@ -285,9 +302,9 @@ async def test_J_idempotency_limitation_documentation() -> None:
     # Process crashes here: External tool side effect occurred, but DB checkpoint was never called!
     loaded_after_crash = await store.load_execution("exec-j")
     assert loaded_after_crash is not None
-    assert loaded_after_crash.node_records[1].status == NodeExecutionStatus.RUNNING, (
-        "Uncommitted RUNNING node must not be assumed completed after process crash"
-    )
+    assert (
+        loaded_after_crash.node_records[1].status == NodeExecutionStatus.RUNNING
+    ), "Uncommitted RUNNING node must not be assumed completed after process crash"
 
 
 if __name__ == "__main__":

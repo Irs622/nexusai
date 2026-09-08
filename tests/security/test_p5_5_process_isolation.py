@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import asyncio
+
 import pytest
 
 from nexusai.brain.domain.sandbox import IsolationPolicy, ResourceLimits, SandboxSpec
-from nexusai.infrastructure.sandbox.capability_policy import CapabilityPolicyViolation
 from nexusai.infrastructure.sandbox.grpc_sandbox_client import GRPCSandboxClient
 
 
@@ -27,7 +27,9 @@ async def test_security_sandbox_denies_host_etc_passwd_access() -> None:
     res = await client.execute_in_sandbox(spec)
     assert res.success is False
     assert res.exit_code == 126
-    assert "forbidden host path" in res.error_message.lower() or "denied" in res.error_message.lower()
+    assert (
+        "forbidden host path" in res.error_message.lower() or "denied" in res.error_message.lower()
+    )
 
 
 @pytest.mark.asyncio

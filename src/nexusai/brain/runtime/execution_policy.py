@@ -32,6 +32,11 @@ class CircuitBreaker:
         self._last_failure_time = 0.0
 
     @property
+    def failure_count(self) -> int:
+        """Current consecutive failure count."""
+        return self._failure_count
+
+    @property
     def state(self) -> CircuitBreakerState:
         if self._state == CircuitBreakerState.OPEN:
             if time.time() - self._last_failure_time > self.reset_timeout_sec:

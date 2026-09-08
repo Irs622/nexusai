@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+
 import pytest
 
 from nexusai.brain.domain.llm import LLMMessage, LLMRequest, LLMRole

@@ -44,6 +44,7 @@ class AuditService:
         evt_type = event_type.value if isinstance(event_type, AuditEventType) else str(event_type)
         if not event_id:
             import time
+
             event_id = f"evt-{execution_id}-{int(time.time() * 1000)}"
 
         event = AuditEvent(

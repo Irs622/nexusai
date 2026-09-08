@@ -9,7 +9,6 @@ from nexusai.brain.domain.agent_runtime import (
     AgentRequest,
     AgentResponse,
 )
-from nexusai.brain.runtime.brain_runtime_facade import BrainRuntimeFacade
 
 
 def test_agent_request_domain_validation() -> None:
@@ -30,7 +29,9 @@ def test_agent_request_domain_validation() -> None:
         AgentRequest(session_id="sess-1", user_prompt="Execute task", max_iterations=0)
 
     with pytest.raises(ValueError, match="execution_timeout_seconds must be greater than 0.0"):
-        AgentRequest(session_id="sess-1", user_prompt="Execute task", execution_timeout_seconds=-5.0)
+        AgentRequest(
+            session_id="sess-1", user_prompt="Execute task", execution_timeout_seconds=-5.0
+        )
 
 
 def test_agent_response_immutability() -> None:

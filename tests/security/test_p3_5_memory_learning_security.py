@@ -7,8 +7,7 @@ import asyncio
 import pytest
 
 from nexusai.brain.domain.agent_loop import Observation
-from nexusai.brain.domain.memory import MemoryType, PrivacyLevel
-from nexusai.brain.domain.memory_learning import MemoryCandidate
+from nexusai.brain.domain.memory import MemoryType
 from nexusai.brain.ports.tool_port import ToolExecutionResult
 from nexusai.brain.runtime.context_builder import ContextBuilder
 from nexusai.brain.runtime.memory_lifecycle import MemoryLifecycle

@@ -6,11 +6,10 @@ import asyncio
 import os
 import tempfile
 import time
-from typing import Any
 from unittest.mock import MagicMock
+
 import pytest
 
-from nexusai.brain.coordinator import BrainCoordinator
 from nexusai.brain.domain.agent import (
     AgentGoal,
     PlanGraph,
@@ -28,21 +27,9 @@ from nexusai.brain.domain.execution_state import (
     NodeExecutionStatus,
     compute_plan_graph_hash,
 )
-from nexusai.brain.domain.governance import ResourceBudget, ToolCapability
-from nexusai.brain.domain.memory import (
-    MemoryEntry,
-    MemoryProvenance,
-    MemoryQuery,
-    MemoryType,
-    PrivacyLevel,
-)
-from nexusai.brain.domain.observability import RuntimeEvent, RuntimeEventType
+from nexusai.brain.domain.governance import ResourceBudget
 from nexusai.brain.domain.recovery import (
-    FailureClass,
-    RecoveryAction,
     ToolExecutionPolicy,
-    classify_failure,
-    generate_idempotency_key,
 )
 from nexusai.brain.domain.scheduler import ScheduledTask, SchedulerClosedError, TaskPriority
 from nexusai.brain.planner.engine import PlanGraphExecutionEngine
@@ -117,9 +104,17 @@ def create_chaos_context() -> PlanningContext:
 
 def create_chaos_graph() -> PlanGraph:
     nodes = {
-        1: PlanGraphNode(step=PlanStep(step_id=1, title="Root Node", tool_name="terminal"), dependencies=()),
-        2: PlanGraphNode(step=PlanStep(step_id=2, title="File Reader", tool_name="file_reader"), dependencies=(1,)),
-        3: PlanGraphNode(step=PlanStep(step_id=3, title="HTTP Client", tool_name="http_client"), dependencies=(1,)),
+        1: PlanGraphNode(
+            step=PlanStep(step_id=1, title="Root Node", tool_name="terminal"), dependencies=()
+        ),
+        2: PlanGraphNode(
+            step=PlanStep(step_id=2, title="File Reader", tool_name="file_reader"),
+            dependencies=(1,),
+        ),
+        3: PlanGraphNode(
+            step=PlanStep(step_id=3, title="HTTP Client", tool_name="http_client"),
+            dependencies=(1,),
+        ),
     }
     return PlanGraph(nodes=nodes, edges=((1, 2), (1, 3)))
 
@@ -127,6 +122,7 @@ def create_chaos_graph() -> PlanGraph:
 # ------------------------------------------------------------------
 # Test 1: Release-Blocking Invariants Verification (INV-01 to INV-05)
 # ------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_p2_final_invariants_verification() -> None:
@@ -146,9 +142,19 @@ async def test_p2_final_invariants_verification() -> None:
             graph_hash=g_hash,
             status=ExecutionStatus.RUNNING,
             node_records={
-                1: NodeExecutionRecord("exec-inv-1", 1, NodeExecutionStatus.COMPLETED, tool_name="terminal", output="Done"),
-                2: NodeExecutionRecord("exec-inv-1", 2, NodeExecutionStatus.PENDING, tool_name="file_reader"),
-                3: NodeExecutionRecord("exec-inv-1", 3, NodeExecutionStatus.PENDING, tool_name="http_client"),
+                1: NodeExecutionRecord(
+                    "exec-inv-1",
+                    1,
+                    NodeExecutionStatus.COMPLETED,
+                    tool_name="terminal",
+                    output="Done",
+                ),
+                2: NodeExecutionRecord(
+                    "exec-inv-1", 2, NodeExecutionStatus.PENDING, tool_name="file_reader"
+                ),
+                3: NodeExecutionRecord(
+                    "exec-inv-1", 3, NodeExecutionStatus.PENDING, tool_name="http_client"
+                ),
             },
         )
         await store.create_execution(rec)
@@ -162,7 +168,9 @@ async def test_p2_final_invariants_verification() -> None:
         rec_graph, results, trace = await engine.resume_execution("exec-inv-1", ctx, tool_port)
 
         # INV-01 verification: Node 1 was skipped (0 tool executions) and completed nodes remain COMPLETED
-        assert tool_port.call_counts.get("terminal", 0) == 0, "INV-01: COMPLETED node 1 must NOT re-execute"
+        assert (
+            tool_port.call_counts.get("terminal", 0) == 0
+        ), "INV-01: COMPLETED node 1 must NOT re-execute"
         assert rec_graph.nodes[1].step.status == StepStatus.COMPLETED
         assert rec_graph.nodes[2].step.status == StepStatus.COMPLETED
         assert rec_graph.nodes[3].step.status == StepStatus.COMPLETED
@@ -185,6 +193,7 @@ async def test_p2_final_invariants_verification() -> None:
 # Test 2: Non-Retryable Failure Classification (Authentication/Authorization)
 # ------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_p2_final_non_retryable_failure_classification() -> None:
     """Verify non-retryable failures (auth_error, invalid_argument) fail immediately without retries."""
@@ -192,22 +201,31 @@ async def test_p2_final_non_retryable_failure_classification() -> None:
     policy_auth = ToolExecutionPolicy(idempotent=True, max_retries=5)
     engine = PlanGraphExecutionEngine(state_store=store, tool_policies={"auth_tool": policy_auth})
 
-    nodes = {1: PlanGraphNode(step=PlanStep(step_id=1, title="Auth Node", tool_name="auth_tool"), dependencies=())}
+    nodes = {
+        1: PlanGraphNode(
+            step=PlanStep(step_id=1, title="Auth Node", tool_name="auth_tool"), dependencies=()
+        )
+    }
     graph = PlanGraph(nodes=nodes, edges=())
     engine.planner.plan = lambda ctx, session_id="": (graph, MagicMock())  # type: ignore[assignment]
 
     tool_port = ChaosFlakyToolPort(failure_modes={"auth_tool": "auth_error"})
     ctx = create_chaos_context()
 
-    rec_graph, results, trace = await engine.execute_plan(ctx, tool_port, execution_id="exec-auth-fail")
+    rec_graph, results, trace = await engine.execute_plan(
+        ctx, tool_port, execution_id="exec-auth-fail"
+    )
 
     assert rec_graph.nodes[1].step.status == StepStatus.FAILED
-    assert tool_port.call_counts.get("auth_tool", 0) == 1, "Non-retryable auth error must NOT enter retry loop"
+    assert (
+        tool_port.call_counts.get("auth_tool", 0) == 1
+    ), "Non-retryable auth error must NOT enter retry loop"
 
 
 # ------------------------------------------------------------------
 # Test 3: Scheduler & Governance High-Scale Concurrency Chaos
 # ------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_p2_final_scheduler_and_governance_chaos() -> None:
@@ -267,13 +285,14 @@ async def test_p2_final_scheduler_and_governance_chaos() -> None:
 # Test 4: Fault Isolation (Telemetry & Memory Failures)
 # ------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_p2_final_telemetry_and_memory_fault_isolation() -> None:
     """Verify core execution completes cleanly even when telemetry and memory exporters throw exceptions."""
     faulty_telemetry = InMemoryMetricsExporter(fail_on_purpose=True)
     mem_store = SQLiteMemoryStore(":memory:")
     retriever = MemoryRetriever(store=mem_store, telemetry=faulty_telemetry)
-    builder = ContextBuilder(retriever=retriever, store=mem_store)
+    ContextBuilder(retriever=retriever, store=mem_store)
 
     engine = PlanGraphExecutionEngine(telemetry=faulty_telemetry)
     graph = create_chaos_graph()
@@ -282,7 +301,9 @@ async def test_p2_final_telemetry_and_memory_fault_isolation() -> None:
     tool_port = ChaosFlakyToolPort()
     ctx = create_chaos_context()
 
-    rec_graph, results, trace = await engine.execute_plan(ctx, tool_port, execution_id="exec-fault-iso")
+    rec_graph, results, trace = await engine.execute_plan(
+        ctx, tool_port, execution_id="exec-fault-iso"
+    )
 
     assert rec_graph.nodes[1].step.status == StepStatus.COMPLETED
     assert rec_graph.nodes[2].step.status == StepStatus.COMPLETED
@@ -294,6 +315,7 @@ async def test_p2_final_telemetry_and_memory_fault_isolation() -> None:
 # Test 5: Cross-Subsystem Combined Chaos Scenario
 # ------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_p2_final_cross_subsystem_combined_chaos() -> None:
     """Cross-Subsystem Chaos: Tool timeouts + Retries + Governance Quota Competition + Telemetry + Persistence."""
@@ -303,9 +325,11 @@ async def test_p2_final_cross_subsystem_combined_chaos() -> None:
     try:
         telemetry = InMemoryMetricsExporter()
         exec_store = SQLiteExecutionStateStore(db_path=exec_db)
-        mem_store = SQLiteMemoryStore(db_path=":memory:")
+        SQLiteMemoryStore(db_path=":memory:")
         gov = GovernanceEngine(
-            global_budget=ResourceBudget(max_concurrent_tasks=4, max_subprocesses=8, max_tool_invocations=50),
+            global_budget=ResourceBudget(
+                max_concurrent_tasks=4, max_subprocesses=8, max_tool_invocations=50
+            ),
             telemetry=telemetry,
         )
         scheduler = PriorityScheduler(aging_rate=0.5, telemetry=telemetry)
@@ -321,8 +345,14 @@ async def test_p2_final_cross_subsystem_combined_chaos() -> None:
         )
 
         nodes = {
-            1: PlanGraphNode(step=PlanStep(step_id=1, title="Flaky Terminal", tool_name="terminal"), dependencies=()),
-            2: PlanGraphNode(step=PlanStep(step_id=2, title="File Reader", tool_name="file_reader"), dependencies=(1,)),
+            1: PlanGraphNode(
+                step=PlanStep(step_id=1, title="Flaky Terminal", tool_name="terminal"),
+                dependencies=(),
+            ),
+            2: PlanGraphNode(
+                step=PlanStep(step_id=2, title="File Reader", tool_name="file_reader"),
+                dependencies=(1,),
+            ),
         }
         graph = PlanGraph(nodes=nodes, edges=((1, 2),))
         engine.planner.plan = lambda ctx, session_id="": (graph, MagicMock())  # type: ignore[assignment]
@@ -330,7 +360,9 @@ async def test_p2_final_cross_subsystem_combined_chaos() -> None:
         tool_port = ChaosFlakyToolPort(failure_modes={"terminal": "flaky_once"})
         ctx = create_chaos_context()
 
-        rec_graph, results, trace = await engine.execute_plan(ctx, tool_port, execution_id="exec-cross-chaos")
+        rec_graph, results, trace = await engine.execute_plan(
+            ctx, tool_port, execution_id="exec-cross-chaos"
+        )
 
         # Terminal tool failed attempt 1, retried attempt 2, and succeeded!
         assert rec_graph.nodes[1].step.status == StepStatus.COMPLETED

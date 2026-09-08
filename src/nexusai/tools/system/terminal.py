@@ -20,7 +20,9 @@ class TerminalInputSchema(BaseModel):
     """Input schema for execute_terminal tool."""
 
     command: str = Field(..., description="The shell command string to execute in zsh terminal")
-    timeout_seconds: float | None = Field(default=None, description="Optional timeout limit in seconds")
+    timeout_seconds: float | None = Field(
+        default=None, description="Optional timeout limit in seconds"
+    )
 
 
 class TerminalTool(BaseTool):

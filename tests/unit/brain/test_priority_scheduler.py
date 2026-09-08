@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import asyncio
 import time
+
 import pytest
 
 from nexusai.brain.domain.scheduler import (
     ScheduledTask,
     SchedulerClosedError,
     TaskPriority,
-    compute_effective_priority,
 )
 from nexusai.brain.runtime.priority_scheduler import PriorityScheduler
 
@@ -41,9 +41,15 @@ async def test_deterministic_priority_and_tie_breaking() -> None:
     scheduler = PriorityScheduler(aging_rate=0.0)  # Disable aging for pure priority test
 
     # Submit out of order
-    await scheduler.submit(ScheduledTask(task_id="t_low", execution_id="e1", node_id=1, priority=TaskPriority.LOW))
-    await scheduler.submit(ScheduledTask(task_id="t_high_b", execution_id="e1", node_id=2, priority=TaskPriority.HIGH))
-    await scheduler.submit(ScheduledTask(task_id="t_high_a", execution_id="e1", node_id=3, priority=TaskPriority.HIGH))
+    await scheduler.submit(
+        ScheduledTask(task_id="t_low", execution_id="e1", node_id=1, priority=TaskPriority.LOW)
+    )
+    await scheduler.submit(
+        ScheduledTask(task_id="t_high_b", execution_id="e1", node_id=2, priority=TaskPriority.HIGH)
+    )
+    await scheduler.submit(
+        ScheduledTask(task_id="t_high_a", execution_id="e1", node_id=3, priority=TaskPriority.HIGH)
+    )
 
     # Highest priority items (t_high_a and t_high_b) should tie break on task_id ASC -> t_high_a first
     res1 = await scheduler.next()
@@ -63,18 +69,28 @@ async def test_aging_boost_prevents_starvation() -> None:
     now = time.time()
     # LOW task queued 5 seconds ago -> effective_priority = 0 + (5 * 10) = 50
     old_low = ScheduledTask(
-        task_id="t_old_low", execution_id="e1", node_id=1, priority=TaskPriority.LOW, queued_at=now - 5.0
+        task_id="t_old_low",
+        execution_id="e1",
+        node_id=1,
+        priority=TaskPriority.LOW,
+        queued_at=now - 5.0,
     )
     # Fresh HIGH task queued now -> effective_priority = 20 + (0 * 10) = 20
     fresh_high = ScheduledTask(
-        task_id="t_fresh_high", execution_id="e1", node_id=2, priority=TaskPriority.HIGH, queued_at=now
+        task_id="t_fresh_high",
+        execution_id="e1",
+        node_id=2,
+        priority=TaskPriority.HIGH,
+        queued_at=now,
     )
 
     await scheduler.submit(old_low)
     await scheduler.submit(fresh_high)
 
     res1 = await scheduler.next()
-    assert res1.task_id == "t_old_low", "Aged LOW task must exceed fresh HIGH task in effective priority"
+    assert (
+        res1.task_id == "t_old_low"
+    ), "Aged LOW task must exceed fresh HIGH task in effective priority"
 
 
 @pytest.mark.asyncio
@@ -146,7 +162,9 @@ async def test_task_cancellation() -> None:
 
     now = time.time()
     await scheduler.submit(ScheduledTask(task_id="t_ready", execution_id="e1", node_id=1))
-    await scheduler.submit(ScheduledTask(task_id="t_delay", execution_id="e1", node_id=2, delay_until=now + 10.0))
+    await scheduler.submit(
+        ScheduledTask(task_id="t_delay", execution_id="e1", node_id=2, delay_until=now + 10.0)
+    )
 
     assert await scheduler.size() == 2
 

@@ -6,8 +6,8 @@ Fails with non-zero exit code if any HIGH or CRITICAL severity vulnerabilities
 are found in the dependency tree.
 """
 
-import sys
 import subprocess
+import sys
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -22,17 +22,26 @@ def run_security_audit() -> int:
     print("=== [Quality Gate] Running Security Vulnerability Audit (pip-audit) ===\n")
 
     cmd = [
-        sys.executable, "-m", "pip_audit",
-        "--requirement", str(PROJECT_ROOT / "requirements.txt"),
-        "--format", "columns",
-        "--progress-spinner", "off",
+        sys.executable,
+        "-m",
+        "pip_audit",
+        "--requirement",
+        str(PROJECT_ROOT / "requirements.txt"),
+        "--format",
+        "columns",
+        "--progress-spinner",
+        "off",
     ]
 
     # Fallback: scan the current environment if pyproject.toml reading fails
     fallback_cmd = [
-        sys.executable, "-m", "pip_audit",
-        "--format", "columns",
-        "--progress-spinner", "off",
+        sys.executable,
+        "-m",
+        "pip_audit",
+        "--format",
+        "columns",
+        "--progress-spinner",
+        "off",
     ]
 
     res = subprocess.run(cmd, cwd=PROJECT_ROOT)

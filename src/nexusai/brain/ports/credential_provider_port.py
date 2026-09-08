@@ -15,7 +15,9 @@ class ICredentialProvider(Protocol):
         """Dynamically resolve secret material into volatile memory for execution."""
         ...
 
-    async def rotate_credential(self, ref: CredentialReference, new_secret_value: str) -> CredentialReference:
+    async def rotate_credential(
+        self, ref: CredentialReference, new_secret_value: str
+    ) -> CredentialReference:
         """Rotate secret in provider without restarting application."""
         ...
 

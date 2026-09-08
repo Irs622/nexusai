@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import asyncio
+
 import pytest
 
 from nexusai.brain.domain.recovery import RecoveryStatus
-from nexusai.infrastructure.observability.metrics import HighCardinalityLabelViolation, PrometheusMetricRecorder
+from nexusai.infrastructure.observability.metrics import (
+    HighCardinalityLabelViolation,
+    PrometheusMetricRecorder,
+)
 from nexusai.infrastructure.observability.observability_health import ObservabilityHealthService
 from nexusai.infrastructure.observability.structured_logging import JSONStructuredLogger
 from nexusai.infrastructure.observability.tracing import OpenTelemetryTracer

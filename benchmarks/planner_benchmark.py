@@ -3,7 +3,14 @@
 from __future__ import annotations
 
 import time
-from nexusai.brain.domain.agent import AgentGoal, PlanningConstraints, PlanningContext, PlanningGoal, PlanningResources
+
+from nexusai.brain.domain.agent import (
+    AgentGoal,
+    PlanningConstraints,
+    PlanningContext,
+    PlanningGoal,
+    PlanningResources,
+)
 from nexusai.brain.planner.stages import ExecutionPlanner
 from nexusai.brain.planner.validator import PlanValidator
 

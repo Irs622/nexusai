@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
-from typing import Any
-
 from nexusai.brain.domain.human_approval import (
     ActionBinding,
     ApprovalGrant,
@@ -38,7 +35,9 @@ class PostgresApprovalStore(IApprovalStore):
         """Retrieve approval grant state by grant_id."""
         return await self._backing_store.get_grant(grant_id)
 
-    async def verify_and_consume_grant(self, grant_id: str, expected_binding: ActionBinding) -> bool:
+    async def verify_and_consume_grant(
+        self, grant_id: str, expected_binding: ActionBinding
+    ) -> bool:
         """Atomically verify binding digest, expiration, and consume single-use grant in durable store."""
         return await self._backing_store.verify_and_consume_grant(grant_id, expected_binding)
 

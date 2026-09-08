@@ -13,11 +13,11 @@ Verifies 6 critical release dimensions before publishing:
 from __future__ import annotations
 
 import json
-from pathlib import Path
 import re
 import subprocess
 import sys
 import time
+from pathlib import Path
 
 repo_root = Path(__file__).resolve().parent.parent
 
@@ -74,41 +74,60 @@ def check_gate_1_git() -> bool:
     is_tree_clean = len(dirty_lines) == 0
 
     if is_author_valid and is_tree_clean:
-        log_gate(1, "Git Identity & Tree Sanitization", "PASS", f"Author: {author_name} <{author_email}> | Tree clean")
+        log_gate(
+            1,
+            "Git Identity & Tree Sanitization",
+            "PASS",
+            f"Author: {author_name} <{author_email}> | Tree clean",
+        )
         return True
     else:
-        log_gate(1, "Git Identity & Tree Sanitization", "FAIL", f"Author: {author_name}, Dirty items: {len(dirty_lines)}")
+        log_gate(
+            1,
+            "Git Identity & Tree Sanitization",
+            "FAIL",
+            f"Author: {author_name}, Dirty items: {len(dirty_lines)}",
+        )
         return False
 
 
 def check_gate_2_static_analysis() -> bool:
     """Verify ruff linting and mypy strict typing."""
-    code_ruff, out_ruff, err_ruff = run_cmd([
-        ".venv/bin/ruff",
-        "check",
-        "src/nexusai/tools/mcp/",
-        "src/nexusai/infrastructure/distributed/",
-        "src/nexusai/brain/domain/collaboration.py",
-        "src/nexusai/brain/runtime/collaboration/",
-        "src/nexusai/brain/planner/validator.py",
-    ])
+    code_ruff, out_ruff, err_ruff = run_cmd(
+        [
+            ".venv/bin/ruff",
+            "check",
+            "src/nexusai/tools/mcp/",
+            "src/nexusai/infrastructure/distributed/",
+            "src/nexusai/brain/domain/collaboration.py",
+            "src/nexusai/brain/runtime/collaboration/",
+            "src/nexusai/brain/planner/validator.py",
+        ]
+    )
     if code_ruff != 0:
         log_gate(2, "Static Analysis (ruff)", "FAIL", out_ruff or err_ruff)
         return False
 
-    code_mypy, out_mypy, err_mypy = run_cmd([
-        ".venv/bin/mypy",
-        "--strict",
-        "src/nexusai/tools/mcp/servers/",
-        "src/nexusai/infrastructure/distributed/",
-        "src/nexusai/brain/domain/collaboration.py",
-        "src/nexusai/brain/runtime/collaboration/",
-    ])
+    code_mypy, out_mypy, err_mypy = run_cmd(
+        [
+            ".venv/bin/mypy",
+            "--strict",
+            "src/nexusai/tools/mcp/servers/",
+            "src/nexusai/infrastructure/distributed/",
+            "src/nexusai/brain/domain/collaboration.py",
+            "src/nexusai/brain/runtime/collaboration/",
+        ]
+    )
     if code_mypy != 0:
         log_gate(2, "Static Type Checking (mypy --strict)", "FAIL", out_mypy or err_mypy)
         return False
 
-    log_gate(2, "Static Analysis & Type Integrity", "PASS", "ruff: 0 issues | mypy --strict: 0 issues across 16 source files")
+    log_gate(
+        2,
+        "Static Analysis & Type Integrity",
+        "PASS",
+        "ruff: 0 issues | mypy --strict: 0 issues across 16 source files",
+    )
     return True
 
 
@@ -121,7 +140,9 @@ def check_gate_3_adr_governance() -> bool:
 
     adr_files = sorted(list(adr_dir.glob("00*.md")))
     if len(adr_files) < 16:
-        log_gate(3, "ADR Architecture Governance", "FAIL", f"Expected >= 16 ADRs, found {len(adr_files)}")
+        log_gate(
+            3, "ADR Architecture Governance", "FAIL", f"Expected >= 16 ADRs, found {len(adr_files)}"
+        )
         return False
 
     # Phase 3.2+ & Level 4 Governance ADRs require all 7 mandatory sections
@@ -148,7 +169,6 @@ def check_gate_3_adr_governance() -> bool:
     return True
 
 
-
 def check_gate_4_core_tests() -> bool:
     """Execute core test suites for distributed workers, MCP servers, and API/SSE."""
     test_files = [
@@ -170,7 +190,12 @@ def check_gate_4_core_tests() -> bool:
 
     match = re.search(r"(\d+)\s+passed", out)
     passed_count = match.group(1) if match else "all"
-    log_gate(4, "Core Subsystems Test Suite", "PASS", f"{passed_count} tests passed across MCP, Distributed & API")
+    log_gate(
+        4,
+        "Core Subsystems Test Suite",
+        "PASS",
+        f"{passed_count} tests passed across MCP, Distributed & API",
+    )
     return True
 
 

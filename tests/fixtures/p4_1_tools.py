@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any
 
 from nexusai.brain.domain.governance import ToolCapability
 from nexusai.brain.domain.tool_registry import ToolMetadata, ToolStatus, ToolTrustLevel

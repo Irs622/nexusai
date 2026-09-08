@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+
 import pytest
 
 from nexusai.brain.domain.recovery import RecoveryStatus
@@ -21,8 +22,12 @@ async def test_observability_contract_conformance() -> None:
     health = ObservabilityHealthService()
 
     # Metrics
-    metrics.increment_counter("nexusai_execution_total", 1.0, {"tool_id": "process_tool", "status": "success"})
-    metrics.record_histogram("nexusai_execution_duration_seconds", 0.05, {"tool_id": "process_tool"})
+    metrics.increment_counter(
+        "nexusai_execution_total", 1.0, {"tool_id": "process_tool", "status": "success"}
+    )
+    metrics.record_histogram(
+        "nexusai_execution_duration_seconds", 0.05, {"tool_id": "process_tool"}
+    )
     assert metrics.counters["nexusai_execution_total"] == 1.0
 
     # Tracer

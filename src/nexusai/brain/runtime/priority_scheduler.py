@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import asyncio
-from dataclasses import replace
 import time
-from typing import Any
+from dataclasses import replace
 
 from nexusai.brain.domain.observability import RuntimeEvent, RuntimeEventType
 from nexusai.brain.domain.scheduler import (
@@ -46,7 +45,9 @@ class PriorityScheduler(IScheduler):
             now = time.time()
             total_size = len(self._ready_tasks) + len(self._delayed_tasks)
             ready_cnt = sum(1 for t in self._ready_tasks if t.task_id not in self._claimed_task_ids)
-            delayed_cnt = sum(1 for t in self._delayed_tasks if t.delay_until is not None and t.delay_until > now)
+            delayed_cnt = sum(
+                1 for t in self._delayed_tasks if t.delay_until is not None and t.delay_until > now
+            )
 
             await self.telemetry.record_gauge("nexusai_scheduler_queue_depth", float(total_size))
             await self.telemetry.record_gauge("nexusai_scheduler_ready_depth", float(ready_cnt))
@@ -136,11 +137,18 @@ class PriorityScheduler(IScheduler):
                                     execution_id=claimed_task.execution_id,
                                     node_id=str(claimed_task.node_id),
                                     task_id=claimed_task.task_id,
-                                    attributes={"wait_ms": wait_ms, "priority": claimed_task.priority.name},
+                                    attributes={
+                                        "wait_ms": wait_ms,
+                                        "priority": claimed_task.priority.name,
+                                    },
                                 )
                             )
-                            await self.telemetry.increment_counter("nexusai_scheduler_claimed_total")
-                            await self.telemetry.record_duration("nexusai_scheduler_task_wait_ms", max(0.0, wait_ms))
+                            await self.telemetry.increment_counter(
+                                "nexusai_scheduler_claimed_total"
+                            )
+                            await self.telemetry.record_duration(
+                                "nexusai_scheduler_task_wait_ms", max(0.0, wait_ms)
+                            )
                             await self._emit_gauges()
                         except Exception:
                             pass
@@ -148,7 +156,9 @@ class PriorityScheduler(IScheduler):
                     return claimed_task
 
                 if self._delayed_tasks:
-                    earliest_delay = min(t.delay_until for t in self._delayed_tasks if t.delay_until is not None)
+                    earliest_delay = min(
+                        t.delay_until for t in self._delayed_tasks if t.delay_until is not None
+                    )
                     wait_sec = max(0.001, earliest_delay - now)
                     try:
                         await asyncio.wait_for(self._cond.wait(), timeout=wait_sec)
@@ -206,7 +216,9 @@ class PriorityScheduler(IScheduler):
         """Return count of tasks awaiting RETRY_WAIT delay timestamps."""
         async with self._cond:
             now = time.time()
-            return sum(1 for t in self._delayed_tasks if t.delay_until is not None and t.delay_until > now)
+            return sum(
+                1 for t in self._delayed_tasks if t.delay_until is not None and t.delay_until > now
+            )
 
     async def shutdown(self) -> None:
         """Gracefully shut down scheduler, waking blocked consumers and rejecting future submissions."""

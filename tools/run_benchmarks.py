@@ -10,8 +10,8 @@ Orchestrates the full benchmark pipeline:
 """
 
 import argparse
-from pathlib import Path
 import sys
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent
 if str(PROJECT_ROOT) not in sys.path:

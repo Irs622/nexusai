@@ -134,7 +134,7 @@ class WorkingMemory:
         """Check if metadata exists for observation UUID string."""
         return observation_id in self._metadata_by_id
 
-    def record_failure(self, step_id: int, error_message: str) -> FailureRecord:
+    def record_failure(self, step_id: int | str, error_message: str) -> FailureRecord:
         """Record a step execution failure record and increment retry count."""
         self.retry_count += 1
         failure = FailureRecord(

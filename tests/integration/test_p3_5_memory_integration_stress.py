@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import os
 import tempfile
+
 import pytest
 
 from nexusai.brain.domain.agent_loop import Observation
@@ -41,7 +42,9 @@ async def test_p3_5_adversarial_memory_lifecycle_stress() -> None:
             sess_key = f"sess-stress-p3-5-{s_id}"
 
             for i in range(10):
-                res = ToolExecutionResult(f"r-{s_id}-{i}", "terminal", True, f"Output {i} for session {s_id}")
+                res = ToolExecutionResult(
+                    f"r-{s_id}-{i}", "terminal", True, f"Output {i} for session {s_id}"
+                )
                 obs = Observation(f"exec-{s_id}-{i}", i, (res,), 1, 0, 0, True, "Summary")
 
                 # Post-execution learning
@@ -56,13 +59,15 @@ async def test_p3_5_adversarial_memory_lifecycle_stress() -> None:
                 # Pre-planning context retrieval
                 ctx = await lifecycle.retrieve_context(session_id=sess_key, query_text=f"query {i}")
                 assert f"session {s_id}" in ctx
-                assert f"session {(s_id + 1) % 20}" not in ctx, "Cross-session memory leakage detected!"
+                assert (
+                    f"session {(s_id + 1) % 20}" not in ctx
+                ), "Cross-session memory leakage detected!"
 
         # Launch 20 concurrent session workers
         workers = [asyncio.create_task(session_worker(w)) for w in range(20)]
         await asyncio.gather(*workers)
 
-        print(f"\n[P3-5 ADVERSARIAL MEMORY LIFECYCLE STRESS VERIFICATION]")
+        print("\n[P3-5 ADVERSARIAL MEMORY LIFECYCLE STRESS VERIFICATION]")
         print("20 Concurrent Sessions verified with 100% session isolation!")
     finally:
         if os.path.exists(db_path):

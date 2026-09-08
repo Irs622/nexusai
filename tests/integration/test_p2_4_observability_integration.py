@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import time
 from unittest.mock import MagicMock
+
 import pytest
 
 from nexusai.brain.domain.agent import (
@@ -18,7 +19,6 @@ from nexusai.brain.domain.agent import (
     StepStatus,
 )
 from nexusai.brain.domain.observability import RuntimeEventType
-from nexusai.brain.domain.recovery import ToolExecutionPolicy
 from nexusai.brain.planner.engine import PlanGraphExecutionEngine
 from nexusai.brain.ports.tool_port import IToolPort, ToolExecutionRequest, ToolExecutionResult
 from nexusai.brain.runtime.priority_scheduler import PriorityScheduler
@@ -49,9 +49,15 @@ def create_obs_context() -> PlanningContext:
 
 def create_obs_graph() -> PlanGraph:
     nodes = {
-        1: PlanGraphNode(step=PlanStep(step_id=1, title="Step 1", tool_name="tool_1"), dependencies=()),
-        2: PlanGraphNode(step=PlanStep(step_id=2, title="Step 2", tool_name="tool_2"), dependencies=(1,)),
-        3: PlanGraphNode(step=PlanStep(step_id=3, title="Step 3", tool_name="tool_3"), dependencies=(2,)),
+        1: PlanGraphNode(
+            step=PlanStep(step_id=1, title="Step 1", tool_name="tool_1"), dependencies=()
+        ),
+        2: PlanGraphNode(
+            step=PlanStep(step_id=2, title="Step 2", tool_name="tool_2"), dependencies=(1,)
+        ),
+        3: PlanGraphNode(
+            step=PlanStep(step_id=3, title="Step 3", tool_name="tool_3"), dependencies=(2,)
+        ),
     }
     return PlanGraph(nodes=nodes, edges=((1, 2), (2, 3)))
 
@@ -111,7 +117,9 @@ async def test_exporter_fault_isolation_under_engine_execution() -> None:
     ctx = create_obs_context()
 
     # Execute plan - must complete successfully without crashing
-    rec_graph, results, trace = await engine.execute_plan(ctx, tool_port, execution_id="exec-faulty-obs")
+    rec_graph, results, trace = await engine.execute_plan(
+        ctx, tool_port, execution_id="exec-faulty-obs"
+    )
 
     assert rec_graph.nodes[1].step.status == StepStatus.COMPLETED
     assert rec_graph.nodes[2].step.status == StepStatus.COMPLETED
@@ -147,7 +155,7 @@ async def test_runtime_overhead_baseline_benchmark() -> None:
     diff_ms = dur_with_obs_ms - dur_no_obs_ms
     per_exec_overhead_ms = diff_ms / 10.0
 
-    print(f"\n[OBSERVED TELEMETRY OVERHEAD BASELINE]")
+    print("\n[OBSERVED TELEMETRY OVERHEAD BASELINE]")
     print(f"10 Executions Without Telemetry : {dur_no_obs_ms:.2f} ms")
     print(f"10 Executions With Telemetry    : {dur_with_obs_ms:.2f} ms")
     print(f"Per-Execution Telemetry Overhead: {per_exec_overhead_ms:.3f} ms")

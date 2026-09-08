@@ -9,7 +9,6 @@ from typing import Any
 from nexusai.brain.domain.governance import ToolCapability
 from nexusai.brain.domain.observability import RuntimeEvent, RuntimeEventType
 from nexusai.brain.domain.tool_registry import (
-    CapabilityEscalationError,
     ToolAlreadyRegisteredError,
     ToolMetadata,
     ToolStatus,

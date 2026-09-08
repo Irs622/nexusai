@@ -12,21 +12,12 @@ Verifies:
 
 from __future__ import annotations
 
-from typing import Any
-import pytest
-
 from nexusai.brain.domain.agent import (
-    AgentGoal,
     CapabilityGraph,
-    PlanGraph,
-    PlanningContext,
-    PlanningGoal,
-    PlanningResources,
     PlanStep,
 )
 from nexusai.brain.planner.stages import DependencyResolver
 from nexusai.brain.planner.validator import PlanValidator
-
 
 # ------------------------------------------------------------------
 # Test Cases A through L
@@ -52,9 +43,9 @@ def test_A_linear_dag_graph_structure() -> None:
 def test_B_simple_branching_dag_structure() -> None:
     """Test B: Simple branching (A -> B and A -> C).
 
-           ┌→ B
-        A ─┤
-           └→ C
+       ┌→ B
+    A ─┤
+       └→ C
     """
     resolver = DependencyResolver()
 
@@ -76,9 +67,9 @@ def test_B_simple_branching_dag_structure() -> None:
 def test_C_and_D_diamond_dag_and_multiple_dependencies() -> None:
     """Test C & D: Diamond DAG & Multiple Dependencies (D depends on B and C).
 
-           ┌→ B ─┐
-        A ─┤     ├→ D
-           └→ C ─┘
+       ┌→ B ─┐
+    A ─┤     ├→ D
+       └→ C ─┘
     """
     resolver = DependencyResolver()
 

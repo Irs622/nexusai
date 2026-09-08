@@ -12,14 +12,14 @@ Verifies:
 
 from __future__ import annotations
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import patch
+
 import pytest
 from pydantic import BaseModel, Field
 
 from nexusai.brain.coordinator import BrainCoordinator
-from nexusai.brain.domain.agent import PlanGraph, StepStatus
-from nexusai.brain.planner.validator import PlanValidationResult, PlanValidator
-from nexusai.brain.ports.tool_port import ToolExecutionResult
+from nexusai.brain.domain.agent import PlanGraph
+from nexusai.brain.planner.validator import PlanValidationResult
 from nexusai.models.base import BaseModelProvider
 from nexusai.security.guard import RiskLevel
 from nexusai.tools.base import BaseTool
@@ -83,11 +83,18 @@ async def test_planner_and_validator_invoked_before_execution() -> None:
 
     coordinator = BrainCoordinator(model_provider=provider, registry=registry)
 
-    with patch.object(
-        coordinator.execution_engine.validator, "validate", wraps=coordinator.execution_engine.validator.validate
-    ) as spy_validate, patch.object(
-        coordinator.execution_engine.planner, "plan", wraps=coordinator.execution_engine.planner.plan
-    ) as spy_plan:
+    with (
+        patch.object(
+            coordinator.execution_engine.validator,
+            "validate",
+            wraps=coordinator.execution_engine.validator.validate,
+        ) as spy_validate,
+        patch.object(
+            coordinator.execution_engine.planner,
+            "plan",
+            wraps=coordinator.execution_engine.planner.plan,
+        ) as spy_plan,
+    ):
         res = await coordinator.process_user_input("Perform search_tool task")
 
         assert spy_plan.called, "ExecutionPlanner must be invoked during user input processing"
@@ -107,7 +114,9 @@ async def test_validation_failure_blocks_execution() -> None:
     failing_result = PlanValidationResult(is_valid=False)
     failing_result.add_issue(node_id=1, rule_name="MockRule", message="Validation error forced")
 
-    with patch.object(coordinator.execution_engine.validator, "validate", return_value=failing_result):
+    with patch.object(
+        coordinator.execution_engine.validator, "validate", return_value=failing_result
+    ):
         with pytest.raises(RuntimeError, match="PlanGraph validation failed"):
             await coordinator.process_user_input("Invalid task input")
 
@@ -150,6 +159,7 @@ async def test_direct_provider_bypass_does_not_occur() -> None:
 
 if __name__ == "__main__":
     import asyncio
+
     asyncio.run(test_cli_user_input_reaches_runtime_pipeline())
     asyncio.run(test_planner_and_validator_invoked_before_execution())
     asyncio.run(test_validation_failure_blocks_execution())

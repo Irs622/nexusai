@@ -69,7 +69,9 @@ class AgentCollaborationMesh:
         )
         return False
 
-    async def receive_message(self, agent_id: str, timeout: float | None = None) -> A2AMessage | None:
+    async def receive_message(
+        self, agent_id: str, timeout: float | None = None
+    ) -> A2AMessage | None:
         """Fetch the next incoming message from an agent's mailbox."""
         mailbox = self._mailboxes.get(agent_id)
         if mailbox is None:

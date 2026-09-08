@@ -5,21 +5,19 @@ from __future__ import annotations
 import asyncio
 import os
 import tempfile
-import time
+
 import pytest
 
 from nexusai.brain.domain.governance import ResourceBudget, ToolCapability
 from nexusai.brain.domain.human_approval import (
     ActionBinding,
-    ApprovalExpiredError,
-    ApprovalMismatchError,
     ApprovalReplayError,
     ApprovalStatus,
     HumanApprovalDecision,
     HumanApprovalRequest,
     RiskLevel,
 )
-from nexusai.brain.domain.tool_registry import ToolMetadata, ToolStatus, ToolUnavailableError
+from nexusai.brain.domain.tool_registry import ToolMetadata, ToolStatus
 from nexusai.brain.runtime.governance_engine import GovernanceEngine
 from nexusai.brain.runtime.human_approval_engine import HumanApprovalEngine
 from nexusai.brain.runtime.tool_registry import ToolRegistry
@@ -38,7 +36,16 @@ async def test_security_durable_approval_is_not_execution_authorization() -> Non
         gov = GovernanceEngine(global_budget=ResourceBudget(max_tool_invocations=1))
         registry = ToolRegistry()
 
-        await registry.register(ToolMetadata("process_tool", "Proc", "1.0.0", "Proc", frozenset({ToolCapability.PROCESS_EXEC}), status=ToolStatus.ENABLED))
+        await registry.register(
+            ToolMetadata(
+                "process_tool",
+                "Proc",
+                "1.0.0",
+                "Proc",
+                frozenset({ToolCapability.PROCESS_EXEC}),
+                status=ToolStatus.ENABLED,
+            )
+        )
 
         binding = ActionBinding(
             session_id="sess-sec-dur-1",
@@ -52,7 +59,9 @@ async def test_security_durable_approval_is_not_execution_authorization() -> Non
 
         req = HumanApprovalRequest("app-sec-dur-1", binding, RiskLevel.HIGH, "Run process")
         await engine.request_approval(req)
-        dec = HumanApprovalDecision("app-sec-dur-1", ApprovalStatus.APPROVED, "op@co.com", "Approved")
+        dec = HumanApprovalDecision(
+            "app-sec-dur-1", ApprovalStatus.APPROVED, "op@co.com", "Approved"
+        )
         grant = await engine.submit_decision(dec)
 
         # Another process consumes governance invocation quota
@@ -62,7 +71,9 @@ async def test_security_durable_approval_is_not_execution_authorization() -> Non
         # Grant verification succeeds, but Governance re-check MUST DENY execution!
         assert await engine.verify_and_consume_grant(grant.grant_id, binding) is True
         gov_res = await gov.authorize("exec-sec-dur-1", binding.requested_capabilities)
-        assert gov_res.allowed is False, "Persisted approval MUST NOT bypass Governance budget exhaustion!"
+        assert (
+            gov_res.allowed is False
+        ), "Persisted approval MUST NOT bypass Governance budget exhaustion!"
 
     finally:
         if os.path.exists(db_path):
@@ -91,7 +102,9 @@ async def test_security_durable_single_use_grant_replay_blocked() -> None:
 
         req = HumanApprovalRequest("app-replay-dur", binding, RiskLevel.HIGH, "Run process")
         await engine1.request_approval(req)
-        dec = HumanApprovalDecision("app-replay-dur", ApprovalStatus.APPROVED, "op@co.com", "Approved")
+        dec = HumanApprovalDecision(
+            "app-replay-dur", ApprovalStatus.APPROVED, "op@co.com", "Approved"
+        )
         grant = await engine1.submit_decision(dec)
 
         # Connection 1 consumes grant

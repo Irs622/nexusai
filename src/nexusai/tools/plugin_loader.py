@@ -2,7 +2,7 @@
 
 import importlib
 import inspect
-from typing import List
+from typing import Any, List
 
 from nexusai.core.errors import NexusAIError
 from nexusai.tools.base import BaseTool
@@ -34,7 +34,7 @@ class PluginLoader:
         for _, obj in inspect.getmembers(module):
             if inspect.isclass(obj) and hasattr(obj, "get_tools") and not inspect.isabstract(obj):
                 try:
-                    plugin_instance = obj()
+                    plugin_instance: Any = obj()
                     tools = plugin_instance.get_tools()
                     for t in tools:
                         if isinstance(t, BaseTool):

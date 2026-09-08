@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import asyncio
+
 import pytest
 
 from nexusai.brain.domain.agent import PlanGraph, PlanGraphNode, PlanStep
 from nexusai.brain.domain.agent_loop import (
     AgentLoopConfig,
-    AgentLoopState,
     Observation,
     compute_plan_fingerprint,
 )
@@ -33,21 +33,31 @@ def test_agent_loop_config_validation() -> None:
 def test_plan_fingerprinting_determinism() -> None:
     """Test compute_plan_fingerprint produces identical canonical hash for structurally equivalent PlanGraphs."""
     nodes1 = {
-        1: PlanGraphNode(step=PlanStep(step_id=1, title="A", tool_name="terminal"), dependencies=()),
-        2: PlanGraphNode(step=PlanStep(step_id=2, title="B", tool_name="file_reader"), dependencies=(1,)),
+        1: PlanGraphNode(
+            step=PlanStep(step_id=1, title="A", tool_name="terminal"), dependencies=()
+        ),
+        2: PlanGraphNode(
+            step=PlanStep(step_id=2, title="B", tool_name="file_reader"), dependencies=(1,)
+        ),
     }
     graph1 = PlanGraph(nodes=nodes1, edges=((1, 2),))
 
     nodes2 = {
-        2: PlanGraphNode(step=PlanStep(step_id=2, title="B", tool_name="file_reader"), dependencies=(1,)),
-        1: PlanGraphNode(step=PlanStep(step_id=1, title="A", tool_name="terminal"), dependencies=()),
+        2: PlanGraphNode(
+            step=PlanStep(step_id=2, title="B", tool_name="file_reader"), dependencies=(1,)
+        ),
+        1: PlanGraphNode(
+            step=PlanStep(step_id=1, title="A", tool_name="terminal"), dependencies=()
+        ),
     }
     graph2 = PlanGraph(nodes=nodes2, edges=((1, 2),))
 
     hash1 = compute_plan_fingerprint(graph1)
     hash2 = compute_plan_fingerprint(graph2)
 
-    assert hash1 == hash2, "Canonical plan graph fingerprints must match regardless of dict insertion order"
+    assert (
+        hash1 == hash2
+    ), "Canonical plan graph fingerprints must match regardless of dict insertion order"
 
 
 @pytest.mark.asyncio

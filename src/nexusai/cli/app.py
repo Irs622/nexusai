@@ -181,12 +181,8 @@ def cluster_top(
     config_path: str = typer.Option(
         "config/cluster_workers.yaml", "--config", "-c", help="Path to cluster workers config YAML"
     ),
-    refresh_rate: float = typer.Option(
-        1.0, "--refresh", "-r", help="Refresh interval in seconds"
-    ),
-    once: bool = typer.Option(
-        False, "--once", help="Render snapshot once and exit immediately"
-    ),
+    refresh_rate: float = typer.Option(1.0, "--refresh", "-r", help="Refresh interval in seconds"),
+    once: bool = typer.Option(False, "--once", help="Render snapshot once and exit immediately"),
 ) -> None:
     """Launch interactive Live Terminal UI (TUI) cluster monitor."""
     from nexusai.cli.tui.cluster_monitor import ClusterMonitorTUI
@@ -200,12 +196,8 @@ def top_alias(
     config_path: str = typer.Option(
         "config/cluster_workers.yaml", "--config", "-c", help="Path to cluster workers config YAML"
     ),
-    refresh_rate: float = typer.Option(
-        1.0, "--refresh", "-r", help="Refresh interval in seconds"
-    ),
-    once: bool = typer.Option(
-        False, "--once", help="Render snapshot once and exit immediately"
-    ),
+    refresh_rate: float = typer.Option(1.0, "--refresh", "-r", help="Refresh interval in seconds"),
+    once: bool = typer.Option(False, "--once", help="Render snapshot once and exit immediately"),
 ) -> None:
     """Launch interactive Live Terminal UI (TUI) cluster monitor (alias for cluster top)."""
     cluster_top(config_path=config_path, refresh_rate=refresh_rate, once=once)
@@ -213,4 +205,3 @@ def top_alias(
 
 if __name__ == "__main__":
     app()
-

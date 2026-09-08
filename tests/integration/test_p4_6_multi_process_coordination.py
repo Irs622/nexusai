@@ -5,10 +5,13 @@ from __future__ import annotations
 import asyncio
 import os
 import tempfile
+
 import pytest
 
 from nexusai.brain.domain.execution_coordination import LeaseAcquisitionError, WorkerIdentity
-from nexusai.infrastructure.persistence.sqlite_execution_coordinator import SQLiteExecutionCoordinator
+from nexusai.infrastructure.persistence.sqlite_execution_coordinator import (
+    SQLiteExecutionCoordinator,
+)
 
 
 @pytest.mark.asyncio

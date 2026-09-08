@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import asyncio
+
 import pytest
 
 from nexusai.brain.domain.llm import (
-    LLMError,
     LLMMessage,
     LLMRateLimitError,
     LLMRequest,
@@ -34,7 +34,11 @@ async def test_p3_3_adversarial_provider_stress() -> None:
     req = LLMRequest(model="gpt-4o", messages=(msg,))
 
     async def worker(worker_id: int) -> None:
-        p_name = "mock-normal" if worker_id % 3 == 0 else ("mock-flaky" if worker_id % 3 == 1 else "mock-timeout")
+        p_name = (
+            "mock-normal"
+            if worker_id % 3 == 0
+            else ("mock-flaky" if worker_id % 3 == 1 else "mock-timeout")
+        )
         p = await registry.resolve(p_name)
 
         if p_name == "mock-normal":
@@ -52,7 +56,7 @@ async def test_p3_3_adversarial_provider_stress() -> None:
     workers = [asyncio.create_task(worker(w)) for w in range(30)]
     await asyncio.gather(*workers)
 
-    print(f"\n[P3-3 ADVERSARIAL LLM PROVIDER STRESS VERIFICATION]")
+    print("\n[P3-3 ADVERSARIAL LLM PROVIDER STRESS VERIFICATION]")
     print(f"Total Completed Provider Requests: {provider_normal.request_count}")
     assert provider_normal.request_count == 10, "10 normal requests must succeed cleanly"
 

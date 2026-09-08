@@ -6,12 +6,15 @@ import asyncio
 import os
 import tempfile
 import time
+
 import pytest
 
 from nexusai.brain.domain.execution_coordination import WorkerIdentity
 from nexusai.brain.domain.governance import ResourceBudget, ToolCapability
 from nexusai.brain.runtime.governance_engine import GovernanceEngine
-from nexusai.infrastructure.persistence.sqlite_execution_coordinator import SQLiteExecutionCoordinator
+from nexusai.infrastructure.persistence.sqlite_execution_coordinator import (
+    SQLiteExecutionCoordinator,
+)
 from tests.performance.metrics import PerformanceMetrics
 
 
@@ -23,7 +26,9 @@ async def test_concurrent_execution_load_50_workers() -> None:
 
     try:
         coord = SQLiteExecutionCoordinator(db_path=db_path)
-        gov = GovernanceEngine(global_budget=ResourceBudget(max_concurrent_tasks=100, max_tool_invocations=200))
+        gov = GovernanceEngine(
+            global_budget=ResourceBudget(max_concurrent_tasks=100, max_tool_invocations=200)
+        )
         metrics = PerformanceMetrics(benchmark_name="P4-8-B Concurrent Execution Load", workers=50)
 
         async def worker_task(w_idx: int) -> None:
@@ -51,9 +56,13 @@ async def test_concurrent_execution_load_50_workers() -> None:
         metrics.export_json()
 
         d = metrics.to_dict()
-        print(f"\n[P4-8-B CONCURRENT EXECUTION LOAD RESULTS]")
-        print(f"Workers: 50 | Operations: {d['total_operations']} | Throughput: {d['throughput_ops_sec']} ops/sec")
-        print(f"Latencies (ms) -> p50: {d['latency_ms']['p50']} | p95: {d['latency_ms']['p95']} | p99: {d['latency_ms']['p99']} | max: {d['latency_ms']['max']}")
+        print("\n[P4-8-B CONCURRENT EXECUTION LOAD RESULTS]")
+        print(
+            f"Workers: 50 | Operations: {d['total_operations']} | Throughput: {d['throughput_ops_sec']} ops/sec"
+        )
+        print(
+            f"Latencies (ms) -> p50: {d['latency_ms']['p50']} | p95: {d['latency_ms']['p95']} | p99: {d['latency_ms']['p99']} | max: {d['latency_ms']['max']}"
+        )
 
         assert d["successful_operations"] == 50
         assert d["failed_operations"] == 0

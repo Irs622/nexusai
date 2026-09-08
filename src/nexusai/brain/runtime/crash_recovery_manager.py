@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Sequence
 
 from nexusai.brain.domain.execution_recovery import (
+    TERMINAL_JOURNAL_PHASES,
     JournalEntry,
     JournalLifecyclePhase,
     RecoveryStatus,
-    TERMINAL_JOURNAL_PHASES,
 )
 from nexusai.brain.domain.observability import RuntimeEvent, RuntimeEventType
 from nexusai.brain.domain.tool_registry import ToolIdempotency
@@ -24,7 +23,6 @@ class CrashRecoveryManager:
     """Orchestration recovery manager classifying interrupted executions and enforcing fail-closed recovery policies."""
 
     def __init__(
-
         self,
         journal: IExecutionJournal,
         governance: IGovernancePort | None = None,
@@ -94,7 +92,9 @@ class CrashRecoveryManager:
                 try:
                     await self.tool_registry.validate_tool(latest.tool_id)
                 except Exception as err:
-                    await self._fail_closed(latest, reason=f"ToolRegistry re-validation failed: {err}")
+                    await self._fail_closed(
+                        latest, reason=f"ToolRegistry re-validation failed: {err}"
+                    )
                     return RecoveryStatus.NON_RECOVERABLE
 
             if self.governance and latest.governance_reservation_id:

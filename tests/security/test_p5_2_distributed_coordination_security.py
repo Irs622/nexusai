@@ -3,16 +3,20 @@
 from __future__ import annotations
 
 import asyncio
+
 import pytest
 
 from nexusai.brain.domain.execution_coordination import (
     FencingTokenError,
-    LeaseAcquisitionError,
     StaleWorkerError,
     WorkerIdentity,
 )
-from nexusai.infrastructure.coordination.postgres_execution_coordinator import PostgresExecutionCoordinator
-from nexusai.infrastructure.coordination.redis_execution_coordinator import RedisExecutionCoordinator
+from nexusai.infrastructure.coordination.postgres_execution_coordinator import (
+    PostgresExecutionCoordinator,
+)
+from nexusai.infrastructure.coordination.redis_execution_coordinator import (
+    RedisExecutionCoordinator,
+)
 from tests.fixtures.p4_1_tools import ControlledTestToolPort
 
 
@@ -29,7 +33,9 @@ async def test_security_p5_2_fencing_token_stale_worker_rejection() -> None:
         exec_id = f"exec-p5-sec-1-{i}"
 
         # Worker A acquires lease (fencing_token = 1)
-        lease_a = await coord.acquire_execution_lease(exec_id, "sess-p5-sec-1", w_a, ttl_seconds=0.1)
+        lease_a = await coord.acquire_execution_lease(
+            exec_id, "sess-p5-sec-1", w_a, ttl_seconds=0.1
+        )
         token_a = lease_a.fencing_token
         assert token_a == 1
 
@@ -41,9 +47,13 @@ async def test_security_p5_2_fencing_token_stale_worker_rejection() -> None:
 
         # Worker A resumes and attempts validation with token_a (1) -> MUST FAIL CLOSED!
         with pytest.raises((FencingTokenError, StaleWorkerError)):
-            await coord.validate_lease_and_fencing_token(exec_id, w_a.worker_id, expected_token=token_a)
+            await coord.validate_lease_and_fencing_token(
+                exec_id, w_a.worker_id, expected_token=token_a
+            )
 
-        assert tool_port.call_count == 0, "Stale worker tool execution call_count MUST remain strictly 0!"
+        assert (
+            tool_port.call_count == 0
+        ), "Stale worker tool execution call_count MUST remain strictly 0!"
 
 
 if __name__ == "__main__":

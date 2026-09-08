@@ -1,14 +1,18 @@
 """Tool execution latency benchmark for NexusAI."""
-import time
+
 import asyncio
+import time
+
 from nexusai.tools.workspace.fs import ReadFileTool
+
 
 async def measure_tool_latency() -> float:
     tool = ReadFileTool()
     start_time = time.perf_counter()
     await tool.execute(file_path="pyproject.toml")
     end_time = time.perf_counter()
-    return (end_time - start_time) * 1000 # convert to ms
+    return (end_time - start_time) * 1000  # convert to ms
+
 
 if __name__ == "__main__":
     latency_ms = asyncio.run(measure_tool_latency())

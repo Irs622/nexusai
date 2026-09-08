@@ -7,7 +7,7 @@ import sys
 import time
 from typing import Any, Mapping, TextIO
 
-from nexusai.brain.domain.observability import RuntimeEvent, sanitize_attributes
+from nexusai.brain.domain.observability import sanitize_attributes
 from nexusai.brain.ports.observability_port import IObservabilityPort
 
 

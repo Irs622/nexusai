@@ -6,16 +6,12 @@ import asyncio
 import os
 import tempfile
 import time
-from typing import Any
+
 import pytest
 
-from nexusai.brain.domain.agent import FailureReason, PlanGraph, PlanGraphNode, PlanStep
 from nexusai.brain.domain.execution_state import (
     ExecutionRecord,
-    ExecutionStatus,
     NodeExecutionRecord,
-    NodeExecutionStatus,
-    compute_plan_graph_hash,
 )
 from nexusai.brain.domain.recovery import (
     FailureClass,
@@ -25,8 +21,6 @@ from nexusai.brain.domain.recovery import (
     classify_failure,
     generate_idempotency_key,
 )
-from nexusai.brain.ports.reconciliation_port import DefaultReconciliationAdapter
-from nexusai.brain.ports.tool_port import ToolExecutionResult
 from nexusai.infrastructure.persistence.sqlite_execution_store import SQLiteExecutionStateStore
 
 
@@ -36,10 +30,17 @@ def test_failure_classification() -> None:
     assert classify_failure(error_message="401 Unauthorized") == FailureClass.AUTHENTICATION_ERROR
     assert classify_failure(error_message="403 Forbidden") == FailureClass.AUTHORIZATION_ERROR
     assert classify_failure(error_message="404 Tool not found") == FailureClass.TOOL_NOT_FOUND
-    assert classify_failure(error_message="Invalid argument passed") == FailureClass.INVALID_ARGUMENT
+    assert (
+        classify_failure(error_message="Invalid argument passed") == FailureClass.INVALID_ARGUMENT
+    )
     assert classify_failure(error_message="429 Rate limit exceeded") == FailureClass.RATE_LIMITED
-    assert classify_failure(error_message="Connection refused socket error") == FailureClass.NETWORK_ERROR
-    assert classify_failure(error_message="Unrecognized error message") == FailureClass.UNKNOWN_ERROR
+    assert (
+        classify_failure(error_message="Connection refused socket error")
+        == FailureClass.NETWORK_ERROR
+    )
+    assert (
+        classify_failure(error_message="Unrecognized error message") == FailureClass.UNKNOWN_ERROR
+    )
 
 
 def test_idempotency_key_stability() -> None:
@@ -55,7 +56,9 @@ def test_idempotency_key_stability() -> None:
 
 def test_A_idempotent_transient_failure_retries() -> None:
     """Test A: Transient failure on an idempotent tool produces RETRY decision."""
-    policy = ToolExecutionPolicy(idempotent=True, retryable=True, side_effecting=False, max_retries=3)
+    policy = ToolExecutionPolicy(
+        idempotent=True, retryable=True, side_effecting=False, max_retries=3
+    )
     decision = RecoveryPolicyEngine.evaluate(policy, FailureClass.TIMEOUT, attempt_number=1)
 
     assert decision.action == RecoveryAction.RETRY
@@ -79,7 +82,9 @@ def test_C_and_D_exponential_backoff_calculation_and_cap() -> None:
     delay2 = RecoveryPolicyEngine.calculate_backoff(policy, attempt_number=2)  # 0.5 * 2^1 = 1.0
     delay3 = RecoveryPolicyEngine.calculate_backoff(policy, attempt_number=3)  # 0.5 * 2^2 = 2.0
     delay4 = RecoveryPolicyEngine.calculate_backoff(policy, attempt_number=4)  # 0.5 * 2^3 = 4.0
-    delay5 = RecoveryPolicyEngine.calculate_backoff(policy, attempt_number=5)  # 0.5 * 2^4 = 8.0 -> capped at 5.0
+    delay5 = RecoveryPolicyEngine.calculate_backoff(
+        policy, attempt_number=5
+    )  # 0.5 * 2^4 = 8.0 -> capped at 5.0
 
     assert delay1 == 0.5
     assert delay2 == 1.0
@@ -92,7 +97,9 @@ def test_E_and_F_non_idempotent_side_effect_produces_reconcile() -> None:
     """Test E & F: Non-idempotent side-effecting failure or timeout produces RECONCILE decision."""
     policy = ToolExecutionPolicy(idempotent=False, side_effecting=True, max_retries=3)
 
-    decision_fail = RecoveryPolicyEngine.evaluate(policy, FailureClass.TRANSIENT_ERROR, attempt_number=1)
+    decision_fail = RecoveryPolicyEngine.evaluate(
+        policy, FailureClass.TRANSIENT_ERROR, attempt_number=1
+    )
     assert decision_fail.action == RecoveryAction.RECONCILE
 
     decision_timeout = RecoveryPolicyEngine.evaluate(policy, FailureClass.TIMEOUT, attempt_number=1)
@@ -109,7 +116,9 @@ def test_G_unknown_failure_conservative_decision() -> None:
 def test_H_non_retryable_auth_failure_fails() -> None:
     """Test H: Authentication failure produces FAIL decision without retrying."""
     policy = ToolExecutionPolicy(idempotent=True, max_retries=5)
-    decision = RecoveryPolicyEngine.evaluate(policy, FailureClass.AUTHENTICATION_ERROR, attempt_number=1)
+    decision = RecoveryPolicyEngine.evaluate(
+        policy, FailureClass.AUTHENTICATION_ERROR, attempt_number=1
+    )
     assert decision.action == RecoveryAction.FAIL
     assert "Non-retryable" in decision.reason
 
@@ -117,7 +126,9 @@ def test_H_non_retryable_auth_failure_fails() -> None:
 def test_I_circuit_breaker_open_prevents_retry() -> None:
     """Test I: CircuitBreaker OPEN state forces FAIL decision without retry."""
     policy = ToolExecutionPolicy(idempotent=True, max_retries=5)
-    decision = RecoveryPolicyEngine.evaluate(policy, FailureClass.TIMEOUT, attempt_number=1, cb_is_open=True)
+    decision = RecoveryPolicyEngine.evaluate(
+        policy, FailureClass.TIMEOUT, attempt_number=1, cb_is_open=True
+    )
     assert decision.action == RecoveryAction.FAIL
     assert "CircuitBreaker is OPEN" in decision.reason
 
@@ -131,9 +142,12 @@ async def test_O_database_migration_from_v1_to_v2() -> None:
     try:
         # Create legacy version 1 database manually
         import sqlite3
+
         conn = sqlite3.connect(db_path)
         with conn:
-            conn.execute("CREATE TABLE schema_migrations (version INTEGER PRIMARY KEY, applied_at REAL);")
+            conn.execute(
+                "CREATE TABLE schema_migrations (version INTEGER PRIMARY KEY, applied_at REAL);"
+            )
             conn.execute("INSERT INTO schema_migrations VALUES (1, ?);", (time.time(),))
             conn.execute("""
                 CREATE TABLE executions (

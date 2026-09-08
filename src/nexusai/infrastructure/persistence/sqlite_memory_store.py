@@ -6,7 +6,7 @@ import asyncio
 import json
 import sqlite3
 import time
-from typing import Any
+from enum import Enum
 
 from nexusai.brain.domain.memory import (
     MemoryEntry,
@@ -26,13 +26,24 @@ class SQLiteMemoryStore(IMemoryStore):
         db_path: str = ":memory:",
         telemetry: IObservabilityPort | None = None,
     ) -> None:
-        self.db_path = db_path
+        self._keepalive: sqlite3.Connection | None
+        if db_path == ":memory:":
+            from uuid import uuid4
+
+            self.db_path = f"file:mem_memory_{uuid4().hex}?mode=memory&cache=shared"
+            self._keepalive = sqlite3.connect(self.db_path, uri=True)
+        else:
+            self.db_path = db_path
+            self._keepalive = None
         self.telemetry = telemetry
         self._init_db()
 
     def _get_connection(self) -> sqlite3.Connection:
         """Create and configure thread-local SQLite connection with WAL mode."""
-        conn = sqlite3.connect(self.db_path, timeout=5.0)
+        if self.db_path.startswith("file:"):
+            conn = sqlite3.connect(self.db_path, uri=True, timeout=5.0)
+        else:
+            conn = sqlite3.connect(self.db_path, timeout=5.0)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA journal_mode=WAL;")
         conn.execute("PRAGMA foreign_keys=ON;")
@@ -75,7 +86,36 @@ class SQLiteMemoryStore(IMemoryStore):
     def _sync_store(self, entry: MemoryEntry) -> None:
         conn = self._get_connection()
         try:
-            meta_json = json.dumps(dict(entry.metadata))
+            meta_json = json.dumps(dict(getattr(entry, "metadata", {}) or {}))
+            mt = getattr(entry, "memory_type", MemoryType.EPISODIC)
+            mem_type = mt.value if isinstance(mt, Enum) else str(mt)
+            pl = getattr(entry, "privacy_level", PrivacyLevel.INTERNAL)
+            priv_level = pl.value if isinstance(pl, Enum) else str(pl)
+            prov = getattr(entry, "provenance", None)
+            prov_source_type = getattr(prov, "source_type", "unknown") if prov else "unknown"
+            prov_source_id = getattr(prov, "source_id", None) if prov else None
+            try:
+                prov_conf = float(getattr(prov, "confidence", 1.0))
+            except Exception:
+                prov_conf = 1.0
+            try:
+                prov_ver = int(getattr(prov, "version", 1))
+            except Exception:
+                prov_ver = 1
+            try:
+                prov_inv = 1 if getattr(prov, "invalidated", False) else 0
+            except Exception:
+                prov_inv = 0
+
+            try:
+                c_at = float(entry.created_at)
+            except Exception:
+                c_at = time.time()
+            try:
+                exp_at = float(entry.expires_at) if entry.expires_at is not None else None
+            except Exception:
+                exp_at = None
+
             with conn:
                 conn.execute(
                     """
@@ -87,19 +127,19 @@ class SQLiteMemoryStore(IMemoryStore):
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
-                        entry.memory_id,
-                        entry.session_id,
-                        entry.execution_id,
-                        entry.memory_type.value,
-                        entry.content,
-                        entry.provenance.source_type,
-                        entry.provenance.source_id,
-                        entry.provenance.confidence,
-                        entry.provenance.version,
-                        1 if entry.provenance.invalidated else 0,
-                        entry.privacy_level.value,
-                        entry.created_at,
-                        entry.expires_at,
+                        str(entry.memory_id),
+                        str(entry.session_id),
+                        str(entry.execution_id) if entry.execution_id is not None else None,
+                        mem_type,
+                        str(entry.content),
+                        str(prov_source_type),
+                        str(prov_source_id) if prov_source_id is not None else None,
+                        prov_conf,
+                        prov_ver,
+                        prov_inv,
+                        priv_level,
+                        c_at,
+                        exp_at,
                         meta_json,
                     ),
                 )
@@ -130,29 +170,34 @@ class SQLiteMemoryStore(IMemoryStore):
         self,
         session_id: str,
         memory_type: MemoryType | None = None,
+        include_invalidated: bool = False,
     ) -> list[MemoryEntry]:
         """List active, non-expired memories owned strictly by session_id."""
-        return await asyncio.to_thread(self._sync_list_session_memories, session_id, memory_type)
+        return await asyncio.to_thread(
+            self._sync_list_session_memories, session_id, memory_type, include_invalidated
+        )
 
     def _sync_list_session_memories(
         self,
         session_id: str,
         memory_type: MemoryType | None = None,
+        include_invalidated: bool = False,
     ) -> list[MemoryEntry]:
         conn = self._get_connection()
         now = time.time()
         try:
+            inv_clause = "" if include_invalidated else "AND invalidated = 0"
             if memory_type:
-                query = """
+                query = f"""
                     SELECT * FROM memories
-                    WHERE session_id = ? AND memory_type = ? AND (expires_at IS NULL OR expires_at > ?)
+                    WHERE session_id = ? AND memory_type = ? AND (expires_at IS NULL OR expires_at > ?) {inv_clause}
                     ORDER BY created_at DESC
                 """
                 rows = conn.execute(query, (session_id, memory_type.value, now)).fetchall()
             else:
-                query = """
+                query = f"""
                     SELECT * FROM memories
-                    WHERE session_id = ? AND (expires_at IS NULL OR expires_at > ?)
+                    WHERE session_id = ? AND (expires_at IS NULL OR expires_at > ?) {inv_clause}
                     ORDER BY created_at DESC
                 """
                 rows = conn.execute(query, (session_id, now)).fetchall()
@@ -190,7 +235,9 @@ class SQLiteMemoryStore(IMemoryStore):
         now = time.time()
         try:
             with conn:
-                cursor = conn.execute("DELETE FROM memories WHERE expires_at IS NOT NULL AND expires_at <= ?", (now,))
+                cursor = conn.execute(
+                    "DELETE FROM memories WHERE expires_at IS NOT NULL AND expires_at <= ?", (now,)
+                )
                 return cursor.rowcount
         finally:
             conn.close()
@@ -217,7 +264,9 @@ class SQLiteMemoryStore(IMemoryStore):
                         (session_id, memory_type.value),
                     )
                 else:
-                    cursor = conn.execute("DELETE FROM memories WHERE session_id = ?", (session_id,))
+                    cursor = conn.execute(
+                        "DELETE FROM memories WHERE session_id = ?", (session_id,)
+                    )
                 return cursor.rowcount
         finally:
             conn.close()

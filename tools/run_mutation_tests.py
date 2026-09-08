@@ -10,9 +10,9 @@ Provider, CLI, adapters, infrastructure, and benchmark code
 are EXCLUDED to prevent false positives and slow run times.
 """
 
-import sys
 import argparse
 import subprocess
+import sys
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -27,11 +27,7 @@ MUTATION_SCOPE = [
 
 def run_mutation_tests(show_summary: bool = True) -> int:
     """Execute mutmut mutation tests on scoped packages."""
-    paths = ",".join(
-        str(PROJECT_ROOT / p)
-        for p in MUTATION_SCOPE
-        if (PROJECT_ROOT / p).exists()
-    )
+    paths = ",".join(str(PROJECT_ROOT / p) for p in MUTATION_SCOPE if (PROJECT_ROOT / p).exists())
 
     if not paths:
         print("⚠️  No mutation target paths found. Skipping mutation tests.")
@@ -41,7 +37,10 @@ def run_mutation_tests(show_summary: bool = True) -> int:
     print(f"Scope: {', '.join(MUTATION_SCOPE)}")
 
     run_cmd = [
-        sys.executable, "-m", "mutmut", "run",
+        sys.executable,
+        "-m",
+        "mutmut",
+        "run",
         f"--paths-to-mutate={paths}",
         "--runner=pytest",
         "--tests-dir=tests",

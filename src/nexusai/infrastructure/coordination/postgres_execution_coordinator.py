@@ -2,21 +2,14 @@
 
 from __future__ import annotations
 
-import asyncio
-import json
-import time
-from typing import Any
-
 from nexusai.brain.domain.execution_coordination import (
     ExecutionLease,
-    FencingTokenError,
-    LeaseAcquisitionError,
-    LeaseStatus,
-    StaleWorkerError,
     WorkerIdentity,
 )
 from nexusai.brain.ports.execution_coordinator_port import IExecutionCoordinator
-from nexusai.infrastructure.persistence.sqlite_execution_coordinator import SQLiteExecutionCoordinator
+from nexusai.infrastructure.persistence.sqlite_execution_coordinator import (
+    SQLiteExecutionCoordinator,
+)
 
 
 class PostgresExecutionCoordinator(IExecutionCoordinator):
@@ -35,7 +28,9 @@ class PostgresExecutionCoordinator(IExecutionCoordinator):
         ttl_seconds: float = 30.0,
     ) -> ExecutionLease:
         """Atomically acquire PostgreSQL execution lease and issue monotonically increasing fencing token."""
-        return await self._backing_coord.acquire_execution_lease(execution_id, session_id, worker, ttl_seconds)
+        return await self._backing_coord.acquire_execution_lease(
+            execution_id, session_id, worker, ttl_seconds
+        )
 
     async def renew_execution_lease(
         self,
@@ -65,7 +60,9 @@ class PostgresExecutionCoordinator(IExecutionCoordinator):
         expected_token: int,
     ) -> bool:
         """Verify worker identity and monotonically increasing fencing token validity."""
-        return await self._backing_coord.validate_lease_and_fencing_token(execution_id, worker_id, expected_token)
+        return await self._backing_coord.validate_lease_and_fencing_token(
+            execution_id, worker_id, expected_token
+        )
 
     async def recover_expired_execution_lease(
         self,
@@ -74,4 +71,6 @@ class PostgresExecutionCoordinator(IExecutionCoordinator):
         ttl_seconds: float = 30.0,
     ) -> ExecutionLease:
         """Atomically takeover an expired lease and assign higher fencing token to new_worker."""
-        return await self._backing_coord.recover_expired_execution_lease(execution_id, new_worker, ttl_seconds)
+        return await self._backing_coord.recover_expired_execution_lease(
+            execution_id, new_worker, ttl_seconds
+        )

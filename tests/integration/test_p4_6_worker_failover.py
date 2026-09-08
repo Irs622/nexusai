@@ -5,10 +5,13 @@ from __future__ import annotations
 import asyncio
 import os
 import tempfile
+
 import pytest
 
 from nexusai.brain.domain.execution_coordination import LeaseStatus, WorkerIdentity
-from nexusai.infrastructure.persistence.sqlite_execution_coordinator import SQLiteExecutionCoordinator
+from nexusai.infrastructure.persistence.sqlite_execution_coordinator import (
+    SQLiteExecutionCoordinator,
+)
 
 
 @pytest.mark.asyncio
@@ -22,7 +25,9 @@ async def test_worker_failover_on_lease_expiration() -> None:
         w_a = WorkerIdentity("worker-a")
         w_b = WorkerIdentity("worker-b")
 
-        lease_a = await coord.acquire_execution_lease("exec-fo-1", "sess-fo-1", w_a, ttl_seconds=0.1)
+        lease_a = await coord.acquire_execution_lease(
+            "exec-fo-1", "sess-fo-1", w_a, ttl_seconds=0.1
+        )
         assert lease_a.fencing_token == 1
 
         # Wait for Worker A lease to expire

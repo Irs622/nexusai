@@ -204,9 +204,7 @@ from nexusai.brain.service import (
 )
 from nexusai.brain.service import BrainRuntimeFacade
 from nexusai.brain.service import BrainRuntimeFacade as BrainCoordinator
-from nexusai.brain.service import (
-    TurnResponse,
-)
+from nexusai.brain.service import TurnResponse
 from nexusai.brain.state_machine import AgentState, AgentStateMachine
 from nexusai.brain.strategy import (
     IDecisionStrategy,

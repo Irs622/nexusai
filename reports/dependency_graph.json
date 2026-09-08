@@ -24,6 +24,7 @@
     "context",
     "core",
     "domain",
+    "infrastructure",
     "kernel",
     "knowledge",
     "logging",
@@ -39,7 +40,7 @@
     "voice",
     "workflow"
   ],
-  "edge_count": 1935,
+  "edge_count": 2482,
   "edges": [
     {
       "source": "root",
@@ -98,6 +99,11 @@
     },
     {
       "source": "api",
+      "target": "logging",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
       "target": "memory",
       "file": "api/server.py"
     },
@@ -109,6 +115,11 @@
     {
       "source": "api",
       "target": "security",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "tools",
       "file": "api/server.py"
     },
     {
@@ -1689,7 +1700,52 @@
     {
       "source": "brain",
       "target": "brain",
-      "file": "brain/domain/__init__.py"
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "tools",
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "bus",
+      "file": "brain/coordinator.py"
     },
     {
       "source": "brain",
@@ -1785,6 +1841,41 @@
       "source": "brain",
       "target": "brain",
       "file": "brain/domain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/agent_runtime.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/agent_runtime.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/agent_runtime.py"
+    },
+    {
+      "source": "brain",
+      "target": "infrastructure",
+      "file": "brain/domain/audit.py"
     },
     {
       "source": "brain",
@@ -1804,17 +1895,82 @@
     {
       "source": "brain",
       "target": "brain",
+      "file": "brain/domain/execution_coordination.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/execution_recovery.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/execution_recovery.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/execution_state.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
       "file": "brain/domain/history.py"
     },
     {
       "source": "brain",
       "target": "brain",
       "file": "brain/domain/history.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/human_approval.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/human_approval.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/human_approval.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/llm.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/memory.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/memory_learning.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/memory_learning.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/memory_learning.py"
     },
     {
       "source": "brain",
       "target": "core",
       "file": "brain/domain/observation_lifecycle.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/planning_output.py"
     },
     {
       "source": "brain",
@@ -1835,6 +1991,21 @@
       "source": "brain",
       "target": "brain",
       "file": "brain/domain/session.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/tool_registry.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/tool_registry.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/domain/tool_registry.py"
     },
     {
       "source": "brain",
@@ -2649,6 +2820,131 @@
     {
       "source": "brain",
       "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
       "file": "brain/planner/repair.py"
     },
     {
@@ -2904,7 +3200,292 @@
     {
       "source": "brain",
       "target": "brain",
+      "file": "brain/ports/agent_loop_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/agent_loop_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/agent_loop_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/agent_loop_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/agent_runtime_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/agent_runtime_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/agent_runtime_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/approval_store_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/approval_store_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/approval_store_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/approval_store_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/audit_store_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/audit_store_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
       "file": "brain/ports/capability_discovery.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/credential_provider_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/credential_provider_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/disaster_recovery_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/disaster_recovery_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/execution_coordinator_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/execution_coordinator_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/execution_recovery_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/execution_recovery_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/execution_state_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/execution_state_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/execution_state_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/execution_state_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/execution_state_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/governance_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/governance_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/governance_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/governance_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/governance_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/human_approval_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/human_approval_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/human_approval_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/human_approval_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/llm_provider_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/llm_provider_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/llm_provider_registry_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/memory_learning_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/memory_learning_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/memory_learning_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/memory_learning_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/memory_learning_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/memory_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/memory_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/memory_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/outcome_evaluator_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/outcome_evaluator_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/outcome_evaluator_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/outcome_evaluator_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/reconciliation_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/sandbox_execution_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/sandbox_execution_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/scheduler_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/tool_registry_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/tool_registry_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/tool_registry_port.py"
     },
     {
       "source": "brain",
@@ -3288,13 +3869,358 @@
     },
     {
       "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/agent_loop.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/audit_service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/audit_service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/audit_service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/audit_service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/audit_service.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/brain_runtime_facade.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/brain_runtime_facade.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/brain_runtime_facade.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/brain_runtime_facade.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/brain_runtime_facade.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/brain_runtime_facade.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/brain_runtime_facade.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/brain_runtime_facade.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/brain_runtime_facade.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/brain_runtime_facade.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/brain_runtime_facade.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/brain_runtime_facade.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/brain_runtime_facade.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/brain_runtime_facade.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/brain_runtime_facade.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/brain_runtime_facade.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/brain_runtime_facade.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/brain_runtime_facade.py"
+    },
+    {
+      "source": "brain",
       "target": "core",
       "file": "brain/runtime/budget.py"
     },
     {
       "source": "brain",
       "target": "brain",
-      "file": "brain/runtime/context.py"
+      "file": "brain/runtime/collaboration/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/collaboration/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/collaboration/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/collaboration/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/collaboration/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/collaboration/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/collaboration/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/collaboration/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/collaboration/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/collaboration/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/collaboration/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/collaboration/mesh.py"
+    },
+    {
+      "source": "brain",
+      "target": "logging",
+      "file": "brain/runtime/collaboration/mesh.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/collaboration/mesh.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/collaboration/specialists.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/collaboration/specialists.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/collaboration/specialists.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/collaboration/specialists.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/collaboration/specialists.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/collaboration/specialists.py"
+    },
+    {
+      "source": "brain",
+      "target": "logging",
+      "file": "brain/runtime/collaboration/specialists.py"
     },
     {
       "source": "brain",
@@ -3310,6 +4236,426 @@
       "source": "brain",
       "target": "brain",
       "file": "brain/runtime/context.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/context.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/context_builder.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/context_builder.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/context_builder.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/context_builder.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/context_builder.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/crash_recovery_manager.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/crash_recovery_manager.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/crash_recovery_manager.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/crash_recovery_manager.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/crash_recovery_manager.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/crash_recovery_manager.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/crash_recovery_manager.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/crash_recovery_manager.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/crash_recovery_manager.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/crash_recovery_manager.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/crash_recovery_manager.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/crash_recovery_manager.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/deterministic_evaluator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/deterministic_evaluator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/deterministic_evaluator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/deterministic_evaluator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/deterministic_evaluator.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/deterministic_memory_extractor.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/deterministic_memory_extractor.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/deterministic_memory_extractor.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/deterministic_memory_extractor.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/deterministic_memory_extractor.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/governance_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/governance_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/governance_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/governance_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/governance_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/governance_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/governance_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/governance_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/governance_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/governance_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/governance_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/governance_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/human_approval_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/human_approval_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/human_approval_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/human_approval_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/human_approval_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/human_approval_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/human_approval_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/human_approval_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/human_approval_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/human_approval_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/human_approval_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/human_approval_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/human_approval_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/llm_provider_registry.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/llm_provider_registry.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/llm_provider_registry.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/llm_provider_registry.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_learning_policy.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_learning_policy.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_learning_policy.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_learning_policy.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_lifecycle.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_lifecycle.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_lifecycle.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_lifecycle.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_lifecycle.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_lifecycle.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_lifecycle.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_lifecycle.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_lifecycle.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_lifecycle.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_lifecycle.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_lifecycle.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_lifecycle.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_lifecycle.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_lifecycle.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_lifecycle.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_lifecycle.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_lifecycle.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_retriever.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_retriever.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_retriever.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_retriever.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/memory_retriever.py"
     },
     {
       "source": "brain",
@@ -3325,6 +4671,41 @@
       "source": "brain",
       "target": "core",
       "file": "brain/runtime/plan.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/priority_scheduler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/priority_scheduler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/priority_scheduler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/priority_scheduler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/priority_scheduler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/priority_scheduler.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/priority_scheduler.py"
     },
     {
       "source": "brain",
@@ -3350,6 +4731,71 @@
       "source": "brain",
       "target": "core",
       "file": "brain/runtime/state.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/tool_registry.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/tool_registry.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/tool_registry.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/tool_registry.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/tool_registry.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/tool_registry.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/tool_registry.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/tool_registry.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/tool_registry.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/tool_registry.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/tool_registry.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/tool_registry.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/tool_registry.py"
     },
     {
       "source": "brain",
@@ -3828,6 +5274,31 @@
     },
     {
       "source": "cli",
+      "target": "tools",
+      "file": "cli/app.py"
+    },
+    {
+      "source": "cli",
+      "target": "tools",
+      "file": "cli/app.py"
+    },
+    {
+      "source": "cli",
+      "target": "cli",
+      "file": "cli/app.py"
+    },
+    {
+      "source": "cli",
+      "target": "cli",
+      "file": "cli/app.py"
+    },
+    {
+      "source": "cli",
+      "target": "tools",
+      "file": "cli/app.py"
+    },
+    {
+      "source": "cli",
       "target": "automation",
       "file": "cli/chat.py"
     },
@@ -3965,6 +5436,36 @@
       "source": "cli",
       "target": "voice",
       "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "cli",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "__version__",
+      "file": "cli/console.py"
+    },
+    {
+      "source": "cli",
+      "target": "cli",
+      "file": "cli/tui/__init__.py"
+    },
+    {
+      "source": "cli",
+      "target": "infrastructure",
+      "file": "cli/tui/cluster_monitor.py"
+    },
+    {
+      "source": "cli",
+      "target": "infrastructure",
+      "file": "cli/tui/cluster_monitor.py"
+    },
+    {
+      "source": "cli",
+      "target": "infrastructure",
+      "file": "cli/tui/cluster_monitor.py"
     },
     {
       "source": "context",
@@ -4135,6 +5636,996 @@
       "source": "core",
       "target": "workflow",
       "file": "core/engine.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/coordination/postgres_execution_coordinator.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/coordination/postgres_execution_coordinator.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/coordination/postgres_execution_coordinator.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/coordination/postgres_execution_coordinator.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/coordination/redis_execution_coordinator.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/coordination/redis_execution_coordinator.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/coordination/redis_execution_coordinator.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/coordination/redis_execution_coordinator.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/autoscaler.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/autoscaler.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "logging",
+      "file": "infrastructure/distributed/autoscaler.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/cluster_manager.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/cluster_manager.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/cluster_manager.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/cluster_manager.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/cluster_manager.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "logging",
+      "file": "infrastructure/distributed/cluster_manager.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/pool.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/pool.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/distributed/scheduler.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/distributed/scheduler.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/distributed/scheduler.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/distributed/scheduler.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/distributed/scheduler.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/distributed/scheduler.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/distributed/scheduler.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/distributed/scheduler.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/distributed/scheduler.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/scheduler.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/scheduler.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/scheduler.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/supervisor.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/supervisor.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/distributed/supervisor.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "logging",
+      "file": "infrastructure/distributed/supervisor.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/distributed/worker_node.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/distributed/worker_node.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/distributed/worker_node.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/distributed/worker_node.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "core",
+      "file": "infrastructure/distributed/worker_node.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/llm/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/llm/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/mock_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/mock_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/mock_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/mock_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/mock_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/mock_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/mock_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/mock_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/mock_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/mock_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/openai_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/openai_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/openai_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/openai_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/openai_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/openai_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/openai_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/openai_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/openai_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/openai_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/openai_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/openai_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/response_normalizer.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/response_normalizer.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/response_normalizer.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/llm/response_normalizer.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/observability/in_memory_exporter.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/observability/in_memory_exporter.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/observability/metrics.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/observability/observability_health.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/observability/observability_health.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/observability/structured_logging.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/observability/structured_logging.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/observability/structured_logging_exporter.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/observability/structured_logging_exporter.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/observability/tracing.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/observability/tracing.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/postgres_approval_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/postgres_approval_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/postgres_approval_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/postgres_approval_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/postgres_approval_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/persistence/postgres_approval_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/postgres_audit_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/postgres_audit_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/postgres_audit_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/persistence/postgres_audit_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/postgres_execution_journal.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/postgres_execution_journal.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/postgres_execution_journal.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/persistence/postgres_execution_journal.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_approval_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_approval_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_approval_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_approval_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_approval_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_approval_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_approval_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_approval_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_approval_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_approval_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_approval_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_audit_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_audit_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_audit_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_audit_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_execution_coordinator.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_execution_coordinator.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_execution_coordinator.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_execution_coordinator.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_execution_coordinator.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_execution_coordinator.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_execution_coordinator.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_execution_journal.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_execution_journal.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_execution_journal.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_execution_journal.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_execution_journal.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_execution_journal.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_execution_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_execution_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_execution_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_execution_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_execution_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_execution_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_execution_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_memory_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_memory_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_memory_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_memory_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_memory_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_memory_store.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/recovery/backup_integrity_verifier.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/recovery/backup_integrity_verifier.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/recovery/postgres_backup_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/recovery/postgres_backup_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/recovery/recovery_manager.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/recovery/recovery_manager.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/recovery/recovery_manager.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/recovery/recovery_manager.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/recovery/recovery_manager.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/recovery/recovery_manager.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/recovery/recovery_manager.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/recovery/recovery_manager.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/sandbox/capability_policy.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/sandbox/container_runtime.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/sandbox/container_runtime.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/sandbox/container_runtime.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/sandbox/container_runtime.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/sandbox/grpc_sandbox_client.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/sandbox/grpc_sandbox_client.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/sandbox/grpc_sandbox_client.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/sandbox/grpc_sandbox_client.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/sandbox/grpc_sandbox_server.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/sandbox/grpc_sandbox_server.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/sandbox/grpc_sandbox_server.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/secrets/kms_credential_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/secrets/kms_credential_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/secrets/kms_credential_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/secrets/vault_credential_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/secrets/vault_credential_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/secrets/vault_credential_provider.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/tools/filesystem_tool.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/tools/filesystem_tool.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/tools/filesystem_tool.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/tools/filesystem_tool.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/tools/filesystem_tool.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/tools/filesystem_tool.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/tools/filesystem_tool.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/tools/network_tool.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/tools/network_tool.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/tools/network_tool.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/tools/network_tool.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/tools/network_tool.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/tools/network_tool.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/tools/network_tool.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/tools/process_tool.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/tools/process_tool.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/tools/process_tool.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/tools/process_tool.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/tools/process_tool.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/tools/process_tool.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/tools/process_tool.py"
     },
     {
       "source": "kernel",
@@ -9403,6 +11894,16 @@
     },
     {
       "source": "tools",
+      "target": "tools",
+      "file": "tools/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/__init__.py"
+    },
+    {
+      "source": "tools",
       "target": "brain",
       "file": "tools/adapter.py"
     },
@@ -9580,6 +12081,241 @@
       "source": "tools",
       "target": "tools",
       "file": "tools/macos/raw_applescript.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "core",
+      "file": "tools/mcp/client.py"
+    },
+    {
+      "source": "tools",
+      "target": "logging",
+      "file": "tools/mcp/client.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/client.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/client.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/client.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/client.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/client.py"
+    },
+    {
+      "source": "tools",
+      "target": "brain",
+      "file": "tools/mcp/manager.py"
+    },
+    {
+      "source": "tools",
+      "target": "brain",
+      "file": "tools/mcp/manager.py"
+    },
+    {
+      "source": "tools",
+      "target": "core",
+      "file": "tools/mcp/manager.py"
+    },
+    {
+      "source": "tools",
+      "target": "logging",
+      "file": "tools/mcp/manager.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/manager.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/manager.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/manager.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/manager.py"
+    },
+    {
+      "source": "tools",
+      "target": "security",
+      "file": "tools/mcp/models.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/servers/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/servers/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/servers/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/servers/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/servers/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/servers/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/servers/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/servers/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/servers/base.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/servers/base.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/servers/base.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/servers/filesystem.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/servers/sqlite.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/servers/web_fetcher.py"
+    },
+    {
+      "source": "tools",
+      "target": "core",
+      "file": "tools/mcp/tool.py"
+    },
+    {
+      "source": "tools",
+      "target": "security",
+      "file": "tools/mcp/tool.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/tool.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/tool.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/tool.py"
     },
     {
       "source": "tools",

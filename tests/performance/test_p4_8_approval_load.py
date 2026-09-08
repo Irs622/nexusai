@@ -6,10 +6,17 @@ import asyncio
 import os
 import tempfile
 import time
+
 import pytest
 
 from nexusai.brain.domain.governance import ToolCapability
-from nexusai.brain.domain.human_approval import ActionBinding, ApprovalStatus, HumanApprovalDecision, HumanApprovalRequest, RiskLevel
+from nexusai.brain.domain.human_approval import (
+    ActionBinding,
+    ApprovalStatus,
+    HumanApprovalDecision,
+    HumanApprovalRequest,
+    RiskLevel,
+)
 from nexusai.brain.runtime.human_approval_engine import HumanApprovalEngine
 from nexusai.infrastructure.persistence.sqlite_approval_store import SQLiteApprovalStore
 from tests.performance.metrics import PerformanceMetrics
@@ -38,10 +45,14 @@ async def test_durable_approval_load_and_replay_protection() -> None:
             )
 
             t0 = time.perf_counter()
-            req = HumanApprovalRequest(f"app-load-{app_idx}", binding, RiskLevel.HIGH, "Run process")
+            req = HumanApprovalRequest(
+                f"app-load-{app_idx}", binding, RiskLevel.HIGH, "Run process"
+            )
             await engine.request_approval(req)
 
-            dec = HumanApprovalDecision(f"app-load-{app_idx}", ApprovalStatus.APPROVED, "op@co.com", "Approved")
+            dec = HumanApprovalDecision(
+                f"app-load-{app_idx}", ApprovalStatus.APPROVED, "op@co.com", "Approved"
+            )
             grant = await engine.submit_decision(dec)
 
             # Consume grant
@@ -57,9 +68,13 @@ async def test_durable_approval_load_and_replay_protection() -> None:
         metrics.export_json()
 
         d = metrics.to_dict()
-        print(f"\n[P4-8-D DURABLE APPROVAL LOAD RESULTS]")
-        print(f"Total Operations: {d['total_operations']} | Throughput: {d['throughput_ops_sec']} ops/sec")
-        print(f"Latencies (ms) -> p50: {d['latency_ms']['p50']} | p95: {d['latency_ms']['p95']} | p99: {d['latency_ms']['p99']} | max: {d['latency_ms']['max']}")
+        print("\n[P4-8-D DURABLE APPROVAL LOAD RESULTS]")
+        print(
+            f"Total Operations: {d['total_operations']} | Throughput: {d['throughput_ops_sec']} ops/sec"
+        )
+        print(
+            f"Latencies (ms) -> p50: {d['latency_ms']['p50']} | p95: {d['latency_ms']['p95']} | p99: {d['latency_ms']['p99']} | max: {d['latency_ms']['max']}"
+        )
 
         assert d["successful_operations"] == 50
         assert d["failed_operations"] == 0

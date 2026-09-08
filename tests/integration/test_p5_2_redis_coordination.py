@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import asyncio
+
 import pytest
 
-from nexusai.infrastructure.coordination.redis_execution_coordinator import RedisExecutionCoordinator
+from nexusai.infrastructure.coordination.redis_execution_coordinator import (
+    RedisExecutionCoordinator,
+)
 from tests.contracts.test_execution_coordinator_contract import verify_coordinator_contract
 
 

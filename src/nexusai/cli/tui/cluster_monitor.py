@@ -2,18 +2,18 @@
 
 from __future__ import annotations
 
+import time
 from datetime import datetime, timezone
 from pathlib import Path
-import time
 
 import psutil
+import yaml
 from rich.console import Console
 from rich.layout import Layout
 from rich.live import Live
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
-import yaml
 
 from nexusai.infrastructure.distributed.cluster_manager import ClusterOrchestrator
 from nexusai.infrastructure.distributed.pool import DistributedWorkerPool
@@ -172,7 +172,11 @@ class ClusterMonitorTUI:
             self.render_once()
             return
 
-        with Live(self.make_layout(), console=self.console, refresh_per_second=int(1.0 / max(0.2, refresh_rate))) as live:
+        with Live(
+            self.make_layout(),
+            console=self.console,
+            refresh_per_second=int(1.0 / max(0.2, refresh_rate)),
+        ) as live:
             try:
                 while True:
                     live.update(self.make_layout())

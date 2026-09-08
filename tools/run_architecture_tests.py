@@ -1,7 +1,6 @@
 import importlib.util
 import json
 import sys
-import unittest
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -12,6 +11,7 @@ if str(PROJECT_ROOT) not in sys.path:
 if str(PROJECT_ROOT / "src") not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
+
 def load_mod(name, path):
     spec = importlib.util.spec_from_file_location(name, path)
     if spec is None or spec.loader is None:
@@ -20,6 +20,7 @@ def load_mod(name, path):
     sys.modules[name] = mod
     spec.loader.exec_module(mod)
     return mod
+
 
 rules_mod = load_mod("nexusai_rules", SRC_DIR / "architecture" / "rules.py")
 whitelist_mod = load_mod("nexusai_whitelist", SRC_DIR / "architecture" / "whitelist.py")
@@ -164,23 +165,29 @@ def run_all_architecture_tests():
     print(f"Boundary Integrity       : {health['boundary_integrity']}%")
     print(f"Replaceability           : {health['replaceability']}%")
     print(f"Dependency Health        : {health['dependency_health']}%")
-    print(f"Technical Debt Score     : {health['technical_debt_score']}% ({health['whitelisted_debt']} Whitelisted Exceptions)")
+    print(
+        f"Technical Debt Score     : {health['technical_debt_score']}% ({health['whitelisted_debt']} Whitelisted Exceptions)"
+    )
     print(f"Documentation Score      : {health['documentation_score']}%")
     print(f"Observability Score      : {health['observability_score']}%")
-    print(f"--------------------------------------------------")
+    print("--------------------------------------------------")
     print(f"OVERALL ARCHITECTURE SCORE: {health['health_score']} / 100")
     print("==================================================")
-    print(f"Generated Reports        :")
-    print(f"  - JSON Export    : reports/dependency_graph.json")
-    print(f"  - Mermaid Diagram: reports/dependency_graph.mmd")
-    print(f"  - Markdown Report: reports/dependency_graph.md")
+    print("Generated Reports        :")
+    print("  - JSON Export    : reports/dependency_graph.json")
+    print("  - Mermaid Diagram: reports/dependency_graph.mmd")
+    print("  - Markdown Report: reports/dependency_graph.md")
     print("==================================================\n")
 
     if total_unapproved_drift > 0:
-        print(f"[FAIL] ARCHITECTURE DRIFT DETECTED! Found {total_unapproved_drift} new unapproved import regression(s).")
+        print(
+            f"[FAIL] ARCHITECTURE DRIFT DETECTED! Found {total_unapproved_drift} new unapproved import regression(s)."
+        )
         sys.exit(1)
     else:
-        print("[SUCCESS] Zero unapproved architecture regressions detected. Architecture check PASSED!")
+        print(
+            "[SUCCESS] Zero unapproved architecture regressions detected. Architecture check PASSED!"
+        )
         sys.exit(0)
 
 

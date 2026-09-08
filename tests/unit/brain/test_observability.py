@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import time
 import pytest
 
 from nexusai.brain.domain.observability import (

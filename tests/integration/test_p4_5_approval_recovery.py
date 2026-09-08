@@ -5,11 +5,18 @@ from __future__ import annotations
 import asyncio
 import os
 import tempfile
+
 import pytest
 
 from nexusai.brain.domain.execution_recovery import JournalEntry, JournalLifecyclePhase
 from nexusai.brain.domain.governance import ToolCapability
-from nexusai.brain.domain.human_approval import ActionBinding, ApprovalStatus, HumanApprovalDecision, HumanApprovalRequest, RiskLevel
+from nexusai.brain.domain.human_approval import (
+    ActionBinding,
+    ApprovalStatus,
+    HumanApprovalDecision,
+    HumanApprovalRequest,
+    RiskLevel,
+)
 from nexusai.brain.runtime.crash_recovery_manager import CrashRecoveryManager
 from nexusai.brain.runtime.human_approval_engine import HumanApprovalEngine
 from nexusai.infrastructure.persistence.sqlite_approval_store import SQLiteApprovalStore
@@ -66,7 +73,9 @@ async def test_approval_grant_recovery_preserves_consumed_status() -> None:
 
         req_after = await approval_engine.get_request("app-rec-1")
         assert req_after is not None
-        assert req_after.status == ApprovalStatus.CONSUMED, "Consumed approval grant MUST NOT be resurrected into APPROVED!"
+        assert (
+            req_after.status == ApprovalStatus.CONSUMED
+        ), "Consumed approval grant MUST NOT be resurrected into APPROVED!"
 
     finally:
         if os.path.exists(db_path):

@@ -7,6 +7,7 @@ import os
 import sqlite3
 import tempfile
 import time
+
 import pytest
 
 from nexusai.brain.domain.audit import AuditEvent, AuditEventType
@@ -39,7 +40,7 @@ async def test_sqlite_wal_contention_stress() -> None:
                     await store.append_event(ev)
                     t1 = time.perf_counter()
                     metrics.record_operation((t1 - t0) * 1000.0, success=True)
-                except sqlite3.OperationalError as err:
+                except sqlite3.OperationalError:
                     t1 = time.perf_counter()
                     metrics.sqlite_contention_count += 1
                     metrics.record_operation((t1 - t0) * 1000.0, success=False)
@@ -51,12 +52,18 @@ async def test_sqlite_wal_contention_stress() -> None:
         metrics.export_json()
 
         d = metrics.to_dict()
-        print(f"\n[P4-8-C SQLITE WAL CONTENTION RESULTS]")
-        print(f"Total Operations: {d['total_operations']} | Contention Count: {d['sqlite_contention_count']}")
-        print(f"Latencies (ms) -> p50: {d['latency_ms']['p50']} | p95: {d['latency_ms']['p95']} | p99: {d['latency_ms']['p99']} | max: {d['latency_ms']['max']}")
+        print("\n[P4-8-C SQLITE WAL CONTENTION RESULTS]")
+        print(
+            f"Total Operations: {d['total_operations']} | Contention Count: {d['sqlite_contention_count']}"
+        )
+        print(
+            f"Latencies (ms) -> p50: {d['latency_ms']['p50']} | p95: {d['latency_ms']['p95']} | p99: {d['latency_ms']['p99']} | max: {d['latency_ms']['max']}"
+        )
 
         assert d["total_operations"] == 300
-        assert d["successful_operations"] == 300, "All 300 transactions MUST complete under WAL busy timeout!"
+        assert (
+            d["successful_operations"] == 300
+        ), "All 300 transactions MUST complete under WAL busy timeout!"
 
     finally:
         if os.path.exists(db_path):

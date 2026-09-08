@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+
 import pytest
 
 from nexusai.infrastructure.observability.metrics import PrometheusMetricRecorder
@@ -20,8 +21,10 @@ async def test_full_observability_pipeline_integration() -> None:
     health = ObservabilityHealthService()
 
     # Record full lifecycle metrics
-    metrics.increment_counter("nexusai_execution_total", 1.0, {"tool_id": "process_tool", "status": "success"})
-    span = tracer.start_span("execution_pipeline", {"tool_id": "process_tool"})
+    metrics.increment_counter(
+        "nexusai_execution_total", 1.0, {"tool_id": "process_tool", "status": "success"}
+    )
+    tracer.start_span("execution_pipeline", {"tool_id": "process_tool"})
     logger.info("execution_completed", tool_id="process_tool", duration_ms=45.2)
 
     assert metrics.counters["nexusai_execution_total"] == 1.0

@@ -6,12 +6,10 @@ import asyncio
 import os
 import tempfile
 import time
+
 import pytest
 
 from nexusai.brain.domain.audit import AuditEvent, AuditEventType
-from nexusai.brain.domain.governance import ToolCapability
-from nexusai.brain.domain.human_approval import ActionBinding, HumanApprovalRequest, RiskLevel
-from nexusai.infrastructure.persistence.sqlite_approval_store import SQLiteApprovalStore
 from nexusai.infrastructure.persistence.sqlite_audit_store import SQLiteAuditStore
 from tests.performance.metrics import PerformanceMetrics
 
@@ -44,10 +42,12 @@ async def test_baseline_performance_benchmarks() -> None:
         metrics.export_json()
 
         d = metrics.to_dict()
-        print(f"\n[P4-8-A BASELINE PERFORMANCE BENCHMARK RESULTS]")
+        print("\n[P4-8-A BASELINE PERFORMANCE BENCHMARK RESULTS]")
         print(f"Total Operations: {d['total_operations']}")
         print(f"Duration: {d['duration_seconds']}s | Throughput: {d['throughput_ops_sec']} ops/sec")
-        print(f"Latencies (ms) -> p50: {d['latency_ms']['p50']} | p95: {d['latency_ms']['p95']} | p99: {d['latency_ms']['p99']} | max: {d['latency_ms']['max']}")
+        print(
+            f"Latencies (ms) -> p50: {d['latency_ms']['p50']} | p95: {d['latency_ms']['p95']} | p99: {d['latency_ms']['p99']} | max: {d['latency_ms']['max']}"
+        )
 
         assert d["total_operations"] == 1000
         assert d["failed_operations"] == 0

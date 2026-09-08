@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-import time
 from typing import Any, Mapping
 
 from nexusai.brain.domain.observability import sanitize_attributes
@@ -32,6 +31,7 @@ class FinishReason(str, Enum):
 # ------------------------------------------------------------------
 # Normalized Exception Hierarchy
 # ------------------------------------------------------------------
+
 
 class LLMError(Exception):
     """Base class for all vendor-neutral LLM provider errors."""
@@ -66,7 +66,6 @@ class LLMProviderUnavailableError(LLMError):
 LLMUnavailableError = LLMProviderUnavailableError
 
 
-
 class LLMInvalidRequestError(LLMError):
     """Raised when the request parameters or message payload are invalid."""
 
@@ -85,10 +84,10 @@ class LLMResponseFormatError(LLMResponseError):
     pass
 
 
-
 # ------------------------------------------------------------------
 # Domain Models
 # ------------------------------------------------------------------
+
 
 @dataclass(frozen=True)
 class LLMMessage:

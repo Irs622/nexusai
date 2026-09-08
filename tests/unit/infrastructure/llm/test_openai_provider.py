@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import urllib.error
+
 import pytest
 
 from nexusai.brain.domain.llm import (

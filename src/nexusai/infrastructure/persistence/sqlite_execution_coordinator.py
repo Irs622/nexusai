@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import sqlite3
 import time
-from typing import Any
 from uuid import uuid4
 
 from nexusai.brain.domain.execution_coordination import (
@@ -43,7 +42,6 @@ class SQLiteExecutionCoordinator(IExecutionCoordinator):
         conn.row_factory = sqlite3.Row
         return conn
 
-
     def _init_db(self) -> None:
         with self._get_connection() as conn:
             conn.execute("""
@@ -60,10 +58,16 @@ class SQLiteExecutionCoordinator(IExecutionCoordinator):
                     metadata TEXT NOT NULL
                 );
             """)
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_lease_session ON execution_leases(session_id);")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_lease_worker ON execution_leases(worker_id);")
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_lease_session ON execution_leases(session_id);"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_lease_worker ON execution_leases(worker_id);"
+            )
             conn.execute("CREATE INDEX IF NOT EXISTS idx_lease_status ON execution_leases(status);")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_lease_expires ON execution_leases(expires_at);")
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_lease_expires ON execution_leases(expires_at);"
+            )
 
     async def acquire_execution_lease(
         self,
@@ -77,12 +81,20 @@ class SQLiteExecutionCoordinator(IExecutionCoordinator):
         expires = now + ttl_seconds
 
         with self._get_connection() as conn:
-            row = conn.execute("SELECT * FROM execution_leases WHERE execution_id = ?", (execution_id,)).fetchone()
+            row = conn.execute(
+                "SELECT * FROM execution_leases WHERE execution_id = ?", (execution_id,)
+            ).fetchone()
             if row:
                 st = LeaseStatus(row["status"])
                 # Active non-expired lease held by another worker -> MUST FAIL!
-                if st in (LeaseStatus.LEASED, LeaseStatus.RENEWED) and now < row["expires_at"] and row["worker_id"] != worker.worker_id:
-                    raise LeaseAcquisitionError(f"Execution '{execution_id}' is already leased by worker '{row['worker_id']}'")
+                if (
+                    st in (LeaseStatus.LEASED, LeaseStatus.RENEWED)
+                    and now < row["expires_at"]
+                    and row["worker_id"] != worker.worker_id
+                ):
+                    raise LeaseAcquisitionError(
+                        f"Execution '{execution_id}' is already leased by worker '{row['worker_id']}'"
+                    )
 
                 # Re-acquiring or takeover expired lease -> Monotonically increment fencing token
                 next_token = row["fencing_token"] + 1
@@ -111,7 +123,9 @@ class SQLiteExecutionCoordinator(IExecutionCoordinator):
                     ),
                 )
                 if cursor.rowcount == 0:
-                    raise LeaseAcquisitionError(f"Atomic compare-and-set lease acquisition failed for '{execution_id}'")
+                    raise LeaseAcquisitionError(
+                        f"Atomic compare-and-set lease acquisition failed for '{execution_id}'"
+                    )
 
                 return ExecutionLease(
                     lease_id=lease_id,
@@ -149,7 +163,9 @@ class SQLiteExecutionCoordinator(IExecutionCoordinator):
                         ),
                     )
                 except sqlite3.IntegrityError:
-                    raise LeaseAcquisitionError(f"Race condition detected during initial lease creation for '{execution_id}'")
+                    raise LeaseAcquisitionError(
+                        f"Race condition detected during initial lease creation for '{execution_id}'"
+                    )
 
                 return ExecutionLease(
                     lease_id=lease_id,
@@ -173,15 +189,21 @@ class SQLiteExecutionCoordinator(IExecutionCoordinator):
         expires = now + ttl_seconds
 
         with self._get_connection() as conn:
-            row = conn.execute("SELECT * FROM execution_leases WHERE lease_id = ?", (lease_id,)).fetchone()
+            row = conn.execute(
+                "SELECT * FROM execution_leases WHERE lease_id = ?", (lease_id,)
+            ).fetchone()
             if not row:
                 raise StaleWorkerError(f"Lease '{lease_id}' not found")
 
             if row["worker_id"] != worker.worker_id:
-                raise StaleWorkerError(f"Worker '{worker.worker_id}' cannot renew lease owned by '{row['worker_id']}'")
+                raise StaleWorkerError(
+                    f"Worker '{worker.worker_id}' cannot renew lease owned by '{row['worker_id']}'"
+                )
 
             if now >= row["expires_at"]:
-                raise StaleWorkerError(f"Lease '{lease_id}' has already expired and cannot be renewed")
+                raise StaleWorkerError(
+                    f"Lease '{lease_id}' has already expired and cannot be renewed"
+                )
 
             cursor = conn.execute(
                 """
@@ -193,7 +215,9 @@ class SQLiteExecutionCoordinator(IExecutionCoordinator):
             )
 
             if cursor.rowcount == 0:
-                raise StaleWorkerError(f"Atomic compare-and-set lease renewal failed for '{lease_id}'")
+                raise StaleWorkerError(
+                    f"Atomic compare-and-set lease renewal failed for '{lease_id}'"
+                )
 
             return ExecutionLease(
                 lease_id=lease_id,
@@ -213,12 +237,16 @@ class SQLiteExecutionCoordinator(IExecutionCoordinator):
     ) -> bool:
         """Atomically release lease ownership."""
         with self._get_connection() as conn:
-            row = conn.execute("SELECT * FROM execution_leases WHERE lease_id = ?", (lease_id,)).fetchone()
+            row = conn.execute(
+                "SELECT * FROM execution_leases WHERE lease_id = ?", (lease_id,)
+            ).fetchone()
             if not row:
                 return False
 
             if row["worker_id"] != worker.worker_id:
-                raise StaleWorkerError(f"Worker '{worker.worker_id}' cannot release lease owned by '{row['worker_id']}'")
+                raise StaleWorkerError(
+                    f"Worker '{worker.worker_id}' cannot release lease owned by '{row['worker_id']}'"
+                )
 
             cursor = conn.execute(
                 "UPDATE execution_leases SET status = ? WHERE lease_id = ? AND worker_id = ?",
@@ -229,7 +257,9 @@ class SQLiteExecutionCoordinator(IExecutionCoordinator):
     async def get_current_lease(self, execution_id: str) -> ExecutionLease | None:
         """Retrieve current lease status for execution_id."""
         with self._get_connection() as conn:
-            row = conn.execute("SELECT * FROM execution_leases WHERE execution_id = ?", (execution_id,)).fetchone()
+            row = conn.execute(
+                "SELECT * FROM execution_leases WHERE execution_id = ?", (execution_id,)
+            ).fetchone()
             if not row:
                 return None
 
@@ -259,15 +289,21 @@ class SQLiteExecutionCoordinator(IExecutionCoordinator):
         now = time.time()
 
         with self._get_connection() as conn:
-            row = conn.execute("SELECT * FROM execution_leases WHERE execution_id = ?", (execution_id,)).fetchone()
+            row = conn.execute(
+                "SELECT * FROM execution_leases WHERE execution_id = ?", (execution_id,)
+            ).fetchone()
             if not row:
                 raise FencingTokenError(f"No lease found for execution '{execution_id}'")
 
             if row["worker_id"] != worker_id:
-                raise StaleWorkerError(f"Stale worker execution attempt: lease owned by '{row['worker_id']}', caller is '{worker_id}'")
+                raise StaleWorkerError(
+                    f"Stale worker execution attempt: lease owned by '{row['worker_id']}', caller is '{worker_id}'"
+                )
 
             if now >= row["expires_at"]:
-                raise FencingTokenError(f"Lease for execution '{execution_id}' expired at {row['expires_at']}")
+                raise FencingTokenError(
+                    f"Lease for execution '{execution_id}' expired at {row['expires_at']}"
+                )
 
             # Strict fencing token invariant (P4-6-INV-08 & INV-09)
             if expected_token != row["fencing_token"]:
@@ -287,12 +323,21 @@ class SQLiteExecutionCoordinator(IExecutionCoordinator):
         now = time.time()
 
         with self._get_connection() as conn:
-            row = conn.execute("SELECT * FROM execution_leases WHERE execution_id = ?", (execution_id,)).fetchone()
+            row = conn.execute(
+                "SELECT * FROM execution_leases WHERE execution_id = ?", (execution_id,)
+            ).fetchone()
             if not row:
-                raise LeaseAcquisitionError(f"Execution lease '{execution_id}' not found for recovery")
+                raise LeaseAcquisitionError(
+                    f"Execution lease '{execution_id}' not found for recovery"
+                )
 
-            if now < row["expires_at"] and row["status"] in (LeaseStatus.LEASED.value, LeaseStatus.RENEWED.value):
-                raise LeaseAcquisitionError(f"Cannot recover lease for execution '{execution_id}': active lease held by worker '{row['worker_id']}'")
+            if now < row["expires_at"] and row["status"] in (
+                LeaseStatus.LEASED.value,
+                LeaseStatus.RENEWED.value,
+            ):
+                raise LeaseAcquisitionError(
+                    f"Cannot recover lease for execution '{execution_id}': active lease held by worker '{row['worker_id']}'"
+                )
 
             next_token = row["fencing_token"] + 1
             lease_id = f"lease-{execution_id}-{next_token}"
@@ -304,11 +349,24 @@ class SQLiteExecutionCoordinator(IExecutionCoordinator):
                 SET lease_id = ?, worker_id = ?, fencing_token = ?, acquired_at = ?, expires_at = ?, status = ?
                 WHERE execution_id = ? AND (expires_at <= ? OR status IN (?, ?))
                 """,
-                (lease_id, new_worker.worker_id, next_token, now, expires, LeaseStatus.LEASED.value, execution_id, now, LeaseStatus.RELEASED.value, LeaseStatus.EXPIRED.value),
+                (
+                    lease_id,
+                    new_worker.worker_id,
+                    next_token,
+                    now,
+                    expires,
+                    LeaseStatus.LEASED.value,
+                    execution_id,
+                    now,
+                    LeaseStatus.RELEASED.value,
+                    LeaseStatus.EXPIRED.value,
+                ),
             )
 
             if cursor.rowcount == 0:
-                raise LeaseAcquisitionError(f"Atomic compare-and-set lease takeover failed for execution '{execution_id}'")
+                raise LeaseAcquisitionError(
+                    f"Atomic compare-and-set lease takeover failed for execution '{execution_id}'"
+                )
 
             return ExecutionLease(
                 lease_id=lease_id,

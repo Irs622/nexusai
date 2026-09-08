@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 import json
 import math
 import os
 import time
-from typing import Any, Sequence
+from dataclasses import dataclass, field
+from typing import Any
 
 
 @dataclass
@@ -26,7 +26,9 @@ class PerformanceMetrics:
     start_time: float = field(default_factory=time.time)
     end_time: float = 0.0
 
-    def record_operation(self, duration_ms: float, success: bool = True, is_timeout: bool = False) -> None:
+    def record_operation(
+        self, duration_ms: float, success: bool = True, is_timeout: bool = False
+    ) -> None:
         self.total_operations += 1
         if success:
             self.successful_operations += 1

@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from enum import Enum
 import hashlib
 import json
 import time
-from typing import Any, Mapping
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any
 
 from nexusai.brain.domain.agent import PlanGraph
 from nexusai.brain.ports.tool_port import ToolExecutionResult
@@ -30,11 +30,13 @@ class AgentLoopState(str, Enum):
     CANCELLED = "CANCELLED"
 
 
-TERMINAL_LOOP_STATES = frozenset({
-    AgentLoopState.COMPLETED,
-    AgentLoopState.FAILED,
-    AgentLoopState.CANCELLED,
-})
+TERMINAL_LOOP_STATES = frozenset(
+    {
+        AgentLoopState.COMPLETED,
+        AgentLoopState.FAILED,
+        AgentLoopState.CANCELLED,
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -99,11 +101,13 @@ def compute_plan_fingerprint(plan_graph: PlanGraph) -> str:
     for node_id in sorted(plan_graph.nodes.keys()):
         node = plan_graph.nodes[node_id]
         deps = tuple(sorted(node.dependencies))
-        nodes_summary.append({
-            "id": node_id,
-            "tool": node.step.tool_name,
-            "title": node.step.title,
-            "deps": deps,
-        })
+        nodes_summary.append(
+            {
+                "id": node_id,
+                "tool": node.step.tool_name,
+                "title": node.step.title,
+                "deps": deps,
+            }
+        )
     canonical_json = json.dumps(nodes_summary, sort_keys=True)
     return hashlib.sha256(canonical_json.encode("utf-8")).hexdigest()

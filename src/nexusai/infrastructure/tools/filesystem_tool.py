@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
-from typing import Any
 
 from nexusai.brain.domain.governance import ToolCapability
 from nexusai.brain.domain.tool_registry import ToolMetadata, ToolStatus, ToolTrustLevel
@@ -140,7 +138,9 @@ def get_filesystem_tool_metadata() -> ToolMetadata:
         name="Filesystem Tool",
         version="1.0.0",
         description="Governed sandboxed filesystem operations",
-        capabilities=frozenset({ToolCapability.FILE_READ, ToolCapability.FILE_WRITE, ToolCapability.FILE_DELETE}),
+        capabilities=frozenset(
+            {ToolCapability.FILE_READ, ToolCapability.FILE_WRITE, ToolCapability.FILE_DELETE}
+        ),
         status=ToolStatus.ENABLED,
         trust_level=ToolTrustLevel.BUILTIN,
     )

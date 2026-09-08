@@ -10,6 +10,7 @@ Verifies:
 from __future__ import annotations
 
 from pathlib import Path
+
 import pytest
 
 from nexusai.brain.ports.tool_port import ToolExecutionRequest
@@ -99,8 +100,7 @@ def test_secret_detection_single_pattern():
 def test_secret_detection_multiple_patterns():
     """Regression Test 2: Verify scanner detects multiple prohibited patterns when present."""
     sample_text = (
-        "OPENAI_API_KEY = '" + "sk-" + "or-v1-" + "123'\n"
-        "HEADER = 'Bearer " + "sk-" + "456'"
+        "OPENAI_API_KEY = '" + "sk-" + "or-v1-" + "123'\n" "HEADER = 'Bearer " + "sk-" + "456'"
     )
     matches = scan_text_for_secrets(sample_text)
     assert len(matches) >= 2, "Scanner must detect all prohibited secret patterns present"
@@ -148,7 +148,14 @@ def test_examples_and_config_placeholders():
         if not target_dir.exists():
             continue
         for file_path in target_dir.rglob("*"):
-            if file_path.is_file() and file_path.suffix in (".py", ".yaml", ".yml", ".json", ".md", ".env"):
+            if file_path.is_file() and file_path.suffix in (
+                ".py",
+                ".yaml",
+                ".yml",
+                ".json",
+                ".md",
+                ".env",
+            ):
                 text = file_path.read_text(encoding="utf-8", errors="ignore")
                 matches = scan_text_for_secrets(text)
                 if matches:

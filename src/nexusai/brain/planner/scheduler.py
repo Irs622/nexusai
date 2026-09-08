@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+from typing import Any
 
 from nexusai.brain.domain.agent import PlanGraph, StepStatus
 from nexusai.brain.ports.tool_port import IToolPort, ToolExecutionRequest, ToolExecutionResult
@@ -28,16 +29,16 @@ class ExecutionScheduler:
             return []
 
         # Build in-degree dependency counter and reverse adjacency map
-        in_degree: dict[int, int] = {
+        in_degree: dict[Any, int] = {
             node_id: len(node.dependencies) for node_id, node in graph.nodes.items()
         }
-        adj: dict[int, list[int]] = {node_id: [] for node_id in graph.nodes}
+        adj: dict[Any, list[Any]] = {node_id: [] for node_id in graph.nodes}
         for parent, child in graph.edges:
             if parent in adj:
                 adj[parent].append(child)
 
-        ready_queue: asyncio.Queue[int] = asyncio.Queue()
-        results_map: dict[int, ToolExecutionResult] = {}
+        ready_queue: asyncio.Queue[Any] = asyncio.Queue()
+        results_map: dict[Any, ToolExecutionResult] = {}
         lock = asyncio.Lock()
 
         # Seed initial ready queue (in-degree == 0)
