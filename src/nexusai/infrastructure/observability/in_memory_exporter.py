@@ -27,10 +27,10 @@ def sanitize_metric_attributes(attributes: Mapping[str, Any] | None) -> dict[str
 
     sanitized: dict[str, str] = {}
     for key, val in attributes.items():
-        k_lower = str(key).lower()
+        k_lower = key.lower()
         if k_lower in FORBIDDEN_METRIC_LABELS:
             continue  # Omit high-cardinality metric dimensions
-        sanitized[str(key)] = str(val)[:100]
+        sanitized[key] = str(val)[:100]
     return sanitized
 
 

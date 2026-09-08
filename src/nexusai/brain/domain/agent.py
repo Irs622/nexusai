@@ -209,7 +209,7 @@ class PlanGraphNode:
 class PlanGraph:
     """DAG Execution Plan container storing nodes and dependency edges."""
 
-    nodes: Mapping[int | str, PlanGraphNode] = field(default_factory=dict)
+    nodes: Mapping[Any, PlanGraphNode] = field(default_factory=dict)
     edges: tuple[tuple[int | str, int | str], ...] = ()
 
 

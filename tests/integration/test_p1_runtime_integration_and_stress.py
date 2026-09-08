@@ -139,7 +139,7 @@ async def test_multi_branch_partial_failure_state_consistency() -> None:
     engine = PlanGraphExecutionEngine(max_concurrency=4)
     spy_port = StressSpyToolPort(timeout_tools={"tool_b"})
 
-    nodes = {
+    nodes: dict[int | str, PlanGraphNode] = {
         1: PlanGraphNode(
             step=PlanStep(step_id=1, title="Step A", tool_name="tool_a"), dependencies=()
         ),
@@ -253,7 +253,7 @@ async def test_cancellation_during_concurrent_dag_execution() -> None:
     engine = PlanGraphExecutionEngine(max_concurrency=4)
     spy_port = StressSpyToolPort()
 
-    nodes = {
+    nodes: dict[int | str, PlanGraphNode] = {
         1: PlanGraphNode(
             step=PlanStep(step_id=1, title="Step A", tool_name="tool_a"), dependencies=()
         ),
