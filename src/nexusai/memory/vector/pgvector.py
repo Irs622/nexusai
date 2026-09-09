@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib
 import json
 from collections.abc import Sequence
 from typing import Any
@@ -93,9 +94,9 @@ class PgVectorStore(VectorStore):
             raise ValueError("PostgreSQL DSN must be provided when fallback is disabled.")
 
         try:
-            import asyncpg
+            asyncpg_mod: Any = importlib.import_module("asyncpg")
 
-            self._pool = await asyncpg.create_pool(
+            self._pool = await asyncpg_mod.create_pool(
                 dsn=self._dsn,
                 min_size=1,
                 max_size=10,
@@ -103,7 +104,7 @@ class PgVectorStore(VectorStore):
             )
             await self._init_schema(self._pool)
             return self._pool
-        except ImportError:
+        except (ImportError, ModuleNotFoundError):
             if self._fallback_enabled:
                 self._use_fallback = True
                 logger.warning(

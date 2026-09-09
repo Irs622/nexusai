@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib
 import uuid
 from collections.abc import Sequence
 from typing import Any
@@ -20,10 +21,8 @@ from nexusai.memory.vector.in_memory import InMemoryVectorStore
 def _get_qdrant_models() -> Any:
     """Retrieve qdrant_client.http.models or lightweight duck-typing stubs if not installed."""
     try:
-        from qdrant_client.http import models as rest_models
-
-        return rest_models
-    except ImportError:
+        return importlib.import_module("qdrant_client.http.models")
+    except (ImportError, ModuleNotFoundError):
 
         class _MockFieldCondition:
             def __init__(self, key: str, match: Any) -> None:
@@ -152,7 +151,8 @@ class QdrantVectorStore(VectorStore):
             raise ValueError("Qdrant URL must be provided when fallback is disabled.")
 
         try:
-            from qdrant_client import AsyncQdrantClient
+            qclient_mod: Any = importlib.import_module("qdrant_client")
+            AsyncQdrantClient = qclient_mod.AsyncQdrantClient
 
             self._client = AsyncQdrantClient(
                 url=self._url,
@@ -161,7 +161,7 @@ class QdrantVectorStore(VectorStore):
             )
             await self._init_collection(self._client)
             return self._client
-        except ImportError:
+        except (ImportError, ModuleNotFoundError):
             if self._fallback_enabled:
                 self._use_fallback = True
                 logger.warning(
