@@ -230,7 +230,7 @@ def get_current_fds(process: psutil.Process) -> int:
     """Safely obtain the count of open file descriptors on supported platforms."""
     if hasattr(process, "num_fds"):
         try:
-            return int(process.num_fds())
+            return process.num_fds()
         except Exception:
             return 0
     return 0

@@ -151,4 +151,4 @@ async def test_extended_soak_burst_execution(tmp_path: Path) -> None:
     with open(md_path, "r", encoding="utf-8") as f:
         saved_md = f.read()
     assert "# NexusAI 72-Hour Sustained Soak & Chaos Test Report" in saved_md
-    assert "VERDICT: PASS" or "Overall Verdict: `PASS`" in saved_md
+    assert "**Overall Verdict**: `PASS`" in saved_md

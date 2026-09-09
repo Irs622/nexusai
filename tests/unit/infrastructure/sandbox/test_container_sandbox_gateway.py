@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
 import pytest
 
@@ -23,16 +23,20 @@ def _spec(
     execution_id: str,
     session_id: str,
     fencing_id: int = 1,
-    **kwargs: Any,
+    arguments: Mapping[str, Any] | None = None,
+    limits: ResourceLimits | None = None,
+    policy: IsolationPolicy | None = None,
+    ephemeral_env: Mapping[str, str] | None = None,
 ) -> SandboxSpec:
-    fence_key = "fencing_" + "t" + "oken"
-    fence_kw = {fence_key: fencing_id}
     return SandboxSpec(
-        tool_id=tool_id,
-        execution_id=execution_id,
-        session_id=session_id,
-        **fence_kw,
-        **kwargs,
+        tool_id,
+        execution_id,
+        session_id,
+        fencing_id,
+        arguments or {},
+        limits or ResourceLimits(),
+        policy or IsolationPolicy(),
+        ephemeral_env or {},
     )
 
 
@@ -205,7 +209,7 @@ async def test_network_server_tcp_dispatch_and_lifecycle() -> None:
 
     finally:
         await server.stop()
-        assert server.is_running is False
+        assert not server.is_running
 
 
 @pytest.mark.asyncio
