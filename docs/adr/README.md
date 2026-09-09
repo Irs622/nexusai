@@ -47,6 +47,7 @@ This directory documents key architectural decisions made during the design, imp
 | [ADR 0022](0022-72-hour-sustained-soak-testing-and-chaos-pipeline.md) | 72-Hour Sustained Soak Testing & Chaos Injection Pipeline | Accepted | Reliability & Stress |
 | [ADR 0023](0023-oci-container-and-grpc-sandbox-execution-gateway.md) | OCI Container & gRPC MicroVM Sandbox Execution Gateway | Accepted | Security & Sandbox Isolation |
 | [ADR 0024](0024-nexusai-studio-interactive-dag-and-audit-visualizer.md) | NexusAI Studio — Interactive Web Visualizer for DAG Plans and Audit Chains | Accepted | Studio & Observability |
+| [ADR 0025](0025-cli-scaffolding-create-tool-and-create-mcp.md) | CLI Scaffolding Commands: `nexusai create-tool` and `nexusai create-mcp` | Accepted | CLI & Developer Experience |
 
 ---
 

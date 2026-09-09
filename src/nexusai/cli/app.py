@@ -203,5 +203,111 @@ def top_alias(
     cluster_top(config_path=config_path, refresh_rate=refresh_rate, once=once)
 
 
+@app.command("create-tool")
+def create_tool(
+    name: str = typer.Argument(..., help="Snake-case plugin name (e.g. my_tool)"),
+    description: str = typer.Option(
+        "A new NexusAI tool plugin",
+        "--description",
+        "-d",
+        help="Short description of the tool plugin",
+    ),
+    output_dir: str = typer.Option(
+        "plugins",
+        "--output-dir",
+        "-o",
+        help="Parent directory to create the plugin folder in",
+    ),
+    dry_run: bool = typer.Option(
+        False, "--dry-run", help="Preview scaffold output without writing files"
+    ),
+    overwrite: bool = typer.Option(
+        False, "--overwrite", help="Overwrite existing files if they already exist"
+    ),
+) -> None:
+    """Scaffold a new NexusAI tool plugin from the official template."""
+    from pathlib import Path
+
+    from nexusai.cli.scaffolding import scaffold_tool
+
+    print_banner()
+    try:
+        result = scaffold_tool(
+            name=name,
+            description=description,
+            output_dir=Path(output_dir),
+            dry_run=dry_run,
+            overwrite=overwrite,
+        )
+        prefix = "[bold yellow]DRY-RUN[/bold yellow] " if dry_run else ""
+        print_success(f"{prefix}Tool plugin [bold cyan]{name}[/bold cyan] scaffolded successfully!")
+        for f in result.files_written:
+            print_info(f"  {'(preview)' if dry_run else '(created)'} [cyan]{f}[/cyan]")
+        if not dry_run:
+            print_info(
+                f"\nNext steps:\n"
+                f"  1. Edit [cyan]{output_dir}/{name}/plugin.py[/cyan] to implement your tool\n"
+                f"  2. Update [cyan]{output_dir}/{name}/nexusai_manifest.yaml[/cyan] with capabilities\n"
+                f"  3. Add the plugin to your runtime configuration\n"
+                f"  4. Run [bold]uv run pytest tests/ -k {name}[/bold] to verify"
+            )
+    except ValueError as exc:
+        print_error(str(exc))
+        raise typer.Exit(code=1)
+
+
+@app.command("create-mcp")
+def create_mcp(
+    name: str = typer.Argument(..., help="Snake-case MCP server name (e.g. my_mcp)"),
+    description: str = typer.Option(
+        "A new NexusAI MCP server",
+        "--description",
+        "-d",
+        help="Short description of the MCP server",
+    ),
+    output_dir: str = typer.Option(
+        "plugins/mcp",
+        "--output-dir",
+        "-o",
+        help="Parent directory to create the MCP server folder in",
+    ),
+    dry_run: bool = typer.Option(
+        False, "--dry-run", help="Preview scaffold output without writing files"
+    ),
+    overwrite: bool = typer.Option(
+        False, "--overwrite", help="Overwrite existing files if they already exist"
+    ),
+) -> None:
+    """Scaffold a new NexusAI MCP server from the official template."""
+    from pathlib import Path
+
+    from nexusai.cli.scaffolding import scaffold_mcp
+
+    print_banner()
+    try:
+        result = scaffold_mcp(
+            name=name,
+            description=description,
+            output_dir=Path(output_dir),
+            dry_run=dry_run,
+            overwrite=overwrite,
+        )
+        prefix = "[bold yellow]DRY-RUN[/bold yellow] " if dry_run else ""
+        print_success(f"{prefix}MCP server [bold cyan]{name}[/bold cyan] scaffolded successfully!")
+        for f in result.files_written:
+            print_info(f"  {'(preview)' if dry_run else '(created)'} [cyan]{f}[/cyan]")
+        if not dry_run:
+            print_info(
+                f"\nNext steps:\n"
+                f"  1. Edit [cyan]{output_dir}/{name}/server.py[/cyan] to add your tools\n"
+                f"  2. Merge [cyan]{output_dir}/{name}/nexusai_mcp.yaml[/cyan] into "
+                f"[cyan]config/mcp_servers.yaml[/cyan]\n"
+                f"  3. Run [bold]nexusai mcp ping {name}[/bold] to verify connectivity"
+            )
+    except ValueError as exc:
+        print_error(str(exc))
+        raise typer.Exit(code=1)
+
+
 if __name__ == "__main__":
     app()

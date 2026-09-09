@@ -1,0 +1,475 @@
+"""
+Scaffolding engine for NexusAI developer productivity commands.
+
+Provides template rendering for `nexusai create-tool` and `nexusai create-mcp`
+commands, enabling rapid creation of standards-compliant tool plugins and
+MCP servers without manual boilerplate.
+"""
+
+from __future__ import annotations
+
+import re
+import textwrap
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Final
+
+from nexusai.logging.logger import logger
+
+# ---------------------------------------------------------------------------
+# Constants
+# ---------------------------------------------------------------------------
+
+_VALID_IDENTIFIER: Final[re.Pattern[str]] = re.compile(r"^[a-z][a-z0-9_]*$")
+
+# ---------------------------------------------------------------------------
+# Data model
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class ScaffoldResult:
+    """Result summary returned by a scaffolding operation."""
+
+    name: str
+    destination: Path
+    files_written: list[str] = field(default_factory=list)
+    dry_run: bool = False
+
+    def __str__(self) -> str:
+        prefix = "[DRY-RUN] " if self.dry_run else ""
+        lines = [f"{prefix}Scaffold '{self.name}' → {self.destination}"]
+        for f in self.files_written:
+            lines.append(f"  {'(would write)' if self.dry_run else '(written)'} {f}")
+        return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# Internal helpers
+# ---------------------------------------------------------------------------
+
+
+def _validate_name(name: str) -> None:
+    """Raise ValueError when *name* is not a valid Python identifier fragment."""
+    if not _VALID_IDENTIFIER.match(name):
+        raise ValueError(
+            f"Invalid name '{name}'. Must be lowercase alphanumeric with optional underscores "
+            "and must start with a letter (e.g. 'my_tool', 'calculator2')."
+        )
+
+
+def _to_class_name(name: str) -> str:
+    """Convert snake_case identifier to CamelCase class name."""
+    return "".join(part.capitalize() for part in name.split("_"))
+
+
+def _write_file(
+    path: Path,
+    content: str,
+    *,
+    dry_run: bool,
+    overwrite: bool,
+) -> bool:
+    """Write *content* to *path*.
+
+    Returns True when the file was (or would be) written, False when skipped.
+    """
+    if path.exists() and not overwrite:
+        logger.warning("Skipping existing file: {}", path)
+        return False
+
+    if not dry_run:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+        logger.debug("Wrote scaffold file: {}", path)
+
+    return True
+
+
+# ---------------------------------------------------------------------------
+# Tool plugin scaffold
+# ---------------------------------------------------------------------------
+
+_TOOL_PLUGIN_PY: Final[str] = '''\
+"""NexusAI Tool Plugin: {name}."""
+
+from __future__ import annotations
+
+from typing import Any, List
+
+from pydantic import BaseModel, Field
+
+from nexusai.security.guard import RiskLevel
+from nexusai.tools.base import BaseTool
+
+
+class {class_name}Input(BaseModel):
+    """Input schema for the {name} tool."""
+
+    # TODO: define your input fields here
+    query: str = Field(description="Primary query or input string for {name}")
+
+
+class {class_name}Tool(BaseTool):
+    """Tool implementation for {name}."""
+
+    name = "{name}"
+    description = "{description}"
+    risk_level = RiskLevel.LOW
+    input_schema = {class_name}Input
+
+    async def execute(self, **kwargs: Any) -> str:
+        """Execute the {name} tool.
+
+        Args:
+            **kwargs: Keyword arguments matching {class_name}Input fields.
+
+        Returns:
+            A string result from the tool execution.
+        """
+        # TODO: implement tool logic here
+        query: str = kwargs.get("query", "")
+        return f"[{name}] Received: {{query}}"
+
+
+class {plugin_class_name}:
+    """Plugin class exposing {name} tools to NexusAI.
+
+    Registered automatically via plugin discovery when placed under plugins/.
+    """
+
+    name = "{name}_plugin"
+    version = "1.0.0"
+    description = "{description}"
+
+    def get_tools(self) -> List[BaseTool]:
+        """Return list of BaseTool instances provided by this plugin."""
+        return [{class_name}Tool()]
+'''
+
+_TOOL_MANIFEST_YAML: Final[str] = """\
+# NexusAI Plugin Manifest — {name}
+# See: docs/specs/plugin-manifest.md
+
+name: {name}
+version: "1.0.0"
+nexusai_sdk_version: ">=1.0.0"
+description: "{description}"
+entrypoint: "plugins.{name}.plugin.{plugin_class_name}"
+capabilities:
+  read_filesystem: false
+  write_filesystem: false
+  terminal_execution: false
+  network_http: false
+  applescript: false
+dependencies: []
+"""
+
+_TOOL_README: Final[str] = """\
+# {class_name} Tool Plugin
+
+> Auto-generated by `nexusai create-tool`. Update this README with your plugin's purpose.
+
+## Overview
+
+**{name}** is a NexusAI tool plugin that provides `{class_name}Tool`.
+
+## Usage
+
+```yaml
+# config/plugins.yaml  (or add to your runtime plugin list)
+- name: {name}
+  entrypoint: plugins.{name}.plugin.{plugin_class_name}
+```
+
+## Development
+
+Edit `plugins/{name}/plugin.py` to implement your tool logic and update
+`nexusai_manifest.yaml` to reflect any required capabilities or dependencies.
+
+## Testing
+
+```bash
+uv run pytest tests/ -k {name}
+```
+"""
+
+
+def scaffold_tool(
+    name: str,
+    description: str,
+    output_dir: Path,
+    *,
+    dry_run: bool = False,
+    overwrite: bool = False,
+) -> ScaffoldResult:
+    """Scaffold a new NexusAI tool plugin directory.
+
+    Args:
+        name: Snake-case plugin identifier (e.g. ``my_tool``).
+        description: Short human-readable description of the plugin.
+        output_dir: Parent directory under which ``<name>/`` will be created.
+        dry_run: When True, no files are written to disk.
+        overwrite: When True, existing files are silently replaced.
+
+    Returns:
+        :class:`ScaffoldResult` describing what was created.
+
+    Raises:
+        ValueError: When *name* is not a valid identifier.
+    """
+    _validate_name(name)
+
+    class_name = _to_class_name(name)
+    plugin_class_name = f"{class_name}Plugin"
+    ctx: dict[str, str] = {
+        "name": name,
+        "class_name": class_name,
+        "plugin_class_name": plugin_class_name,
+        "description": description,
+    }
+
+    dest = output_dir / name
+    files_written: list[str] = []
+
+    targets: list[tuple[Path, str]] = [
+        (dest / "__init__.py", ""),
+        (dest / "plugin.py", _TOOL_PLUGIN_PY.format(**ctx)),
+        (dest / "nexusai_manifest.yaml", _TOOL_MANIFEST_YAML.format(**ctx)),
+        (dest / "README.md", _TOOL_README.format(**ctx)),
+    ]
+
+    for path, content in targets:
+        if _write_file(path, content, dry_run=dry_run, overwrite=overwrite):
+            files_written.append(str(path.relative_to(output_dir.parent)))
+
+    logger.info("Scaffolded tool plugin '{}' → {}", name, dest)
+    return ScaffoldResult(
+        name=name,
+        destination=dest,
+        files_written=files_written,
+        dry_run=dry_run,
+    )
+
+
+# ---------------------------------------------------------------------------
+# MCP server scaffold
+# ---------------------------------------------------------------------------
+
+_MCP_SERVER_PY: Final[str] = '''\
+"""NexusAI MCP Server: {name}."""
+
+from __future__ import annotations
+
+import asyncio
+import json
+import sys
+from typing import Any
+
+
+# ---------------------------------------------------------------------------
+# Tool registry
+# ---------------------------------------------------------------------------
+
+TOOLS: list[dict[str, Any]] = [
+    {{
+        "name": "{name}_hello",
+        "description": "Sample tool provided by the {name} MCP server.",
+        "inputSchema": {{
+            "type": "object",
+            "properties": {{
+                "message": {{
+                    "type": "string",
+                    "description": "Message to echo back.",
+                }},
+            }},
+            "required": ["message"],
+        }},
+    }},
+]
+
+
+# ---------------------------------------------------------------------------
+# JSON-RPC helpers
+# ---------------------------------------------------------------------------
+
+def _send(payload: dict[str, Any]) -> None:
+    """Write a JSON-RPC 2.0 response to stdout."""
+    sys.stdout.write(json.dumps(payload) + "\\n")
+    sys.stdout.flush()
+
+
+def _ok(id: Any, result: Any) -> None:  # noqa: A002
+    _send({{"jsonrpc": "2.0", "id": id, "result": result}})
+
+
+def _err(id: Any, code: int, message: str) -> None:  # noqa: A002
+    _send({{"jsonrpc": "2.0", "id": id, "error": {{"code": code, "message": message}}}})
+
+
+# ---------------------------------------------------------------------------
+# Handlers
+# ---------------------------------------------------------------------------
+
+async def _handle_request(request: dict[str, Any]) -> None:
+    """Dispatch a single JSON-RPC 2.0 request."""
+    req_id = request.get("id")
+    method: str = request.get("method", "")
+    params: dict[str, Any] = request.get("params") or {{}}
+
+    if method == "initialize":
+        _ok(req_id, {{
+            "protocolVersion": "2024-11-05",
+            "capabilities": {{"tools": {{"listChanged": False}}}},
+            "serverInfo": {{"name": "{name}", "version": "1.0.0"}},
+        }})
+
+    elif method == "tools/list":
+        _ok(req_id, {{"tools": TOOLS}})
+
+    elif method == "tools/call":
+        tool_name: str = params.get("name", "")
+        args: dict[str, Any] = params.get("arguments", {{}})
+
+        if tool_name == "{name}_hello":
+            message = args.get("message", "")
+            _ok(req_id, {{
+                "content": [{{"type": "text", "text": f"[{name}] Hello: {{message}}"}}],
+                "isError": False,
+            }})
+        else:
+            _err(req_id, -32601, f"Unknown tool: {{tool_name}}")
+
+    elif method == "notifications/initialized":
+        # Acknowledge — no response needed for notifications
+        pass
+
+    else:
+        _err(req_id, -32601, f"Method not found: {{method}}")
+
+
+async def _main() -> None:
+    """STDIO MCP server event loop."""
+    loop = asyncio.get_event_loop()
+    reader = asyncio.StreamReader()
+    protocol = asyncio.StreamReaderProtocol(reader)
+    await loop.connect_read_pipe(lambda: protocol, sys.stdin)
+
+    while True:
+        line = await reader.readline()
+        if not line:
+            break
+        try:
+            request: dict[str, Any] = json.loads(line.decode("utf-8").strip())
+            await _handle_request(request)
+        except json.JSONDecodeError as exc:
+            _err(None, -32700, f"Parse error: {{exc}}")
+
+
+if __name__ == "__main__":
+    asyncio.run(_main())
+'''
+
+_MCP_CONFIG_YAML: Final[str] = """\
+# MCP Server configuration snippet for {name}.
+# Merge this block into config/mcp_servers.yaml.
+
+servers:
+  - name: {name}
+    transport: stdio
+    command: python
+    args:
+      - plugins/mcp/{name}/server.py
+    enabled: true
+    risk_level: low
+    timeout_seconds: 30
+"""
+
+_MCP_README: Final[str] = """\
+# {class_name} MCP Server
+
+> Auto-generated by `nexusai create-mcp`. Update this README with your server's purpose.
+
+## Overview
+
+**{name}** is a Model Context Protocol (MCP) server that exposes tools to NexusAI
+via the JSON-RPC 2.0 STDIO transport.
+
+## Quickstart
+
+1. Edit `plugins/mcp/{name}/server.py` to add your tools.
+2. Merge `nexusai_mcp.yaml` into `config/mcp_servers.yaml`.
+3. Verify connectivity:
+
+```bash
+nexusai mcp list
+nexusai mcp ping {name}
+```
+
+## Transport
+
+This server uses the **STDIO** transport. To switch to SSE/HTTP, update the
+configuration snippet in `nexusai_mcp.yaml` and replace the `_main()` loop with
+an ASGI application.
+
+## Testing
+
+```bash
+uv run pytest tests/ -k {name}
+```
+"""
+
+
+def scaffold_mcp(
+    name: str,
+    description: str,
+    output_dir: Path,
+    *,
+    dry_run: bool = False,
+    overwrite: bool = False,
+) -> ScaffoldResult:
+    """Scaffold a new NexusAI MCP server directory.
+
+    Args:
+        name: Snake-case server identifier (e.g. ``my_mcp``).
+        description: Short human-readable description of the server.
+        output_dir: Parent directory under which ``<name>/`` will be created.
+        dry_run: When True, no files are written to disk.
+        overwrite: When True, existing files are silently replaced.
+
+    Returns:
+        :class:`ScaffoldResult` describing what was created.
+
+    Raises:
+        ValueError: When *name* is not a valid identifier.
+    """
+    _validate_name(name)
+
+    class_name = _to_class_name(name)
+    ctx: dict[str, str] = {
+        "name": name,
+        "class_name": class_name,
+        "description": description,
+    }
+
+    dest = output_dir / name
+    files_written: list[str] = []
+
+    targets: list[tuple[Path, str]] = [
+        (dest / "__init__.py", ""),
+        (dest / "server.py", textwrap.dedent(_MCP_SERVER_PY).format(**ctx)),
+        (dest / "nexusai_mcp.yaml", _MCP_CONFIG_YAML.format(**ctx)),
+        (dest / "README.md", _MCP_README.format(**ctx)),
+    ]
+
+    for path, content in targets:
+        if _write_file(path, content, dry_run=dry_run, overwrite=overwrite):
+            files_written.append(str(path.relative_to(output_dir.parent)))
+
+    logger.info("Scaffolded MCP server '{}' → {}", name, dest)
+    return ScaffoldResult(
+        name=name,
+        destination=dest,
+        files_written=files_written,
+        dry_run=dry_run,
+    )

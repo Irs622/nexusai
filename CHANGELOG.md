@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🛠️ CLI Scaffolding Commands: `nexusai create-tool` and `nexusai create-mcp` (Issue #25 / ADR-0025)
+- `feat(cli)`: Add `nexusai create-tool <name>` command that scaffolds a fully type-annotated `BaseTool` plugin directory (`plugin.py`, `nexusai_manifest.yaml`, `README.md`, `__init__.py`) with `--description`, `--output-dir`, `--dry-run`, and `--overwrite` flags.
+- `feat(cli)`: Add `nexusai create-mcp <name>` command that scaffolds a standards-compliant MCP STDIO server (`server.py` with async JSON-RPC 2.0 loop, `nexusai_mcp.yaml` config snippet ready to merge into `config/mcp_servers.yaml`, `README.md`) under `plugins/mcp/<name>/`.
+- `feat(cli)`: Extract scaffolding engine to `nexusai.cli.scaffolding` module with pure `scaffold_tool()` / `scaffold_mcp()` functions and frozen `ScaffoldResult` dataclass for full unit testability.
+- `feat(cli)`: Enforce snake_case identifier validation (`^[a-z][a-z0-9_]*$`) with immediate non-zero exit and descriptive error on invalid names.
+- `test(cli)`: Add 33-test suite `tests/unit/cli/test_scaffolding.py` covering name validation, class-name conversion, file generation, dry-run/overwrite semantics, and Typer CLI integration.
+
 ### 🎨 NexusAI Studio — Interactive Web Visualizer for DAG Plans & Audit Chains (Issue #24 / ADR-0024)
 - `feat(ui)`: Implement **NexusAI Studio** interactive console featuring real-time topological DAG plan visualizer, cryptographic SHA-256 audit chain inspector, and governance quota & HITL approvals monitor.
 - `feat(ui)`: Build responsive SVG DAG engine with cubic Bézier links, animated execution indicators, step latency badges, and interactive step inspector drawers.

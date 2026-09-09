@@ -40,7 +40,7 @@
     "voice",
     "workflow"
   ],
-  "edge_count": 2505,
+  "edge_count": 2548,
   "edges": [
     {
       "source": "root",
@@ -55,6 +55,16 @@
     {
       "source": "api",
       "target": "automation",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "brain",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "brain",
       "file": "api/server.py"
     },
     {
@@ -3200,6 +3210,16 @@
     {
       "source": "brain",
       "target": "brain",
+      "file": "brain/ports/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/__init__.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
       "file": "brain/ports/agent_loop_port.py"
     },
     {
@@ -3331,6 +3351,16 @@
       "source": "brain",
       "target": "brain",
       "file": "brain/ports/execution_state_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/governance_port.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/ports/governance_port.py"
     },
     {
       "source": "brain",
@@ -4500,6 +4530,16 @@
     {
       "source": "brain",
       "target": "brain",
+      "file": "brain/runtime/human_approval_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
+      "file": "brain/runtime/human_approval_engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "logging",
       "file": "brain/runtime/human_approval_engine.py"
     },
     {
@@ -6044,6 +6084,106 @@
     },
     {
       "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/notification/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/notification/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/notification/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/notification/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/notification/webhook_notifier.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/notification/webhook_notifier.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/notification/webhook_notifier.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/notification/webhook_notifier.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "logging",
+      "file": "infrastructure/notification/webhook_notifier.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/observability/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/observability/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/observability/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/observability/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/observability/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/observability/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/observability/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/observability/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/observability/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/observability/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/observability/__init__.py"
+    },
+    {
+      "source": "infrastructure",
       "target": "brain",
       "file": "infrastructure/observability/in_memory_exporter.py"
     },
@@ -6070,6 +6210,31 @@
     {
       "source": "infrastructure",
       "target": "brain",
+      "file": "infrastructure/observability/otel_exporter.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/observability/otel_exporter.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/observability/otel_exporter.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/observability/otel_exporter.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "logging",
+      "file": "infrastructure/observability/otel_exporter.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
       "file": "infrastructure/observability/structured_logging.py"
     },
     {
@@ -6431,6 +6596,36 @@
       "source": "infrastructure",
       "target": "brain",
       "file": "infrastructure/recovery/recovery_manager.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/sandbox/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/sandbox/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/sandbox/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/sandbox/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/sandbox/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/sandbox/__init__.py"
     },
     {
       "source": "infrastructure",
@@ -6476,6 +6671,26 @@
       "source": "infrastructure",
       "target": "infrastructure",
       "file": "infrastructure/sandbox/grpc_sandbox_client.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/sandbox/grpc_sandbox_client.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/sandbox/grpc_sandbox_client.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/sandbox/grpc_sandbox_server.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/sandbox/grpc_sandbox_server.py"
     },
     {
       "source": "infrastructure",
