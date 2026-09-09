@@ -118,3 +118,87 @@ mcp_servers:
     cfg2 = manager._server_configs["fs_local"]
     assert cfg2.enabled is False
     assert cfg2.risk_level == RiskLevel.HIGH
+
+
+@pytest.mark.asyncio
+async def test_mcp_manager_connect_sse_server(
+    tool_registry: ToolRegistry,
+    capability_discovery: RuntimeCapabilityDiscovery,
+) -> None:
+    """Verify McpServerManager dynamically instantiates and coordinates McpSseClient for SSE servers."""
+    from nexusai.tools.mcp.models import McpTransportType
+
+    manager = McpServerManager(
+        tool_registry=tool_registry,
+        capability_discovery=capability_discovery,
+    )
+
+    config = McpServerConfig(
+        name="remote_service",
+        transport=McpTransportType.SSE,
+        url="http://remote.host:8080/sse",
+        enabled=True,
+    )
+    manager.register_server_config(config)
+
+    mock_tools = [
+        McpToolDefinition(
+            name="remote_query",
+            description="Query remote dataset",
+            inputSchema={"type": "object"},
+        )
+    ]
+
+    with patch("nexusai.tools.mcp.manager.McpSseClient") as MockSseClientCls:
+        mock_client = MockSseClientCls.return_value
+        mock_client.start = AsyncMock()
+        mock_client.stop = AsyncMock()
+        mock_client.list_tools = AsyncMock(return_value=mock_tools)
+        mock_client.is_connected = True
+        mock_client.server_name = "remote_service"
+
+        tools = await manager.connect_server("remote_service")
+        assert len(tools) == 1
+        assert (
+            tools[0].name == "remote_service_remote_query"
+            if manager.namespace_tools
+            else "remote_query"
+        )
+        assert tool_registry.has_tool("remote_query") is True
+
+        info = manager.get_server_info("remote_service")
+        assert info["transport"] == "sse"
+        assert info["url"] == "http://remote.host:8080/sse"
+
+        await manager.disconnect_server("remote_service")
+        assert tool_registry.has_tool("remote_query") is False
+        mock_client.stop.assert_awaited_once()
+
+
+def test_mcp_manager_load_remote_sse_yaml(tmp_path: object) -> None:
+    """Verify parsing SSE transport configuration from YAML file."""
+    import pathlib
+
+    yaml_content = """
+mcp_servers:
+  remote_sse:
+    transport: "sse"
+    url: "https://api.example.com/mcp/sse"
+    headers:
+      Authorization: "Bearer test_key"
+    enabled: true
+    risk_level: "LOW"
+    timeout_seconds: 25.0
+"""
+    p = pathlib.Path(str(tmp_path)) / "mcp_sse.yaml"
+    p.write_text(yaml_content, encoding="utf-8")
+
+    manager = McpServerManager()
+    count = manager.load_config_file(p)
+    assert count == 1
+    assert "remote_sse" in manager.registered_server_names
+
+    cfg = manager._server_configs["remote_sse"]
+    assert cfg.transport.value == "sse"
+    assert cfg.url == "https://api.example.com/mcp/sse"
+    assert cfg.headers == {"Authorization": "Bearer test_key"}

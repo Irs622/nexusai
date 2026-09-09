@@ -10,16 +10,19 @@ from typing import Any
 
 from nexusai.core.errors import ToolExecutionError
 from nexusai.logging.logger import logger
+from nexusai.tools.mcp.base import BaseMcpClient
 from nexusai.tools.mcp.models import (
     JsonRpcRequest,
     JsonRpcResponse,
     McpCallToolResult,
+    McpPromptDefinition,
+    McpResourceDefinition,
     McpServerConfig,
     McpToolDefinition,
 )
 
 
-class McpClient:
+class McpClient(BaseMcpClient):
     """Asynchronous client managing standard I/O (stdio) transport to an external MCP process."""
 
     def __init__(self, config: McpServerConfig) -> None:
@@ -56,6 +59,11 @@ class McpClient:
         async with self._lock:
             if self.is_connected:
                 return
+
+            if not self.config.command:
+                raise ToolExecutionError(
+                    f"MCP stdio server '{self.config.name}' requires a command to execute"
+                )
 
             env = os.environ.copy()
             env.update(self.config.env)
@@ -210,6 +218,50 @@ class McpClient:
             return res.error is None
         except Exception:
             return False
+
+    async def list_prompts(self) -> list[McpPromptDefinition]:
+        """Fetch list of available prompt templates declared by this MCP server."""
+        if not self.is_connected:
+            raise ToolExecutionError(f"MCP server '{self.config.name}' is not connected")
+
+        response = await self._send_request("prompts/list", {})
+        if response.error:
+            raise ToolExecutionError(
+                f"Failed to list prompts from '{self.config.name}': {response.error.message}"
+            )
+
+        prompts_data = (response.result or {}).get("prompts", [])
+        definitions: list[McpPromptDefinition] = []
+        for item in prompts_data:
+            try:
+                definitions.append(McpPromptDefinition.model_validate(item))
+            except Exception as e:
+                logger.warning(
+                    f"[McpClient:{self.config.name}] Skipping malformed prompt definition: {item} ({e})"
+                )
+        return definitions
+
+    async def list_resources(self) -> list[McpResourceDefinition]:
+        """Fetch list of available data resources declared by this MCP server."""
+        if not self.is_connected:
+            raise ToolExecutionError(f"MCP server '{self.config.name}' is not connected")
+
+        response = await self._send_request("resources/list", {})
+        if response.error:
+            raise ToolExecutionError(
+                f"Failed to list resources from '{self.config.name}': {response.error.message}"
+            )
+
+        resources_data = (response.result or {}).get("resources", [])
+        definitions: list[McpResourceDefinition] = []
+        for item in resources_data:
+            try:
+                definitions.append(McpResourceDefinition.model_validate(item))
+            except Exception as e:
+                logger.warning(
+                    f"[McpClient:{self.config.name}] Skipping malformed resource definition: {item} ({e})"
+                )
+        return definitions
 
     async def _send_request(self, method: str, params: dict[str, Any]) -> JsonRpcResponse:
         """Send a JSON-RPC 2.0 request and await response matched by request ID."""

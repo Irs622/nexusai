@@ -13,8 +13,10 @@ from nexusai.brain.ports.capability_discovery import (
 )
 from nexusai.core.errors import ToolExecutionError
 from nexusai.logging.logger import logger
+from nexusai.tools.mcp.base import BaseMcpClient
 from nexusai.tools.mcp.client import McpClient
-from nexusai.tools.mcp.models import McpServerConfig
+from nexusai.tools.mcp.models import McpServerConfig, McpTransportType
+from nexusai.tools.mcp.sse_client import McpSseClient
 from nexusai.tools.mcp.tool import McpToolWrapper
 from nexusai.tools.registry import ToolRegistry
 
@@ -33,7 +35,7 @@ class McpServerManager:
         self.namespace_tools = namespace_tools
 
         self._server_configs: dict[str, McpServerConfig] = {}
-        self._clients: dict[str, McpClient] = {}
+        self._clients: dict[str, BaseMcpClient] = {}
         self._tools_by_server: dict[str, list[McpToolWrapper]] = {}
 
     @property
@@ -100,7 +102,15 @@ class McpServerManager:
         if server_name in self._clients and self._clients[server_name].is_connected:
             return self._tools_by_server.get(server_name, [])
 
-        client = McpClient(config)
+        client: BaseMcpClient
+        if (
+            config.transport in (McpTransportType.SSE, McpTransportType.HTTP)
+            or config.url is not None
+        ):
+            client = McpSseClient(config)
+        else:
+            client = McpClient(config)
+
         try:
             await client.start()
         except Exception as e:
@@ -238,7 +248,9 @@ class McpServerManager:
         return {
             "name": server_name,
             "is_connected": client.is_connected if client else False,
-            "command": cfg.command if cfg else "",
+            "transport": cfg.transport.value if cfg else "stdio",
+            "command": cfg.command if cfg and cfg.command else "",
+            "url": cfg.url if cfg and cfg.url else "",
             "tools_count": len(tools),
             "tools": [
                 {

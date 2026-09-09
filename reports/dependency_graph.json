@@ -40,7 +40,7 @@
     "voice",
     "workflow"
   ],
-  "edge_count": 2454,
+  "edge_count": 2487,
   "edges": [
     {
       "source": "root",
@@ -12004,12 +12004,87 @@
     },
     {
       "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/__init__.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/base.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/base.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/base.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/base.py"
+    },
+    {
+      "source": "tools",
       "target": "core",
       "file": "tools/mcp/client.py"
     },
     {
       "source": "tools",
       "target": "logging",
+      "file": "tools/mcp/client.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/client.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/client.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
       "file": "tools/mcp/client.py"
     },
     {
@@ -12055,6 +12130,21 @@
     {
       "source": "tools",
       "target": "logging",
+      "file": "tools/mcp/manager.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/manager.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/manager.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
       "file": "tools/mcp/manager.py"
     },
     {
@@ -12155,6 +12245,66 @@
     {
       "source": "tools",
       "target": "core",
+      "file": "tools/mcp/sse_client.py"
+    },
+    {
+      "source": "tools",
+      "target": "logging",
+      "file": "tools/mcp/sse_client.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/sse_client.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/sse_client.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/sse_client.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/sse_client.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/sse_client.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/sse_client.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/sse_client.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/sse_client.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/sse_client.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/sse_client.py"
+    },
+    {
+      "source": "tools",
+      "target": "core",
       "file": "tools/mcp/tool.py"
     },
     {
@@ -12176,6 +12326,21 @@
       "source": "tools",
       "target": "tools",
       "file": "tools/mcp/tool.py"
+    },
+    {
+      "source": "tools",
+      "target": "core",
+      "file": "tools/mcp/transport.py"
+    },
+    {
+      "source": "tools",
+      "target": "logging",
+      "file": "tools/mcp/transport.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/mcp/transport.py"
     },
     {
       "source": "tools",

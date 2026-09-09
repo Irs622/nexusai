@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🌐 Remote MCP Streaming & SSE Transport (Issue #18 / ADR-0018)
+- `feat(mcp)`: Implement Server-Sent Events (SSE) and HTTP streaming transport for remote Model Context Protocol (MCP) servers conforming to the MCP 2024-11-05 specification.
+- `feat(mcp)`: Establish polymorphic `BaseMcpClient` contract implemented by `McpClient` (stdio) and `McpSseClient` (SSE/HTTP) for transparent tool registration and capability discovery.
+- `feat(mcp)`: Implement `McpHttpTransport` with asynchronous HTTP connection pooling via `httpx` and W3C-compliant SSE frame streaming.
+- `feat(mcp)`: Introduce automatic reconnection logic with exponential backoff and proactive heartbeat liveness checks.
+- `feat(mcp)`: Add remote endpoint URL, headers, and transport configuration support in `config/mcp_servers.yaml`.
+
 ### 🚀 Packaging & Architecture Governance
 - `fix(core)`: Resolve Python Package Wheel Build (Gate 6) via `hatchling` and `build` dev dependencies.
 - `fix(core)`: Pass 100% of full integration test suite (104/104 tests passed, 0 failures).

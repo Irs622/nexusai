@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, create_model
 from nexusai.core.errors import ToolExecutionError
 from nexusai.security.guard import RiskLevel
 from nexusai.tools.base import BaseTool
-from nexusai.tools.mcp.client import McpClient
+from nexusai.tools.mcp.base import BaseMcpClient
 from nexusai.tools.mcp.models import McpToolDefinition
 
 
@@ -63,7 +63,7 @@ class McpToolWrapper(BaseTool):
 
     def __init__(
         self,
-        client: McpClient,
+        client: BaseMcpClient,
         definition: McpToolDefinition,
         risk_level: RiskLevel = RiskLevel.MEDIUM,
         namespace_prefix: str | None = None,

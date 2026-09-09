@@ -1,11 +1,16 @@
 # Model Context Protocol (MCP) Server Configurations for NexusAI
 #
-# Built-in Native MCP Server Pack (Python 3.12+ stdio JSON-RPC 2.0)
-# Running out-of-the-box without requiring external npm or uvx dependencies.
+# Supports both:
+# 1. Native stdio JSON-RPC 2.0 Subprocess Servers (Python/npx/uvx)
+# 2. Remote Server-Sent Events (SSE) & HTTP Streaming Servers (MCP 2024-11-05 spec)
 
 mcp_servers:
+  # -------------------------------------------------------------------------
+  # Native Stdio MCP Servers
+  # -------------------------------------------------------------------------
   # 1. Native Sandboxed Filesystem MCP Server
   filesystem:
+    transport: "stdio"
     command: "python3"
     args: ["-m", "nexusai.tools.mcp.servers.filesystem", "--root", "storage"]
     env:
@@ -16,6 +21,7 @@ mcp_servers:
 
   # 2. Native Asynchronous SQLite MCP Server
   sqlite:
+    transport: "stdio"
     command: "python3"
     args: ["-m", "nexusai.tools.mcp.servers.sqlite", "--db-path", "storage/nexus.db"]
     env:
@@ -26,6 +32,7 @@ mcp_servers:
 
   # 3. Native Web Fetcher & HTTP MCP Server
   web_fetcher:
+    transport: "stdio"
     command: "python3"
     args: ["-m", "nexusai.tools.mcp.servers.web_fetcher"]
     env:
@@ -34,3 +41,18 @@ mcp_servers:
     risk_level: "MEDIUM"
     timeout_seconds: 30.0
 
+  # -------------------------------------------------------------------------
+  # Remote SSE / HTTP Streaming MCP Servers (MCP 2024-11-05 Specification)
+  # -------------------------------------------------------------------------
+  # 4. Example Remote Knowledge Graph MCP Server (Disabled by default)
+  remote_knowledge:
+    transport: "sse"
+    url: "http://localhost:8080/sse"
+    headers:
+      Authorization: "Bearer env:REMOTE_MCP_TOKEN"
+    enabled: false
+    risk_level: "LOW"
+    timeout_seconds: 30.0
+    reconnect_retries: 3
+    reconnect_backoff_seconds: 1.0
+    heartbeat_interval_seconds: 30.0
