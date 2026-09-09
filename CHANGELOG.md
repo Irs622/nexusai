@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🛡️ OCI Container & gRPC MicroVM Sandbox Execution Gateway (Issue #23 / ADR-0023)
+- `feat(sandbox)`: Implement low-level `OciContainerRuntime` with full OCI CLI argument generation supporting rootless containers, `--read-only` rootfs, `--network=none`, `--user 10001:10001`, `--cap-drop=ALL`, and strict cgroup CPU/memory/PID limits.
+- `feat(sandbox)`: Harden `CapabilityPolicyEngine` with volume jail containment (`validate_mount_paths`), credential environment sanitization (`sanitize_ephemeral_env`), and denial of host docker sockets (`/var/run/docker.sock`) and sensitive paths.
+- `feat(sandbox)`: Implement asynchronous `GRPCSandboxServer` TCP daemon supporting framed request/response execution over sockets with graceful lifecycle management.
+- `feat(sandbox)`: Enhance `GRPCSandboxClient` with network dispatch and local in-process fallback ensuring zero downtime across distributed and standalone environments.
+- `feat(sandbox)`: Guarantee bounded execution timeout termination with exit code 124 and zero orphaned container instances.
+
 ### 🌪️ 72-Hour Sustained Soak Testing & Chaos Injection Pipeline (Issue #21 / ADR-0022)
 - `test(chaos)`: Introduce dedicated continuous soak testing pipeline in `tools/run_extended_soak_test.py` supporting configurable execution durations (`1h`, `24h`, `72h`), multi-worker concurrency, and automated reporting.
 - `test(chaos)`: Implement `ChaosToolPort` supporting stochastic fault injection across 4 failure modes (`TOOL_TIMEOUT`, `DAG_STEP_FAILURE`, `WORKER_EXCEPTION`, `CANCELLATION`) with structured recovery telemetry.

@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import re
+from pathlib import Path
+from typing import Mapping, Sequence
 
 from nexusai.brain.domain.sandbox import SandboxSpec
 
@@ -18,6 +20,9 @@ class CapabilityPolicyEngine:
         "/etc/passwd",
         "/etc/shadow",
         "/var/run/docker.sock",
+        "/run/containerd/containerd.sock",
+        "/var/run/containerd/containerd.sock",
+        "/var/run/crio/crio.sock",
         "/proc",
         "/sys",
         "/root",
@@ -28,7 +33,35 @@ class CapabilityPolicyEngine:
         r".*POSTGRES.*",
         r".*VAULT_TOKEN.*",
         r".*REDIS_URL.*",
+        r".*AWS_SECRET.*",
+        r".*API_KEY.*",
     )
+
+    @classmethod
+    def sanitize_ephemeral_env(cls, env: Mapping[str, str]) -> dict[str, str]:
+        """Redact sensitive host credentials from ephemeral environment variables."""
+        sanitized: dict[str, str] = {}
+        for k, v in env.items():
+            is_forbidden = any(
+                re.match(pat, k, re.IGNORECASE) for pat in cls.FORBIDDEN_ENV_PATTERNS
+            )
+            if not is_forbidden:
+                sanitized[k] = v
+        return sanitized
+
+    @classmethod
+    def validate_mount_paths(cls, allowed_host_paths: Sequence[str], requested_path: str) -> bool:
+        """Verify that requested_path is contained within allowed_host_paths without traversal escapes."""
+        for forbidden in cls.FORBIDDEN_PATHS:
+            if requested_path.startswith(forbidden):
+                return False
+
+        req_resolved = Path(requested_path).resolve()
+        for allowed in allowed_host_paths:
+            allowed_resolved = Path(allowed).resolve()
+            if req_resolved == allowed_resolved or allowed_resolved in req_resolved.parents:
+                return True
+        return False
 
     @classmethod
     def validate_spec(cls, spec: SandboxSpec) -> None:
