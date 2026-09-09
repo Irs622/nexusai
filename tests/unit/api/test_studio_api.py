@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -211,9 +213,9 @@ def test_studio_governance_approvals_and_decision(studio_client: TestClient) -> 
 @pytest.mark.asyncio
 async def test_studio_sse_endpoint_handshake(studio_client: TestClient) -> None:
     """Test SSE event stream endpoint connection and handshake."""
-    app = studio_client.app
+    routes: list[Any] = list(getattr(studio_client.app, "routes", []))
     found = 0
-    for route in app.routes:
+    for route in routes:
         if getattr(route, "path", None) in ("/api/events/stream", "/events"):
             resp = await route.endpoint()
             assert resp.media_type == "text/event-stream"

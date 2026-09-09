@@ -9,7 +9,7 @@ import hashlib
 from contextlib import asynccontextmanager
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, AsyncGenerator
+from typing import Any, AsyncGenerator, cast
 
 from dotenv import find_dotenv, load_dotenv
 from fastapi import FastAPI, HTTPException
@@ -115,7 +115,6 @@ def _create_initial_audit_chain() -> list[AuditEvent]:
     now = time.time()
     chain: list[AuditEvent] = []
 
-    f_kw1 = {"fencing_" + "t" + "oken": 100}
     ev1 = AuditEvent(
         event_id="evt-genesis-101",
         event_type="WORKFLOW_INITIALIZED",
@@ -132,11 +131,9 @@ def _create_initial_audit_chain() -> list[AuditEvent]:
         severity="INFO",
         previous_event_hash=GENESIS_HASH,
         metadata={"scope": "studio-demo"},
-        **f_kw1,
     )
     chain.append(ev1)
 
-    f_kw2 = {"fencing_" + "t" + "oken": 101}
     ev2 = AuditEvent(
         event_id="evt-dag-102",
         event_type="DAG_PLAN_COMPILED",
@@ -153,11 +150,9 @@ def _create_initial_audit_chain() -> list[AuditEvent]:
         severity="INFO",
         previous_event_hash=ev1.event_hash,
         metadata={"nodes_count": 6, "algorithm": "topological_kahn"},
-        **f_kw2,
     )
     chain.append(ev2)
 
-    f_kw3 = {"fencing_" + "t" + "oken": 102}
     ev3 = AuditEvent(
         event_id="evt-gov-103",
         event_type="GOVERNANCE_ADMISSION_GRANTED",
@@ -174,11 +169,9 @@ def _create_initial_audit_chain() -> list[AuditEvent]:
         severity="INFO",
         previous_event_hash=ev2.event_hash,
         metadata={"budget_approved": True, "memory_mb": 512},
-        **f_kw3,
     )
     chain.append(ev3)
 
-    f_kw4 = {"fencing_" + "t" + "oken": 103}
     ev4 = AuditEvent(
         event_id="evt-box-104",
         event_type="SANDBOX_CONTAINER_SPAWNED",
@@ -195,11 +188,9 @@ def _create_initial_audit_chain() -> list[AuditEvent]:
         severity="INFO",
         previous_event_hash=ev3.event_hash,
         metadata={"isolation": "rootless", "network": "none"},
-        **f_kw4,
     )
     chain.append(ev4)
 
-    f_kw5 = {"fencing_" + "t" + "oken": 104}
     ev5 = AuditEvent(
         event_id="evt-exec-105",
         event_type="TOOL_EXECUTION_COMPLETED",
@@ -216,7 +207,6 @@ def _create_initial_audit_chain() -> list[AuditEvent]:
         severity="INFO",
         previous_event_hash=ev4.event_hash,
         metadata={"exit_code": 0, "duration_ms": 142.5},
-        **f_kw5,
     )
     chain.append(ev5)
 
@@ -794,7 +784,7 @@ def create_app(
         plan = app.state.studio_plans.get(plan_id)
         if not plan:
             raise HTTPException(status_code=404, detail=f"Plan '{plan_id}' not found")
-        return plan
+        return cast(dict[str, Any], plan)
 
     @app.post("/api/v1/dag/execute")
     @app.post("/api/v1/execute")
@@ -852,7 +842,6 @@ def create_app(
                         else GENESIS_HASH
                     )
                     seq = len(app.state.audit_chain) + 1
-                    f_fencing = {"fencing_" + "t" + "oken": 100 + seq}
                     new_event = AuditEvent(
                         event_id=f"evt-exec-{int(time.time() * 1000)}",
                         event_type="TOOL_EXECUTION_COMPLETED",
@@ -869,7 +858,6 @@ def create_app(
                         severity="INFO",
                         previous_event_hash=prev_hash,
                         metadata={"node_title": node["title"], "latency_ms": node["latency_ms"]},
-                        **f_fencing,
                     )
                     app.state.audit_chain.append(new_event)
 
@@ -1028,12 +1016,12 @@ def create_app(
     @app.get("/api/v1/governance/budget")
     async def get_governance_budget() -> dict[str, Any]:
         """Return active resource budget and consumed quotas."""
-        return app.state.governance_budget
+        return cast(dict[str, Any], app.state.governance_budget)
 
     @app.get("/api/v1/governance/approvals")
     async def get_pending_approvals() -> list[dict[str, Any]]:
         """Return list of pending human-in-the-loop safety approvals."""
-        return app.state.pending_approvals
+        return cast(list[dict[str, Any]], app.state.pending_approvals)
 
     @app.post("/api/v1/governance/approvals/{approval_id}/decision")
     async def submit_approval_decision_endpoint(
