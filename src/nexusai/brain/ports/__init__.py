@@ -6,12 +6,15 @@ from nexusai.brain.ports.capability_discovery import (
     RuntimeCapabilityDiscovery,
 )
 from nexusai.brain.ports.capability_registry import CapabilityProvider, ToolCapabilityRegistry
+from nexusai.brain.ports.governance_port import IApprovalNotifierPort, IGovernancePort
 from nexusai.brain.ports.tool_port import IToolPort, ToolExecutionRequest, ToolExecutionResult
 
 __all__ = [
     "CapabilityAdvertisement",
     "CapabilityProvider",
     "DynamicCapabilityGraphBuilder",
+    "IApprovalNotifierPort",
+    "IGovernancePort",
     "IToolPort",
     "RuntimeCapabilityDiscovery",
     "ToolCapabilityRegistry",

@@ -18,8 +18,10 @@ from nexusai.brain.domain.human_approval import (
 )
 from nexusai.brain.domain.observability import RuntimeEvent, RuntimeEventType
 from nexusai.brain.ports.approval_store_port import IApprovalStore
+from nexusai.brain.ports.governance_port import IApprovalNotifierPort
 from nexusai.brain.ports.human_approval_port import IHumanApprovalPort
 from nexusai.brain.ports.observability_port import IObservabilityPort
+from nexusai.logging.logger import logger
 
 
 class HumanApprovalEngine(IHumanApprovalPort):
@@ -30,10 +32,12 @@ class HumanApprovalEngine(IHumanApprovalPort):
         default_ttl_seconds: float = 600.0,
         telemetry: IObservabilityPort | None = None,
         store: IApprovalStore | None = None,
+        notifier: IApprovalNotifierPort | None = None,
     ) -> None:
         self.default_ttl_seconds = default_ttl_seconds
         self.telemetry = telemetry
         self.store = store
+        self.notifier = notifier
         self._lock = asyncio.Lock()
 
         self._requests: dict[str, HumanApprovalRequest] = {}
@@ -59,6 +63,50 @@ class HumanApprovalEngine(IHumanApprovalPort):
         except Exception:
             pass
 
+    def _dispatch_notify_request(self, request: HumanApprovalRequest) -> None:
+        """Asynchronously dispatch notification that approval is required in non-blocking write-behind fashion."""
+        if self.notifier is None:
+            return
+        try:
+            loop = asyncio.get_running_loop()
+            loop.create_task(self._safe_notify_request(request))
+        except RuntimeError:
+            pass
+
+    async def _safe_notify_request(self, request: HumanApprovalRequest) -> None:
+        if not self.notifier:
+            return
+        try:
+            await self.notifier.notify_approval_required(request)
+        except Exception as err:
+            logger.warning(
+                f"[HumanApprovalEngine] Outbound notification dispatch failed for approval_id='{request.approval_id}': {err}"
+            )
+
+    def _dispatch_notify_resolved(
+        self, request: HumanApprovalRequest, decision: HumanApprovalDecision
+    ) -> None:
+        """Asynchronously dispatch notification that an approval was resolved."""
+        if self.notifier is None:
+            return
+        try:
+            loop = asyncio.get_running_loop()
+            loop.create_task(self._safe_notify_resolved(request, decision))
+        except RuntimeError:
+            pass
+
+    async def _safe_notify_resolved(
+        self, request: HumanApprovalRequest, decision: HumanApprovalDecision
+    ) -> None:
+        if not self.notifier:
+            return
+        try:
+            await self.notifier.notify_approval_resolved(request, decision)
+        except Exception as err:
+            logger.warning(
+                f"[HumanApprovalEngine] Outbound resolution notification failed for approval_id='{request.approval_id}': {err}"
+            )
+
     async def request_approval(
         self,
         request: HumanApprovalRequest,
@@ -74,6 +122,7 @@ class HumanApprovalEngine(IHumanApprovalPort):
                     "tool_id": request.binding.tool_id,
                 },
             )
+            self._dispatch_notify_request(res)
             return res
 
         async with self._lock:
@@ -100,6 +149,7 @@ class HumanApprovalEngine(IHumanApprovalPort):
             approval_id=request.approval_id,
             attributes={"risk_level": request.risk_level.value, "tool_id": request.binding.tool_id},
         )
+        self._dispatch_notify_request(stored_req)
         return stored_req
 
     async def submit_decision(
@@ -108,7 +158,11 @@ class HumanApprovalEngine(IHumanApprovalPort):
     ) -> ApprovalGrant:
         """Submit an operator decision (APPROVE or DENY). Returns single-use ApprovalGrant."""
         if self.store is not None:
-            return await self.store.record_decision(decision)
+            grant = await self.store.record_decision(decision)
+            resolved_req = await self.store.get_request(decision.approval_id)
+            if resolved_req:
+                self._dispatch_notify_resolved(resolved_req, decision)
+            return grant
 
         async with self._lock:
             req = self._requests.get(decision.approval_id)
@@ -150,6 +204,7 @@ class HumanApprovalEngine(IHumanApprovalPort):
                     metadata=req.metadata,
                 )
                 self._requests[req.approval_id] = updated_req
+                self._dispatch_notify_resolved(updated_req, decision)
                 raise ApprovalMismatchError(
                     f"Human operator denied request '{decision.approval_id}': {decision.reason}"
                 )
@@ -177,6 +232,7 @@ class HumanApprovalEngine(IHumanApprovalPort):
                 actor=decision.actor,
             )
             self._grants[grant_id] = grant
+            self._dispatch_notify_resolved(updated_req, decision)
             return grant
 
     async def verify_and_consume_grant(

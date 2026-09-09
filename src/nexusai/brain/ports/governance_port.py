@@ -11,6 +11,44 @@ from nexusai.brain.domain.governance import (
     ResourceReservation,
     ResourceUsage,
 )
+from nexusai.brain.domain.human_approval import (
+    HumanApprovalDecision,
+    HumanApprovalRequest,
+)
+
+
+class IApprovalNotifierPort(Protocol):
+    """Abstract port interface for dispatching outbound human safety approval notifications."""
+
+    async def notify_approval_required(
+        self,
+        request: HumanApprovalRequest,
+    ) -> bool:
+        """Dispatch outbound notification that a high-risk tool action requires human approval.
+
+        Args:
+            request: The pending safety approval request domain model.
+
+        Returns:
+            True if notification was accepted or dispatched, False otherwise.
+        """
+        ...
+
+    async def notify_approval_resolved(
+        self,
+        request: HumanApprovalRequest,
+        decision: HumanApprovalDecision,
+    ) -> bool:
+        """Dispatch outbound notification that an approval request has been resolved.
+
+        Args:
+            request: The original safety approval request domain model.
+            decision: The human operator decision payload.
+
+        Returns:
+            True if notification was accepted or dispatched, False otherwise.
+        """
+        ...
 
 
 class IGovernancePort(Protocol):

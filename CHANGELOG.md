@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🛡️ Human-In-The-Loop Webhook Notification Gateway (Issue #20 / ADR-0020)
+- `feat(governance)`: Define decoupled `IApprovalNotifierPort` in `nexusai.brain.ports.governance_port` for outbound safety approval dispatch.
+- `feat(governance)`: Introduce `WebhookApprovalNotifier` in `nexusai.infrastructure.notification` with support for Generic JSON, Slack Incoming Webhooks (Block Kit), and Discord Webhooks (Embeds).
+- `feat(governance)`: Implement asynchronous write-behind (non-blocking) dispatch in `HumanApprovalEngine` with complete exception suppression so network outages never block agent loops or leak resource quotas.
+- `feat(governance)`: Implement cryptographic HMAC-SHA256 signature verification (`X-NexusAI-Signature: sha256=<hex>`) and export `verify_hmac_signature` verifier.
+- `feat(governance)`: Support automatic webhook format detection based on destination URL (`hooks.slack.com`, `discord.com/api/webhooks`).
+
 ### 🧠 Distributed Semantic Memory Vector Adapters (Issue #19 / ADR-0019)
 - `feat(memory)`: Implement `PgVectorStore` conforming to `VectorStore` using `asyncpg` with connection pooling, automated `vector` extension and table bootstrapping, and configurable HNSW / IVFFlat indexes.
 - `feat(memory)`: Implement `QdrantVectorStore` conforming to `VectorStore` using asynchronous Qdrant client, native Cosine distance HNSW indexing, and deterministic UUIDv5 point ID mapping.
