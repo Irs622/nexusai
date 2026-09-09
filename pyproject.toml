@@ -31,6 +31,8 @@ dependencies = [
 
 [project.optional-dependencies]
 audio = ["pyaudio>=0.2.14"]
+postgres = ["asyncpg>=0.29.0"]
+qdrant = ["qdrant-client>=1.9.0"]
 dev = [
     "pytest>=8.1.0",
     "pytest-asyncio>=0.23.0",
@@ -41,6 +43,8 @@ dev = [
     "isort>=5.13.0",
     "types-pyyaml>=6.0.12",
     "types-psutil>=5.9.0",
+    "asyncpg>=0.29.0",
+    "qdrant-client>=1.9.0",
     "mutmut>=2.4.0",
     "pip-audit>=2.7.0",
     "pip-licenses>=4.4.0",

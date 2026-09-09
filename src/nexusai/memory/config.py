@@ -17,6 +17,13 @@ class MemoryEngineConfig:
     vector_provider: str = "in_memory"
     vector_dimensions: int = 768
     vector_collection_name: str = "nexusai_memory_vectors"
+    pgvector_dsn: str | None = None
+    pgvector_table_name: str = "nexusai_vectors"
+    pgvector_index_type: str = "hnsw"
+    qdrant_url: str | None = None
+    qdrant_api_key: str | None = None
+    qdrant_collection_name: str = "nexusai_vectors"
+    vector_fallback_enabled: bool = True
     embedding_provider: str = "mock"
     embedding_model: str = "nomic-embed-text"
     pipeline_profile: str = "brain_profile"

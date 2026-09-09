@@ -29,7 +29,13 @@ from nexusai.memory.usecases import (
     SearchMemoryUseCase,
     StoreMemoryUseCase,
 )
-from nexusai.memory.vector import ChromaVectorStore, InMemoryVectorStore, MockVectorStore
+from nexusai.memory.vector import (
+    ChromaVectorStore,
+    InMemoryVectorStore,
+    MockVectorStore,
+    PgVectorStore,
+    QdrantVectorStore,
+)
 
 
 class StorageModule:
@@ -50,6 +56,22 @@ class VectorModule:
         if config.vector_provider == "chroma":
             return ChromaVectorStore(
                 collection_name=config.vector_collection_name, dimensions=config.vector_dimensions
+            )
+        elif config.vector_provider == "pgvector":
+            return PgVectorStore(
+                dsn=config.pgvector_dsn,
+                table_name=config.pgvector_table_name,
+                dimensions=config.vector_dimensions,
+                index_type=config.pgvector_index_type,
+                fallback_enabled=config.vector_fallback_enabled,
+            )
+        elif config.vector_provider == "qdrant":
+            return QdrantVectorStore(
+                url=config.qdrant_url,
+                api_key=config.qdrant_api_key,
+                collection_name=config.qdrant_collection_name,
+                dimensions=config.vector_dimensions,
+                fallback_enabled=config.vector_fallback_enabled,
             )
         elif config.vector_provider == "mock":
             return MockVectorStore(dimensions=config.vector_dimensions)

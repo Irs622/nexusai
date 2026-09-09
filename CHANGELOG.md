@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🧠 Distributed Semantic Memory Vector Adapters (Issue #19 / ADR-0019)
+- `feat(memory)`: Implement `PgVectorStore` conforming to `VectorStore` using `asyncpg` with connection pooling, automated `vector` extension and table bootstrapping, and configurable HNSW / IVFFlat indexes.
+- `feat(memory)`: Implement `QdrantVectorStore` conforming to `VectorStore` using asynchronous Qdrant client, native Cosine distance HNSW indexing, and deterministic UUIDv5 point ID mapping.
+- `feat(memory)`: Provide graceful in-memory/SQLite fallback when external database drivers or connections are unconfigured, ensuring zero downtime for local development.
+- `feat(memory)`: Wire `PgVectorStore` and `QdrantVectorStore` into `MemoryEngineConfig` and `VectorModule.build()`.
+
 ### 🌐 Remote MCP Streaming & SSE Transport (Issue #18 / ADR-0018)
 - `feat(mcp)`: Implement Server-Sent Events (SSE) and HTTP streaming transport for remote Model Context Protocol (MCP) servers conforming to the MCP 2024-11-05 specification.
 - `feat(mcp)`: Establish polymorphic `BaseMcpClient` contract implemented by `McpClient` (stdio) and `McpSseClient` (SSE/HTTP) for transparent tool registration and capability discovery.

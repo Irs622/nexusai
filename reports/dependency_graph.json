@@ -40,7 +40,7 @@
     "voice",
     "workflow"
   ],
-  "edge_count": 2487,
+  "edge_count": 2505,
   "edges": [
     {
       "source": "root",
@@ -7605,6 +7605,16 @@
     {
       "source": "memory",
       "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/bootstrap.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
       "file": "memory/contracts/__init__.py"
     },
     {
@@ -8735,6 +8745,16 @@
     {
       "source": "memory",
       "target": "memory",
+      "file": "memory/vector/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/__init__.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
       "file": "memory/vector/chroma.py"
     },
     {
@@ -8821,6 +8841,76 @@
       "source": "memory",
       "target": "memory",
       "file": "memory/vector/mock_store.py"
+    },
+    {
+      "source": "memory",
+      "target": "logging",
+      "file": "memory/vector/pgvector.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/pgvector.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/pgvector.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/pgvector.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/pgvector.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/pgvector.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/pgvector.py"
+    },
+    {
+      "source": "memory",
+      "target": "logging",
+      "file": "memory/vector/qdrant.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/qdrant.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/qdrant.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/qdrant.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/qdrant.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/qdrant.py"
+    },
+    {
+      "source": "memory",
+      "target": "memory",
+      "file": "memory/vector/qdrant.py"
     },
     {
       "source": "models",

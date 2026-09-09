@@ -8,6 +8,8 @@ from nexusai.memory.vector import (
     ChromaVectorStore,
     InMemoryVectorStore,
     MockVectorStore,
+    PgVectorStore,
+    QdrantVectorStore,
     VectorComplianceSuite,
 )
 
@@ -27,4 +29,16 @@ async def test_mock_vector_store_compliance():
 @pytest.mark.asyncio
 async def test_chroma_vector_store_compliance():
     store = ChromaVectorStore(dimensions=4)
+    await VectorComplianceSuite.verify_vector_store_compliance(store)
+
+
+@pytest.mark.asyncio
+async def test_pgvector_store_compliance():
+    store = PgVectorStore(dimensions=4)
+    await VectorComplianceSuite.verify_vector_store_compliance(store)
+
+
+@pytest.mark.asyncio
+async def test_qdrant_vector_store_compliance():
+    store = QdrantVectorStore(dimensions=4)
     await VectorComplianceSuite.verify_vector_store_compliance(store)

@@ -41,6 +41,7 @@ This directory documents key architectural decisions made during the design, imp
 | [ADR 0016](0016-autonomous-worker-autoscaler-and-supervisor.md) | Autonomous Worker Auto-Scaler & Heartbeat Supervisor | Accepted | Distributed & Elasticity |
 | [ADR 0017](0017-multi-agent-collaboration-mesh.md) | Multi-Agent Collaboration Mesh (A2A Protocol & Mesh) | Accepted | Multi-Agent |
 | [ADR 0018](0018-remote-mcp-sse-and-http-transport.md) | Remote Model Context Protocol (MCP) Server-Sent Events (SSE) & HTTP Streaming Transport | Accepted | Remote MCP |
+| [ADR 0019](0019-postgresql-pgvector-and-qdrant-memory-adapters.md) | Distributed Semantic Memory Adapters: PostgreSQL pgvector & Qdrant | Accepted | Distributed Memory |
 
 ---
 
@@ -63,6 +64,7 @@ This matrix maps architectural decisions to their corresponding automated test s
 | **Distributed Cluster & Elasticity** | ADR-0014, ADR-0016 | `tests/integration/test_p5_9_multi_node_cluster.py` | Cluster Chaos & Load Test |
 | **Multi-Agent Consensus & Mesh** | ADR-0017 | `tests/integration/test_p5_9_multi_node_cluster.py` | Multi-Agent Mesh Test |
 | **Remote MCP SSE & Streaming** | ADR-0018 | `tests/unit/test_mcp_sse_client.py` | Unit & Mock SSE Integration Test |
+| **Distributed Vector Memory** | ADR-0019 | `tests/unit/test_pgvector_store.py`, `tests/unit/test_qdrant_store.py` | Vector Compliance & Mock Adapter Suite |
 
 ---
 
