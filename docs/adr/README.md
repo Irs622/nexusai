@@ -43,6 +43,7 @@ This directory documents key architectural decisions made during the design, imp
 | [ADR 0018](0018-remote-mcp-sse-and-http-transport.md) | Remote Model Context Protocol (MCP) Server-Sent Events (SSE) & HTTP Streaming Transport | Accepted | Remote MCP |
 | [ADR 0019](0019-postgresql-pgvector-and-qdrant-memory-adapters.md) | Distributed Semantic Memory Adapters: PostgreSQL pgvector & Qdrant | Accepted | Distributed Memory |
 | [ADR 0020](0020-webhook-notification-gateway-for-human-approval.md) | Webhook Notification Gateway for Human-In-The-Loop Approvals | Accepted | Governance & Notifications |
+| [ADR 0021](0021-opentelemetry-otlp-remote-exporter.md) | OpenTelemetry OTLP Remote Exporter for Distributed Tracing and Metrics | Accepted | Observability & Telemetry |
 
 ---
 
@@ -67,6 +68,7 @@ This matrix maps architectural decisions to their corresponding automated test s
 | **Remote MCP SSE & Streaming** | ADR-0018 | `tests/unit/test_mcp_sse_client.py` | Unit & Mock SSE Integration Test |
 | **Distributed Vector Memory** | ADR-0019 | `tests/unit/test_pgvector_store.py`, `tests/unit/test_qdrant_store.py` | Vector Compliance & Mock Adapter Suite |
 | **Human Approval Webhook Gateway** | ADR-0020 | `tests/unit/infrastructure/test_webhook_approval_notifier.py` | Webhook Serialization & Resilience Suite |
+| **OpenTelemetry OTLP Exporter** | ADR-0021 | `tests/unit/infrastructure/observability/test_otel_exporter.py` | OTLP JSON Schema, Secret Redaction & Budget Suite |
 
 ---
 

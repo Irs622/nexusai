@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 📊 OpenTelemetry OTLP Remote Exporter for Distributed Tracing (Issue #22 / ADR-0021)
+- `feat(observability)`: Implement `OtelTraceExporter` and `OtelMetricsExporter` in `nexusai.infrastructure.observability.otel_exporter` conforming to `IObservabilityPort`.
+- `feat(observability)`: Provide standard OTLP JSON wire format (`resourceSpans` and `resourceMetrics`) over HTTP with connection pooling and standard env configuration (`OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT`, `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT`, `OTEL_EXPORTER_OTLP_HEADERS`, `OTEL_SERVICE_NAME`).
+- `feat(observability)`: Implement non-blocking write-behind queuing with sub-millisecond overhead (< 0.05ms) and batch export with bounded queue protection against memory bloat.
+- `feat(observability)`: Enforce automated secret redaction (`sanitize_secrets_recursive`) on span attributes and high-cardinality label filtering (`sanitize_metric_attributes`).
+- `feat(observability)`: Provide unified `OtelRemoteExporter` and `OtelSpanContext` manager for turn tracing and metric instrumentation with complete network failure isolation.
+
 ### 🛡️ Human-In-The-Loop Webhook Notification Gateway (Issue #20 / ADR-0020)
 - `feat(governance)`: Define decoupled `IApprovalNotifierPort` in `nexusai.brain.ports.governance_port` for outbound safety approval dispatch.
 - `feat(governance)`: Introduce `WebhookApprovalNotifier` in `nexusai.infrastructure.notification` with support for Generic JSON, Slack Incoming Webhooks (Block Kit), and Discord Webhooks (Embeds).
