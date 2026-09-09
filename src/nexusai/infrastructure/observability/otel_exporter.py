@@ -65,7 +65,7 @@ def _to_otlp_any_value(val: Any) -> dict[str, Any]:
 
 def _to_otlp_key_values(attributes: Mapping[str, Any]) -> list[dict[str, Any]]:
     """Convert an attributes map into standard OTLP KeyValue list."""
-    return [{"key": str(k), "value": _to_otlp_any_value(v)} for k, v in attributes.items()]
+    return [{"key": k, "value": _to_otlp_any_value(v)} for k, v in attributes.items()]
 
 
 def parse_otlp_env_headers() -> dict[str, str]:
