@@ -28,6 +28,20 @@
             <span class="badge badge-cert">[ LEVEL 4 CERTIFIED ]</span>
             <span id="sseStatusBadge" class="badge badge-sse">[ SSE: STREAMING ]</span>
         </div>
+        <nav class="studio-nav" id="studioNav">
+            <button id="navDagBtn" class="studio-nav-btn active" onclick="switchStudioView('DAG')">
+                <span class="nav-icon">⛯</span> DAG STUDIO
+            </button>
+            <button id="navAuditBtn" class="studio-nav-btn" onclick="switchStudioView('AUDIT')">
+                <span class="nav-icon">⛓</span> AUDIT CHAIN
+            </button>
+            <button id="navGovBtn" class="studio-nav-btn" onclick="switchStudioView('GOV')">
+                <span class="nav-icon">⚖</span> GOVERNANCE
+            </button>
+            <button id="navTermBtn" class="studio-nav-btn" onclick="switchStudioView('TERMINAL')">
+                <span class="nav-icon">💻</span> AGENT REPL
+            </button>
+        </nav>
         <div class="header-controls">
             <button id="voiceToggleBtn" class="btn btn-glass" onclick="toggleVoiceMode()">
                 <span class="icon">🎙</span> [ VOICE: OFF ]
@@ -97,69 +111,251 @@
             </div>
         </section>
 
-        <!-- Center Main: LangGraph Workflow Visualizer & Chat Terminal -->
+        <!-- Center Main: Studio Views (DAG Studio, Audit Chain, Governance, Agent Terminal) -->
         <section class="panel-center">
             
-            <!-- LangGraph Agentic Workflow Graph Visualizer -->
-            <div class="card graph-container">
-                <div class="graph-header">
-                    <h2 class="panel-header"><span class="neon-hash">//</span> LANGGRAPH AGENTIC WORKFLOW ENGINE</h2>
-                    <div class="iter-counter">ITERATION: <span id="graphIterCount" class="text-cyan">0</span> / 10</div>
-                </div>
+            <!-- VIEW 1: DAG Studio Visualizer -->
+            <div id="viewDagStudio" class="studio-view active">
+                <div class="card studio-dag-card">
+                    <div class="dag-header-toolbar">
+                        <div class="dag-title-wrap">
+                            <h2 class="panel-header"><span class="neon-hash">//</span> DIRECTED ACYCLIC GRAPH (DAG) VISUALIZER</h2>
+                            <div class="dag-plan-pills" id="dagPlanSelector">
+                                <button class="plan-pill active" onclick="loadPlan('incident_response')">Incident Response</button>
+                                <button class="plan-pill" onclick="loadPlan('vulnerability_audit')">Vulnerability Audit</button>
+                                <button class="plan-pill" onclick="loadPlan('data_pipeline')">Data Pipeline</button>
+                            </div>
+                        </div>
+                        <div class="dag-actions-wrap">
+                            <button id="btnExecuteDag" class="btn btn-accent" onclick="executeCurrentPlan()">
+                                <span class="icon">▶</span> [ RUN DAG PLAN ]
+                            </button>
+                            <button id="btnResetDag" class="btn btn-glass" onclick="resetCurrentPlan()">
+                                <span class="icon">⟳</span> [ RESET ]
+                            </button>
+                        </div>
+                    </div>
 
-                <div class="graph-nodes">
-                    <div id="nodeStart" class="graph-node node-done">
-                        <span class="node-icon">▶</span> [ START ]
+                    <!-- SVG Canvas Area -->
+                    <div class="dag-canvas-container" id="dagCanvasContainer">
+                        <svg id="dagSvg" class="dag-svg" width="100%" height="320">
+                            <defs>
+                                <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                                    <polygon points="0 0, 8 3, 0 6" fill="rgba(0, 240, 255, 0.45)" />
+                                </marker>
+                                <marker id="arrowhead-active" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                                    <polygon points="0 0, 8 3, 0 6" fill="#00FF88" />
+                                </marker>
+                                <linearGradient id="linkGradActive" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#00F0FF" />
+                                    <stop offset="100%" stop-color="#00FF88" />
+                                </linearGradient>
+                            </defs>
+                            <g id="dagLinksLayer"></g>
+                            <g id="dagNodesLayer"></g>
+                        </svg>
                     </div>
-                    <div class="graph-connector">➔</div>
-                    <div id="nodeReasoner" class="graph-node">
-                        <span class="node-icon">🧠</span> [ REASONER ]
+
+                    <!-- Node Inspector Card -->
+                    <div id="dagNodeInspector" class="dag-inspector-card" style="display: none;">
+                        <div class="inspector-header">
+                            <div class="inspector-title">
+                                <span class="badge badge-node" id="inspNodeBadge">STEP_1</span>
+                                <span class="inspector-name" id="inspNodeTitle">Node Details</span>
+                            </div>
+                            <button class="btn-close-sm" onclick="closeNodeInspector()">✕</button>
+                        </div>
+                        <div class="inspector-grid">
+                            <div class="insp-item"><span class="insp-label">TOOL:</span> <span class="insp-val text-cyan font-mono" id="inspNodeTool">-</span></div>
+                            <div class="insp-item"><span class="insp-label">STATUS:</span> <span class="insp-val" id="inspNodeStatus">-</span></div>
+                            <div class="insp-item"><span class="insp-label">LATENCY:</span> <span class="insp-val text-amber font-mono" id="inspNodeLatency">-</span></div>
+                            <div class="insp-item"><span class="insp-label">DEPENDS ON:</span> <span class="insp-val text-muted font-mono" id="inspNodeDeps">-</span></div>
+                        </div>
+                        <div class="insp-desc" id="inspNodeDesc">-</div>
+                        <pre class="insp-output font-mono" id="inspNodeOutput">Output: {}</pre>
                     </div>
-                    <div class="graph-connector">⇄</div>
-                    <div id="nodeExecutor" class="graph-node">
-                        <span class="node-icon">⚙</span> [ TOOL EXECUTOR ]
+
+                    <!-- Live Real-Time DAG Execution Feed -->
+                    <div class="dag-log-bar">
+                        <div class="dag-log-header">
+                            <span class="log-tag">EXECUTION FEED</span>
+                            <span class="log-status font-mono" id="dagExecStatus">IDLE</span>
+                        </div>
+                        <div id="dagLogFeed" class="dag-log-content font-mono">
+                            <span class="log-line text-muted">&gt; NexusAI Studio DAG visualizer connected. Ready for execution.</span>
+                        </div>
                     </div>
-                    <div class="graph-connector">➔</div>
-                    <div id="nodeOutbox" class="graph-node">
-                        <span class="node-icon">📦</span> [ OUTBOX STORE ]
-                    </div>
-                    <div class="graph-connector">➔</div>
-                    <div id="nodeEnd" class="graph-node">
-                        <span class="node-icon">■</span> [ END ]
-                    </div>
-                </div>
-                
-                <div id="graphLogFeed" class="graph-log-feed">
-                    <span class="log-prefix">&gt;</span> System standby. Real-time DAG ready for execution.
                 </div>
             </div>
 
-            <!-- Terminal Chat Feed -->
-            <div class="card chat-container">
-                <div class="chat-header">
-                    <h2 class="panel-header"><span class="neon-hash">//</span> TERMINAL REPL CHAT STREAM</h2>
-                    <div class="preset-pills">
-                        <button class="pill-btn" onclick="sendPresetPrompt('Tolong cek git status repository ini')">Git Status</button>
-                        <button class="pill-btn" onclick="sendPresetPrompt('Capture screenshot layar sekarang')">Vision Screen</button>
-                        <button class="pill-btn" onclick="sendPresetPrompt('Ingatkan saya untuk commit kode dalam 10 menit')">Reminder</button>
-                        <button class="pill-btn" onclick="sendPresetPrompt('Cek server MCP yang aktif dan tools yang tersedia')">MCP Tools</button>
+            <!-- VIEW 2: Cryptographic Audit Chain Inspector -->
+            <div id="viewAuditChain" class="studio-view" style="display: none;">
+                <div class="card audit-studio-card">
+                    <div class="audit-header-toolbar">
+                        <div class="audit-title-wrap">
+                            <h2 class="panel-header"><span class="neon-hash">//</span> CRYPTOGRAPHIC AUDIT CHAIN (SHA-256 PROVENANCE)</h2>
+                            <span class="audit-chain-count font-mono" id="auditChainCount">5 EVENTS RECORDED</span>
+                        </div>
+                        <div class="audit-actions-wrap">
+                            <button id="btnVerifyAudit" class="btn btn-accent" onclick="verifyAuditChain()">
+                                <span class="icon">🛡</span> [ VERIFY INTEGRITY ]
+                            </button>
+                            <button id="btnTamperAudit" class="btn btn-alert" onclick="tamperAuditChain()">
+                                <span class="icon">⚠️</span> [ SIMULATE TAMPER ]
+                            </button>
+                            <button id="btnResetAudit" class="btn btn-glass" onclick="resetAuditChain()">
+                                <span class="icon">🔄</span> [ RESET GENESIS ]
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Verification Banner -->
+                    <div id="auditStatusBanner" class="audit-status-banner banner-intact">
+                        <span class="banner-icon">✓</span>
+                        <div class="banner-body">
+                            <span class="banner-title">CRYPTOGRAPHIC INTEGRITY INTACT</span>
+                            <span class="banner-desc" id="auditBannerDesc">All audit events are cryptographically sealed with SHA-256 genesis hash linkage.</span>
+                        </div>
+                    </div>
+
+                    <!-- Visual Chain Flow -->
+                    <div class="audit-chain-scroll">
+                        <div id="auditChainFlow" class="audit-chain-flow">
+                            <div class="loading-text">Loading cryptographic audit chain...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 3: Governance Quota & Human-in-the-Loop Approvals -->
+            <div id="viewGovernance" class="studio-view" style="display: none;">
+                <div class="card gov-studio-card">
+                    <div class="gov-header-toolbar">
+                        <div class="gov-title-wrap">
+                            <h2 class="panel-header"><span class="neon-hash">//</span> GOVERNANCE QUOTA & HITL APPROVALS</h2>
+                            <span class="gov-badge font-mono" id="govEnforcementBadge">[ ENFORCING: ACTIVE ]</span>
+                        </div>
+                        <button class="btn btn-glass" onclick="fetchGovernanceBudget()">
+                            <span class="icon">⚡</span> [ REFRESH BUDGET ]
+                        </button>
+                    </div>
+
+                    <!-- Quota Resource Budget Grid -->
+                    <div class="gov-budget-grid" id="govBudgetGrid">
+                        <div class="gov-meter-card">
+                            <div class="meter-card-header">
+                                <span class="meter-title">TOOL INVOCATIONS</span>
+                                <span class="meter-stat font-mono" id="govToolCalls">14 / 50</span>
+                            </div>
+                            <div class="meter-bar-bg">
+                                <div id="govToolBar" class="meter-bar-fill bar-cyan" style="width: 28%;"></div>
+                            </div>
+                        </div>
+                        <div class="gov-meter-card">
+                            <div class="meter-card-header">
+                                <span class="meter-title">TOKEN CONSUMPTION</span>
+                                <span class="meter-stat font-mono" id="govTokens">12.8k / 100k</span>
+                            </div>
+                            <div class="meter-bar-bg">
+                                <div id="govTokenBar" class="meter-bar-fill bar-violet" style="width: 12.8%;"></div>
+                            </div>
+                        </div>
+                        <div class="gov-meter-card">
+                            <div class="meter-card-header">
+                                <span class="meter-title">COST BUDGET (USD)</span>
+                                <span class="meter-stat font-mono" id="govCost">$0.24 / $5.00</span>
+                            </div>
+                            <div class="meter-bar-bg">
+                                <div id="govCostBar" class="meter-bar-fill bar-emerald" style="width: 4.8%;"></div>
+                            </div>
+                        </div>
+                        <div class="gov-meter-card">
+                            <div class="meter-card-header">
+                                <span class="meter-title">MEMORY (MB)</span>
+                                <span class="meter-stat font-mono" id="govMem">184 / 512 MB</span>
+                            </div>
+                            <div class="meter-bar-bg">
+                                <div id="govMemBar" class="meter-bar-fill bar-cyan" style="width: 35.9%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pending Approvals Section -->
+                    <div class="gov-approvals-section">
+                        <div class="approvals-header">
+                            <h3 class="sub-panel-header"><span class="neon-hash">//</span> PENDING HUMAN-IN-THE-LOOP APPROVALS</h3>
+                            <span class="approvals-count font-mono" id="approvalsCountBadge">2 PENDING</span>
+                        </div>
+                        <div id="approvalsListFeed" class="approvals-list-feed">
+                            <div class="loading-text">Loading pending approvals...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 4: Agent Terminal REPL & LangGraph Engine -->
+            <div id="viewTerminalRepl" class="studio-view" style="display: none;">
+                <!-- LangGraph Agentic Workflow Graph Visualizer -->
+                <div class="card graph-container">
+                    <div class="graph-header">
+                        <h2 class="panel-header"><span class="neon-hash">//</span> LANGGRAPH AGENTIC WORKFLOW ENGINE</h2>
+                        <div class="iter-counter">ITERATION: <span id="graphIterCount" class="text-cyan">0</span> / 10</div>
+                    </div>
+
+                    <div class="graph-nodes">
+                        <div id="nodeStart" class="graph-node node-done">
+                            <span class="node-icon">▶</span> [ START ]
+                        </div>
+                        <div class="graph-connector">➔</div>
+                        <div id="nodeReasoner" class="graph-node">
+                            <span class="node-icon">🧠</span> [ REASONER ]
+                        </div>
+                        <div class="graph-connector">⇄</div>
+                        <div id="nodeExecutor" class="graph-node">
+                            <span class="node-icon">⚙</span> [ TOOL EXECUTOR ]
+                        </div>
+                        <div class="graph-connector">➔</div>
+                        <div id="nodeOutbox" class="graph-node">
+                            <span class="node-icon">📦</span> [ OUTBOX STORE ]
+                        </div>
+                        <div class="graph-connector">➔</div>
+                        <div id="nodeEnd" class="graph-node">
+                            <span class="node-icon">■</span> [ END ]
+                        </div>
+                    </div>
+                    
+                    <div id="graphLogFeed" class="graph-log-feed">
+                        <span class="log-prefix">&gt;</span> System standby. Real-time DAG ready for execution.
                     </div>
                 </div>
 
-                <!-- Chat Messages Scroll Container -->
-                <div id="chatFeed" class="chat-feed">
-                    <div class="chat-msg msg-system">
-                        <span class="msg-sender">[ SYSTEM ]</span>
-                        <div class="msg-body">NexusAI AI Operating System Initialized. Type a command or select a preset below.</div>
+                <!-- Terminal Chat Feed -->
+                <div class="card chat-container">
+                    <div class="chat-header">
+                        <h2 class="panel-header"><span class="neon-hash">//</span> TERMINAL REPL CHAT STREAM</h2>
+                        <div class="preset-pills">
+                            <button class="pill-btn" onclick="sendPresetPrompt('Tolong cek git status repository ini')">Git Status</button>
+                            <button class="pill-btn" onclick="sendPresetPrompt('Capture screenshot layar sekarang')">Vision Screen</button>
+                            <button class="pill-btn" onclick="sendPresetPrompt('Ingatkan saya untuk commit kode dalam 10 menit')">Reminder</button>
+                            <button class="pill-btn" onclick="sendPresetPrompt('Cek server MCP yang aktif dan tools yang tersedia')">MCP Tools</button>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Input Prompt Box -->
-                <form id="chatForm" class="chat-input-form" onsubmit="handleChatSubmit(event)">
-                    <span class="prompt-symbol">NexusAI ❯</span>
-                    <input type="text" id="promptInput" class="prompt-input" placeholder="Type command (e.g. 'Buka aplikasi Finder', 'Jalankan query database')..." autocomplete="off">
-                    <button type="submit" id="sendBtn" class="btn btn-accent">[ EXECUTE ]</button>
-                </form>
+                    <!-- Chat Messages Scroll Container -->
+                    <div id="chatFeed" class="chat-feed">
+                        <div class="chat-msg msg-system">
+                            <span class="msg-sender">[ SYSTEM ]</span>
+                            <div class="msg-body">NexusAI AI Operating System Initialized. Type a command or select a preset below.</div>
+                        </div>
+                    </div>
+
+                    <!-- Input Prompt Box -->
+                    <form id="chatForm" class="chat-input-form" onsubmit="handleChatSubmit(event)">
+                        <span class="prompt-symbol">NexusAI ❯</span>
+                        <input type="text" id="promptInput" class="prompt-input" placeholder="Type command (e.g. 'Buka aplikasi Finder', 'Jalankan query database')..." autocomplete="off">
+                        <button type="submit" id="sendBtn" class="btn btn-accent">[ EXECUTE ]</button>
+                    </form>
+                </div>
             </div>
         </section>
 

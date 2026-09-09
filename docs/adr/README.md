@@ -46,6 +46,7 @@ This directory documents key architectural decisions made during the design, imp
 | [ADR 0021](0021-opentelemetry-otlp-remote-exporter.md) | OpenTelemetry OTLP Remote Exporter for Distributed Tracing and Metrics | Accepted | Observability & Telemetry |
 | [ADR 0022](0022-72-hour-sustained-soak-testing-and-chaos-pipeline.md) | 72-Hour Sustained Soak Testing & Chaos Injection Pipeline | Accepted | Reliability & Stress |
 | [ADR 0023](0023-oci-container-and-grpc-sandbox-execution-gateway.md) | OCI Container & gRPC MicroVM Sandbox Execution Gateway | Accepted | Security & Sandbox Isolation |
+| [ADR 0024](0024-nexusai-studio-interactive-dag-and-audit-visualizer.md) | NexusAI Studio — Interactive Web Visualizer for DAG Plans and Audit Chains | Accepted | Studio & Observability |
 
 ---
 
@@ -73,6 +74,7 @@ This matrix maps architectural decisions to their corresponding automated test s
 | **OpenTelemetry OTLP Exporter** | ADR-0021 | `tests/unit/infrastructure/observability/test_otel_exporter.py` | OTLP JSON Schema, Secret Redaction & Budget Suite |
 | **Sustained Soak & Chaos Pipeline** | ADR-0022 | `tests/stress/test_extended_soak_test.py` | Endurance Workload, Memory Drift & Chaos Suite |
 | **OCI Container Sandbox Gateway** | ADR-0023 | `tests/unit/infrastructure/sandbox/test_container_sandbox_gateway.py` | OCI Flags, Capability Policy & Network Socket Suite |
+| **NexusAI Studio Web Visualizer** | ADR-0024 | `tests/unit/api/test_studio_api.py` | DAG Execution, SHA-256 Audit Verification & HITL Suite |
 
 ---
 

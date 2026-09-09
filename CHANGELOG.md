@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🎨 NexusAI Studio — Interactive Web Visualizer for DAG Plans & Audit Chains (Issue #24 / ADR-0024)
+- `feat(ui)`: Implement **NexusAI Studio** interactive console featuring real-time topological DAG plan visualizer, cryptographic SHA-256 audit chain inspector, and governance quota & HITL approvals monitor.
+- `feat(ui)`: Build responsive SVG DAG engine with cubic Bézier links, animated execution indicators, step latency badges, and interactive step inspector drawers.
+- `feat(ui)`: Implement cryptographic SHA-256 audit ledger inspector with genesis hash linkage, interactive integrity verification, simulated tamper detection, and genesis baseline reset.
+- `feat(ui)`: Implement Governance & Human-in-the-Loop approval console with live quota meters (tool calls, token consumption, cost USD, RAM) and interactive `[ APPROVE ]` and `[ DENY ]` decision gates.
+- `feat(api)`: Provide dedicated Studio REST endpoints (`/api/v1/dag/plans`, `/api/v1/dag/current`, `/api/v1/dag/execute`, `/api/v1/audit/events`, `/api/v1/audit/verify`, `/api/v1/audit/tamper`, `/api/v1/audit/reset`, `/api/v1/governance/budget`, `/api/v1/governance/approvals`) and live Server-Sent Events (`/api/events/stream`, `/events`).
+- `feat(ui)`: Adhere strictly to Cyber-Glass design system using Vanilla CSS, dark mode (`#060910`), glassmorphism (`backdrop-filter: blur(16px)`), modern typography (`Outfit`, `JetBrains Mono`), and zero external npm/build dependencies.
+
 ### 🛡️ OCI Container & gRPC MicroVM Sandbox Execution Gateway (Issue #23 / ADR-0023)
 - `feat(sandbox)`: Implement low-level `OciContainerRuntime` with full OCI CLI argument generation supporting rootless containers, `--read-only` rootfs, `--network=none`, `--user 10001:10001`, `--cap-drop=ALL`, and strict cgroup CPU/memory/PID limits.
 - `feat(sandbox)`: Harden `CapabilityPolicyEngine` with volume jail containment (`validate_mount_paths`), credential environment sanitization (`sanitize_ephemeral_env`), and denial of host docker sockets (`/var/run/docker.sock`) and sensitive paths.
