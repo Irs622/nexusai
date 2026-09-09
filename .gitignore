@@ -37,6 +37,7 @@ share/python-wheels/
 .mypy_cache/
 tmp/
 reports/
+artifacts/
 .coverage
 htmlcov/
 .tox/

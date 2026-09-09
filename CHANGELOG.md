@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🌪️ 72-Hour Sustained Soak Testing & Chaos Injection Pipeline (Issue #21 / ADR-0022)
+- `test(chaos)`: Introduce dedicated continuous soak testing pipeline in `tools/run_extended_soak_test.py` supporting configurable execution durations (`1h`, `24h`, `72h`), multi-worker concurrency, and automated reporting.
+- `test(chaos)`: Implement `ChaosToolPort` supporting stochastic fault injection across 4 failure modes (`TOOL_TIMEOUT`, `DAG_STEP_FAILURE`, `WORKER_EXCEPTION`, `CANCELLATION`) with structured recovery telemetry.
+- `test(chaos)`: Integrate `tracemalloc` memory profiling with periodic snapshot diffing, top call-site allocation attribution, and optional `memray` profiling hooks.
+- `test(chaos)`: Enforce strict bounded memory drift (< 5.0% normalized RSS growth per 24 hours), file descriptor stability (Δ FDs ≤ 2), and zero uncollected cyclic garbage objects.
+- `test(chaos)`: Add automated test suite in `tests/stress/test_extended_soak_test.py` generating structured JSON (`extended_soak_report.json`) and Markdown summaries (`extended_soak_report.md`).
+
 ### 📊 OpenTelemetry OTLP Remote Exporter for Distributed Tracing (Issue #22 / ADR-0021)
 - `feat(observability)`: Implement `OtelTraceExporter` and `OtelMetricsExporter` in `nexusai.infrastructure.observability.otel_exporter` conforming to `IObservabilityPort`.
 - `feat(observability)`: Provide standard OTLP JSON wire format (`resourceSpans` and `resourceMetrics`) over HTTP with connection pooling and standard env configuration (`OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT`, `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT`, `OTEL_EXPORTER_OTLP_HEADERS`, `OTEL_SERVICE_NAME`).
