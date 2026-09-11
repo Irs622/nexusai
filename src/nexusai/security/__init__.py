@@ -20,6 +20,14 @@ __all__ = [
     "Capability",
     "CapabilityProfile",
     "CapabilityResolver",
+    "TrustLevel",
+    "ContextContent",
+    "classify_trust_level",
+    "sanitize_tool_output",
+    "format_content_with_boundary",
+    "tag_context_content",
+    "OutputValidator",
+    "ValidationResult",
 ]
 
 
@@ -52,4 +60,19 @@ def __getattr__(name: str) -> Any:
         import nexusai.security.capability as _capability
 
         return getattr(_capability, name)
+    if name in (
+        "TrustLevel",
+        "ContextContent",
+        "classify_trust_level",
+        "sanitize_tool_output",
+        "format_content_with_boundary",
+        "tag_context_content",
+    ):
+        import nexusai.security.trust_boundary as _trust
+
+        return getattr(_trust, name)
+    if name in ("OutputValidator", "ValidationResult"):
+        import nexusai.security.output_validator as _validator
+
+        return getattr(_validator, name)
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")

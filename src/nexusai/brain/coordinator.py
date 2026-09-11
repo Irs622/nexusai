@@ -14,6 +14,14 @@ from nexusai.brain.ports.tool_port import IToolPort
 from nexusai.brain.prompt import PromptBuilder
 from nexusai.brain.runtime.state import SessionState
 from nexusai.brain.service import BrainRuntimeFacade
+from nexusai.logging.logger import logger
+from nexusai.security.identity import Identity, Role, TenantContext
+from nexusai.security.output_validator import OutputValidator
+from nexusai.security.trust_boundary import (
+    ContextContent,
+    format_content_with_boundary,
+    tag_context_content,
+)
 from nexusai.tools.adapter import ToolRegistryAdapter
 
 
@@ -30,6 +38,7 @@ class BrainCoordinator:
         execution_engine: PlanGraphExecutionEngine | None = None,
         facade: BrainRuntimeFacade | None = None,
         human_approval_engine: Any | None = None,
+        output_validator: OutputValidator | None = None,
         *args: Any,
         **kwargs: Any,
     ) -> None:
@@ -41,9 +50,11 @@ class BrainCoordinator:
         self.facade = facade or BrainRuntimeFacade()
         self.execution_engine = execution_engine or PlanGraphExecutionEngine()
         self.human_approval_engine = human_approval_engine
+        self.output_validator = output_validator or OutputValidator()
         self.last_decision_trace: Any = None
         self.last_plan_graph: Any = None
         self.last_execution_results: Any = None
+        self.last_context_contents: list[ContextContent] = []
 
     async def process_user_input(
         self,
@@ -71,13 +82,23 @@ class BrainCoordinator:
             except Exception:
                 pass
 
-        messages: list[dict[str, Any]] = [{"role": "system", "content": sys_prompt}]
+        sys_context = tag_context_content(content=sys_prompt, source="system", sanitize=False)
+        user_context = tag_context_content(content=user_text, source="user", sanitize=False)
+        self.last_context_contents = [sys_context, user_context]
+
+        sys_bounded = format_content_with_boundary(sys_context)
+        user_bounded = format_content_with_boundary(user_context)
+
+        messages: list[dict[str, Any]] = [{"role": "system", "content": sys_bounded}]
         for h in history:
             role = h.get("role", "user")
             content = h.get("content", "")
             if role in ("user", "assistant") and content:
+                source = "memory" if role == "user" else "assistant"
+                hist_context = tag_context_content(content=content, source=source, sanitize=False)
+                self.last_context_contents.append(hist_context)
                 messages.append({"role": role, "content": content})
-        messages.append({"role": "user", "content": user_text})
+        messages.append({"role": "user", "content": user_bounded})
 
         # 2. Resolve tool availability & schemas
         tools_schema: list[dict[str, Any]] = []
@@ -177,9 +198,33 @@ class BrainCoordinator:
                     if not isinstance(arguments, dict):
                         arguments = {}
 
+                    # Post-LLM Output Validation against defensive policies
+                    identity = TenantContext.get_current_identity() or Identity(
+                        user_id=user_id, tenant_id="default", role=Role.OPERATOR
+                    )
+                    validation = self.output_validator.validate_tool_call(
+                        tool_name=tool_name,
+                        arguments=arguments,
+                        user_goal=user_text,
+                        identity=identity,
+                    )
+
                     tool_result: Any = None
                     exec_error: str | None = None
-                    if not self.command_bus or not hasattr(self.command_bus, "dispatch"):
+                    if not validation.is_valid:
+                        logger.warning(
+                            f"[OutputValidator] Tool call '{tool_name}' rejected: {validation.violation_type} - {validation.reason}"
+                        )
+                        exec_error = f"Security Policy Violation [{validation.violation_type}]: {validation.reason}"
+                    elif validation.requires_approval and not approval_token:
+                        logger.warning(
+                            f"[OutputValidator] Tool call '{tool_name}' requires approval: {validation.reason}"
+                        )
+                        exec_error = (
+                            f"Approval Required: Tool call '{tool_name}' requires explicit human approval "
+                            f"({validation.reason}). Provide an approval token to proceed."
+                        )
+                    elif not self.command_bus or not hasattr(self.command_bus, "dispatch"):
                         exec_error = (
                             f"Governed execution blocked: CommandBus required for tool '{tool_name}' "
                             "but is not configured."
@@ -199,11 +244,34 @@ class BrainCoordinator:
                         except Exception as err:
                             exec_error = str(err)
 
-                    result_content = (
+                    raw_result = (
                         str(tool_result)
                         if exec_error is None
                         else f"Error executing {tool_name}: {exec_error}"
                     )
+
+                    tool_context = tag_context_content(
+                        content=raw_result,
+                        source=f"tool:{tool_name}",
+                        tool_name=tool_name,
+                        sanitize=True,
+                        max_chars=16000,
+                    )
+                    self.last_context_contents.append(tool_context)
+                    bounded_result = format_content_with_boundary(
+                        content=tool_context,
+                        tool_name=tool_name,
+                    )
+
+                    # Record observation to maintain causal trust tracking
+                    self.output_validator.record_observation(
+                        trust_level=tool_context.trust_level,
+                        source=tool_context.source,
+                        content=raw_result,
+                        tool_name=tool_name,
+                        arguments=arguments,
+                    )
+
                     call_id = f"call_{tool_name}_{int(time.time() * 1000)}"
 
                     messages.append(
@@ -227,7 +295,7 @@ class BrainCoordinator:
                             "role": "tool",
                             "tool_call_id": call_id,
                             "name": tool_name,
-                            "content": result_content,
+                            "content": bounded_result,
                         }
                     )
 
@@ -253,6 +321,7 @@ class BrainCoordinator:
                 res_copy["iterations"] = step
                 res_copy["trace_id"] = decision_trace.trace_id
                 res_copy["plan_nodes"] = len(plan_graph.nodes)
+                res_copy["context_contents"] = self.last_context_contents
                 return res_copy
 
             # If max steps reached after tool iterations, request final textual summary
@@ -280,6 +349,7 @@ class BrainCoordinator:
                 "iterations": step,
                 "trace_id": decision_trace.trace_id,
                 "plan_nodes": len(plan_graph.nodes),
+                "context_contents": self.last_context_contents,
             }
 
         # 6. Offline / Mock response fallback when no model_provider is active
@@ -292,6 +362,7 @@ class BrainCoordinator:
             "trace_id": decision_trace.trace_id,
             "plan_nodes": len(plan_graph.nodes),
             "executed_results": len(exec_results),
+            "context_contents": self.last_context_contents,
         }
 
 
