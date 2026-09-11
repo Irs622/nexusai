@@ -61,3 +61,6 @@ Thumbs.db
 
 # Obsidian Second Brain (100% Private Local Vault — Never shared / committed)
 vault/
+
+# Generated API Key storage
+*api_keys.json

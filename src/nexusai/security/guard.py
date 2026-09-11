@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 from nexusai.core.errors import SecurityError
 from nexusai.logging.logger import log_audit
 from nexusai.security.approval_token import ApprovalTokenService
+from nexusai.security.authorization import RbacEngine
 from nexusai.security.sanitizer import InputSanitizer
 
 
@@ -57,7 +58,7 @@ class SecurityGuard:
         )
         self.approval_service = approval_service or ApprovalTokenService()
         self.auth_middleware = auth_middleware
-        self.rbac_engine = rbac_engine
+        self.rbac_engine = rbac_engine or RbacEngine()
         self.capability_resolver = capability_resolver
         self.human_approval_engine = human_approval_engine
 
@@ -99,7 +100,9 @@ class SecurityGuard:
 
         # 2. RBAC gate (#31 hook)
         if self.rbac_engine is not None and hasattr(self.rbac_engine, "check_permission"):
-            if not self.rbac_engine.check_permission(eff_user_id, request.action_name):
+            if not self.rbac_engine.check_permission(
+                eff_user_id, request.action_name, request.risk_level
+            ):
                 log_audit(
                     "ACTION_DENIED_RBAC", {"action": request.action_name, "user": eff_user_id}
                 )

@@ -49,6 +49,7 @@ This directory documents key architectural decisions made during the design, imp
 | [ADR 0024](0024-nexusai-studio-interactive-dag-and-audit-visualizer.md) | NexusAI Studio — Interactive Web Visualizer for DAG Plans and Audit Chains | Accepted | Studio & Observability |
 | [ADR 0025](0025-cli-scaffolding-create-tool-and-create-mcp.md) | CLI Scaffolding Commands: `nexusai create-tool` and `nexusai create-mcp` | Accepted | CLI & Developer Experience |
 | [ADR 0026](0026-security-hardening-approval-tokens-and-cors.md) | Security Hardening: Server-Side Approval Tokens, CORS Hardening, and Autonomous Bypass Remediation | Accepted | Security & API Gateway |
+| [ADR 0027](0027-api-authentication-rbac-and-tenant-isolation.md) | API Authentication, Role-Based Access Control (RBAC), and Multi-Tenant Isolation | Accepted | Security & Identity Governance |
 
 ---
 
@@ -78,6 +79,7 @@ This matrix maps architectural decisions to their corresponding automated test s
 | **OCI Container Sandbox Gateway** | ADR-0023 | `tests/unit/infrastructure/sandbox/test_container_sandbox_gateway.py` | OCI Flags, Capability Policy & Network Socket Suite |
 | **NexusAI Studio Web Visualizer** | ADR-0024 | `tests/unit/api/test_studio_api.py` | DAG Execution, SHA-256 Audit Verification & HITL Suite |
 | **Approval Tokens & CORS Hardening** | ADR-0026 | `tests/unit/security/test_approval_token.py`, `tests/unit/test_api.py` | Cryptographic Token Verification, 403 Replay Gate & CORS Origin Suite |
+| **API Authentication, RBAC & Tenant Isolation** | ADR-0027 | `tests/unit/security/test_authentication.py`, `tests/unit/security/test_authorization.py`, `tests/integration/test_tenant_isolation.py` | SHA-256 Key Hashing, 401/403/429 Enforcement, ContextVar Tenant Partitioning |
 
 ---
 

@@ -14,7 +14,7 @@ from nexusai.api.server import create_app
 def studio_client() -> TestClient:
     """Fixture providing isolated TestClient instance."""
     app = create_app(db_path=":memory:")
-    return TestClient(app)
+    return TestClient(app, headers={"X-NexusAI-API-Key": "nx_test_admin_key_123"})
 
 
 def test_studio_dag_plans_listing(studio_client: TestClient) -> None:

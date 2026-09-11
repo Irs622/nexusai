@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🛡️ API Authentication, Role-Based Access Control (RBAC) & Tenant Isolation (Issue #31 / ADR-0027)
+- `security(identity)`: Implement caller identity model (`Identity`) and hierarchical RBAC roles (`Role`: `viewer` < `operator` < `admin` < `system`).
+- `security(auth)`: Add `ApiKeyService` and `AuthMiddleware` supporting API key authentication (`X-NexusAI-API-Key`) with zero plaintext storage (SHA-256 hashes only), key generation, revocation, expiration, and sliding-window rate limiting (100 req/min).
+- `security(rbac)`: Implement `RbacEngine` enforcing tool risk boundaries (`viewer` read-only, `operator` LOW/MEDIUM risk, `admin`/`system` full access) and anti-escalation rules preventing callers from elevating roles higher than their own authority.
+- `security(tenant)`: Implement coroutine-safe ambient tenant context (`TenantContext` via `contextvars`) and partition application state per tenant (audit chains, governance budgets, pending approvals, and studio plans) guaranteeing zero cross-tenant contamination.
+- `security(api)`: Enforce authentication on all protected REST endpoints, returning `401 Unauthorized` for missing/invalid keys, `403 Forbidden` for RBAC permission violations, and `429 Too Many Requests` when exceeding rate limits.
+- `security(bus)`: Propagate authenticated identity through API -> `BrainCoordinator` -> `ExecuteToolCommand` -> `SecurityGuard` -> `AuditEvent(actor=user_id)`.
+- `test(security)`: Add comprehensive test suites in `tests/unit/security/test_authentication.py` (8 tests), `tests/unit/security/test_authorization.py` (7 tests), and `tests/integration/test_tenant_isolation.py` (5 tests).
+
 ### 🔒 Security Hardening — Approval Tokens, CORS Hardening & Autonomous Bypass Remediation (Issue #28 / ADR-0026)
 - `security(api)`: Fix Remote Code Execution (RCE) surface in `POST /api/tools/execute` by removing client-supplied boolean `user_confirmed` from `ToolExecRequest` and `ChatRequest`.
 - `security(api)`: Introduce server-side cryptographic approval tokens via `ApprovalTokenService` (`HMAC-SHA256`, 5-minute TTL, single-use anti-replay protection, and action parameter binding).

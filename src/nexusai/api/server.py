@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any, AsyncGenerator, cast
 
 from dotenv import find_dotenv, load_dotenv
-from fastapi import FastAPI, Header, HTTPException
+from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -32,7 +32,9 @@ from nexusai.core.errors import ConfigurationError, SecurityError
 from nexusai.logging.logger import logger
 from nexusai.memory.sqlite_memory import SQLiteMemory
 from nexusai.models.openai_provider import OpenAIProvider
+from nexusai.security.authentication import ApiKeyService, AuthMiddleware
 from nexusai.security.guard import RiskLevel, SecurityGuard
+from nexusai.security.identity import Identity, Role, TenantContext
 
 # Import Tools & MCP
 from nexusai.tools.automation import ScheduleReminderTool
@@ -588,16 +590,103 @@ def create_app(
         allow_headers=["*"],
     )
 
+    # Authentication & API Key Service
+    auth_cfg = getattr(config, "auth", None)
+    api_key_service = ApiKeyService(
+        storage_path=auth_cfg.key_storage_path if auth_cfg else None,
+        default_rate_limit=auth_cfg.rate_limit_per_minute if auth_cfg else 100,
+    )
+
+    # Register default administrative test key for local development and seamless testing
+    default_test_key = os.getenv("NEXUSAI_TEST_API_KEY", "nx_test_admin_key_123")
+    api_key_service.register_raw_key(
+        raw_key=default_test_key,
+        tenant_id="default",
+        user_id="admin-user",
+        role=Role.ADMIN,
+        name="Default System Admin Key",
+    )
+
+    auth_enabled = (
+        auth_cfg.enabled
+        if (auth_cfg and os.getenv("NEXUSAI_AUTH_ENABLED", "true").lower() != "false")
+        else True
+    )
+    if os.getenv("NEXUSAI_AUTH_ENABLED", "").lower() == "false":
+        auth_enabled = False
+
+    app.add_middleware(
+        AuthMiddleware,
+        api_key_service=api_key_service,
+        header_name=auth_cfg.api_key_header if auth_cfg else "X-NexusAI-API-Key",
+        enabled=auth_enabled,
+    )
+
+    # Multi-tenant state partitioning
+    tenant_audit_chains: dict[str, list[AuditEvent]] = {
+        "default": _create_initial_audit_chain(),
+    }
+    tenant_governance_budgets: dict[str, dict[str, Any]] = {
+        "default": _create_initial_governance_budget(),
+    }
+    tenant_pending_approvals: dict[str, list[dict[str, Any]]] = {
+        "default": _create_initial_pending_approvals(),
+    }
+    tenant_studio_plans: dict[str, dict[str, Any]] = {
+        "default": _create_studio_plans(),
+    }
+
     # Attach manager and security components to app state for testing and direct access
     app.state.mcp_manager = mcp_manager
     app.state.registry = registry
     app.state.approval_service = security_guard.approval_service
     app.state.security_guard = security_guard
+    app.state.api_key_service = api_key_service
+    app.state.rbac_engine = security_guard.rbac_engine
     app.state.event_subscribers = []
-    app.state.studio_plans = _create_studio_plans()
-    app.state.audit_chain = _create_initial_audit_chain()
-    app.state.governance_budget = _create_initial_governance_budget()
-    app.state.pending_approvals = _create_initial_pending_approvals()
+
+    app.state.tenant_audit_chains = tenant_audit_chains
+    app.state.tenant_governance_budgets = tenant_governance_budgets
+    app.state.tenant_pending_approvals = tenant_pending_approvals
+    app.state.tenant_studio_plans = tenant_studio_plans
+
+    # Legacy pointers for backward-compatibility
+    app.state.audit_chain = tenant_audit_chains["default"]
+    app.state.governance_budget = tenant_governance_budgets["default"]
+    app.state.pending_approvals = tenant_pending_approvals["default"]
+    app.state.studio_plans = tenant_studio_plans["default"]
+
+    def _get_tenant_id(req: Request) -> str:
+        ident: Identity | None = (
+            getattr(req.state, "identity", None) or TenantContext.get_current_identity()
+        )
+        if ident and ident.tenant_id:
+            return ident.tenant_id
+        return "default"
+
+    def _get_tenant_audit_chain(req: Request) -> list[AuditEvent]:
+        t_id = _get_tenant_id(req)
+        if t_id not in app.state.tenant_audit_chains:
+            app.state.tenant_audit_chains[t_id] = _create_initial_audit_chain()
+        return cast(list[AuditEvent], app.state.tenant_audit_chains[t_id])
+
+    def _get_tenant_governance_budget(req: Request) -> dict[str, Any]:
+        t_id = _get_tenant_id(req)
+        if t_id not in app.state.tenant_governance_budgets:
+            app.state.tenant_governance_budgets[t_id] = _create_initial_governance_budget()
+        return cast(dict[str, Any], app.state.tenant_governance_budgets[t_id])
+
+    def _get_tenant_pending_approvals(req: Request) -> list[dict[str, Any]]:
+        t_id = _get_tenant_id(req)
+        if t_id not in app.state.tenant_pending_approvals:
+            app.state.tenant_pending_approvals[t_id] = _create_initial_pending_approvals()
+        return cast(list[dict[str, Any]], app.state.tenant_pending_approvals[t_id])
+
+    def _get_tenant_studio_plans(req: Request) -> dict[str, Any]:
+        t_id = _get_tenant_id(req)
+        if t_id not in app.state.tenant_studio_plans:
+            app.state.tenant_studio_plans[t_id] = _create_studio_plans()
+        return cast(dict[str, Any], app.state.tenant_studio_plans[t_id])
 
     # =========================================================================
     # CORE REST ENDPOINTS & HEALTH PROBES
@@ -645,25 +734,39 @@ def create_app(
         return tools_info
 
     @app.post("/api/chat")
-    async def chat_endpoint(req: ChatRequest) -> dict[str, Any]:
+    async def chat_endpoint(req: ChatRequest, request: Request) -> dict[str, Any]:
+        identity: Identity | None = (
+            getattr(request.state, "identity", None) or TenantContext.get_current_identity()
+        )
+        if identity and identity.role == Role.VIEWER:
+            raise HTTPException(
+                status_code=403,
+                detail=f"RBAC access denied: Role '{identity.role.value}' is read-only and cannot invoke chat",
+            )
+        user_id = identity.user_id if identity else "anonymous"
         try:
             res = await coordinator.process_user_input(
                 user_text=req.prompt,
                 session_id=req.session_id,
                 approval_token=req.approval_token,
+                user_id=user_id,
             )
             return res
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e)) from e
 
     @app.post("/api/v1/approvals/request")
-    async def request_approval_token(req: ApprovalRequest) -> dict[str, Any]:
+    async def request_approval_token(req: ApprovalRequest, request: Request) -> dict[str, Any]:
         """Issue a cryptographic HMAC-SHA256 single-use approval token for tool execution."""
+        identity: Identity | None = (
+            getattr(request.state, "identity", None) or TenantContext.get_current_identity()
+        )
+        user_id = identity.user_id if identity else "anonymous"
         try:
             token, expires_at = security_guard.approval_service.create_token(
                 tool_name=req.tool_name,
                 arguments=req.arguments,
-                user_id="anonymous",
+                user_id=user_id,
                 execution_id=req.execution_id,
             )
             return {"approval_token": token, "expires_at": expires_at}
@@ -673,6 +776,7 @@ def create_app(
     @app.post("/api/tools/execute")
     async def execute_tool_endpoint(
         req: ToolExecRequest,
+        request: Request,
         x_approval_token: str | None = Header(None, alias="X-Approval-Token"),
     ) -> dict[str, Any]:
         try:
@@ -681,6 +785,26 @@ def create_app(
             raise HTTPException(
                 status_code=404, detail=f"Tool '{req.tool_name}' not found: {e}"
             ) from e
+
+        identity: Identity | None = (
+            getattr(request.state, "identity", None) or TenantContext.get_current_identity()
+        )
+        if identity is not None:
+            # 1. Viewer role cannot execute tools -> 403 Forbidden
+            if identity.role == Role.VIEWER:
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"RBAC access denied: Role '{identity.role.value}' cannot execute tools",
+                )
+            # 2. Operator role cannot execute HIGH or CRITICAL tools -> 403 Forbidden
+            if identity.role == Role.OPERATOR and tool.risk_level in (
+                RiskLevel.HIGH,
+                RiskLevel.CRITICAL,
+            ):
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"RBAC access denied: Role '{identity.role.value}' cannot execute {tool.risk_level.value} risk tool '{req.tool_name}'",
+                )
 
         # HIGH or CRITICAL risk tools require server-side approval token
         if tool.risk_level in (RiskLevel.HIGH, RiskLevel.CRITICAL):
@@ -695,6 +819,7 @@ def create_app(
                 tool_name=req.tool_name,
                 arguments=req.arguments,
                 approval_token=x_approval_token,
+                user_id=identity.user_id if identity else "anonymous",
                 execution_id=req.execution_id,
             )
             output = await command_bus.dispatch(cmd)
@@ -707,7 +832,11 @@ def create_app(
                 err_msg = str(cause) if cause else str(e)
                 raise HTTPException(status_code=403, detail=err_msg) from e
             err_str = str(e)
-            if "Security policy denied" in err_str or "Approval token" in err_str:
+            if (
+                "Security policy denied" in err_str
+                or "Approval token" in err_str
+                or "RBAC" in err_str
+            ):
                 raise HTTPException(status_code=403, detail=err_str) from e
             raise HTTPException(status_code=400, detail=err_str) from e
 
@@ -828,10 +957,11 @@ def create_app(
     # =========================================================================
 
     @app.get("/api/v1/dag/plans")
-    async def get_dag_plans() -> list[dict[str, Any]]:
+    async def get_dag_plans(request: Request) -> list[dict[str, Any]]:
         """Return available DAG plan templates with metadata."""
+        plans_dict = _get_tenant_studio_plans(request)
         plans = []
-        for p_id, p_data in app.state.studio_plans.items():
+        for p_id, p_data in plans_dict.items():
             plans.append(
                 {
                     "plan_id": p_id,
@@ -844,18 +974,31 @@ def create_app(
         return plans
 
     @app.get("/api/v1/dag/current")
-    async def get_current_dag(plan_id: str = "incident_response") -> dict[str, Any]:
+    async def get_current_dag(
+        request: Request, plan_id: str = "incident_response"
+    ) -> dict[str, Any]:
         """Return full PlanGraph nodes and edge specifications for specified plan."""
-        plan = app.state.studio_plans.get(plan_id)
+        plans_dict = _get_tenant_studio_plans(request)
+        plan = plans_dict.get(plan_id)
         if not plan:
             raise HTTPException(status_code=404, detail=f"Plan '{plan_id}' not found")
         return cast(dict[str, Any], plan)
 
     @app.post("/api/v1/dag/execute")
     @app.post("/api/v1/execute")
-    async def execute_dag_plan(req: DagExecuteRequest) -> dict[str, Any]:
+    async def execute_dag_plan(req: DagExecuteRequest, request: Request) -> dict[str, Any]:
         """Trigger execution of a DAG plan, broadcasting live node transitions via SSE."""
-        plan = app.state.studio_plans.get(req.plan_id)
+        identity: Identity | None = (
+            getattr(request.state, "identity", None) or TenantContext.get_current_identity()
+        )
+        if identity and identity.role == Role.VIEWER:
+            raise HTTPException(
+                status_code=403,
+                detail=f"RBAC access denied: Role '{identity.role.value}' cannot execute DAG plans",
+            )
+
+        plans_dict = _get_tenant_studio_plans(request)
+        plan = plans_dict.get(req.plan_id)
         if not plan:
             raise HTTPException(status_code=404, detail=f"Plan '{req.plan_id}' not found")
 
@@ -901,12 +1044,12 @@ def create_app(
                     node["latency_ms"] = round((time.time() - start_t) * 1000, 1)
                     node["output"] = {"status": "success", "executed_tool": node["tool"]}
 
-                    prev_hash = (
-                        app.state.audit_chain[-1].event_hash
-                        if app.state.audit_chain
-                        else GENESIS_HASH
-                    )
-                    seq = len(app.state.audit_chain) + 1
+                    tenant_chain = _get_tenant_audit_chain(request)
+                    tenant_budget = _get_tenant_governance_budget(request)
+
+                    prev_hash = tenant_chain[-1].event_hash if tenant_chain else GENESIS_HASH
+                    seq = len(tenant_chain) + 1
+                    actor_name = identity.user_id if identity else "autonomous-agent"
                     new_event = AuditEvent(
                         event_id=f"evt-exec-{int(time.time() * 1000)}",
                         event_type="TOOL_EXECUTION_COMPLETED",
@@ -918,22 +1061,26 @@ def create_app(
                         node_id=node_id,
                         tool_id=str(node["tool"]),
                         worker_id="worker-mac-01",
-                        actor="autonomous-agent",
+                        actor=actor_name,
                         outcome="SUCCESS",
                         severity="INFO",
                         previous_event_hash=prev_hash,
-                        metadata={"node_title": node["title"], "latency_ms": node["latency_ms"]},
+                        metadata={
+                            "node_title": node["title"],
+                            "latency_ms": node["latency_ms"],
+                            "tenant_id": identity.tenant_id if identity else "default",
+                        },
                     )
-                    app.state.audit_chain.append(new_event)
+                    tenant_chain.append(new_event)
 
-                    app.state.governance_budget["usage"]["tool_invocations_used"] += 1
-                    app.state.governance_budget["usage"]["cpu_seconds_used"] = round(
-                        app.state.governance_budget["usage"]["cpu_seconds_used"] + 0.15, 2
+                    tenant_budget["usage"]["tool_invocations_used"] += 1
+                    tenant_budget["usage"]["cpu_seconds_used"] = round(
+                        tenant_budget["usage"]["cpu_seconds_used"] + 0.15, 2
                     )
-                    app.state.governance_budget["percentages"]["tools"] = round(
+                    tenant_budget["percentages"]["tools"] = round(
                         (
-                            app.state.governance_budget["usage"]["tool_invocations_used"]
-                            / app.state.governance_budget["limits"]["max_tool_invocations"]
+                            tenant_budget["usage"]["tool_invocations_used"]
+                            / tenant_budget["limits"]["max_tool_invocations"]
                         )
                         * 100,
                         1,
@@ -950,7 +1097,7 @@ def create_app(
                         },
                     )
                     broadcast_event("audit_event_created", asdict(new_event))
-                    broadcast_event("budget_updated", app.state.governance_budget)
+                    broadcast_event("budget_updated", tenant_budget)
 
                 broadcast_event(
                     "dag_completed",
@@ -972,14 +1119,15 @@ def create_app(
         }
 
     @app.get("/api/v1/audit/events")
-    async def get_audit_events() -> list[dict[str, Any]]:
+    async def get_audit_events(request: Request) -> list[dict[str, Any]]:
         """Return chronological list of cryptographic AuditEvent records forming the hash chain."""
-        return [asdict(ev) for ev in app.state.audit_chain]
+        chain = _get_tenant_audit_chain(request)
+        return [asdict(ev) for ev in chain]
 
     @app.post("/api/v1/audit/verify")
-    async def verify_audit_chain_endpoint() -> dict[str, Any]:
+    async def verify_audit_chain_endpoint(request: Request) -> dict[str, Any]:
         """Perform cryptographic SHA-256 integrity verification across the full audit chain."""
-        chain = app.state.audit_chain
+        chain = _get_tenant_audit_chain(request)
         violations: list[str] = []
         hash_chain_valid = True
 
@@ -1021,9 +1169,20 @@ def create_app(
         }
 
     @app.post("/api/v1/audit/tamper")
-    async def tamper_audit_event_endpoint(req: AuditTamperRequest) -> dict[str, Any]:
+    async def tamper_audit_event_endpoint(
+        req: AuditTamperRequest, request: Request
+    ) -> dict[str, Any]:
         """Simulate malicious tampering on an event in the audit chain to test cryptographic detection."""
-        chain = app.state.audit_chain
+        identity: Identity | None = (
+            getattr(request.state, "identity", None) or TenantContext.get_current_identity()
+        )
+        if identity and identity.role == Role.VIEWER:
+            raise HTTPException(
+                status_code=403,
+                detail=f"RBAC access denied: Role '{identity.role.value}' cannot tamper audit events",
+            )
+
+        chain = _get_tenant_audit_chain(request)
         if len(chain) < 2:
             raise HTTPException(status_code=400, detail="Audit chain too short to tamper")
 
@@ -1069,32 +1228,57 @@ def create_app(
         }
 
     @app.post("/api/v1/audit/reset")
-    async def reset_audit_chain_endpoint() -> dict[str, Any]:
+    async def reset_audit_chain_endpoint(request: Request) -> dict[str, Any]:
         """Reset the audit chain back to verified clean genesis state."""
-        app.state.audit_chain = _create_initial_audit_chain()
-        broadcast_event("audit_reset", {"event_count": len(app.state.audit_chain)})
+        identity: Identity | None = (
+            getattr(request.state, "identity", None) or TenantContext.get_current_identity()
+        )
+        if identity and identity.role == Role.VIEWER:
+            raise HTTPException(
+                status_code=403,
+                detail=f"RBAC access denied: Role '{identity.role.value}' cannot reset audit chain",
+            )
+
+        tenant_id = _get_tenant_id(request)
+        app.state.tenant_audit_chains[tenant_id] = _create_initial_audit_chain()
+        chain = app.state.tenant_audit_chains[tenant_id]
+        broadcast_event("audit_reset", {"event_count": len(chain)})
         return {
             "status": "RESET_SUCCESS",
-            "event_count": len(app.state.audit_chain),
+            "event_count": len(chain),
         }
 
     @app.get("/api/v1/governance/budget")
-    async def get_governance_budget() -> dict[str, Any]:
+    async def get_governance_budget(request: Request) -> dict[str, Any]:
         """Return active resource budget and consumed quotas."""
-        return cast(dict[str, Any], app.state.governance_budget)
+        budget = _get_tenant_governance_budget(request)
+        return budget
 
     @app.get("/api/v1/governance/approvals")
-    async def get_pending_approvals() -> list[dict[str, Any]]:
+    async def get_pending_approvals(request: Request) -> list[dict[str, Any]]:
         """Return list of pending human-in-the-loop safety approvals."""
-        return cast(list[dict[str, Any]], app.state.pending_approvals)
+        approvals = _get_tenant_pending_approvals(request)
+        return approvals
 
     @app.post("/api/v1/governance/approvals/{approval_id}/decision")
     async def submit_approval_decision_endpoint(
-        approval_id: str, req: GovernanceDecisionRequest
+        approval_id: str, req: GovernanceDecisionRequest, request: Request
     ) -> dict[str, Any]:
         """Submit human operator approval or denial decision for governed tool invocation."""
+        identity: Identity | None = (
+            getattr(request.state, "identity", None) or TenantContext.get_current_identity()
+        )
+        if identity and identity.role == Role.VIEWER:
+            raise HTTPException(
+                status_code=403,
+                detail=f"RBAC access denied: Role '{identity.role.value}' cannot submit approval decisions",
+            )
+
+        approvals = _get_tenant_pending_approvals(request)
+        budget = _get_tenant_governance_budget(request)
+
         target = None
-        for app_item in app.state.pending_approvals:
+        for app_item in approvals:
             if app_item["approval_id"] == approval_id:
                 target = app_item
                 break
@@ -1116,7 +1300,7 @@ def create_app(
 
         if req.decision == "APPROVED":
             grant_id = f"grant-{approval_id}"
-            app.state.governance_budget["usage"]["tool_invocations_used"] += 1
+            budget["usage"]["tool_invocations_used"] += 1
             broadcast_event(
                 "approval_resolved",
                 {
@@ -1125,7 +1309,7 @@ def create_app(
                     "grant_id": grant_id,
                 },
             )
-            broadcast_event("budget_updated", app.state.governance_budget)
+            broadcast_event("budget_updated", budget)
             return {
                 "approval_id": approval_id,
                 "status": "APPROVED",

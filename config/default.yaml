@@ -31,3 +31,10 @@ api:
     - "http://localhost:8000"
   allow_credentials: false
 
+auth:
+  enabled: true
+  api_key_header: "X-NexusAI-API-Key"
+  key_storage_path: "config/api_keys.json"
+  rate_limit_per_minute: 100
+
+

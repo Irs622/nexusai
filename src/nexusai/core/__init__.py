@@ -12,12 +12,15 @@ from nexusai.core.config import (
 )
 from nexusai.core.container import DependencyContainer
 from nexusai.core.errors import (
+    AuthenticationError,
+    AuthorizationError,
     CommandExecutionError,
     ConfigurationError,
     ModelProviderError,
     NexusAIError,
     PluginError,
     QueryExecutionError,
+    RateLimitExceededError,
     SecurityError,
     ToolExecutionError,
 )
@@ -33,6 +36,9 @@ __all__ = [
     "NexusAIError",
     "ConfigurationError",
     "SecurityError",
+    "AuthenticationError",
+    "AuthorizationError",
+    "RateLimitExceededError",
     "CommandExecutionError",
     "QueryExecutionError",
     "ToolExecutionError",

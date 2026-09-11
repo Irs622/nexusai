@@ -47,6 +47,13 @@ class ApiSettings(BaseModel):
     allow_credentials: bool = False
 
 
+class AuthConfig(BaseModel):
+    enabled: bool = True
+    api_key_header: str = "X-NexusAI-API-Key"
+    key_storage_path: str = "config/api_keys.json"
+    rate_limit_per_minute: int = 100
+
+
 class SecuritySettings(BaseModel):
     strict_mode: bool = True
     auto_approve_low_risk: bool = False
@@ -69,6 +76,7 @@ class SystemConfig(BaseSettings):
     security: SecuritySettings = Field(default_factory=SecuritySettings)
     paths: PathSettings = Field(default_factory=PathSettings)
     api: ApiSettings = Field(default_factory=ApiSettings)
+    auth: AuthConfig = Field(default_factory=AuthConfig)
 
     model_config = SettingsConfigDict(
         env_file=str(_env_file) if _env_file.is_file() else None,

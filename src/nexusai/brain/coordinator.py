@@ -50,6 +50,7 @@ class BrainCoordinator:
         user_text: str,
         session_id: str = "",
         approval_token: str | None = None,
+        user_id: str = "anonymous",
     ) -> Dict[str, Any]:
         """Process user text input through Brain Runtime DAG pipeline (Planner -> Validator -> Engine -> Provider)."""
         sys_prompt = PromptBuilder().DEFAULT_SYSTEM_PROMPT
@@ -192,6 +193,7 @@ class BrainCoordinator:
                                 arguments=arguments,
                                 approval_token=approval_token,
                                 execution_id=effective_session_id,
+                                user_id=user_id,
                             )
                             tool_result = await self.command_bus.dispatch(cmd)
                         except Exception as err:

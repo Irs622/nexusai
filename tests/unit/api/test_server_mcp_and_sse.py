@@ -24,7 +24,9 @@ def app_instance():
 async def test_api_status_and_tools(app_instance) -> None:
     """Verify core /api/status and /api/tools endpoints return expected structures."""
     async with httpx.AsyncClient(
-        transport=httpx.ASGITransport(app=app_instance), base_url="http://test"
+        transport=httpx.ASGITransport(app=app_instance),
+        base_url="http://test",
+        headers={"X-NexusAI-API-Key": "nx_test_admin_key_123"},
     ) as client:
         # Status
         res_status = await client.get("/api/status")
@@ -67,7 +69,9 @@ async def test_api_mcp_endpoints(app_instance) -> None:
     mcp_manager._tools_by_server["mock_server"] = [tool]
 
     async with httpx.AsyncClient(
-        transport=httpx.ASGITransport(app=app_instance), base_url="http://test"
+        transport=httpx.ASGITransport(app=app_instance),
+        base_url="http://test",
+        headers={"X-NexusAI-API-Key": "nx_test_admin_key_123"},
     ) as client:
         # 1. List MCP servers
         res_list = await client.get("/api/mcp/servers")

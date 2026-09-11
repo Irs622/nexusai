@@ -21,7 +21,7 @@ class MockApiProvider(BaseModelProvider):
 @pytest.fixture
 def api_client() -> TestClient:
     app = create_app(db_path=":memory:")
-    return TestClient(app)
+    return TestClient(app, headers={"X-NexusAI-API-Key": "nx_test_admin_key_123"})
 
 
 def test_api_status_endpoint(api_client: TestClient) -> None:

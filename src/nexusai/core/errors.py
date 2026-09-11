@@ -28,6 +28,24 @@ class SecurityError(NexusAIError):
     pass
 
 
+class AuthenticationError(SecurityError):
+    """Raised when authentication fails (missing, invalid, expired, or revoked API key)."""
+
+    pass
+
+
+class AuthorizationError(SecurityError):
+    """Raised when authorization fails due to insufficient RBAC role or capability."""
+
+    pass
+
+
+class RateLimitExceededError(SecurityError):
+    """Raised when API key or tenant rate limit is exceeded."""
+
+    pass
+
+
 class CommandExecutionError(NexusAIError):
     """Raised when a CQRS command execution fails."""
 
