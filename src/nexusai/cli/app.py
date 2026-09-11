@@ -11,7 +11,7 @@ from dotenv import find_dotenv, load_dotenv
 load_dotenv(find_dotenv(usecwd=True))
 
 from nexusai.cli.chat import start_chat_session
-from nexusai.cli.console import print_banner, print_error, print_info, print_success
+from nexusai.cli.console import print_banner, print_error, print_info, print_success, print_warning
 from nexusai.core.config import SystemConfig
 
 app = typer.Typer(
@@ -310,45 +310,50 @@ def create_mcp(
 
 
 @app.command("doctor")
-def doctor() -> None:
-    """Run environment and security health checks, including capability profiles."""
-    import sys
-    from pathlib import Path
+def doctor(
+    format: str = typer.Option(
+        "text",
+        "--format",
+        "-f",
+        help="Output format: 'text' (default) or 'json'.",
+    ),
+) -> None:
+    """Run deployment, environment, and security health diagnostics."""
+    from nexusai.cli.doctor import CheckStatus, DoctorEngine
 
-    from nexusai.security.capability import CapabilityResolver
+    engine = DoctorEngine()
+    results = engine.run_all_checks()
+    _, exit_code = engine.compute_summary(results)
+
+    if format.lower() == "json":
+        typer.echo(engine.format_json(results))
+        raise typer.Exit(code=exit_code)
 
     print_banner()
     print_info("Running NexusAI Environment & Security Diagnostics...\n")
 
-    # 1. Python Environment
-    print_success(f"[OK] Python Runtime: {sys.version.split()[0]}")
+    for r in results:
+        title = r.name.replace("_", " ").title()
+        if r.status == CheckStatus.PASS:
+            print_success(f"[✓] {title}: {r.detail}")
+        elif r.status == CheckStatus.FAIL:
+            print_error(f"[✗] {title}: {r.detail}")
+        else:
+            print_warning(f"[⚠] {title}: {r.detail}")
 
-    # 2. Security Config
-    sec_cfg = Path("config/security.yaml")
-    if sec_cfg.is_file():
-        print_success(f"[OK] Security Configuration: {sec_cfg} (Active)")
+    typer.echo("")
+    if exit_code == 0:
+        print_success("All diagnostic health checks passed successfully.")
+    elif exit_code == 1:
+        print_error(
+            "Diagnostic check FAILED: One or more critical security/runtime requirements are not met."
+        )
     else:
-        print_info("[INFO] Security Configuration: using built-in defaults")
-
-    # 3. Capability Profiles Status (#34 acceptance criteria)
-    cap_cfg = Path("config/capabilities.yaml")
-    if cap_cfg.is_file():
-        try:
-            resolver = CapabilityResolver.from_yaml(cap_cfg)
-            profile_names = list(resolver.profiles.keys())
-            print_success(
-                f"[OK] Capability Profiles: configured ({len(profile_names)} profiles: {', '.join(profile_names)})"
-            )
-        except Exception as e:
-            print_error(f"[ERROR] Capability Profiles error: {e}")
-            raise typer.Exit(code=1)
-    else:
-        resolver = CapabilityResolver.build_default_resolver()
-        print_info(
-            f"[INFO] Capability Profiles: built-in defaults active ({len(resolver.profiles)} profiles)"
+        print_warning(
+            "Diagnostic check passed with WARNINGS: Non-critical services may be degraded."
         )
 
-    print_success("\nAll diagnostic checks completed successfully.")
+    raise typer.Exit(code=exit_code)
 
 
 if __name__ == "__main__":

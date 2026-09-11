@@ -478,11 +478,14 @@ async def test_web_fetcher_disabled_by_default() -> None:
     assert enabled_server.enabled is True
 
 
-def test_cli_doctor_reports_capability_profiles() -> None:
+def test_cli_doctor_reports_capability_profiles(monkeypatch: pytest.MonkeyPatch) -> None:
     """Verify nexusai doctor CLI command reports capability profiles status."""
     from typer.testing import CliRunner
 
     from nexusai.cli.app import app
+
+    monkeypatch.setenv("MOCK_PROVIDER", "1")
+    monkeypatch.setenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4318")
 
     runner = CliRunner()
     result = runner.invoke(app, ["doctor"])
