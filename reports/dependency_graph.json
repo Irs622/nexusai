@@ -40,7 +40,7 @@
     "voice",
     "workflow"
   ],
-  "edge_count": 2593,
+  "edge_count": 2626,
   "edges": [
     {
       "source": "root",
@@ -110,6 +110,41 @@
     {
       "source": "api",
       "target": "core",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "core",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "core",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "infrastructure",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "infrastructure",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "infrastructure",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "infrastructure",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "infrastructure",
       "file": "api/server.py"
     },
     {
@@ -2990,6 +3025,11 @@
     {
       "source": "brain",
       "target": "brain",
+      "file": "brain/planner/engine.py"
+    },
+    {
+      "source": "brain",
+      "target": "brain",
       "file": "brain/planner/repair.py"
     },
     {
@@ -5299,6 +5339,26 @@
     },
     {
       "source": "bus",
+      "target": "infrastructure",
+      "file": "bus/commands.py"
+    },
+    {
+      "source": "bus",
+      "target": "infrastructure",
+      "file": "bus/commands.py"
+    },
+    {
+      "source": "bus",
+      "target": "infrastructure",
+      "file": "bus/commands.py"
+    },
+    {
+      "source": "bus",
+      "target": "infrastructure",
+      "file": "bus/commands.py"
+    },
+    {
+      "source": "bus",
       "target": "security",
       "file": "bus/commands.py"
     },
@@ -5316,6 +5376,16 @@
       "source": "cli",
       "target": "cli",
       "file": "cli/__init__.py"
+    },
+    {
+      "source": "cli",
+      "target": "cli",
+      "file": "cli/app.py"
+    },
+    {
+      "source": "cli",
+      "target": "cli",
+      "file": "cli/app.py"
     },
     {
       "source": "cli",
@@ -5379,7 +5449,12 @@
     },
     {
       "source": "cli",
-      "target": "security",
+      "target": "cli",
+      "file": "cli/app.py"
+    },
+    {
+      "source": "cli",
+      "target": "cli",
       "file": "cli/app.py"
     },
     {
@@ -5536,6 +5611,11 @@
       "source": "cli",
       "target": "__version__",
       "file": "cli/console.py"
+    },
+    {
+      "source": "cli",
+      "target": "security",
+      "file": "cli/doctor.py"
     },
     {
       "source": "cli",
@@ -5749,6 +5829,61 @@
     },
     {
       "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/__init__.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/__init__.py"
+    },
+    {
+      "source": "infrastructure",
       "target": "brain",
       "file": "infrastructure/coordination/postgres_execution_coordinator.py"
     },
@@ -6011,6 +6146,36 @@
       "source": "infrastructure",
       "target": "core",
       "file": "infrastructure/distributed/worker_node.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "core",
+      "file": "infrastructure/idempotency.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "core",
+      "file": "infrastructure/idempotency.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "core",
+      "file": "infrastructure/idempotency.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "core",
+      "file": "infrastructure/idempotency.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "infrastructure",
+      "file": "infrastructure/idempotency.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "logging",
+      "file": "infrastructure/idempotency.py"
     },
     {
       "source": "infrastructure",

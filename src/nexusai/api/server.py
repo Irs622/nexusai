@@ -13,9 +13,9 @@ from pathlib import Path
 from typing import Any, AsyncGenerator, cast
 
 from dotenv import find_dotenv, load_dotenv
-from fastapi import FastAPI, Header, HTTPException, Request
+from fastapi import FastAPI, Header, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -28,7 +28,19 @@ from nexusai.bus.bus import CommandBus, EventBus
 from nexusai.bus.commands import ExecuteToolCommand, ExecuteToolCommandHandler
 from nexusai.context.engine import ContextEngine
 from nexusai.core.config import SystemConfig
-from nexusai.core.errors import ConfigurationError, SecurityError
+from nexusai.core.errors import (
+    ConfigurationError,
+    IdempotencyConflictError,
+    IdempotencyPayloadMismatchError,
+    SecurityError,
+)
+from nexusai.infrastructure.idempotency import (
+    IdempotencyState,
+    IdempotencyStore,
+    InMemoryIdempotencyStore,
+    compute_payload_fingerprint,
+)
+from nexusai.infrastructure.observability.redaction import sanitize_secrets_recursive
 from nexusai.logging.logger import logger
 from nexusai.memory.sqlite_memory import SQLiteMemory
 from nexusai.models.openai_provider import OpenAIProvider
@@ -77,6 +89,9 @@ class DagExecuteRequest(BaseModel):
     )
     execution_id: str = Field(
         default_factory=lambda: f"exec-dag-{int(time.time())}", description="Execution ID"
+    )
+    idempotency_key: str | None = Field(
+        default=None, description="Optional idempotency key for DAG execution"
     )
 
 
@@ -494,6 +509,7 @@ def create_app(
     db_path: str = ":memory:",
     vector_kb: VectorKnowledgeBase | None = None,
     scheduler: SchedulerService | None = None,
+    idempotency_store: IdempotencyStore | None = None,
 ) -> FastAPI:
     """Create and configure FastAPI application for NexusAI Web Dashboard."""
 
@@ -506,6 +522,7 @@ def create_app(
     context_engine = ContextEngine()
     sched_service = scheduler or SchedulerService()
     mcp_manager = McpServerManager(tool_registry=registry)
+    idem_store: IdempotencyStore = idempotency_store or InMemoryIdempotencyStore()
 
     # Register default builtin tools
     registry.register(TerminalTool())
@@ -527,7 +544,9 @@ def create_app(
         registry.register(RecallFactTool())
 
     # Handler
-    handler = ExecuteToolCommandHandler(registry, security_guard, event_bus)
+    handler = ExecuteToolCommandHandler(
+        registry, security_guard, event_bus, idempotency_store=idem_store
+    )
     command_bus.register(ExecuteToolCommand, handler)
 
     # Memory & Coordinator
@@ -570,6 +589,7 @@ def create_app(
         version="0.2.0",
         lifespan=lifespan,
     )
+    app.state.idempotency_store = idem_store
 
     env_origins = os.getenv("NEXUSAI_ALLOWED_ORIGINS")
     if env_origins:
@@ -778,7 +798,8 @@ def create_app(
         req: ToolExecRequest,
         request: Request,
         x_approval_token: str | None = Header(None, alias="X-Approval-Token"),
-    ) -> dict[str, Any]:
+        x_idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
+    ) -> Response:
         try:
             tool = registry.get(req.tool_name)
         except Exception as e:
@@ -789,6 +810,9 @@ def create_app(
         identity: Identity | None = (
             getattr(request.state, "identity", None) or TenantContext.get_current_identity()
         )
+        tenant_id = identity.tenant_id if identity else "default"
+        user_id = identity.user_id if identity else "anonymous"
+
         if identity is not None:
             # 1. Viewer role cannot execute tools -> 403 Forbidden
             if identity.role == Role.VIEWER:
@@ -814,23 +838,100 @@ def create_app(
                     detail=f"Approval token required for {tool.risk_level.value} risk tool '{req.tool_name}'. Provide via X-Approval-Token header.",
                 )
 
+        fingerprint = compute_payload_fingerprint(
+            {"tool_name": req.tool_name, "arguments": req.arguments}
+        )
+
+        if x_idempotency_key:
+            existing = await idem_store.get(tenant_id, user_id, x_idempotency_key)
+            if existing is not None:
+                if existing.fingerprint != fingerprint:
+                    raise HTTPException(
+                        status_code=409,
+                        detail="Idempotency-Key reuse with different payload: payload mismatch",
+                    )
+                if existing.state == IdempotencyState.RUNNING:
+                    return JSONResponse(
+                        status_code=409,
+                        content={"error": "Execution in progress", "retry_after": 2},
+                        headers={"Retry-After": "2"},
+                    )
+                if existing.state == IdempotencyState.CANCELLED:
+                    return JSONResponse(
+                        status_code=409,
+                        content={"error": "Execution was cancelled"},
+                    )
+                if existing.state == IdempotencyState.SUCCEEDED:
+                    cached_resp = existing.response
+                    if isinstance(cached_resp, dict) and "success" in cached_resp:
+                        full_resp = cached_resp
+                    elif isinstance(cached_resp, dict) and "output" in cached_resp:
+                        full_resp = {
+                            "success": True,
+                            "tool_name": req.tool_name,
+                            "output": cached_resp["output"],
+                        }
+                    else:
+                        full_resp = {
+                            "success": True,
+                            "tool_name": req.tool_name,
+                            "output": cached_resp,
+                        }
+                    return JSONResponse(content=full_resp, headers={"X-Cache": "HIT"})
+                if existing.state == IdempotencyState.FAILED_TERMINAL:
+                    return JSONResponse(
+                        status_code=400,
+                        content={"detail": f"Cached terminal failure: {existing.error_message}"},
+                        headers={"X-Cache": "HIT"},
+                    )
+
         try:
             cmd = ExecuteToolCommand(
                 tool_name=req.tool_name,
                 arguments=req.arguments,
                 approval_token=x_approval_token,
-                user_id=identity.user_id if identity else "anonymous",
+                user_id=user_id,
                 execution_id=req.execution_id,
+                idempotency_key=x_idempotency_key,
+                tenant_id=tenant_id,
             )
             output = await command_bus.dispatch(cmd)
-            return {"success": True, "tool_name": req.tool_name, "output": output}
+            sanitized_output = sanitize_secrets_recursive(output)
+            resp_content = {
+                "success": True,
+                "tool_name": req.tool_name,
+                "output": sanitized_output,
+            }
+            if x_idempotency_key:
+                await idem_store.complete_execution(
+                    tenant_id=tenant_id,
+                    user_id=user_id,
+                    idempotency_key=x_idempotency_key,
+                    response=resp_content,
+                )
+                return JSONResponse(content=resp_content, headers={"X-Cache": "MISS"})
+
+            return JSONResponse(content=resp_content)
+        except IdempotencyPayloadMismatchError as pme:
+            raise HTTPException(status_code=409, detail=str(pme)) from pme
+        except IdempotencyConflictError as ce:
+            return JSONResponse(
+                status_code=409,
+                content={"error": str(ce), "retry_after": 2},
+                headers={"Retry-After": "2"},
+            )
         except SecurityError as se:
             raise HTTPException(status_code=403, detail=str(se)) from se
         except Exception as e:
             cause = getattr(e, "__cause__", None)
-            if isinstance(cause, SecurityError) or isinstance(e, SecurityError):
-                err_msg = str(cause) if cause else str(e)
-                raise HTTPException(status_code=403, detail=err_msg) from e
+            sec_err = (
+                cause
+                if isinstance(cause, SecurityError)
+                else (e if isinstance(e, SecurityError) else None)
+            )
+            if sec_err:
+                raise HTTPException(status_code=403, detail=str(sec_err)) from e
+
             err_str = str(e)
             if (
                 "Security policy denied" in err_str
@@ -838,6 +939,7 @@ def create_app(
                 or "RBAC" in err_str
             ):
                 raise HTTPException(status_code=403, detail=err_str) from e
+
             raise HTTPException(status_code=400, detail=err_str) from e
 
     # =========================================================================
@@ -986,7 +1088,11 @@ def create_app(
 
     @app.post("/api/v1/dag/execute")
     @app.post("/api/v1/execute")
-    async def execute_dag_plan(req: DagExecuteRequest, request: Request) -> dict[str, Any]:
+    async def execute_dag_plan(
+        req: DagExecuteRequest,
+        request: Request,
+        x_idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
+    ) -> Response:
         """Trigger execution of a DAG plan, broadcasting live node transitions via SSE."""
         identity: Identity | None = (
             getattr(request.state, "identity", None) or TenantContext.get_current_identity()
@@ -1001,6 +1107,42 @@ def create_app(
         plan = plans_dict.get(req.plan_id)
         if not plan:
             raise HTTPException(status_code=404, detail=f"Plan '{req.plan_id}' not found")
+
+        tenant_id = identity.tenant_id if identity else "default"
+        user_id = identity.user_id if identity else "anonymous"
+        effective_key = x_idempotency_key or req.idempotency_key
+
+        if effective_key:
+            fingerprint = compute_payload_fingerprint(
+                {"plan_id": req.plan_id, "simulate_failure_step": req.simulate_failure_step}
+            )
+            try:
+                record, should_execute = await idem_store.start_execution(
+                    tenant_id=tenant_id,
+                    user_id=user_id,
+                    idempotency_key=effective_key,
+                    fingerprint=fingerprint,
+                )
+            except IdempotencyPayloadMismatchError as pme:
+                raise HTTPException(status_code=409, detail=str(pme)) from pme
+            except IdempotencyConflictError as ce:
+                raise HTTPException(status_code=409, detail=str(ce)) from ce
+
+            if not should_execute:
+                if record.state == IdempotencyState.SUCCEEDED:
+                    resp_data = record.response or {
+                        "status": "EXECUTION_STARTED",
+                        "plan_id": req.plan_id,
+                        "execution_id": req.execution_id,
+                        "nodes_count": len(plan["nodes"]),
+                    }
+                    return JSONResponse(content=resp_data, headers={"X-Cache": "HIT"})
+                if record.state == IdempotencyState.FAILED_TERMINAL:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Cached terminal failure: {record.error_message}",
+                        headers={"X-Cache": "HIT"},
+                    )
 
         # Reset nodes in plan to PENDING
         for node in plan["nodes"]:
@@ -1038,6 +1180,14 @@ def create_app(
                                 "error": f"Simulated failure at step {node_id}",
                             },
                         )
+                        if effective_key:
+                            await idem_store.fail_execution(
+                                tenant_id=tenant_id,
+                                user_id=user_id,
+                                idempotency_key=effective_key,
+                                error=f"Simulated failure at step {node_id}",
+                                state=IdempotencyState.FAILED_TRANSIENT,
+                            )
                         break
 
                     node["status"] = "COMPLETED"
@@ -1109,14 +1259,31 @@ def create_app(
                 )
             except Exception as err:
                 logger.error(f"[DAG Execute] Execution error: {err}")
+                if effective_key:
+                    await idem_store.fail_execution(
+                        tenant_id=tenant_id,
+                        user_id=user_id,
+                        idempotency_key=effective_key,
+                        error=err,
+                    )
 
         asyncio.create_task(_run_plan_async())
-        return {
+        resp_data = {
             "status": "EXECUTION_STARTED",
             "plan_id": req.plan_id,
             "execution_id": req.execution_id,
             "nodes_count": len(plan["nodes"]),
         }
+        if effective_key:
+            await idem_store.complete_execution(
+                tenant_id=tenant_id,
+                user_id=user_id,
+                idempotency_key=effective_key,
+                response=resp_data,
+            )
+            return JSONResponse(content=resp_data, headers={"X-Cache": "MISS"})
+
+        return JSONResponse(content=resp_data)
 
     @app.get("/api/v1/audit/events")
     async def get_audit_events(request: Request) -> list[dict[str, Any]]:

@@ -38,6 +38,7 @@ from nexusai.brain.planner.stages import ExecutionPlanner, RecoveryPlanner
 from nexusai.brain.planner.validator import PlanValidator
 from nexusai.brain.ports.execution_state_port import IExecutionStateStore
 from nexusai.brain.ports.governance_port import IGovernancePort
+from nexusai.brain.ports.idempotency_port import IIdempotencyPort
 from nexusai.brain.ports.observability_port import IObservabilityPort
 from nexusai.brain.ports.reconciliation_port import (
     DefaultReconciliationAdapter,
@@ -66,6 +67,7 @@ class PlanGraphExecutionEngine:
         telemetry: IObservabilityPort | None = None,
         tool_policies: dict[str, ToolExecutionPolicy] | None = None,
         max_concurrency: int = 4,
+        idempotency_port: IIdempotencyPort | None = None,
     ) -> None:
         self.planner = planner or ExecutionPlanner()
         self.validator = validator or PlanValidator()
@@ -79,6 +81,10 @@ class PlanGraphExecutionEngine:
         self.scheduler = scheduler or PriorityScheduler(aging_rate=0.5, telemetry=telemetry)
         self.tool_policies = tool_policies or {}
         self.max_concurrency = max_concurrency
+        self.idempotency_port = idempotency_port
+        self._cached_plan_results: dict[
+            str, tuple[PlanGraph, list[ToolExecutionResult], DecisionTrace]
+        ] = {}
 
     def get_tool_policy(self, tool_name: str | None) -> ToolExecutionPolicy:
         """Fetch configured ToolExecutionPolicy for a tool or fallback to default policy."""
@@ -188,23 +194,59 @@ class PlanGraphExecutionEngine:
         session_id: str = "session-1",
         max_concurrency: int | None = None,
         execution_id: str | None = None,
+        idempotency_key: str | None = None,
+        tenant_id: str = "default",
+        user_id: str = "anonymous",
     ) -> tuple[PlanGraph, list[ToolExecutionResult], DecisionTrace]:
         """Execute PlanningContext through Planner, PlanValidator, and ToolPort with IGovernancePort admission."""
+        cache_key = f"{tenant_id}:{user_id}:{idempotency_key}" if idempotency_key else None
+        if idempotency_key and self.idempotency_port:
+            plan_fingerprint = f"plan:{session_id}:{ctx.goal}"
+            record, should_execute = await self.idempotency_port.start_execution(
+                tenant_id=tenant_id,
+                user_id=user_id,
+                idempotency_key=idempotency_key,
+                fingerprint=plan_fingerprint,
+            )
+            if not should_execute:
+                if getattr(record, "state", None) == "FAILED_TERMINAL":
+                    raise RuntimeError(
+                        f"Cached terminal failure for plan execution: {record.error_message}"
+                    )
+                if cache_key and cache_key in self._cached_plan_results:
+                    return self._cached_plan_results[cache_key]
+
         t_exec_start = time.perf_counter()
         plan_graph, trace = self.planner.plan(ctx, session_id=session_id)
 
         val_result = self.validator.validate(plan_graph, constraints=ctx.constraints_component)
         if not val_result.is_valid:
-            raise RuntimeError(
+            err = RuntimeError(
                 f"PlanGraph validation failed: {[i.message for i in val_result.issues]}"
             )
+            if idempotency_key and self.idempotency_port:
+                await self.idempotency_port.fail_execution(
+                    tenant_id=tenant_id,
+                    user_id=user_id,
+                    idempotency_key=idempotency_key,
+                    error=err,
+                )
+            raise err
 
         for node_id, node in plan_graph.nodes.items():
             for dep_id in node.dependencies:
                 if dep_id not in plan_graph.nodes:
-                    raise RuntimeError(
+                    err = RuntimeError(
                         f"Dependency step {dep_id} required by step {node_id} is missing from PlanGraph"
                     )
+                    if idempotency_key and self.idempotency_port:
+                        await self.idempotency_port.fail_execution(
+                            tenant_id=tenant_id,
+                            user_id=user_id,
+                            idempotency_key=idempotency_key,
+                            error=err,
+                        )
+                    raise err
 
         graph_hash = compute_plan_graph_hash(plan_graph)
         exec_id = execution_id or f"exec-{int(time.time() * 1000)}"
@@ -215,14 +257,14 @@ class PlanGraphExecutionEngine:
         if self.state_store is not None:
             node_records = {}
             for n_id, n_obj in plan_graph.nodes.items():
-                idempotency_key = generate_idempotency_key(exec_id, n_id)
+                node_idem_key = generate_idempotency_key(exec_id, n_id)
                 node_records[n_id] = NodeExecutionRecord(
                     execution_id=exec_id,
                     node_id=n_id,
                     status=NodeExecutionStatus.PENDING,
                     tool_name=n_obj.step.tool_name,
                     arguments=n_obj.step.arguments,
-                    idempotency_key=idempotency_key,
+                    idempotency_key=node_idem_key,
                 )
             exec_record = ExecutionRecord(
                 execution_id=exec_id,
@@ -250,13 +292,32 @@ class PlanGraphExecutionEngine:
         if getattr(self.scheduler, "_is_shutdown", False):
             self.scheduler = PriorityScheduler(aging_rate=0.5, telemetry=self.telemetry)
 
-        res_tuple = await self._run_dag_execution(
-            plan_graph=plan_graph,
-            trace=trace,
-            tool_port=tool_port,
-            exec_id=exec_id,
-            max_concurrency=max_concurrency,
-        )
+        try:
+            res_tuple = await self._run_dag_execution(
+                plan_graph=plan_graph,
+                trace=trace,
+                tool_port=tool_port,
+                exec_id=exec_id,
+                max_concurrency=max_concurrency,
+            )
+            if idempotency_key and self.idempotency_port:
+                if cache_key:
+                    self._cached_plan_results[cache_key] = res_tuple
+                await self.idempotency_port.complete_execution(
+                    tenant_id=tenant_id,
+                    user_id=user_id,
+                    idempotency_key=idempotency_key,
+                    response={"execution_id": exec_id, "status": "COMPLETED"},
+                )
+        except Exception as exec_err:
+            if idempotency_key and self.idempotency_port:
+                await self.idempotency_port.fail_execution(
+                    tenant_id=tenant_id,
+                    user_id=user_id,
+                    idempotency_key=idempotency_key,
+                    error=exec_err,
+                )
+            raise
 
         exec_dur_ms = (time.perf_counter() - t_exec_start) * 1000.0
         await self._safe_telemetry_duration("nexusai_execution_duration_ms", exec_dur_ms)

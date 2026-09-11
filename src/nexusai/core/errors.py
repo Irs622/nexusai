@@ -223,3 +223,27 @@ class GraphFrozenError(NexusAIError):
     """Raised when attempting to modify a frozen dependency graph."""
 
     pass
+
+
+class IdempotencyError(NexusAIError):
+    """Base exception for execution idempotency violations and conflicts."""
+
+    pass
+
+
+class IdempotencyConflictError(IdempotencyError):
+    """Raised when an idempotency conflict occurs (e.g. concurrent execution in-flight)."""
+
+    pass
+
+
+class IdempotencyPayloadMismatchError(IdempotencyConflictError):
+    """Raised when the same idempotency key is reused with a different request payload."""
+
+    pass
+
+
+class IdempotencyLockedError(IdempotencyConflictError):
+    """Raised when an operation cannot proceed because the idempotency key is currently locked."""
+
+    pass

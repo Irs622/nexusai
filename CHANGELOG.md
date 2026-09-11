@@ -9,7 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### 🎯 Capability-Based Tool Authorization & Execution Containment (Issue #34 / ADR-0028)
+### 🔁 Execution API Idempotency & State Machine (Issue #26 / ADR-0029)
+- `feat(runtime)`: Implement caller identity-scoped idempotency subsystem bound to `(tenant_id, user_id, idempotency_key)` preventing cross-tenant execution collision and reference leakage.
+- `feat(runtime)`: Add deterministic request payload fingerprinting (`compute_payload_fingerprint`) via canonical sorted JSON and SHA-256; reject payload mutations with HTTP 409 Conflict (`IDEMPOTENCY_PAYLOAD_MISMATCH`).
+- `feat(runtime)`: Implement explicit execution state machine (`PENDING`, `RUNNING`, `SUCCEEDED`, `FAILED_TRANSIENT`, `FAILED_TERMINAL`, `CANCELLED`, `EXPIRED`) with concurrent execution locking returning 409 Conflict with `Retry-After: 2`.
+- `feat(infrastructure)`: Introduce `IdempotencyStore` protocol with `InMemoryIdempotencyStore` (mutex-locked) and persistent `SqliteIdempotencyStore` (ACID compound unique constraints and WAL mode).
+- `feat(infrastructure)`: Automatic recursive secret sanitization (`sanitize_secrets_recursive`) on cached responses to prevent credential exposure.
+- `feat(bus)`: Integrate execution-layer idempotency into CQRS `ExecuteToolCommandHandler` and `ExecuteToolCommand`.
+- `feat(brain)`: Integrate execution-layer idempotency into `PlanGraphExecutionEngine` via `IIdempotencyPort`.
+- `feat(api)`: Support `Idempotency-Key` header on `POST /api/tools/execute` and `POST /api/v1/dag/execute`, returning `X-Cache: HIT` on replay and `X-Cache: MISS` on initial execution.
+- `test(infrastructure)`: Add 20 comprehensive unit and integration tests in `tests/unit/infrastructure/test_idempotency.py`.
 - `security(capability)`: Implement fine-grained positive capability authorization model (`Capability`, `CapabilityProfile`, `CapabilityResolver`), replacing legacy command blacklists with a default-deny capability evaluation gate.
 - `security(guard)`: Integrate `CapabilityResolver` into `SecurityGuard.evaluate_permission` to map requests to domain, action, resource, and constraint checks before tool execution.
 - `security(fs)`: Enforce workspace-root containment in `ReadFileTool` and `ListDirectoryTool` via `_resolve_safe_path()`, strictly blocking path traversal attempts (`../../`) and symlink escapes.
