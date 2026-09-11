@@ -20,18 +20,34 @@ class PostgresAuditStore(IAuditStore):
         """Atomically append a correlated audit event with tamper-evident SHA-256 hash chaining."""
         return await self._backing_store.append_event(event)
 
-    async def get_events(self, execution_id: str) -> Sequence[AuditEvent]:
-        """Retrieve full ordered audit history for an execution."""
-        return await self._backing_store.get_events(execution_id)
+    async def get_events(
+        self, execution_id: str | None = None, tenant_id: str | None = None
+    ) -> Sequence[AuditEvent]:
+        """Retrieve full ordered audit history for an execution and/or tenant."""
+        return await self._backing_store.get_events(execution_id=execution_id, tenant_id=tenant_id)
 
     async def get_event(self, event_id: str) -> AuditEvent | None:
         """Retrieve a specific audit event by event_id."""
         return await self._backing_store.get_event(event_id)
 
-    async def get_latest_event(self, execution_id: str) -> AuditEvent | None:
-        """Retrieve the most recent audit event for an execution."""
-        return await self._backing_store.get_latest_event(execution_id)
+    async def get_latest_event(
+        self, execution_id: str | None = None, tenant_id: str | None = None
+    ) -> AuditEvent | None:
+        """Retrieve the most recent audit event for an execution and/or tenant."""
+        return await self._backing_store.get_latest_event(
+            execution_id=execution_id, tenant_id=tenant_id
+        )
 
-    async def verify_chain(self, execution_id: str) -> AuditVerificationResult:
+    async def verify_chain(
+        self, execution_id: str | None = None, tenant_id: str | None = None
+    ) -> AuditVerificationResult:
         """Verify sequence monotonicity, previous event hash linkages, and SHA-256 payload integrity."""
-        return await self._backing_store.verify_chain(execution_id)
+        return await self._backing_store.verify_chain(
+            execution_id=execution_id, tenant_id=tenant_id
+        )
+
+    async def startup_integrity_check(
+        self, tenant_id: str | None = None
+    ) -> AuditVerificationResult:
+        """Perform startup integrity verification on existing persistent audit log."""
+        return await self._backing_store.startup_integrity_check(tenant_id=tenant_id)

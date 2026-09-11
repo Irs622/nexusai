@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🔒 Durable Append-Only Audit Log with Cryptographic Tamper Evidence (Issue #33 / ADR-0030)
+- `security(audit)`: Implement durable append-only audit log backed by SQLite WAL mode (`SQLiteAuditStore`) with `CHECK (sequence > 0)`, compound indexes, and zero `UPDATE` or `DELETE` SQL queries.
+- `security(api)`: Guard audit log mutation endpoints `POST /api/v1/audit/tamper` and `POST /api/v1/audit/reset`, returning `403 Forbidden` unless `NEXUSAI_STUDIO_DEMO_MODE=true`.
+- `security(audit)`: Confine studio tampering and reset operations strictly to in-memory demo sessions (`app.state.demo_audit_chains`), completely preventing mutations to the persistent audit store.
+- `security(audit)`: Add startup integrity verification check (`startup_integrity_check`) running automatically on application boot; log `CRITICAL` warnings and surface compromised health status on breaks or sequence anomalies.
+- `security(audit)`: Enforce strict tenant isolation on audit queries (`GET /api/v1/audit/events` and `GET/POST /api/v1/audit/verify`), forbidding cross-tenant access at the data and API layers unless caller possesses `admin` or `system` role.
+- `security(audit)`: Populate `actor` field strictly from authenticated caller identity (or `"local-user"` / `"nexusai-agent"`), ignoring client request bodies.
+- `docs(adr)`: Publish ADR 0030 (`docs/adr/0030-durable-append-only-audit-log.md`) defining durable append-only storage, zero-mutation invariants, and verification lifecycles.
+- `test(audit)`: Add dedicated unit and integration test suites in `tests/unit/infrastructure/persistence/test_sqlite_audit_store.py` (5 tests) and `tests/integration/test_audit_durability.py` (6 tests).
+
 ### 🔁 Execution API Idempotency & State Machine (Issue #26 / ADR-0029)
 - `feat(runtime)`: Implement caller identity-scoped idempotency subsystem bound to `(tenant_id, user_id, idempotency_key)` preventing cross-tenant execution collision and reference leakage.
 - `feat(runtime)`: Add deterministic request payload fingerprinting (`compute_payload_fingerprint`) via canonical sorted JSON and SHA-256; reject payload mutations with HTTP 409 Conflict (`IDEMPOTENCY_PAYLOAD_MISMATCH`).

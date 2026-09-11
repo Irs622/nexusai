@@ -12,8 +12,8 @@ from nexusai.api.server import create_app
 
 @pytest.fixture
 def studio_client() -> TestClient:
-    """Fixture providing isolated TestClient instance."""
-    app = create_app(db_path=":memory:")
+    """Fixture providing isolated TestClient instance in demo mode."""
+    app = create_app(db_path=":memory:", studio_demo_mode=True)
     return TestClient(app, headers={"X-NexusAI-API-Key": "nx_test_admin_key_123"})
 
 

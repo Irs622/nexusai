@@ -58,7 +58,7 @@ class AuditService:
             tool_id=tool_id,
             worker_id=worker_id,
             fencing_token=fencing_token,
-            actor=actor,
+            actor=actor or "anonymous",
             outcome=outcome,
             severity=severity,
             metadata=metadata or {},

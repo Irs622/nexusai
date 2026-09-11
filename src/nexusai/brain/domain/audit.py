@@ -113,12 +113,66 @@ class AuditEvent:
     tool_id: str | None = None
     worker_id: str | None = None
     fencing_token: int | None = None
-    actor: str | None = None
+    actor: str = "anonymous"
+    tenant_id: str = "default"
     outcome: str = "SUCCESS"
     severity: str = "INFO"
     previous_event_hash: str = GENESIS_HASH
     event_hash: str = ""
     metadata: Mapping[str, Any] = field(default_factory=dict)
+
+    @property
+    def id(self) -> str:
+        """Alias for event_id conforming to standard audit schema."""
+        return self.event_id
+
+    @property
+    def sequence(self) -> int:
+        """Alias for sequence_number conforming to standard audit schema."""
+        return self.sequence_number
+
+    @property
+    def tool_name(self) -> str | None:
+        """Alias for tool_id conforming to standard audit schema."""
+        return self.tool_id
+
+    @property
+    def previous_hash(self) -> str:
+        """Alias for previous_event_hash conforming to standard audit schema."""
+        return self.previous_event_hash
+
+    @property
+    def metadata_json(self) -> str:
+        """JSON serialized representation of event metadata."""
+        return json.dumps(self.metadata, sort_keys=True, default=str)
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert AuditEvent to dictionary with standard audit schema keys."""
+        return {
+            "id": self.event_id,
+            "event_id": self.event_id,
+            "sequence": self.sequence_number,
+            "sequence_number": self.sequence_number,
+            "timestamp": self.timestamp,
+            "event_type": self.event_type,
+            "session_id": self.session_id,
+            "execution_id": self.execution_id,
+            "plan_fingerprint": self.plan_fingerprint,
+            "node_id": self.node_id,
+            "tool_id": self.tool_id,
+            "tool_name": self.tool_id,
+            "worker_id": self.worker_id,
+            "fencing_token": self.fencing_token,
+            "actor": self.actor,
+            "tenant_id": self.tenant_id,
+            "outcome": self.outcome,
+            "severity": self.severity,
+            "previous_hash": self.previous_event_hash,
+            "previous_event_hash": self.previous_event_hash,
+            "event_hash": self.event_hash,
+            "metadata": dict(self.metadata),
+            "metadata_json": self.metadata_json,
+        }
 
     def __post_init__(self) -> None:
         """Validate domain invariants, sanitize secret attributes, and compute SHA-256 event hash."""
@@ -147,6 +201,7 @@ class AuditEvent:
                 "worker_id": self.worker_id,
                 "fencing_token": self.fencing_token,
                 "actor": self.actor,
+                "tenant_id": self.tenant_id,
                 "outcome": self.outcome,
                 "severity": self.severity,
                 "previous_event_hash": self.previous_event_hash,
@@ -167,3 +222,4 @@ class AuditVerificationResult:
     correlation_valid: bool
     terminal_state_valid: bool
     violations: list[str] = field(default_factory=list)
+    broken_at_sequence: int | None = None

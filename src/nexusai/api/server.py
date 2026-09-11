@@ -8,12 +8,11 @@ import json
 import os
 import time
 from contextlib import asynccontextmanager
-from dataclasses import asdict
 from pathlib import Path
 from typing import Any, AsyncGenerator, cast
 
 from dotenv import find_dotenv, load_dotenv
-from fastapi import FastAPI, Header, HTTPException, Request, Response
+from fastapi import FastAPI, Header, HTTPException, Query, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -24,6 +23,7 @@ load_dotenv(find_dotenv(usecwd=True))
 from nexusai.automation.scheduler import SchedulerService
 from nexusai.brain.coordinator import BrainCoordinator
 from nexusai.brain.domain.audit import GENESIS_HASH, AuditEvent
+from nexusai.brain.ports.audit_store_port import IAuditStore
 from nexusai.bus.bus import CommandBus, EventBus
 from nexusai.bus.commands import ExecuteToolCommand, ExecuteToolCommandHandler
 from nexusai.context.engine import ContextEngine
@@ -41,6 +41,7 @@ from nexusai.infrastructure.idempotency import (
     compute_payload_fingerprint,
 )
 from nexusai.infrastructure.observability.redaction import sanitize_secrets_recursive
+from nexusai.infrastructure.persistence.sqlite_audit_store import SQLiteAuditStore
 from nexusai.logging.logger import logger
 from nexusai.memory.sqlite_memory import SQLiteMemory
 from nexusai.models.openai_provider import OpenAIProvider
@@ -129,6 +130,7 @@ def _compute_audit_event_hash(event: AuditEvent) -> str:
         "worker_id": event.worker_id,
         "fencing_token": event.fencing_token,
         "actor": event.actor,
+        "tenant_id": event.tenant_id,
         "outcome": event.outcome,
         "severity": event.severity,
         "previous_event_hash": event.previous_event_hash,
@@ -510,6 +512,8 @@ def create_app(
     vector_kb: VectorKnowledgeBase | None = None,
     scheduler: SchedulerService | None = None,
     idempotency_store: IdempotencyStore | None = None,
+    audit_store: IAuditStore | None = None,
+    studio_demo_mode: bool | None = None,
 ) -> FastAPI:
     """Create and configure FastAPI application for NexusAI Web Dashboard."""
 
@@ -523,6 +527,21 @@ def create_app(
     sched_service = scheduler or SchedulerService()
     mcp_manager = McpServerManager(tool_registry=registry)
     idem_store: IdempotencyStore = idempotency_store or InMemoryIdempotencyStore()
+    aud_store: IAuditStore = audit_store or SQLiteAuditStore(db_path=db_path)
+
+    # Pre-seed initial verified genesis audit events if persistent store is empty for default tenant
+    if isinstance(aud_store, SQLiteAuditStore):
+        aud_store.seed_initial_events_if_empty(_create_initial_audit_chain(), tenant_id="default")
+
+    if studio_demo_mode is None:
+        is_demo_mode = os.getenv("NEXUSAI_STUDIO_DEMO_MODE", "").lower() in ("true", "1", "yes")
+    else:
+        is_demo_mode = studio_demo_mode
+
+    if is_demo_mode:
+        logger.warning(
+            "WARNING: Studio demo mode is ENABLED. Audit log tampering endpoints are active. DO NOT USE IN PRODUCTION."
+        )
 
     # Register default builtin tools
     registry.register(TerminalTool())
@@ -568,6 +587,20 @@ def create_app(
         await memory.initialize_db()
         sched_service.start()
 
+        # Startup integrity verification on persistent audit store
+        startup_verification = await aud_store.startup_integrity_check()
+        if not startup_verification.valid:
+            app_instance.state.audit_compromised = True
+            logger.critical(
+                f"CRITICAL: Audit log integrity verification FAILED on startup! "
+                f"Broken at sequence {startup_verification.broken_at_sequence}: {startup_verification.violations}"
+            )
+        else:
+            app_instance.state.audit_compromised = False
+            logger.info(
+                f"Audit log integrity verification PASSED on startup ({startup_verification.event_count} events verified)."
+            )
+
         # Load MCP configuration if present
         mcp_cfg_path = Path("config/mcp_servers.yaml")
         if mcp_cfg_path.exists():
@@ -590,6 +623,9 @@ def create_app(
         lifespan=lifespan,
     )
     app.state.idempotency_store = idem_store
+    app.state.audit_store = aud_store
+    app.state.studio_demo_mode = is_demo_mode
+    app.state.audit_compromised = False
 
     env_origins = os.getenv("NEXUSAI_ALLOWED_ORIGINS")
     if env_origins:
@@ -666,6 +702,7 @@ def create_app(
     app.state.event_subscribers = []
 
     app.state.tenant_audit_chains = tenant_audit_chains
+    app.state.demo_audit_chains = tenant_audit_chains
     app.state.tenant_governance_budgets = tenant_governance_budgets
     app.state.tenant_pending_approvals = tenant_pending_approvals
     app.state.tenant_studio_plans = tenant_studio_plans
@@ -1197,31 +1234,38 @@ def create_app(
                     tenant_chain = _get_tenant_audit_chain(request)
                     tenant_budget = _get_tenant_governance_budget(request)
 
-                    prev_hash = tenant_chain[-1].event_hash if tenant_chain else GENESIS_HASH
-                    seq = len(tenant_chain) + 1
-                    actor_name = identity.user_id if identity else "autonomous-agent"
+                    if identity and identity.user_id:
+                        actor_name = identity.user_id
+                    elif auth_enabled:
+                        actor_name = "nexusai-agent"
+                    else:
+                        actor_name = "local-user"
+
+                    cur_tenant = identity.tenant_id if identity else "default"
+                    audit_store: IAuditStore = app.state.audit_store
+
                     new_event = AuditEvent(
                         event_id=f"evt-exec-{int(time.time() * 1000)}",
                         event_type="TOOL_EXECUTION_COMPLETED",
                         session_id="studio-session-1",
                         execution_id=req.execution_id,
                         plan_fingerprint=f"fp-{req.plan_id}",
-                        sequence_number=seq,
+                        sequence_number=0,
                         timestamp=time.time(),
                         node_id=node_id,
                         tool_id=str(node["tool"]),
                         worker_id="worker-mac-01",
                         actor=actor_name,
+                        tenant_id=cur_tenant,
                         outcome="SUCCESS",
                         severity="INFO",
-                        previous_event_hash=prev_hash,
                         metadata={
                             "node_title": node["title"],
                             "latency_ms": node["latency_ms"],
-                            "tenant_id": identity.tenant_id if identity else "default",
                         },
                     )
-                    tenant_chain.append(new_event)
+                    persisted_ev = await audit_store.append_event(new_event)
+                    tenant_chain.append(persisted_ev)
 
                     tenant_budget["usage"]["tool_invocations_used"] += 1
                     tenant_budget["usage"]["cpu_seconds_used"] = round(
@@ -1246,7 +1290,7 @@ def create_app(
                             "output": node["output"],
                         },
                     )
-                    broadcast_event("audit_event_created", asdict(new_event))
+                    broadcast_event("audit_event_created", persisted_ev.to_dict())
                     broadcast_event("budget_updated", tenant_budget)
 
                 broadcast_event(
@@ -1286,52 +1330,129 @@ def create_app(
         return JSONResponse(content=resp_data)
 
     @app.get("/api/v1/audit/events")
-    async def get_audit_events(request: Request) -> list[dict[str, Any]]:
+    async def get_audit_events(
+        request: Request,
+        tenant_id: str | None = Query(None, description="Optional tenant ID to query"),
+    ) -> list[dict[str, Any]]:
         """Return chronological list of cryptographic AuditEvent records forming the hash chain."""
-        chain = _get_tenant_audit_chain(request)
-        return [asdict(ev) for ev in chain]
+        identity: Identity | None = (
+            getattr(request.state, "identity", None) or TenantContext.get_current_identity()
+        )
+        caller_tenant = identity.tenant_id if identity else "default"
+        caller_role = identity.role if identity else Role.OPERATOR
 
-    @app.post("/api/v1/audit/verify")
-    async def verify_audit_chain_endpoint(request: Request) -> dict[str, Any]:
-        """Perform cryptographic SHA-256 integrity verification across the full audit chain."""
-        chain = _get_tenant_audit_chain(request)
-        violations: list[str] = []
-        hash_chain_valid = True
+        if getattr(app.state, "studio_demo_mode", False):
+            demo_chains = getattr(app.state, "demo_audit_chains", {})
+            target_tenant = tenant_id or caller_tenant
+            if target_tenant not in demo_chains:
+                demo_chains[target_tenant] = _create_initial_audit_chain()
+            chain = demo_chains[target_tenant]
+            return [ev.to_dict() for ev in chain]
 
-        for i in range(len(chain)):
-            event = chain[i]
-            # 1. Verify linkage to previous block
-            if i == 0:
-                if event.previous_event_hash != GENESIS_HASH:
-                    violations.append(
-                        f"Genesis event #{event.sequence_number} ({event.event_id}) invalid previous_event_hash"
-                    )
-                    hash_chain_valid = False
-            else:
-                prev_event = chain[i - 1]
-                if event.previous_event_hash != prev_event.event_hash:
-                    violations.append(
-                        f"Broken link at event #{event.sequence_number} ({event.event_id}): previous_event_hash '{event.previous_event_hash}' does not match preceding event_hash '{prev_event.event_hash}'"
-                    )
-                    hash_chain_valid = False
-
-            # 2. Verify payload hash
-            calc_hash = _compute_audit_event_hash(event)
-            if event.event_hash != calc_hash:
-                violations.append(
-                    f"Tampered payload at event #{event.sequence_number} ({event.event_id}): recorded hash '{event.event_hash}' does not match computed hash '{calc_hash}'"
+        # Tenant Isolation enforcement
+        if tenant_id and tenant_id != caller_tenant:
+            if caller_role not in (Role.ADMIN, Role.SYSTEM):
+                raise HTTPException(
+                    status_code=403,
+                    detail="Cross-tenant audit query denied. Admin or System role required.",
                 )
-                hash_chain_valid = False
+            query_tenant: str | None = tenant_id
+        else:
+            query_tenant = caller_tenant
 
-        valid = len(violations) == 0
+        audit_store: IAuditStore = app.state.audit_store
+        events = await audit_store.get_events(tenant_id=query_tenant)
+        return [ev.to_dict() for ev in events]
+
+    @app.get("/api/v1/audit/verify")
+    @app.post("/api/v1/audit/verify")
+    async def verify_audit_chain_endpoint(
+        request: Request,
+        tenant_id: str | None = Query(None, description="Optional tenant ID to verify"),
+    ) -> dict[str, Any]:
+        """Perform cryptographic SHA-256 integrity verification across the full audit chain."""
+        identity: Identity | None = (
+            getattr(request.state, "identity", None) or TenantContext.get_current_identity()
+        )
+        caller_tenant = identity.tenant_id if identity else "default"
+        caller_role = identity.role if identity else Role.OPERATOR
+
+        if getattr(app.state, "studio_demo_mode", False):
+            demo_chains = getattr(app.state, "demo_audit_chains", {})
+            target_tenant = tenant_id or caller_tenant
+            if target_tenant not in demo_chains:
+                demo_chains[target_tenant] = _create_initial_audit_chain()
+            chain = demo_chains[target_tenant]
+
+            violations: list[str] = []
+            hash_chain_valid = True
+            broken_seq: int | None = None
+
+            for i in range(len(chain)):
+                event = chain[i]
+                # 1. Verify linkage to previous block
+                if i == 0:
+                    if event.previous_event_hash != GENESIS_HASH:
+                        violations.append(
+                            f"Genesis event #{event.sequence_number} ({event.event_id}) invalid previous_event_hash"
+                        )
+                        hash_chain_valid = False
+                        if broken_seq is None:
+                            broken_seq = event.sequence_number
+                else:
+                    prev_event = chain[i - 1]
+                    if event.previous_event_hash != prev_event.event_hash:
+                        violations.append(
+                            f"Broken link at event #{event.sequence_number} ({event.event_id}): previous_event_hash '{event.previous_event_hash}' does not match preceding event_hash '{prev_event.event_hash}'"
+                        )
+                        hash_chain_valid = False
+                        if broken_seq is None:
+                            broken_seq = event.sequence_number
+
+                # 2. Verify payload hash
+                calc_hash = _compute_audit_event_hash(event)
+                if event.event_hash != calc_hash:
+                    violations.append(
+                        f"Tampered payload at event #{event.sequence_number} ({event.event_id}): recorded hash '{event.event_hash}' does not match computed hash '{calc_hash}'"
+                    )
+                    hash_chain_valid = False
+                    if broken_seq is None:
+                        broken_seq = event.sequence_number
+
+            valid = len(violations) == 0
+            return {
+                "valid": valid,
+                "event_count": len(chain),
+                "broken_at_sequence": broken_seq if not valid else None,
+                "hash_chain_valid": hash_chain_valid,
+                "sequence_valid": True,
+                "correlation_valid": True,
+                "terminal_state_valid": True,
+                "violations": violations,
+                "verified_at": time.time(),
+            }
+
+        if tenant_id and tenant_id != caller_tenant:
+            if caller_role not in (Role.ADMIN, Role.SYSTEM):
+                raise HTTPException(
+                    status_code=403,
+                    detail="Cross-tenant audit query denied. Admin or System role required.",
+                )
+            target_tenant = tenant_id
+        else:
+            target_tenant = caller_tenant
+
+        audit_store: IAuditStore = app.state.audit_store
+        res = await audit_store.verify_chain(tenant_id=target_tenant)
         return {
-            "valid": valid,
-            "event_count": len(chain),
-            "hash_chain_valid": hash_chain_valid,
-            "sequence_valid": True,
-            "correlation_valid": True,
-            "terminal_state_valid": True,
-            "violations": violations,
+            "valid": res.valid,
+            "event_count": res.event_count,
+            "broken_at_sequence": res.broken_at_sequence,
+            "hash_chain_valid": res.hash_chain_valid,
+            "sequence_valid": res.sequence_valid,
+            "correlation_valid": res.correlation_valid,
+            "terminal_state_valid": res.terminal_state_valid,
+            "violations": res.violations,
             "verified_at": time.time(),
         }
 
@@ -1340,6 +1461,12 @@ def create_app(
         req: AuditTamperRequest, request: Request
     ) -> dict[str, Any]:
         """Simulate malicious tampering on an event in the audit chain to test cryptographic detection."""
+        if not getattr(app.state, "studio_demo_mode", False):
+            raise HTTPException(
+                status_code=403,
+                detail="Audit log mutation endpoints are disabled in production mode. Set NEXUSAI_STUDIO_DEMO_MODE=true for demonstration environments.",
+            )
+
         identity: Identity | None = (
             getattr(request.state, "identity", None) or TenantContext.get_current_identity()
         )
@@ -1349,7 +1476,12 @@ def create_app(
                 detail=f"RBAC access denied: Role '{identity.role.value}' cannot tamper audit events",
             )
 
-        chain = _get_tenant_audit_chain(request)
+        tenant_id = identity.tenant_id if identity else "default"
+        demo_chains = getattr(app.state, "demo_audit_chains", {})
+        if tenant_id not in demo_chains:
+            demo_chains[tenant_id] = _create_initial_audit_chain()
+        chain = demo_chains[tenant_id]
+
         if len(chain) < 2:
             raise HTTPException(status_code=400, detail="Audit chain too short to tamper")
 
@@ -1361,7 +1493,7 @@ def create_app(
                     break
 
         ev = chain[target_idx]
-        tampered_dict = asdict(ev)
+        tampered_dict = ev.to_dict()
         tampered_dict[req.tampered_field] = req.new_value
 
         extra_fencing = {"fencing_" + "t" + "oken": ev.fencing_token}
@@ -1376,7 +1508,8 @@ def create_app(
             node_id=tampered_dict.get("node_id"),
             tool_id=tampered_dict.get("tool_id"),
             worker_id=tampered_dict.get("worker_id"),
-            actor=tampered_dict.get("actor"),
+            actor=str(tampered_dict.get("actor", "anonymous")),
+            tenant_id=str(tampered_dict.get("tenant_id", "default")),
             outcome=str(tampered_dict.get("outcome", "SUCCESS")),
             severity=str(tampered_dict.get("severity", "INFO")),
             previous_event_hash=str(tampered_dict["previous_event_hash"]),
@@ -1397,6 +1530,12 @@ def create_app(
     @app.post("/api/v1/audit/reset")
     async def reset_audit_chain_endpoint(request: Request) -> dict[str, Any]:
         """Reset the audit chain back to verified clean genesis state."""
+        if not getattr(app.state, "studio_demo_mode", False):
+            raise HTTPException(
+                status_code=403,
+                detail="Audit log mutation endpoints are disabled in production mode. Set NEXUSAI_STUDIO_DEMO_MODE=true for demonstration environments.",
+            )
+
         identity: Identity | None = (
             getattr(request.state, "identity", None) or TenantContext.get_current_identity()
         )
@@ -1407,8 +1546,9 @@ def create_app(
             )
 
         tenant_id = _get_tenant_id(request)
-        app.state.tenant_audit_chains[tenant_id] = _create_initial_audit_chain()
-        chain = app.state.tenant_audit_chains[tenant_id]
+        demo_chains = getattr(app.state, "demo_audit_chains", {})
+        demo_chains[tenant_id] = _create_initial_audit_chain()
+        chain = demo_chains[tenant_id]
         broadcast_event("audit_reset", {"event_count": len(chain)})
         return {
             "status": "RESET_SUCCESS",

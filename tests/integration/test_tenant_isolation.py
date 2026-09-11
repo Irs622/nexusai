@@ -16,7 +16,7 @@ from nexusai.security.identity import Role
 @pytest.fixture
 def multi_tenant_app():
     """Create test application configured with multi-tenant API keys."""
-    app = create_app(db_path=":memory:")
+    app = create_app(db_path=":memory:", studio_demo_mode=True)
     api_key_service: ApiKeyService = app.state.api_key_service
 
     # Register Tenant Alpha keys

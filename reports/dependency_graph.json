@@ -40,7 +40,7 @@
     "voice",
     "workflow"
   ],
-  "edge_count": 2626,
+  "edge_count": 2628,
   "edges": [
     {
       "source": "root",
@@ -55,6 +55,11 @@
     {
       "source": "api",
       "target": "automation",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "brain",
       "file": "api/server.py"
     },
     {
@@ -120,6 +125,11 @@
     {
       "source": "api",
       "target": "core",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "infrastructure",
       "file": "api/server.py"
     },
     {
