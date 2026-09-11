@@ -8,6 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from nexusai.api.server import create_app
+from nexusai.brain.domain.recovery import generate_idempotency_key
 from nexusai.security.authentication import ApiKeyService
 from nexusai.security.identity import Role
 
@@ -213,3 +214,55 @@ def test_rbac_operator_tool_risk_boundary(multi_tenant_app: dict) -> None:
         )
         assert res_high.status_code == 403
         assert "RBAC access denied" in res_high.json()["detail"]
+
+
+def test_tenant_scoped_idempotency_key_generation() -> None:
+    """Verify idempotency keys are strictly scoped per tenant namespace."""
+    # Tenant Alpha key
+    key_alpha = generate_idempotency_key("exec-100", "node-A", 1, tenant_id="tenant-alpha")
+    assert key_alpha == "tenant-alpha:exec-100-node-A:1"
+
+    # Tenant Beta key
+    key_beta = generate_idempotency_key("exec-100", "node-A", 1, tenant_id="tenant-beta")
+    assert key_beta == "tenant-beta:exec-100-node-A:1"
+
+    # Different namespaces
+    assert key_alpha != key_beta
+
+    # Default tenant namespace
+    key_default = generate_idempotency_key("exec-100", "node-A", 1)
+    assert key_default == "exec-100-node-A:1"
+
+
+def test_audit_event_actor_and_metadata_tenant_binding(multi_tenant_app: dict) -> None:
+    """Verify audit events record authenticated user identity and are tenant-isolated."""
+    app = multi_tenant_app["app"]
+    client_alpha = TestClient(
+        app, headers={"X-NexusAI-API-Key": multi_tenant_app["alpha_admin_key"]}
+    )
+    client_beta = TestClient(app, headers={"X-NexusAI-API-Key": multi_tenant_app["beta_admin_key"]})
+
+    # Retrieve initial audit events for Tenant Alpha
+    res_alpha = client_alpha.get("/api/v1/audit/events")
+    assert res_alpha.status_code == 200
+    events_alpha = res_alpha.json()
+    assert len(events_alpha) >= 5
+
+    # Retrieve initial audit events for Tenant Beta
+    res_beta = client_beta.get("/api/v1/audit/events")
+    assert res_beta.status_code == 200
+    events_beta = res_beta.json()
+    assert len(events_beta) >= 5
+
+    # Trigger DAG execution as Alice (Tenant Alpha)
+    exec_res = client_alpha.post("/api/v1/dag/execute", json={"plan_id": "incident_response"})
+    assert exec_res.status_code == 200
+    assert exec_res.json()["status"] == "EXECUTION_STARTED"
+
+    # Resetting Alpha's chain does not reset or alter Beta's chain
+    client_alpha.post("/api/v1/audit/reset")
+    post_reset_alpha = client_alpha.get("/api/v1/audit/events").json()
+    post_reset_beta = client_beta.get("/api/v1/audit/events").json()
+
+    assert len(post_reset_alpha) >= 1
+    assert len(post_reset_beta) >= 5

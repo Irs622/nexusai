@@ -15,8 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `security(rbac)`: Implement `RbacEngine` enforcing tool risk boundaries (`viewer` read-only, `operator` LOW/MEDIUM risk, `admin`/`system` full access) and anti-escalation rules preventing callers from elevating roles higher than their own authority.
 - `security(tenant)`: Implement coroutine-safe ambient tenant context (`TenantContext` via `contextvars`) and partition application state per tenant (audit chains, governance budgets, pending approvals, and studio plans) guaranteeing zero cross-tenant contamination.
 - `security(api)`: Enforce authentication on all protected REST endpoints, returning `401 Unauthorized` for missing/invalid keys, `403 Forbidden` for RBAC permission violations, and `429 Too Many Requests` when exceeding rate limits.
-- `security(bus)`: Propagate authenticated identity through API -> `BrainCoordinator` -> `ExecuteToolCommand` -> `SecurityGuard` -> `AuditEvent(actor=user_id)`.
-- `test(security)`: Add comprehensive test suites in `tests/unit/security/test_authentication.py` (8 tests), `tests/unit/security/test_authorization.py` (7 tests), and `tests/integration/test_tenant_isolation.py` (5 tests).
+- `security(bus)`: Propagate authenticated identity through API -> `BrainCoordinator` -> `ExecuteToolCommand` -> `SecurityGuard` -> `ToolExecutedEvent(user_id=...)` -> `AuditEvent(actor=user_id)`.
+- `security(recovery)`: Scope `generate_idempotency_key` per `tenant_id` namespace preventing cross-tenant idempotency collisions.
+- `test(security)`: Add comprehensive test suites in `tests/unit/security/test_authentication.py` (8 tests), `tests/unit/security/test_authorization.py` (7 tests), and `tests/integration/test_tenant_isolation.py` (7 tests).
 
 ### 🔒 Security Hardening — Approval Tokens, CORS Hardening & Autonomous Bypass Remediation (Issue #28 / ADR-0026)
 - `security(api)`: Fix Remote Code Execution (RCE) surface in `POST /api/tools/execute` by removing client-supplied boolean `user_confirmed` from `ToolExecRequest` and `ChatRequest`.

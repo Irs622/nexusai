@@ -88,6 +88,7 @@ class ExecuteToolCommandHandler:
                     arguments=command.arguments,
                     result=result,
                     success=True,
+                    user_id=command.user_id,
                 )
             )
             return result
@@ -99,6 +100,7 @@ class ExecuteToolCommandHandler:
                     result=None,
                     success=False,
                     error=str(e),
+                    user_id=command.user_id,
                 )
             )
             if isinstance(e, ToolExecutionError):

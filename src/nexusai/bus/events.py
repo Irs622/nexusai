@@ -17,3 +17,4 @@ class ToolExecutedEvent(BaseModel):
     result: Any = None
     success: bool = True
     error: str | None = None
+    user_id: str = "anonymous"

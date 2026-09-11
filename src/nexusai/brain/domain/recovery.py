@@ -46,8 +46,12 @@ def classify_failure(
     return FailureClass.UNKNOWN_ERROR
 
 
-def generate_idempotency_key(execution_id: str, node_id: Any, attempt: int = 1) -> str:
-    """Generate a canonical idempotency key."""
+def generate_idempotency_key(
+    execution_id: str, node_id: Any, attempt: int = 1, tenant_id: str | None = None
+) -> str:
+    """Generate a canonical idempotency key, optionally scoped to tenant."""
+    if tenant_id and tenant_id != "default":
+        return f"{tenant_id}:{execution_id}-{node_id}:{attempt}"
     return f"{execution_id}-{node_id}:{attempt}"
 
 
