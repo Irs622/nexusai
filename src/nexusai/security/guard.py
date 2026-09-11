@@ -351,6 +351,11 @@ class SecurityGuard:
                     "user": identity.user_id,
                     "domain": domain,
                     "resource": resource,
+                    "capability": (
+                        f"{matched_cap.domain}:{matched_cap.action}:{matched_cap.resource}"
+                        if matched_cap
+                        else f"{domain}:{cap_action}:{resource}"
+                    ),
                 },
             )
 

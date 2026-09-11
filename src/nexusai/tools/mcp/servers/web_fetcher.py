@@ -132,7 +132,7 @@ class WebFetcherMcpServer(McpServerBase):
         self,
         default_timeout_sec: float = 15.0,
         allowed_hosts: set[str] | None = None,
-        enabled: bool = True,
+        enabled: bool = False,
     ) -> None:
         super().__init__(
             name="nexus-web-fetcher",
@@ -257,6 +257,11 @@ class WebFetcherMcpServer(McpServerBase):
             raise ValueError(f"Too many redirects (limit {max_redirects})")
 
     async def _handle_fetch_url(self, args: dict[str, Any]) -> dict[str, Any]:
+        if not self.enabled:
+            raise PermissionError(
+                "WebFetcher MCP server is disabled by default. Enable it explicitly via capability profile configuration."
+            )
+
         url = str(args["url"]).strip()
         max_chars = int(args.get("max_chars", 10000))
 
@@ -294,6 +299,11 @@ class WebFetcherMcpServer(McpServerBase):
         }
 
     async def _handle_http_request(self, args: dict[str, Any]) -> dict[str, Any]:
+        if not self.enabled:
+            raise PermissionError(
+                "WebFetcher MCP server is disabled by default. Enable it explicitly via capability profile configuration."
+            )
+
         method = str(args.get("method", "GET")).upper()
         url = str(args["url"]).strip()
         headers = dict(args.get("headers", {}))

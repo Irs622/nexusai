@@ -258,3 +258,52 @@ def test_capability_advanced_constraints() -> None:
     ok, err = cap.check_constraints({"path": "/internal/secret"})
     assert ok is False
     assert "not in allowed_subpaths" in str(err)
+
+
+def test_capability_extra_domain_constraints() -> None:
+    """Verify no_pipe, no_redirect, max_request_size, risk_level_max, and max_results."""
+    # Shell constraints: no_pipe, no_redirect
+    shell_cap = Capability(
+        domain="shell",
+        action="execute",
+        resource="git",
+        constraints={"no_pipe": True, "no_redirect": True},
+    )
+    ok_pipe, err_pipe = shell_cap.check_constraints({"command": "git log | grep fix"})
+    assert ok_pipe is False
+    assert "pipeline execution (|) forbidden" in str(err_pipe)
+
+    ok_redir, err_redir = shell_cap.check_constraints({"command": "git status > out.txt"})
+    assert ok_redir is False
+    assert "I/O redirection (<, >) forbidden" in str(err_redir)
+
+    ok_clean, _ = shell_cap.check_constraints({"command": "git status"})
+    assert ok_clean is True
+
+    # Network constraint: max_request_size
+    net_cap = Capability(
+        domain="network", action="http_post", resource="*", constraints={"max_request_size": 5000}
+    )
+    ok_net, err_net = net_cap.check_constraints({"request_size": 10000})
+    assert ok_net is False
+    assert "exceeds max_request_size 5000 bytes" in str(err_net)
+
+    # MCP constraint: risk_level_max
+    mcp_cap = Capability(
+        domain="mcp", action="invoke", resource="*", constraints={"risk_level_max": "MEDIUM"}
+    )
+    ok_mcp_low, _ = mcp_cap.check_constraints({"risk_level": "LOW"})
+    assert ok_mcp_low is True
+    ok_mcp_high, err_mcp = mcp_cap.check_constraints({"risk_level": "HIGH"})
+    assert ok_mcp_high is False
+    assert "exceeds risk_level_max 'MEDIUM'" in str(err_mcp)
+
+    # Memory constraint: max_results
+    mem_cap = Capability(
+        domain="memory", action="search", resource="*", constraints={"max_results": 10}
+    )
+    ok_mem_high, err_mem = mem_cap.check_constraints({"limit": 50})
+    assert ok_mem_high is False
+    assert "exceeds max_results 10" in str(err_mem)
+    ok_mem_ok, _ = mem_cap.check_constraints({"limit": 5})
+    assert ok_mem_ok is True

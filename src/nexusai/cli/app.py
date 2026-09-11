@@ -309,5 +309,47 @@ def create_mcp(
         raise typer.Exit(code=1)
 
 
+@app.command("doctor")
+def doctor() -> None:
+    """Run environment and security health checks, including capability profiles."""
+    import sys
+    from pathlib import Path
+
+    from nexusai.security.capability import CapabilityResolver
+
+    print_banner()
+    print_info("Running NexusAI Environment & Security Diagnostics...\n")
+
+    # 1. Python Environment
+    print_success(f"[OK] Python Runtime: {sys.version.split()[0]}")
+
+    # 2. Security Config
+    sec_cfg = Path("config/security.yaml")
+    if sec_cfg.is_file():
+        print_success(f"[OK] Security Configuration: {sec_cfg} (Active)")
+    else:
+        print_info("[INFO] Security Configuration: using built-in defaults")
+
+    # 3. Capability Profiles Status (#34 acceptance criteria)
+    cap_cfg = Path("config/capabilities.yaml")
+    if cap_cfg.is_file():
+        try:
+            resolver = CapabilityResolver.from_yaml(cap_cfg)
+            profile_names = list(resolver.profiles.keys())
+            print_success(
+                f"[OK] Capability Profiles: configured ({len(profile_names)} profiles: {', '.join(profile_names)})"
+            )
+        except Exception as e:
+            print_error(f"[ERROR] Capability Profiles error: {e}")
+            raise typer.Exit(code=1)
+    else:
+        resolver = CapabilityResolver.build_default_resolver()
+        print_info(
+            f"[INFO] Capability Profiles: built-in defaults active ({len(resolver.profiles)} profiles)"
+        )
+
+    print_success("\nAll diagnostic checks completed successfully.")
+
+
 if __name__ == "__main__":
     app()

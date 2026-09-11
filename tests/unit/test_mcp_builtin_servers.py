@@ -287,7 +287,7 @@ async def test_sqlite_mcp_server(tmp_path: Path) -> None:
 @pytest.mark.asyncio
 async def test_web_fetcher_mcp_server() -> None:
     """Verify Web Fetcher HTML extraction and HTTP request handling."""
-    server = WebFetcherMcpServer()
+    server = WebFetcherMcpServer(enabled=True)
 
     mock_html = """
     <!DOCTYPE html>

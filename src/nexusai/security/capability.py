@@ -177,6 +177,59 @@ class Capability:
                         f"Constraint violated: path '{target_path_raw}' not in allowed_subpaths {allowed_subpaths}",
                     )
 
+        # 10. no_pipe
+        if self.constraints.get("no_pipe") and "command" in context:
+            cmd_val = str(context["command"])
+            if "|" in cmd_val:
+                return (
+                    False,
+                    "Constraint violated: pipeline execution (|) forbidden by no_pipe constraint",
+                )
+
+        # 11. no_redirect
+        if self.constraints.get("no_redirect") and "command" in context:
+            cmd_val = str(context["command"])
+            if ">" in cmd_val or "<" in cmd_val:
+                return (
+                    False,
+                    "Constraint violated: I/O redirection (<, >) forbidden by no_redirect constraint",
+                )
+
+        # 12. max_request_size
+        if "max_request_size" in self.constraints:
+            max_req = int(self.constraints["max_request_size"])
+            actual_req = context.get(
+                "request_size", context.get("body_size", context.get("content_length"))
+            )
+            if actual_req is not None and int(actual_req) > max_req:
+                return (
+                    False,
+                    f"Constraint violated: request size {actual_req} bytes exceeds max_request_size {max_req} bytes",
+                )
+
+        # 13. risk_level_max
+        if "risk_level_max" in self.constraints and "risk_level" in context:
+            risk_hierarchy = {"LOW": 10, "MEDIUM": 20, "HIGH": 30, "CRITICAL": 40}
+            max_risk_str = str(self.constraints["risk_level_max"]).upper()
+            actual_risk_str = (
+                str(context["risk_level"]).upper().removeprefix("RISKLEVEL.").removeprefix("RISK_")
+            )
+            if risk_hierarchy.get(actual_risk_str, 0) > risk_hierarchy.get(max_risk_str, 0):
+                return (
+                    False,
+                    f"Constraint violated: risk level '{actual_risk_str}' exceeds risk_level_max '{max_risk_str}'",
+                )
+
+        # 14. max_results
+        if "max_results" in self.constraints:
+            max_res = int(self.constraints["max_results"])
+            actual_res = context.get("limit", context.get("max_results"))
+            if actual_res is not None and int(actual_res) > max_res:
+                return (
+                    False,
+                    f"Constraint violated: results limit {actual_res} exceeds max_results {max_res}",
+                )
+
         return True, None
 
 

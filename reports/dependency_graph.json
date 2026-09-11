@@ -40,7 +40,7 @@
     "voice",
     "workflow"
   ],
-  "edge_count": 2592,
+  "edge_count": 2593,
   "edges": [
     {
       "source": "root",
@@ -5375,6 +5375,11 @@
     {
       "source": "cli",
       "target": "cli",
+      "file": "cli/app.py"
+    },
+    {
+      "source": "cli",
+      "target": "security",
       "file": "cli/app.py"
     },
     {

@@ -460,3 +460,32 @@ def test_mcp_tool_schema_nullable_union_types() -> None:
     # Instantiation with optional parameter works
     instance2 = model(required_int=42, optional_str="hello")
     assert instance2.optional_str == "hello"
+
+
+@pytest.mark.asyncio
+async def test_web_fetcher_disabled_by_default() -> None:
+    """Verify WebFetcherMcpServer is disabled by default and requires explicit enablement."""
+    default_server = WebFetcherMcpServer()
+    assert default_server.enabled is False
+
+    # Attempting to fetch raises PermissionError
+    with pytest.raises(PermissionError) as exc_info:
+        await default_server._handle_fetch_url({"url": "https://example.com"})
+    assert "WebFetcher MCP server is disabled by default" in str(exc_info.value)
+
+    # When enabled, it proceeds past the enabled check
+    enabled_server = WebFetcherMcpServer(enabled=True)
+    assert enabled_server.enabled is True
+
+
+def test_cli_doctor_reports_capability_profiles() -> None:
+    """Verify nexusai doctor CLI command reports capability profiles status."""
+    from typer.testing import CliRunner
+
+    from nexusai.cli.app import app
+
+    runner = CliRunner()
+    result = runner.invoke(app, ["doctor"])
+    assert result.exit_code == 0
+    assert "Capability Profiles: configured" in result.output
+    assert "unrestricted_admin" in result.output
