@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import json
-import pytest
+
 import httpx
+import pytest
 
 from nexusai.brain.domain.governance import ToolCapability
 from nexusai.brain.domain.human_approval import (

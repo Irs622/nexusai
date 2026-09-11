@@ -29,6 +29,7 @@ class BrainCoordinator:
         context_engine: Any = None,
         execution_engine: PlanGraphExecutionEngine | None = None,
         facade: BrainRuntimeFacade | None = None,
+        human_approval_engine: Any | None = None,
         *args: Any,
         **kwargs: Any,
     ) -> None:
@@ -39,6 +40,7 @@ class BrainCoordinator:
         self.context_engine = context_engine
         self.facade = facade or BrainRuntimeFacade()
         self.execution_engine = execution_engine or PlanGraphExecutionEngine()
+        self.human_approval_engine = human_approval_engine
         self.last_decision_trace: Any = None
         self.last_plan_graph: Any = None
         self.last_execution_results: Any = None
@@ -47,7 +49,7 @@ class BrainCoordinator:
         self,
         user_text: str,
         session_id: str = "",
-        user_confirmed: bool = True,
+        approval_token: str | None = None,
     ) -> Dict[str, Any]:
         """Process user text input through Brain Runtime DAG pipeline (Planner -> Validator -> Engine -> Provider)."""
         sys_prompt = PromptBuilder().DEFAULT_SYSTEM_PROMPT
@@ -176,20 +178,22 @@ class BrainCoordinator:
 
                     tool_result: Any = None
                     exec_error: str | None = None
-                    if self.command_bus and hasattr(self.command_bus, "dispatch"):
+                    if not self.command_bus or not hasattr(self.command_bus, "dispatch"):
+                        exec_error = (
+                            f"Governed execution blocked: CommandBus required for tool '{tool_name}' "
+                            "but is not configured."
+                        )
+                    else:
                         try:
                             from nexusai.bus.commands import ExecuteToolCommand
 
                             cmd = ExecuteToolCommand(
-                                tool_name=tool_name, arguments=arguments, user_confirmed=True
+                                tool_name=tool_name,
+                                arguments=arguments,
+                                approval_token=approval_token,
+                                execution_id=effective_session_id,
                             )
                             tool_result = await self.command_bus.dispatch(cmd)
-                        except Exception as err:
-                            exec_error = str(err)
-                    elif self.registry and hasattr(self.registry, "get"):
-                        try:
-                            tool_inst = self.registry.get(tool_name)
-                            tool_result = await tool_inst.execute(**arguments)
                         except Exception as err:
                             exec_error = str(err)
 

@@ -45,5 +45,17 @@ def test_security_high_risk_requires_confirmation(security_guard: SecurityGuard)
         description="Deletes directory",
         parameters={"path": "temp_folder"},
     )
+    # Without token, execution is denied
     assert security_guard.evaluate_permission(req, user_confirmed=False) is False
+
+    # With valid approval token, execution is granted
+    token, _ = security_guard.approval_service.create_token(
+        tool_name="DeleteUserDirectory",
+        arguments={"path": "temp_folder"},
+    )
+    assert security_guard.evaluate_permission(req, approval_token=token) is True
+
+    # In non-strict mode only, user_confirmed=True is permitted
+    security_guard.settings.strict_mode = False
     assert security_guard.evaluate_permission(req, user_confirmed=True) is True
+    security_guard.settings.strict_mode = True

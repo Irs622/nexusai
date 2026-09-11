@@ -38,6 +38,11 @@ models:
   temperature: 0.7
   max_tokens: 2048
   timeout_seconds: 60
+
+api:
+  allowed_origins:
+    - "http://localhost:8000"
+  allow_credentials: false
 ```
 
 ---
@@ -46,19 +51,30 @@ models:
 
 ```yaml
 security:
-  strict_mode: false
-  auto_approve_low_risk: true
+  strict_mode: true
+  auto_approve_low_risk: false
   
   forbidden_commands:
     - "rm -rf /"
     - "rm -rf ~"
     - "mkfs"
     - "dd if="
+    - "> /dev/sda"
+    - ":(){ :|:& };:"
+    - "chmod -R 777 /"
     - "sudo rm -rf"
   
   protected_paths:
     - "/System"
     - "/usr/bin"
     - "/bin"
+    - "/sbin"
     - "/etc"
+    - "/var"
+    - "~/.ssh"
+    - "~/.aws"
+    - "~/.config"
+    - "~/.gnupg"
+    - "~/Library/Keychains"
+    - "/var/run/docker.sock"
 ```

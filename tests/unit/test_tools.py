@@ -178,10 +178,15 @@ async def test_execute_tool_command_high_risk_confirmed_success(
     mock_process.communicate.return_value = (b"file.txt\n", b"")
     mock_process.returncode = 0
 
+    token, _ = security_guard.approval_service.create_token(
+        tool_name="execute_terminal",
+        arguments={"command": "ls"},
+    )
+
     cmd = ExecuteToolCommand(
         tool_name="execute_terminal",
         arguments={"command": "ls"},
-        user_confirmed=True,
+        approval_token=token,
     )
 
     with patch("asyncio.create_subprocess_shell", return_value=mock_process):

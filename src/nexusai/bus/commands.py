@@ -20,6 +20,9 @@ class ExecuteToolCommand(BaseModel):
 
     tool_name: str
     arguments: dict[str, Any] = Field(default_factory=dict)
+    approval_token: str | None = None
+    user_id: str = "anonymous"
+    execution_id: str = ""
     user_confirmed: bool = False
 
 
@@ -56,17 +59,23 @@ class ExecuteToolCommandHandler:
             risk_level=tool.risk_level,
             description=tool.description,
             parameters=string_params,
+            approval_token=command.approval_token,
+            user_id=command.user_id,
+            execution_id=command.execution_id,
         )
 
         # 3. Evaluate Security Guard authorization
         is_permitted = self.security_guard.evaluate_permission(
             action_request,
+            approval_token=command.approval_token,
+            user_id=command.user_id,
+            execution_id=command.execution_id,
             user_confirmed=command.user_confirmed,
         )
 
         if not is_permitted:
             raise SecurityError(
-                f"Security policy denied execution of tool '{tool.name}' (Risk Level: {tool.risk_level.value}). User confirmation required.",
+                f"Security policy denied execution of tool '{tool.name}' (Risk Level: {tool.risk_level.value}). Approval token required.",
                 details={"tool_name": tool.name, "risk_level": tool.risk_level.value},
             )
 

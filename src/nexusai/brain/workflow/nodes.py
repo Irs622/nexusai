@@ -65,7 +65,9 @@ async def node_tool_executor(
 
     tool_name = last_call["tool_name"]
     arguments = last_call.get("arguments", {})
-    user_confirmed = state.get("user_confirmed", False)
+    user_confirmed = bool(state.get("user_confirmed", False))
+    raw_token = state.get("approval_token")
+    approval_token = str(raw_token) if raw_token is not None else None
 
     if security_guard:
         action_request = ActionRequest(
@@ -73,8 +75,13 @@ async def node_tool_executor(
             risk_level=last_call.get("risk_level", RiskLevel.HIGH),
             description=f"Execute tool '{tool_name}'",
             parameters={k: str(v) for k, v in arguments.items()},
+            approval_token=approval_token,
         )
-        if not security_guard.evaluate_permission(action_request, user_confirmed=user_confirmed):
+        if not security_guard.evaluate_permission(
+            action_request,
+            approval_token=approval_token,
+            user_confirmed=user_confirmed,
+        ):
             raise SecurityError(
                 f"Action '{tool_name}' denied by SecurityGuard policy",
                 details={"tool_name": tool_name, "arguments": arguments},
@@ -83,6 +90,7 @@ async def node_tool_executor(
     cmd = ExecuteToolCommand(
         tool_name=tool_name,
         arguments=arguments,
+        approval_token=approval_token,
         user_confirmed=user_confirmed,
     )
     result = await command_bus.dispatch(cmd)

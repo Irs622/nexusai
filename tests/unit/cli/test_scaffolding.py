@@ -11,10 +11,10 @@ from typer.testing import CliRunner
 
 from nexusai.cli.app import app
 from nexusai.cli.scaffolding import (
-    scaffold_mcp,
-    scaffold_tool,
     _to_class_name,
     _validate_name,
+    scaffold_mcp,
+    scaffold_tool,
 )
 
 runner = CliRunner()

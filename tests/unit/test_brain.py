@@ -15,7 +15,6 @@ from nexusai.brain.prompt import PromptBuilder
 from nexusai.bus.bus import CommandBus, EventBus
 from nexusai.bus.commands import ExecuteToolCommand, ExecuteToolCommandHandler
 from nexusai.context.engine import WorkingContext
-from nexusai.core.config import SecuritySettings
 from nexusai.core.errors import ConfigurationError
 from nexusai.models.base import BaseModelProvider
 from nexusai.models.openai_provider import OpenAIProvider
@@ -63,10 +62,9 @@ def registry() -> ToolRegistry:
 
 
 @pytest.fixture
-def command_bus(registry: ToolRegistry) -> CommandBus:
+def command_bus(registry: ToolRegistry, security_guard: SecurityGuard) -> CommandBus:
     bus = CommandBus()
     event_bus = EventBus()
-    security_guard = SecurityGuard(SecuritySettings(strict_mode=True, auto_approve_low_risk=True))
     handler = ExecuteToolCommandHandler(registry, security_guard, event_bus)
     bus.register(ExecuteToolCommand, handler)
     return bus
@@ -236,3 +234,121 @@ async def test_brain_coordinator_tool_call_flow(
     assert provider.call_count == 2
     # Verify tool message was included in second prompt to LLM
     assert any(m.get("role") == "tool" for m in provider.last_messages)
+
+
+@pytest.mark.asyncio
+async def test_coordinator_critical_tool_blocked_without_approval(
+    registry: ToolRegistry,
+    command_bus: CommandBus,
+    security_guard: SecurityGuard,
+) -> None:
+    from pydantic import BaseModel
+
+    from nexusai.security.guard import RiskLevel
+    from nexusai.tools.base import BaseTool
+
+    class CriticalInput(BaseModel):
+        target: str = "database"
+
+    class CriticalTool(BaseTool):
+        name: str = "critical_truncate"
+        description: str = "Destructive action"
+        risk_level: RiskLevel = RiskLevel.CRITICAL
+        input_schema: type[BaseModel] = CriticalInput
+
+        async def execute(self, **kwargs: Any) -> str:
+            return "DATABASE_TRUNCATED"
+
+    registry.register(CriticalTool())
+
+    calls: list[dict[str, Any]] = [
+        {"type": "tool_call", "tool_name": "critical_truncate", "arguments": {"target": "prod"}},
+        {"type": "text", "content": "Attempted to execute tool."},
+    ]
+
+    class MockProvider:
+        def __init__(self) -> None:
+            self.call_count = 0
+            self.last_messages: list[dict[str, Any]] = []
+
+        async def chat(self, messages: list[dict[str, Any]], tools: Any = None) -> dict[str, Any]:
+            self.last_messages = messages
+            ret = calls[min(self.call_count, len(calls) - 1)]
+            self.call_count += 1
+            return ret
+
+    # 1. Without approval token, execution is blocked
+    provider1 = MockProvider()
+    coordinator1 = BrainCoordinator(provider1, registry, command_bus)
+    await coordinator1.process_user_input("Truncate prod DB")
+    # Verify tool call failed with security denial in tool message
+    tool_msg = next((m for m in provider1.last_messages if m.get("role") == "tool"), None)
+    assert tool_msg is not None
+    assert "Security policy denied" in tool_msg.get("content", "")
+
+    # 2. With valid approval token, tool executes
+    token, _ = security_guard.approval_service.create_token(
+        tool_name="critical_truncate",
+        arguments={"target": "prod"},
+        execution_id="sess_approved",
+    )
+    provider2 = MockProvider()
+    coordinator2 = BrainCoordinator(provider2, registry, command_bus)
+    await coordinator2.process_user_input(
+        "Truncate prod DB",
+        session_id="sess_approved",
+        approval_token=token,
+    )
+    tool_msg2 = next((m for m in provider2.last_messages if m.get("role") == "tool"), None)
+    assert tool_msg2 is not None
+    assert tool_msg2.get("content") == "DATABASE_TRUNCATED"
+
+    # 3. With HumanApprovalEngine grant bound to exact action, tool executes
+    from nexusai.brain.domain.governance import ToolCapability
+    from nexusai.brain.domain.human_approval import (
+        ActionBinding,
+        ApprovalStatus,
+        HumanApprovalDecision,
+        HumanApprovalRequest,
+        RiskLevel,
+    )
+    from nexusai.brain.runtime.human_approval_engine import HumanApprovalEngine
+
+    approval_engine = HumanApprovalEngine()
+    security_guard.human_approval_engine = approval_engine
+
+    binding = ActionBinding(
+        session_id="sess_approved_grant",
+        execution_id="exec-123",
+        plan_fingerprint="fp-123",
+        node_id="node-123",
+        tool_id="critical_truncate",
+        tool_version="1.0.0",
+        requested_capabilities=frozenset({ToolCapability.PROCESS_EXEC}),
+        resource_scope="/",
+    )
+    req_appr = HumanApprovalRequest(
+        approval_id="appr-test-123",
+        binding=binding,
+        risk_level=RiskLevel.CRITICAL,
+        prompt_summary="Truncate prod DB",
+    )
+    await approval_engine.request_approval(req_appr)
+    decision = HumanApprovalDecision(
+        approval_id="appr-test-123",
+        status=ApprovalStatus.APPROVED,
+        actor="lead-admin",
+        reason="Authorized test execution",
+    )
+    grant = await approval_engine.submit_decision(decision)
+
+    provider3 = MockProvider()
+    coordinator3 = BrainCoordinator(provider3, registry, command_bus)
+    await coordinator3.process_user_input(
+        "Truncate prod DB",
+        session_id="sess_approved_grant",
+        approval_token=grant.grant_id,
+    )
+    tool_msg3 = next((m for m in provider3.last_messages if m.get("role") == "tool"), None)
+    assert tool_msg3 is not None
+    assert tool_msg3.get("content") == "DATABASE_TRUNCATED"

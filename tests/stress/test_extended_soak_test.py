@@ -13,6 +13,7 @@ import pytest
 repo_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(repo_root))
 
+from nexusai.brain.ports.tool_port import ToolExecutionRequest
 from tools.run_extended_soak_test import (
     ChaosMetrics,
     ChaosToolPort,
@@ -20,7 +21,6 @@ from tools.run_extended_soak_test import (
     parse_duration_seconds,
     run_extended_soak_harness,
 )
-from nexusai.brain.ports.tool_port import ToolExecutionRequest
 
 
 def test_parse_duration_seconds() -> None:

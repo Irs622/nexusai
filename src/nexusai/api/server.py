@@ -3,16 +3,17 @@
 from __future__ import annotations
 
 import asyncio
-import json
-import time
 import hashlib
+import json
+import os
+import time
 from contextlib import asynccontextmanager
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any, AsyncGenerator, cast
 
 from dotenv import find_dotenv, load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -27,11 +28,11 @@ from nexusai.bus.bus import CommandBus, EventBus
 from nexusai.bus.commands import ExecuteToolCommand, ExecuteToolCommandHandler
 from nexusai.context.engine import ContextEngine
 from nexusai.core.config import SystemConfig
-from nexusai.core.errors import ConfigurationError
+from nexusai.core.errors import ConfigurationError, SecurityError
 from nexusai.logging.logger import logger
 from nexusai.memory.sqlite_memory import SQLiteMemory
 from nexusai.models.openai_provider import OpenAIProvider
-from nexusai.security.guard import SecurityGuard
+from nexusai.security.guard import RiskLevel, SecurityGuard
 
 # Import Tools & MCP
 from nexusai.tools.automation import ScheduleReminderTool
@@ -50,13 +51,21 @@ web_dir = Path(__file__).resolve().parent.parent.parent.parent / "web"
 class ChatRequest(BaseModel):
     prompt: str = Field(..., description="User prompt text")
     session_id: str = Field("web_session", description="Session ID")
-    user_confirmed: bool = Field(False, description="Security confirmation flag")
+    approval_token: str | None = Field(
+        default=None, description="Optional approval token for high-risk tool execution"
+    )
 
 
 class ToolExecRequest(BaseModel):
     tool_name: str = Field(..., description="Name of tool to execute")
     arguments: dict[str, Any] = Field(default_factory=dict, description="Tool parameters")
-    user_confirmed: bool = Field(False, description="User confirmation flag")
+    execution_id: str = Field(default="", description="Optional execution context ID")
+
+
+class ApprovalRequest(BaseModel):
+    tool_name: str = Field(..., description="Name of tool requiring approval token")
+    arguments: dict[str, Any] = Field(default_factory=dict, description="Tool execution parameters")
+    execution_id: str = Field(default="", description="Optional execution context ID")
 
 
 class DagExecuteRequest(BaseModel):
@@ -82,6 +91,7 @@ class GovernanceDecisionRequest(BaseModel):
 
 ChatRequest.model_rebuild()
 ToolExecRequest.model_rebuild()
+ApprovalRequest.model_rebuild()
 DagExecuteRequest.model_rebuild()
 AuditTamperRequest.model_rebuild()
 GovernanceDecisionRequest.model_rebuild()
@@ -559,17 +569,30 @@ def create_app(
         lifespan=lifespan,
     )
 
+    env_origins = os.getenv("NEXUSAI_ALLOWED_ORIGINS")
+    if env_origins:
+        configured_origins = [o.strip() for o in env_origins.split(",") if o.strip()]
+    else:
+        configured_origins = list(config.api.allowed_origins)
+
+    # Hardening: Disallow wildcard origin
+    safe_origins = [o for o in configured_origins if o != "*"]
+    if not safe_origins:
+        safe_origins = ["http://localhost:8000"]
+
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
+        allow_origins=safe_origins,
+        allow_credentials=config.api.allow_credentials,
         allow_methods=["*"],
         allow_headers=["*"],
     )
 
-    # Attach manager to app state for testing and direct access
+    # Attach manager and security components to app state for testing and direct access
     app.state.mcp_manager = mcp_manager
     app.state.registry = registry
+    app.state.approval_service = security_guard.approval_service
+    app.state.security_guard = security_guard
     app.state.event_subscribers = []
     app.state.studio_plans = _create_studio_plans()
     app.state.audit_chain = _create_initial_audit_chain()
@@ -627,24 +650,66 @@ def create_app(
             res = await coordinator.process_user_input(
                 user_text=req.prompt,
                 session_id=req.session_id,
-                user_confirmed=req.user_confirmed,
+                approval_token=req.approval_token,
             )
             return res
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e)) from e
 
+    @app.post("/api/v1/approvals/request")
+    async def request_approval_token(req: ApprovalRequest) -> dict[str, Any]:
+        """Issue a cryptographic HMAC-SHA256 single-use approval token for tool execution."""
+        try:
+            token, expires_at = security_guard.approval_service.create_token(
+                tool_name=req.tool_name,
+                arguments=req.arguments,
+                user_id="anonymous",
+                execution_id=req.execution_id,
+            )
+            return {"approval_token": token, "expires_at": expires_at}
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e)) from e
+
     @app.post("/api/tools/execute")
-    async def execute_tool_endpoint(req: ToolExecRequest) -> dict[str, Any]:
+    async def execute_tool_endpoint(
+        req: ToolExecRequest,
+        x_approval_token: str | None = Header(None, alias="X-Approval-Token"),
+    ) -> dict[str, Any]:
+        try:
+            tool = registry.get(req.tool_name)
+        except Exception as e:
+            raise HTTPException(
+                status_code=404, detail=f"Tool '{req.tool_name}' not found: {e}"
+            ) from e
+
+        # HIGH or CRITICAL risk tools require server-side approval token
+        if tool.risk_level in (RiskLevel.HIGH, RiskLevel.CRITICAL):
+            if not x_approval_token:
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"Approval token required for {tool.risk_level.value} risk tool '{req.tool_name}'. Provide via X-Approval-Token header.",
+                )
+
         try:
             cmd = ExecuteToolCommand(
                 tool_name=req.tool_name,
                 arguments=req.arguments,
-                user_confirmed=req.user_confirmed,
+                approval_token=x_approval_token,
+                execution_id=req.execution_id,
             )
             output = await command_bus.dispatch(cmd)
             return {"success": True, "tool_name": req.tool_name, "output": output}
+        except SecurityError as se:
+            raise HTTPException(status_code=403, detail=str(se)) from se
         except Exception as e:
-            raise HTTPException(status_code=400, detail=str(e)) from e
+            cause = getattr(e, "__cause__", None)
+            if isinstance(cause, SecurityError) or isinstance(e, SecurityError):
+                err_msg = str(cause) if cause else str(e)
+                raise HTTPException(status_code=403, detail=err_msg) from e
+            err_str = str(e)
+            if "Security policy denied" in err_str or "Approval token" in err_str:
+                raise HTTPException(status_code=403, detail=err_str) from e
+            raise HTTPException(status_code=400, detail=err_str) from e
 
     # =========================================================================
     # MODEL CONTEXT PROTOCOL (MCP) ENDPOINTS

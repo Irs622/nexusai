@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🔒 Security Hardening — Approval Tokens, CORS Hardening & Autonomous Bypass Remediation (Issue #28 / ADR-0026)
+- `security(api)`: Fix Remote Code Execution (RCE) surface in `POST /api/tools/execute` by removing client-supplied boolean `user_confirmed` from `ToolExecRequest` and `ChatRequest`.
+- `security(api)`: Introduce server-side cryptographic approval tokens via `ApprovalTokenService` (`HMAC-SHA256`, 5-minute TTL, single-use anti-replay protection, and action parameter binding).
+- `security(api)`: Add `POST /api/v1/approvals/request` endpoint and require `X-Approval-Token` header for all `HIGH` and `CRITICAL` risk tools, returning `403 Forbidden` on missing, expired, replayed, or mismatched tokens.
+- `security(api)`: Harden CORS configuration by dropping wildcard `allow_origins=["*"]`, defaulting to `http://localhost:8000` (configurable via `NEXUSAI_ALLOWED_ORIGINS` and `config/default.yaml`), and setting `allow_credentials=False`.
+- `security(guard)`: Refactor `SecurityGuard` into a policy orchestrator evaluating Auth -> RBAC -> Capability -> Sanitizer -> Approval Token.
+- `security(brain)`: Eliminate autonomous execution bypass in `BrainCoordinator.process_user_input()` by removing hardcoded `user_confirmed=True` and deleting direct `tool_inst.execute()` fallback, enforcing all tool executions through the governed command bus.
+- `security(config)`: Harden default configuration in `config/security.yaml` with `strict_mode: true`, `auto_approve_low_risk: false`, and expanded `protected_paths` (`~/.ssh`, `~/.aws`, `~/.config`, `~/.gnupg`, `~/Library/Keychains`, `/var/run/docker.sock`).
+- `test(security)`: Add unit tests in `tests/unit/security/test_approval_token.py` (7 tests) and update `tests/unit/test_api.py`, `tests/unit/test_tools.py`, `tests/unit/test_security.py`, and `tests/unit/test_brain.py`.
+
+
 ### 🛠️ CLI Scaffolding Commands: `nexusai create-tool` and `nexusai create-mcp` (Issue #25 / ADR-0025)
 - `feat(cli)`: Add `nexusai create-tool <name>` command that scaffolds a fully type-annotated `BaseTool` plugin directory (`plugin.py`, `nexusai_manifest.yaml`, `README.md`, `__init__.py`) with `--description`, `--output-dir`, `--dry-run`, and `--overwrite` flags.
 - `feat(cli)`: Add `nexusai create-mcp <name>` command that scaffolds a standards-compliant MCP STDIO server (`server.py` with async JSON-RPC 2.0 loop, `nexusai_mcp.yaml` config snippet ready to merge into `config/mcp_servers.yaml`, `README.md`) under `plugins/mcp/<name>/`.

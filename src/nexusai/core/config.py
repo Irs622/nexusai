@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import yaml
 from dotenv import load_dotenv
@@ -41,9 +42,14 @@ class ModelSettings(BaseModel):
     timeout_seconds: int = 30
 
 
+class ApiSettings(BaseModel):
+    allowed_origins: list[str] = Field(default_factory=lambda: ["http://localhost:8000"])
+    allow_credentials: bool = False
+
+
 class SecuritySettings(BaseModel):
     strict_mode: bool = True
-    auto_approve_low_risk: bool = True
+    auto_approve_low_risk: bool = False
     isolation_timeout_seconds: float = 30.0
     capabilities: PluginCapabilities = Field(default_factory=PluginCapabilities)
     forbidden_commands: list[str] = Field(default_factory=list)
@@ -62,6 +68,7 @@ class SystemConfig(BaseSettings):
     models: ModelSettings = Field(default_factory=ModelSettings)
     security: SecuritySettings = Field(default_factory=SecuritySettings)
     paths: PathSettings = Field(default_factory=PathSettings)
+    api: ApiSettings = Field(default_factory=ApiSettings)
 
     model_config = SettingsConfigDict(
         env_file=str(_env_file) if _env_file.is_file() else None,
@@ -72,16 +79,39 @@ class SystemConfig(BaseSettings):
 
     @classmethod
     def load_from_yaml(cls, config_dir: str | Path = "config") -> SystemConfig:
-        """Load configuration settings from YAML files (e.g. default.yaml) in target directory."""
+        """Load configuration settings from YAML files (e.g. default.yaml and security.yaml) in target directory."""
         config_path = Path(config_dir)
         yaml_file = config_path / "default.yaml" if config_path.is_dir() else config_path
 
-        if not yaml_file.exists():
+        data: dict[str, Any] = {}
+        if yaml_file.exists():
+            try:
+                with open(yaml_file, "r", encoding="utf-8") as f:
+                    data = yaml.safe_load(f) or {}
+            except Exception as e:
+                raise ConfigurationError(
+                    f"Failed to parse YAML configuration from {yaml_file}: {e}"
+                ) from e
+
+        if config_path.is_dir():
+            security_file = config_path / "security.yaml"
+            if security_file.exists():
+                try:
+                    with open(security_file, "r", encoding="utf-8") as f:
+                        sec_data = yaml.safe_load(f) or {}
+                    if "security" in sec_data and isinstance(sec_data["security"], dict):
+                        data.setdefault("security", {})
+                        if isinstance(data["security"], dict):
+                            data["security"].update(sec_data["security"])
+                except Exception as e:
+                    raise ConfigurationError(
+                        f"Failed to parse security YAML configuration from {security_file}: {e}"
+                    ) from e
+
+        if not data and not yaml_file.exists():
             return cls()
 
         try:
-            with open(yaml_file, "r", encoding="utf-8") as f:
-                data = yaml.safe_load(f) or {}
             return cls.model_validate(data)
         except Exception as e:
-            raise ConfigurationError(f"Failed to parse YAML configuration: {e}") from e
+            raise ConfigurationError(f"Failed to validate configuration: {e}") from e

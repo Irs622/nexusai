@@ -25,3 +25,9 @@ paths:
   workspace_dir: "~/.nexusai"
   plugins_dir: "plugins"
   storage_dir: "storage"
+
+api:
+  allowed_origins:
+    - "http://localhost:8000"
+  allow_credentials: false
+

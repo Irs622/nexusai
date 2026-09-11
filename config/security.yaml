@@ -1,8 +1,8 @@
 # Security Configuration & Blacklists
 
 security:
-  strict_mode: false
-  auto_approve_low_risk: true
+  strict_mode: true
+  auto_approve_low_risk: false
   
   # Command blacklists for shell execution
   forbidden_commands:
@@ -23,3 +23,9 @@ security:
     - "/sbin"
     - "/etc"
     - "/var"
+    - "~/.ssh"
+    - "~/.aws"
+    - "~/.config"
+    - "~/.gnupg"
+    - "~/Library/Keychains"
+    - "/var/run/docker.sock"

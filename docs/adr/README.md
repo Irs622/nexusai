@@ -48,6 +48,7 @@ This directory documents key architectural decisions made during the design, imp
 | [ADR 0023](0023-oci-container-and-grpc-sandbox-execution-gateway.md) | OCI Container & gRPC MicroVM Sandbox Execution Gateway | Accepted | Security & Sandbox Isolation |
 | [ADR 0024](0024-nexusai-studio-interactive-dag-and-audit-visualizer.md) | NexusAI Studio — Interactive Web Visualizer for DAG Plans and Audit Chains | Accepted | Studio & Observability |
 | [ADR 0025](0025-cli-scaffolding-create-tool-and-create-mcp.md) | CLI Scaffolding Commands: `nexusai create-tool` and `nexusai create-mcp` | Accepted | CLI & Developer Experience |
+| [ADR 0026](0026-security-hardening-approval-tokens-and-cors.md) | Security Hardening: Server-Side Approval Tokens, CORS Hardening, and Autonomous Bypass Remediation | Accepted | Security & API Gateway |
 
 ---
 
@@ -76,6 +77,7 @@ This matrix maps architectural decisions to their corresponding automated test s
 | **Sustained Soak & Chaos Pipeline** | ADR-0022 | `tests/stress/test_extended_soak_test.py` | Endurance Workload, Memory Drift & Chaos Suite |
 | **OCI Container Sandbox Gateway** | ADR-0023 | `tests/unit/infrastructure/sandbox/test_container_sandbox_gateway.py` | OCI Flags, Capability Policy & Network Socket Suite |
 | **NexusAI Studio Web Visualizer** | ADR-0024 | `tests/unit/api/test_studio_api.py` | DAG Execution, SHA-256 Audit Verification & HITL Suite |
+| **Approval Tokens & CORS Hardening** | ADR-0026 | `tests/unit/security/test_approval_token.py`, `tests/unit/test_api.py` | Cryptographic Token Verification, 403 Replay Gate & CORS Origin Suite |
 
 ---
 
