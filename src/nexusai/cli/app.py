@@ -11,7 +11,14 @@ from dotenv import find_dotenv, load_dotenv
 load_dotenv(find_dotenv(usecwd=True))
 
 from nexusai.cli.chat import start_chat_session
-from nexusai.cli.console import print_banner, print_error, print_info, print_success, print_warning
+from nexusai.cli.console import (
+    console,
+    print_banner,
+    print_error,
+    print_info,
+    print_success,
+    print_warning,
+)
 from nexusai.core.config import SystemConfig
 
 app = typer.Typer(
@@ -335,11 +342,11 @@ def doctor(
     for r in results:
         title = r.name.replace("_", " ").title()
         if r.status == CheckStatus.PASS:
-            print_success(f"[✓] {title}: {r.detail}")
+            console.print(f"[bold green]✓[/bold green] {title}: {r.detail}")
         elif r.status == CheckStatus.FAIL:
-            print_error(f"[✗] {title}: {r.detail}")
+            console.print(f"[bold red]✗[/bold red] {title}: {r.detail}")
         else:
-            print_warning(f"[⚠] {title}: {r.detail}")
+            console.print(f"[bold yellow]⚠[/bold yellow] {title}: {r.detail}")
 
     typer.echo("")
     if exit_code == 0:
