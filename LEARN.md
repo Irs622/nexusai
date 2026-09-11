@@ -47,7 +47,7 @@ By working through this repository and guide, you will master:
 ## 💻 Prerequisites & Environment Setup
 
 ### System Requirements
-- **Python**: Version 3.9, 3.10, 3.11, or 3.12+
+- **Python**: Version 3.12+ (Python 3.12 or newer required)
 - **Git**: Installed and configured
 - **Virtual Environment Tool**: `venv` or `uv`
 

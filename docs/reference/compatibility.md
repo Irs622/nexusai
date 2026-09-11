@@ -30,7 +30,5 @@ last_reviewed: 2026-08-03
 
 | Python Version | Status |
 | :--- | :--- |
-| **Python 3.12** | Recommended & Fully Supported |
-| **Python 3.11** | Supported |
-| **Python 3.9 / 3.10** | Minimal Fallback |
-| **< Python 3.9** | Unsupported |
+| **Python 3.12+** | Required & Fully Supported |
+| **< Python 3.12** | Unsupported (codebase uses modern Python 3.12 syntax) |

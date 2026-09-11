@@ -20,7 +20,7 @@ This document tracks SDK interface stability across NexusAI versions.
 
 | NexusAI Version | Plugin SDK Version | Python Requirement | SDK Status |
 | :--- | :--- | :--- | :--- |
-| `v0.1.x` | `v0.1.0` | Python 3.12+ (3.9 fallback) | Active (`status: draft`) |
+| `v0.1.x` | `v0.1.0` | Python 3.12+ | Active (`status: draft`) |
 
 ---
 
