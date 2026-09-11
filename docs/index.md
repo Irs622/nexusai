@@ -92,7 +92,7 @@ flowchart TD
 ---
 
 ## 🏛️ Governance & ADRs
-- 📋 **[Architecture Decision Records](adr/)** — ADR 0001 to ADR 0027.
+- 📋 **[Architecture Decision Records](adr/)** — ADR 0001 to ADR 0028.
 - 🧠 **[Technical Decisions Rationale](decisions/)** — Why Python, Why SQLite, Why CQRS, Why Typer/Rich, Why Workflow Engine.
 - 📄 **[RFC Proposals](../rfcs/)** — RFC 0001 Core Architecture.
 

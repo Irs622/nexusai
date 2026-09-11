@@ -63,6 +63,12 @@ class SecuritySettings(BaseModel):
     protected_paths: list[str] = Field(default_factory=list)
 
 
+class CapabilityConfig(BaseModel):
+    enabled: bool = True
+    profiles_path: str = "config/capabilities.yaml"
+    default_profile: str = "default"
+
+
 class PathSettings(BaseModel):
     workspace_dir: str = ".nexusai"
     plugins_dir: str = "plugins"
@@ -77,6 +83,7 @@ class SystemConfig(BaseSettings):
     paths: PathSettings = Field(default_factory=PathSettings)
     api: ApiSettings = Field(default_factory=ApiSettings)
     auth: AuthConfig = Field(default_factory=AuthConfig)
+    capability: CapabilityConfig = Field(default_factory=CapabilityConfig)
 
     model_config = SettingsConfigDict(
         env_file=str(_env_file) if _env_file.is_file() else None,

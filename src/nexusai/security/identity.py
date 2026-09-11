@@ -47,6 +47,9 @@ _CURRENT_IDENTITY: contextvars.ContextVar[Identity | None] = contextvars.Context
 )
 
 
+from collections.abc import Generator
+from contextlib import contextmanager
+
 from nexusai.core.errors import AuthenticationError
 
 
@@ -98,3 +101,13 @@ class TenantContext:
     def reset(token: contextvars.Token[Identity | None]) -> None:
         """Reset ambient identity context using token."""
         _CURRENT_IDENTITY.reset(token)
+
+    @staticmethod
+    @contextmanager
+    def scope(identity: Identity | None) -> Generator[None, None, None]:
+        """Context manager for temporary ambient identity scope."""
+        token = _CURRENT_IDENTITY.set(identity)
+        try:
+            yield
+        finally:
+            _CURRENT_IDENTITY.reset(token)

@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import re
+import shlex
 import time
 from enum import Enum
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
@@ -15,6 +18,8 @@ from nexusai.core.errors import SecurityError
 from nexusai.logging.logger import log_audit
 from nexusai.security.approval_token import ApprovalTokenService
 from nexusai.security.authorization import RbacEngine
+from nexusai.security.capability import CapabilityResolver
+from nexusai.security.identity import Identity, Role, TenantContext
 from nexusai.security.sanitizer import InputSanitizer
 
 
@@ -35,6 +40,81 @@ class ActionRequest(BaseModel):
     execution_id: str = ""
 
 
+def extract_command_binaries(command_str: str) -> list[str]:
+    """Extract all distinct command binaries invoked in a shell command string.
+
+    Deconstructs command chains, pipes, conditional operators, background tokens,
+    subshells, and environment variable prefixes to prevent injection or chaining bypasses.
+    """
+    if not command_str or not command_str.strip():
+        return []
+
+    # 1. Extract subshell contents from $(...) and `...`
+    sub_cmds: list[str] = []
+    for sub in re.findall(r"\$\((.*?)\)", command_str):
+        sub_cmds.append(sub)
+    for sub in re.findall(r"`(.*?)`", command_str):
+        sub_cmds.append(sub)
+
+    # Clean subshell expressions from main command
+    clean_main = re.sub(r"\$\(.*?\)", " ", command_str)
+    clean_main = re.sub(r"`.*?`", " ", clean_main)
+
+    all_chunks = [clean_main] + sub_cmds
+    binaries: list[str] = []
+    separator_pattern = re.compile(r";|&&|\|\||\||&|\n")
+
+    for chunk in all_chunks:
+        segments = separator_pattern.split(chunk)
+        for seg in segments:
+            seg = seg.strip().strip("()")
+            if not seg:
+                continue
+
+            try:
+                tokens = shlex.split(seg)
+            except Exception:
+                tokens = seg.split()
+
+            if not tokens:
+                continue
+
+            idx = 0
+            # Skip environment variable assignments (KEY=VAL)
+            while idx < len(tokens) and "=" in tokens[idx] and not tokens[idx].startswith("-"):
+                idx += 1
+
+            if idx >= len(tokens):
+                continue
+
+            token = tokens[idx]
+            wrappers = {"env", "sudo", "nohup", "timeout", "nice", "xargs"}
+            base_token = Path(token).name
+            binaries.append(base_token)
+
+            if base_token in wrappers and idx + 1 < len(tokens):
+                next_idx = idx + 1
+                while next_idx < len(tokens) and tokens[next_idx].startswith("-"):
+                    next_idx += 1
+                if base_token == "timeout" and next_idx < len(tokens):
+                    try:
+                        float(tokens[next_idx])
+                        next_idx += 1
+                    except ValueError:
+                        pass
+                if next_idx < len(tokens):
+                    binaries.append(Path(tokens[next_idx]).name)
+
+    seen: set[str] = set()
+    result: list[str] = []
+    for b in binaries:
+        b_clean = b.strip("'\"")
+        if b_clean and b_clean not in seen:
+            seen.add(b_clean)
+            result.append(b_clean)
+    return result
+
+
 class SecurityGuard:
     """Evaluates security permissions, sanitizes inputs, and orchestrates security policy checks.
 
@@ -48,7 +128,7 @@ class SecurityGuard:
         approval_service: ApprovalTokenService | None = None,
         auth_middleware: Any | None = None,
         rbac_engine: Any | None = None,
-        capability_resolver: Any | None = None,
+        capability_resolver: CapabilityResolver | None = None,
         human_approval_engine: Any | None = None,
     ) -> None:
         self.settings = settings
@@ -59,8 +139,81 @@ class SecurityGuard:
         self.approval_service = approval_service or ApprovalTokenService()
         self.auth_middleware = auth_middleware
         self.rbac_engine = rbac_engine or RbacEngine()
-        self.capability_resolver = capability_resolver
+        self.capability_resolver = (
+            capability_resolver
+            if capability_resolver is not None
+            else CapabilityResolver.from_yaml("config/capabilities.yaml")
+        )
         self.human_approval_engine = human_approval_engine
+
+    def _map_request_to_capability(
+        self, request: ActionRequest
+    ) -> tuple[str, str, str, dict[str, Any]]:
+        """Map an ActionRequest to capability domain, action, resource, and execution context."""
+        action_name = request.action_name
+        params = request.parameters
+        context: dict[str, Any] = dict(params)
+
+        tool_name = action_name.removeprefix("tool:")
+
+        # 1. Shell domain
+        if tool_name in ("execute_terminal", "terminal"):
+            cmd = params.get("command", "")
+            binary = cmd.strip().split()[0] if cmd.strip() else "*"
+            context["command"] = cmd
+            if "timeout" in params:
+                context["duration_seconds"] = float(params["timeout"])
+            elif "timeout_seconds" in params:
+                context["duration_seconds"] = float(params["timeout_seconds"])
+            return "shell", "execute", binary, context
+
+        # 2. Filesystem domain
+        if tool_name in ("workspace_read_file", "read_file"):
+            target_path = params.get("file_path", params.get("path", "*"))
+            context["path"] = target_path
+            return "filesystem", "read", target_path, context
+
+        if tool_name in ("workspace_write_file", "write_file"):
+            target_path = params.get("file_path", params.get("path", "*"))
+            context["path"] = target_path
+            return "filesystem", "write", target_path, context
+
+        if tool_name in ("workspace_list_directory", "list_directory"):
+            target_path = params.get("path", "*")
+            context["path"] = target_path
+            return "filesystem", "list", target_path, context
+
+        # 3. Network domain
+        if tool_name in ("network_tool", "fetch_url", "http_request") or "url" in params:
+            url = params.get("url", "")
+            import urllib.parse
+
+            parsed = urllib.parse.urlparse(url)
+            host = parsed.hostname or url or "*"
+            context["url"] = url
+            context["host"] = host
+            method = params.get("method", "GET").upper()
+            action = "http_get" if method == "GET" else "http_post"
+            return "network", action, host, context
+
+        # 4. MCP domain
+        if tool_name.startswith("mcp_") or "server_name" in params:
+            mcp_resource = params.get("tool_name") or tool_name.removeprefix("mcp_")
+            return "mcp", "invoke", mcp_resource, context
+
+        # 5. Memory domain
+        if tool_name.startswith("memory_") or "memory" in tool_name:
+            action = "read" if "read" in tool_name or "search" in tool_name else "write"
+            ns = params.get("namespace", "*")
+            return "memory", action, ns, context
+
+        # 6. Applescript domain
+        if "applescript" in tool_name or "osascript" in tool_name:
+            app = params.get("app", "*")
+            return "applescript", "execute", app, context
+
+        # Default tool execution fallback
+        return "tool", "execute", tool_name, context
 
     def evaluate_permission(
         self,
@@ -75,7 +228,7 @@ class SecurityGuard:
         Flow:
         1. Auth / Identity validation (if configured).
         2. RBAC role permissions check (if configured).
-        3. Fine-grained Capability resolution (if configured).
+        3. Fine-grained Capability resolution (positive default-deny check).
         4. Sanitizer validation for commands and paths.
         5. Approval check based on risk level and approval token validity.
 
@@ -86,8 +239,11 @@ class SecurityGuard:
             SecurityError: If an explicit security policy violation, forbidden pattern,
                 tampered path, or invalid/replayed/expired approval token occurs.
         """
+        ambient_identity = TenantContext.get_current_identity()
         eff_token = approval_token or request.approval_token
         eff_user_id = user_id if user_id != "anonymous" else request.user_id
+        if eff_user_id == "anonymous" and ambient_identity is not None:
+            eff_user_id = ambient_identity.user_id
         eff_execution_id = execution_id or request.execution_id
 
         # 1. Identity & Auth gate (#31 hook)
@@ -108,16 +264,95 @@ class SecurityGuard:
                 )
                 return False
 
-        # 3. Capability resolution gate (#34 hook)
-        if self.capability_resolver is not None and hasattr(
-            self.capability_resolver, "is_permitted"
-        ):
-            if not self.capability_resolver.is_permitted(eff_user_id, request):
-                log_audit(
-                    "ACTION_DENIED_CAPABILITY",
-                    {"action": request.action_name, "user": eff_user_id},
+        # 3. Capability resolution gate (#34 positive capability check)
+        if self.capability_resolver is not None:
+            identity = TenantContext.get_current_identity()
+            if identity is None:
+                # Backwards-compatible ambient fallback when invoked outside HTTP middleware
+                identity = Identity(
+                    tenant_id="default",
+                    user_id=eff_user_id,
+                    role=(
+                        Role.ADMIN
+                        if eff_user_id in ("admin", "system", "anonymous")
+                        else Role.OPERATOR
+                    ),
                 )
-                return False
+
+            domain, cap_action, resource, cap_context = self._map_request_to_capability(request)
+
+            # For shell execution, evaluate EVERY command binary in the pipeline/chain
+            if domain == "shell" and cap_action == "execute":
+                cmd_str = str(cap_context.get("command", ""))
+                binaries = extract_command_binaries(cmd_str)
+                if not binaries:
+                    binaries = [resource]
+
+                for bin_name in binaries:
+                    bin_ctx = dict(cap_context)
+                    bin_ctx["command"] = bin_name
+                    is_allowed, matched_cap, denial_reason = self.capability_resolver.evaluate(
+                        identity, "shell", "execute", bin_name, bin_ctx
+                    )
+                    if not is_allowed:
+                        log_audit(
+                            "ACTION_DENIED_CAPABILITY",
+                            {
+                                "action": request.action_name,
+                                "user": identity.user_id,
+                                "domain": "shell",
+                                "capability_action": "execute",
+                                "resource": bin_name,
+                                "reason": denial_reason
+                                or f"Shell command '{bin_name}' denied by capability policy",
+                            },
+                        )
+                        raise SecurityError(
+                            f"Capability access denied for shell command '{bin_name}': {denial_reason}",
+                            details={
+                                "user_id": identity.user_id,
+                                "domain": "shell",
+                                "action": "execute",
+                                "resource": bin_name,
+                                "reason": denial_reason or "Access denied by capability policy",
+                            },
+                        )
+            else:
+                is_allowed, matched_cap, denial_reason = self.capability_resolver.evaluate(
+                    identity, domain, cap_action, resource, cap_context
+                )
+                if not is_allowed:
+                    log_audit(
+                        "ACTION_DENIED_CAPABILITY",
+                        {
+                            "action": request.action_name,
+                            "user": identity.user_id,
+                            "domain": domain,
+                            "capability_action": cap_action,
+                            "resource": resource,
+                            "reason": denial_reason or "Access denied by capability policy",
+                        },
+                    )
+                    raise SecurityError(
+                        f"Capability access denied: {denial_reason}",
+                        details={
+                            "user_id": identity.user_id,
+                            "domain": domain,
+                            "action": cap_action,
+                            "resource": resource,
+                            "reason": denial_reason or "Access denied by capability policy",
+                        },
+                    )
+
+            log_audit(
+                "ACTION_PERMITTED_BY_CAPABILITY",
+                {
+                    "action": request.action_name,
+                    "user": identity.user_id,
+                    "domain": domain,
+                    "resource": resource,
+                },
+            )
 
         # 4. Input Sanitizer verification
         if "command" in request.parameters:

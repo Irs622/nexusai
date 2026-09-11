@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🎯 Capability-Based Tool Authorization & Execution Containment (Issue #34 / ADR-0028)
+- `security(capability)`: Implement fine-grained positive capability authorization model (`Capability`, `CapabilityProfile`, `CapabilityResolver`), replacing legacy command blacklists with a default-deny capability evaluation gate.
+- `security(guard)`: Integrate `CapabilityResolver` into `SecurityGuard.evaluate_permission` to map requests to domain, action, resource, and constraint checks before tool execution.
+- `security(fs)`: Enforce workspace-root containment in `ReadFileTool` and `ListDirectoryTool` via `_resolve_safe_path()`, strictly blocking path traversal attempts (`../../`) and symlink escapes.
+- `security(mcp)`: Implement outbound network validation and anti-SSRF protections in `WebFetcherMcpServer`, blocking localhost, RFC1918, link-local, and cloud metadata (169.254.169.254), with hop-by-hop redirect verification.
+- `security(mcp)`: Enforce strict schema validation in `McpToolWrapper`, rejecting unsupported JSON schema types and applying `ConfigDict(extra="forbid")` to dynamic MCP argument models.
+- `security(plugin)`: Enforce pre-import manifest and policy validation in `PluginLoader`, rejecting untrusted modules and validating requested capabilities before invoking `importlib.import_module()`.
+- `config(capability)`: Add `config/capabilities.yaml` defining standard profiles (`unrestricted_admin`, `coding_agent`, `readonly_agent`, `default`) and `CapabilityConfig` in `SystemConfig`.
+- `test(capability)`: Add unit and integration test suites in `tests/unit/security/test_capability.py` (7 tests) and `tests/integration/test_capability_enforcement.py` (10 tests).
+
 ### 🛡️ API Authentication, Role-Based Access Control (RBAC) & Tenant Isolation (Issue #31 / ADR-0027)
 - `security(identity)`: Implement caller identity model (`Identity`) and hierarchical RBAC roles (`Role`: `viewer` < `operator` < `admin` < `system`).
 - `security(auth)`: Add `ApiKeyService` and `AuthMiddleware` supporting API key authentication (`X-NexusAI-API-Key`) with zero plaintext storage (SHA-256 hashes only), key generation, revocation, expiration, and sliding-window rate limiting (100 req/min).

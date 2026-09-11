@@ -17,6 +17,9 @@ __all__ = [
     "ApiKeyService",
     "AuthMiddleware",
     "RbacEngine",
+    "Capability",
+    "CapabilityProfile",
+    "CapabilityResolver",
 ]
 
 
@@ -45,4 +48,8 @@ def __getattr__(name: str) -> Any:
         from nexusai.security.authorization import RbacEngine
 
         return RbacEngine
+    if name in ("Capability", "CapabilityProfile", "CapabilityResolver"):
+        import nexusai.security.capability as _capability
+
+        return getattr(_capability, name)
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")

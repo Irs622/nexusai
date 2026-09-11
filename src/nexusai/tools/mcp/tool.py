@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from loguru import logger
 from pydantic import BaseModel, ConfigDict, Field, create_model
 
 from nexusai.core.errors import ToolExecutionError
@@ -14,7 +15,7 @@ from nexusai.tools.mcp.models import McpToolDefinition
 
 
 def _build_pydantic_model_from_schema(model_name: str, schema: dict[str, Any]) -> type[BaseModel]:
-    """Dynamically generate a Pydantic BaseModel from an MCP tool JSON schema."""
+    """Dynamically generate a Pydantic BaseModel from an MCP tool JSON schema with strict validation."""
     properties = schema.get("properties", {})
     required_fields = set(schema.get("required", []))
     fields: dict[str, Any] = {}
@@ -30,32 +31,48 @@ def _build_pydantic_model_from_schema(model_name: str, schema: dict[str, Any]) -
 
     for prop_name, prop_meta in properties.items():
         if not isinstance(prop_meta, dict):
-            fields[prop_name] = (Any, Field(default=None))
-            continue
+            raise ToolExecutionError(
+                f"Invalid schema property '{prop_name}' in MCP tool: expected dictionary definition"
+            )
 
-        raw_type = prop_meta.get("type", "any")
-        py_type = type_mapping.get(raw_type, Any)
+        raw_type = prop_meta.get("type")
+        is_nullable = False
+        if isinstance(raw_type, list):
+            non_null = [t for t in raw_type if t != "null"]
+            is_nullable = "null" in raw_type
+            if len(non_null) == 1:
+                raw_type = non_null[0]
+
+        if raw_type is None or raw_type not in type_mapping:
+            raise ToolExecutionError(
+                f"Unsupported or unknown JSON Schema type '{raw_type}' for property '{prop_name}' in MCP tool schema"
+            )
+
+        py_type = type_mapping[raw_type]
         prop_desc = prop_meta.get("description", "")
 
-        is_required = prop_name in required_fields
+        is_required = (prop_name in required_fields) and not is_nullable
         default_val = ... if is_required else prop_meta.get("default", None)
 
         fields[prop_name] = (
-            py_type if is_required else py_type | None,
+            py_type if (is_required and not is_nullable) else py_type | None,
             Field(default=default_val, description=prop_desc),
         )
 
     if not fields:
+        logger.warning(
+            f"MCP tool '{model_name}' defines no explicit parameter properties in schema. Enforcing extra='forbid'."
+        )
 
         class GenericMcpInput(BaseModel):
             """Fallback input model for tools with no explicit parameter schema."""
 
-            model_config = ConfigDict(extra="allow")
+            model_config = ConfigDict(extra="forbid")
 
         GenericMcpInput.__name__ = model_name
         return GenericMcpInput
 
-    return create_model(model_name, **fields)
+    return create_model(model_name, __config__=ConfigDict(extra="forbid"), **fields)
 
 
 class McpToolWrapper(BaseTool):

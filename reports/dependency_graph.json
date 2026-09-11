@@ -40,7 +40,7 @@
     "voice",
     "workflow"
   ],
-  "edge_count": 2558,
+  "edge_count": 2592,
   "edges": [
     {
       "source": "root",
@@ -125,6 +125,31 @@
     {
       "source": "api",
       "target": "models",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "security",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "security",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "security",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "security",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "security",
       "file": "api/server.py"
     },
     {
@@ -5546,6 +5571,21 @@
       "source": "context",
       "target": "tools",
       "file": "context/engine.py"
+    },
+    {
+      "source": "core",
+      "target": "core",
+      "file": "core/__init__.py"
+    },
+    {
+      "source": "core",
+      "target": "core",
+      "file": "core/__init__.py"
+    },
+    {
+      "source": "core",
+      "target": "core",
+      "file": "core/__init__.py"
     },
     {
       "source": "core",
@@ -12044,8 +12084,88 @@
     },
     {
       "source": "security",
+      "target": "security",
+      "file": "security/__init__.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/__init__.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/__init__.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/__init__.py"
+    },
+    {
+      "source": "security",
       "target": "core",
       "file": "security/approval_token.py"
+    },
+    {
+      "source": "security",
+      "target": "core",
+      "file": "security/authentication.py"
+    },
+    {
+      "source": "security",
+      "target": "core",
+      "file": "security/authentication.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/authentication.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/authentication.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/authentication.py"
+    },
+    {
+      "source": "security",
+      "target": "core",
+      "file": "security/authorization.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/authorization.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/authorization.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/authorization.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/authorization.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/capability.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/capability.py"
     },
     {
       "source": "security",
@@ -12069,6 +12189,31 @@
     },
     {
       "source": "security",
+      "target": "security",
+      "file": "security/guard.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/guard.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/guard.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/guard.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/guard.py"
+    },
+    {
+      "source": "security",
       "target": "core",
       "file": "security/guard.py"
     },
@@ -12076,6 +12221,11 @@
       "source": "security",
       "target": "brain",
       "file": "security/guard.py"
+    },
+    {
+      "source": "security",
+      "target": "core",
+      "file": "security/identity.py"
     },
     {
       "source": "security",
@@ -12704,6 +12854,21 @@
     },
     {
       "source": "tools",
+      "target": "security",
+      "file": "tools/plugin_loader.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/plugin_loader.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/plugin_loader.py"
+    },
+    {
+      "source": "tools",
       "target": "tools",
       "file": "tools/plugin_loader.py"
     },
@@ -12776,6 +12941,11 @@
       "source": "tools",
       "target": "tools",
       "file": "tools/vision/screen.py"
+    },
+    {
+      "source": "tools",
+      "target": "tools",
+      "file": "tools/workspace/__init__.py"
     },
     {
       "source": "tools",

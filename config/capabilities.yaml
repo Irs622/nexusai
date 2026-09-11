@@ -1,0 +1,57 @@
+# Default Capability Profiles for NexusAI
+
+profiles:
+  unrestricted_admin:
+    description: "Unrestricted administrative access to all domains, actions, and resources"
+    capabilities:
+      - domain: "*"
+        action: "*"
+        resource: "*"
+
+  coding_agent:
+    description: "Software engineering agent profile with workspace file access and curated shell tools"
+    extends: readonly_agent
+    capabilities:
+      - domain: filesystem
+        action: [write]
+        resource: ["/workspace/**", "./**", "/tmp/**"]
+      - domain: tool
+        action: execute
+        resource: "*"
+      - domain: shell
+        action: execute
+        resource: [git, pytest, python, pip, ls, cat, echo, grep, find, mkdir, touch, head, tail]
+        constraints:
+          max_duration_seconds: 120
+      - domain: network
+        action: http_get
+        resource: "*.pypi.org"
+      - domain: memory
+        action: [write]
+        resource: "*"
+
+  readonly_agent:
+    description: "Read-only observation and audit agent"
+    capabilities:
+      - domain: filesystem
+        action: [read, list]
+        resource: ["/workspace/**", "./**", "/tmp/**"]
+      - domain: tool
+        action: execute
+        resource: ["workspace_read_file", "workspace_list_directory", "dummy_tool"]
+      - domain: memory
+        action: [read, search]
+        resource: "*"
+
+  default:
+    description: "Default baseline capabilities for standard operations"
+    capabilities:
+      - domain: filesystem
+        action: [read, list]
+        resource: ["/workspace/**", "./**", "/tmp/**"]
+      - domain: tool
+        action: execute
+        resource: "*"
+      - domain: memory
+        action: read
+        resource: "*"
