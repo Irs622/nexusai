@@ -40,7 +40,7 @@
     "voice",
     "workflow"
   ],
-  "edge_count": 2628,
+  "edge_count": 2690,
   "edges": [
     {
       "source": "root",
@@ -55,6 +55,11 @@
     {
       "source": "api",
       "target": "automation",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "brain",
       "file": "api/server.py"
     },
     {
@@ -159,6 +164,16 @@
     },
     {
       "source": "api",
+      "target": "infrastructure",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "infrastructure",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
       "target": "logging",
       "file": "api/server.py"
     },
@@ -174,7 +189,12 @@
     },
     {
       "source": "api",
-      "target": "security",
+      "target": "runtime",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "runtime",
       "file": "api/server.py"
     },
     {
@@ -209,7 +229,7 @@
     },
     {
       "source": "api",
-      "target": "tools",
+      "target": "security",
       "file": "api/server.py"
     },
     {
@@ -280,6 +300,31 @@
     {
       "source": "api",
       "target": "tools",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "tools",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "brain",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "brain",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "brain",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "brain",
       "file": "api/server.py"
     },
     {
@@ -1825,6 +1870,46 @@
     {
       "source": "brain",
       "target": "brain",
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "logging",
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "security",
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "security",
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "security",
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "security",
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "security",
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "security",
+      "file": "brain/coordinator.py"
+    },
+    {
+      "source": "brain",
+      "target": "security",
       "file": "brain/coordinator.py"
     },
     {
@@ -5424,6 +5509,11 @@
     },
     {
       "source": "cli",
+      "target": "cli",
+      "file": "cli/app.py"
+    },
+    {
+      "source": "cli",
       "target": "core",
       "file": "cli/app.py"
     },
@@ -6716,6 +6806,11 @@
       "source": "infrastructure",
       "target": "brain",
       "file": "infrastructure/persistence/sqlite_execution_journal.py"
+    },
+    {
+      "source": "infrastructure",
+      "target": "brain",
+      "file": "infrastructure/persistence/sqlite_execution_store.py"
     },
     {
       "source": "infrastructure",
@@ -11944,6 +12039,46 @@
     },
     {
       "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/__init__.py"
+    },
+    {
+      "source": "runtime",
       "target": "core",
       "file": "runtime/circuit_breaker.py"
     },
@@ -12089,6 +12224,91 @@
     },
     {
       "source": "runtime",
+      "target": "brain",
+      "file": "runtime/execution_engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "brain",
+      "file": "runtime/execution_engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "brain",
+      "file": "runtime/execution_engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "brain",
+      "file": "runtime/execution_engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "brain",
+      "file": "runtime/execution_engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "brain",
+      "file": "runtime/execution_engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "brain",
+      "file": "runtime/execution_engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "brain",
+      "file": "runtime/execution_engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "core",
+      "file": "runtime/execution_engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "infrastructure",
+      "file": "runtime/execution_engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "logging",
+      "file": "runtime/execution_engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/execution_engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/execution_engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "security",
+      "file": "runtime/execution_engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "brain",
+      "file": "runtime/execution_engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "brain",
+      "file": "runtime/execution_engine.py"
+    },
+    {
+      "source": "runtime",
+      "target": "core",
+      "file": "runtime/execution_semantics.py"
+    },
+    {
+      "source": "runtime",
       "target": "core",
       "file": "runtime/middleware.py"
     },
@@ -12106,6 +12326,46 @@
       "source": "runtime",
       "target": "providers",
       "file": "runtime/middleware.py"
+    },
+    {
+      "source": "runtime",
+      "target": "brain",
+      "file": "runtime/recovery.py"
+    },
+    {
+      "source": "runtime",
+      "target": "brain",
+      "file": "runtime/recovery.py"
+    },
+    {
+      "source": "runtime",
+      "target": "brain",
+      "file": "runtime/recovery.py"
+    },
+    {
+      "source": "runtime",
+      "target": "core",
+      "file": "runtime/recovery.py"
+    },
+    {
+      "source": "runtime",
+      "target": "infrastructure",
+      "file": "runtime/recovery.py"
+    },
+    {
+      "source": "runtime",
+      "target": "logging",
+      "file": "runtime/recovery.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/recovery.py"
+    },
+    {
+      "source": "runtime",
+      "target": "runtime",
+      "file": "runtime/recovery.py"
     },
     {
       "source": "runtime",
@@ -12195,6 +12455,16 @@
     {
       "source": "runtime",
       "target": "core",
+      "file": "runtime/retry_policy.py"
+    },
+    {
+      "source": "runtime",
+      "target": "logging",
+      "file": "runtime/retry_policy.py"
+    },
+    {
+      "source": "runtime",
+      "target": "core",
       "file": "runtime/state_machine.py"
     },
     {
@@ -12246,6 +12516,16 @@
       "source": "runtime",
       "target": "core",
       "file": "runtime/tracing.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/__init__.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/__init__.py"
     },
     {
       "source": "security",
@@ -12409,6 +12689,31 @@
     },
     {
       "source": "security",
+      "target": "logging",
+      "file": "security/output_validator.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/output_validator.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/output_validator.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/output_validator.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/output_validator.py"
+    },
+    {
+      "source": "security",
       "target": "core",
       "file": "security/policy.py"
     },
@@ -12505,6 +12810,11 @@
     {
       "source": "tools",
       "target": "core",
+      "file": "tools/base.py"
+    },
+    {
+      "source": "tools",
+      "target": "runtime",
       "file": "tools/base.py"
     },
     {

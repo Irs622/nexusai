@@ -7,6 +7,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from nexusai.runtime.execution_semantics import ExecutionSemantics
 from nexusai.security.guard import RiskLevel
 from nexusai.tools.base import BaseTool
 
@@ -23,6 +24,7 @@ class ListDirectoryTool(BaseTool):
     name = "workspace_list_directory"
     description = "Lists files and directories at the specified path within workspace."
     risk_level = RiskLevel.LOW
+    execution_semantics = ExecutionSemantics.IDEMPOTENT
     input_schema = ListDirectoryInputSchema
 
     def __init__(self, workspace_root: str | Path | None = None) -> None:
@@ -80,6 +82,7 @@ class ReadFileTool(BaseTool):
     name = "workspace_read_file"
     description = "Reads and returns text content from a specified file path within workspace."
     risk_level = RiskLevel.LOW
+    execution_semantics = ExecutionSemantics.IDEMPOTENT
     input_schema = ReadFileInputSchema
 
     def __init__(self, workspace_root: str | Path | None = None) -> None:

@@ -16,10 +16,16 @@ class ExecutionStatus(str, Enum):
     """Overall status of a persisted DAG execution."""
 
     CREATED = "CREATED"
+    QUEUED = "QUEUED"
     RUNNING = "RUNNING"
-    COMPLETED = "COMPLETED"
-    FAILED = "FAILED"
+    CHECKPOINT = "CHECKPOINT"
+    SUCCEEDED = "SUCCEEDED"
+    COMPLETED = "COMPLETED"  # Backward compatibility alias for SUCCEEDED
+    FAILED_RETRYABLE = "FAILED_RETRYABLE"
+    FAILED_TERMINAL = "FAILED_TERMINAL"
+    FAILED = "FAILED"  # Backward compatibility alias for FAILED_TERMINAL
     CANCELLED = "CANCELLED"
+    TIMED_OUT = "TIMED_OUT"
 
 
 class NodeExecutionStatus(str, Enum):
@@ -63,10 +69,17 @@ class ExecutionRecord:
     plan_id: str
     graph_hash: str
     status: ExecutionStatus = ExecutionStatus.CREATED
-    schema_version: int = 2
+    schema_version: int = 3
     created_at: float = field(default_factory=time.time)
     updated_at: float = field(default_factory=time.time)
     node_records: dict[Any, NodeExecutionRecord] = field(default_factory=dict)
+    worker_id: str | None = None
+    fencing_token: int = 0
+    actor: str = "system"
+    tenant_id: str = "default"
+    idempotency_key: str | None = None
+    retry_count: int = 0
+    cancellation_requested: bool = False
 
 
 def compute_plan_graph_hash(plan_graph: PlanGraph) -> str:

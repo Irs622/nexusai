@@ -127,6 +127,47 @@ class SQLiteExecutionStateStore(IExecutionStateStore):
                         "INSERT OR REPLACE INTO schema_migrations (version, applied_at) VALUES (2, ?)",
                         (time.time(),),
                     )
+                    current_ver = 2
+
+                if current_ver < 3:
+                    # Migration version 3: durable execution state machine, worker leases, fencing tokens, and transitions
+                    for col_def in [
+                        "worker_id TEXT",
+                        "fencing_token INTEGER NOT NULL DEFAULT 0",
+                        "actor TEXT NOT NULL DEFAULT 'system'",
+                        "tenant_id TEXT NOT NULL DEFAULT 'default'",
+                        "idempotency_key TEXT",
+                        "retry_count INTEGER NOT NULL DEFAULT 0",
+                        "cancellation_requested INTEGER NOT NULL DEFAULT 0",
+                    ]:
+                        try:
+                            conn.execute(f"ALTER TABLE executions ADD COLUMN {col_def}")
+                        except sqlite3.OperationalError:
+                            pass
+
+                    conn.execute("""
+                        CREATE TABLE IF NOT EXISTS execution_state_transitions (
+                            transition_id TEXT PRIMARY KEY,
+                            execution_id TEXT NOT NULL,
+                            from_state TEXT NOT NULL,
+                            to_state TEXT NOT NULL,
+                            actor TEXT NOT NULL,
+                            worker_id TEXT NOT NULL,
+                            fencing_token INTEGER NOT NULL,
+                            timestamp REAL NOT NULL,
+                            reason TEXT,
+                            metadata_json TEXT,
+                            FOREIGN KEY (execution_id) REFERENCES executions(execution_id) ON DELETE CASCADE
+                        )
+                    """)
+                    conn.execute("""
+                        CREATE INDEX IF NOT EXISTS idx_exec_transitions
+                        ON execution_state_transitions(execution_id, timestamp)
+                    """)
+                    conn.execute(
+                        "INSERT OR REPLACE INTO schema_migrations (version, applied_at) VALUES (3, ?)",
+                        (time.time(),),
+                    )
         finally:
             conn.close()
 
@@ -165,17 +206,27 @@ class SQLiteExecutionStateStore(IExecutionStateStore):
             with conn:
                 conn.execute(
                     """
-                    INSERT INTO executions (execution_id, plan_id, graph_hash, status, schema_version, created_at, updated_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO executions (
+                        execution_id, plan_id, graph_hash, status, schema_version, created_at, updated_at,
+                        worker_id, fencing_token, actor, tenant_id, idempotency_key, retry_count, cancellation_requested
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         record.execution_id,
                         record.plan_id,
                         record.graph_hash,
                         record.status.value,
-                        2,
+                        3,
                         record.created_at,
                         record.updated_at,
+                        record.worker_id,
+                        record.fencing_token,
+                        record.actor,
+                        record.tenant_id,
+                        record.idempotency_key,
+                        record.retry_count,
+                        1 if record.cancellation_requested else 0,
                     ),
                 )
                 for node_id, node_rec in record.node_records.items():
@@ -223,6 +274,7 @@ class SQLiteExecutionStateStore(IExecutionStateStore):
             if row is None:
                 return None
 
+            row_keys = row.keys() if hasattr(row, "keys") else []
             exec_record = ExecutionRecord(
                 execution_id=row["execution_id"],
                 plan_id=row["plan_id"],
@@ -231,6 +283,17 @@ class SQLiteExecutionStateStore(IExecutionStateStore):
                 schema_version=row["schema_version"],
                 created_at=row["created_at"],
                 updated_at=row["updated_at"],
+                worker_id=row["worker_id"] if "worker_id" in row_keys else None,
+                fencing_token=row["fencing_token"] if "fencing_token" in row_keys else 0,
+                actor=row["actor"] if "actor" in row_keys else "system",
+                tenant_id=row["tenant_id"] if "tenant_id" in row_keys else "default",
+                idempotency_key=row["idempotency_key"] if "idempotency_key" in row_keys else None,
+                retry_count=row["retry_count"] if "retry_count" in row_keys else 0,
+                cancellation_requested=(
+                    bool(row["cancellation_requested"])
+                    if "cancellation_requested" in row_keys
+                    else False
+                ),
             )
 
             node_rows = conn.execute(
@@ -432,5 +495,201 @@ class SQLiteExecutionStateStore(IExecutionStateStore):
                     """,
                     (status.value, now, execution_id),
                 )
+        finally:
+            conn.close()
+
+    async def record_state_transition(
+        self,
+        execution_id: str,
+        from_state: str,
+        to_state: str,
+        actor: str,
+        worker_id: str,
+        fencing_token: int,
+        reason: str = "",
+        metadata: dict[str, Any] | None = None,
+    ) -> bool:
+        """Record an atomic, durable, actor-attributed, idempotent state transition with fencing check."""
+        return await asyncio.to_thread(
+            self._sync_record_state_transition,
+            execution_id,
+            from_state,
+            to_state,
+            actor,
+            worker_id,
+            fencing_token,
+            reason,
+            metadata,
+        )
+
+    def _sync_record_state_transition(
+        self,
+        execution_id: str,
+        from_state: str,
+        to_state: str,
+        actor: str,
+        worker_id: str,
+        fencing_token: int,
+        reason: str = "",
+        metadata: dict[str, Any] | None = None,
+    ) -> bool:
+        conn = self._get_connection()
+        try:
+            with conn:
+                row = conn.execute(
+                    "SELECT status, fencing_token FROM executions WHERE execution_id = ?",
+                    (execution_id,),
+                ).fetchone()
+                if not row:
+                    raise ValueError(f"Execution '{execution_id}' not found in state store")
+
+                current_status = row["status"]
+                current_token = row["fencing_token"] or 0
+
+                # Idempotency check: same state transition applied twice is a no-op!
+                if current_status == to_state:
+                    return True
+
+                # Fencing token check: reject stale worker holding a token smaller than active token
+                if fencing_token > 0 and fencing_token < current_token:
+                    from nexusai.brain.domain.execution_coordination import FencingTokenError
+
+                    raise FencingTokenError(
+                        f"Fencing token rejection: incoming token {fencing_token} is smaller than current active token {current_token}"
+                    )
+
+                now = time.time()
+                meta_json = self._serialize_json(metadata) if metadata else None
+                trans_id = f"trans-{execution_id}-{time.time_ns()}-{fencing_token}"
+
+                effective_token = max(fencing_token, current_token)
+
+                conn.execute(
+                    """
+                    UPDATE executions
+                    SET status = ?, worker_id = ?, fencing_token = ?, actor = ?, updated_at = ?
+                    WHERE execution_id = ?
+                    """,
+                    (to_state, worker_id, effective_token, actor, now, execution_id),
+                )
+
+                conn.execute(
+                    """
+                    INSERT INTO execution_state_transitions (
+                        transition_id, execution_id, from_state, to_state, actor,
+                        worker_id, fencing_token, timestamp, reason, metadata_json
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        trans_id,
+                        execution_id,
+                        current_status,
+                        to_state,
+                        actor,
+                        worker_id,
+                        effective_token,
+                        now,
+                        reason,
+                        meta_json,
+                    ),
+                )
+                return True
+        finally:
+            conn.close()
+
+    async def get_state_history(self, execution_id: str) -> list[dict[str, Any]]:
+        """Retrieve ordered history of execution state transitions."""
+        return await asyncio.to_thread(self._sync_get_state_history, execution_id)
+
+    def _sync_get_state_history(self, execution_id: str) -> list[dict[str, Any]]:
+        conn = self._get_connection()
+        try:
+            rows = conn.execute(
+                "SELECT * FROM execution_state_transitions WHERE execution_id = ? ORDER BY timestamp ASC, transition_id ASC",
+                (execution_id,),
+            ).fetchall()
+            history: list[dict[str, Any]] = []
+            for r in rows:
+                history.append(
+                    {
+                        "transition_id": r["transition_id"],
+                        "execution_id": r["execution_id"],
+                        "from_state": r["from_state"],
+                        "to_state": r["to_state"],
+                        "actor": r["actor"],
+                        "worker_id": r["worker_id"],
+                        "fencing_token": r["fencing_token"],
+                        "timestamp": r["timestamp"],
+                        "reason": r["reason"],
+                        "metadata": self._deserialize_json(r["metadata_json"]) or {},
+                    }
+                )
+            return history
+        finally:
+            conn.close()
+
+    async def get_stale_or_running_executions(
+        self, states: list[str] | None = None
+    ) -> list[ExecutionRecord]:
+        """Query executions currently in non-terminal states for crash recovery inspection."""
+        return await asyncio.to_thread(self._sync_get_stale_or_running_executions, states)
+
+    def _sync_get_stale_or_running_executions(
+        self, states: list[str] | None = None
+    ) -> list[ExecutionRecord]:
+        conn = self._get_connection()
+        try:
+            target_states = states or [
+                "RUNNING",
+                "QUEUED",
+                "CHECKPOINT",
+                "RETRY_WAIT",
+                "FAILED_RETRYABLE",
+            ]
+            placeholders = ",".join("?" for _ in target_states)
+            rows = conn.execute(
+                f"SELECT execution_id FROM executions WHERE status IN ({placeholders})",
+                target_states,
+            ).fetchall()
+            records: list[ExecutionRecord] = []
+            for r in rows:
+                rec = self._sync_load_execution(r["execution_id"])
+                if rec:
+                    records.append(rec)
+            return records
+        finally:
+            conn.close()
+
+    async def mark_cancellation_requested(self, execution_id: str) -> None:
+        """Atomically set cancellation_requested flag for an execution."""
+        await asyncio.to_thread(self._sync_mark_cancellation_requested, execution_id)
+
+    def _sync_mark_cancellation_requested(self, execution_id: str) -> None:
+        conn = self._get_connection()
+        now = time.time()
+        try:
+            with conn:
+                conn.execute(
+                    "UPDATE executions SET cancellation_requested = 1, updated_at = ? WHERE execution_id = ?",
+                    (now, execution_id),
+                )
+        finally:
+            conn.close()
+
+    async def is_cancellation_requested(self, execution_id: str) -> bool:
+        """Check whether cancellation has been requested or recorded for an execution."""
+        return await asyncio.to_thread(self._sync_is_cancellation_requested, execution_id)
+
+    def _sync_is_cancellation_requested(self, execution_id: str) -> bool:
+        conn = self._get_connection()
+        try:
+            row = conn.execute(
+                "SELECT cancellation_requested, status FROM executions WHERE execution_id = ?",
+                (execution_id,),
+            ).fetchone()
+            if not row:
+                return False
+            return bool(row["cancellation_requested"]) or row["status"] == "CANCELLED"
         finally:
             conn.close()

@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import json
 import sqlite3
-from typing import Sequence
+import time
+from typing import Any, Sequence
 
 from nexusai.brain.domain.execution_recovery import (
     TERMINAL_JOURNAL_PHASES,
@@ -76,6 +77,26 @@ class SQLiteExecutionJournal(IExecutionJournal):
             )
             conn.execute(
                 "CREATE INDEX IF NOT EXISTS idx_journal_timestamp ON execution_journal(timestamp);"
+            )
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS durable_state_journal (
+                    journal_id TEXT PRIMARY KEY,
+                    execution_id TEXT NOT NULL,
+                    from_state TEXT NOT NULL,
+                    to_state TEXT NOT NULL,
+                    actor TEXT NOT NULL,
+                    worker_id TEXT NOT NULL,
+                    fencing_token INTEGER NOT NULL,
+                    reason TEXT NOT NULL,
+                    timestamp REAL NOT NULL,
+                    metadata_json TEXT NOT NULL
+                );
+            """)
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_durable_journal_exec ON durable_state_journal(execution_id);"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_durable_journal_ts ON durable_state_journal(timestamp);"
             )
 
     async def append_entry(self, entry: JournalEntry) -> JournalEntry:
@@ -174,3 +195,67 @@ class SQLiteExecutionJournal(IExecutionJournal):
             audit_hash=row["audit_hash"],
             metadata=meta,
         )
+
+    async def record_durable_state_transition(
+        self,
+        execution_id: str,
+        from_state: str,
+        to_state: str,
+        actor: str = "system",
+        worker_id: str = "worker-01",
+        fencing_token: int = 0,
+        reason: str = "",
+        timestamp: float | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> str:
+        """Record durable execution state transition to the durable state journal."""
+        from uuid import uuid4
+
+        journal_id = f"dsj-{uuid4().hex[:12]}-{time.time_ns()}"
+        ts = timestamp or time.time()
+        meta_json = json.dumps(metadata or {})
+        with self._get_connection() as conn:
+            conn.execute(
+                """
+                INSERT INTO durable_state_journal (
+                    journal_id, execution_id, from_state, to_state, actor,
+                    worker_id, fencing_token, reason, timestamp, metadata_json
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    journal_id,
+                    execution_id,
+                    from_state,
+                    to_state,
+                    actor,
+                    worker_id,
+                    fencing_token,
+                    reason,
+                    ts,
+                    meta_json,
+                ),
+            )
+        return journal_id
+
+    async def get_durable_state_history(self, execution_id: str) -> list[dict[str, Any]]:
+        """Retrieve full ordered durable state transition history for an execution."""
+        with self._get_connection() as conn:
+            rows = conn.execute(
+                "SELECT * FROM durable_state_journal WHERE execution_id = ? ORDER BY timestamp ASC, journal_id ASC",
+                (execution_id,),
+            ).fetchall()
+            return [
+                {
+                    "journal_id": r["journal_id"],
+                    "execution_id": r["execution_id"],
+                    "from_state": r["from_state"],
+                    "to_state": r["to_state"],
+                    "actor": r["actor"],
+                    "worker_id": r["worker_id"],
+                    "fencing_token": r["fencing_token"],
+                    "reason": r["reason"],
+                    "timestamp": r["timestamp"],
+                    "metadata": json.loads(r["metadata_json"]) if r["metadata_json"] else {},
+                }
+                for r in rows
+            ]

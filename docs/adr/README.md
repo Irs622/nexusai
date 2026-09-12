@@ -91,6 +91,7 @@ This matrix maps architectural decisions to their corresponding automated test s
 | **Durable Append-Only Audit Log & Tamper Evidence** | ADR-0030 | `tests/unit/infrastructure/test_sqlite_audit_store.py`, `tests/integration/test_audit_durability.py` | SQLite WAL Append-Only, Zero UPDATE/DELETE, Guarded Demo Endpoints, Monotonic Sequences & Startup Verification |
 | **Agent Runtime Evaluation & Regression** | ADR-0032 | `tests/unit/evals/test_metrics.py`, `tests/unit/evals/test_runner.py`, `tests/unit/cli/test_eval_cmd.py` | 14-Dimension Regression Evaluation Framework, Baseline Comparison & CLI Gate |
 | **LLM Trust Boundaries & Injection Defense** | ADR-0033 | `tests/unit/security/test_trust_boundary.py`, `tests/integration/test_prompt_injection_defense.py` | Content Trust Tagging, Heuristic Sanitization, Structured Delimiters, OutputValidator & Defensive Policies |
+| **Durable Execution Engine & Crash Recovery** | ADR-0034 | `tests/unit/runtime/test_execution_engine.py`, `tests/integration/test_crash_recovery.py` | Persistent State Transitions, Worker Leases, Fencing Tokens, Checkpoint Resume & Crash Recovery Protocol |
 
 
 ---

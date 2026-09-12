@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🔄 Durable Execution Engine with Crash Recovery (Issue #32 / ADR-0034)
+- `feat(runtime)`: Implement `DurableExecutionEngine` with crash-resistant multi-step DAG execution, step-level checkpointing, and monotonic fencing token verification via `IExecutionCoordinator`.
+- `feat(runtime)`: Add persistent execution state machine transitions (`CREATED` → `QUEUED` → `RUNNING` → `CHECKPOINT` → `SUCCEEDED` / `FAILED_RETRYABLE` / `FAILED_TERMINAL` / `CANCELLED` / `TIMED_OUT`) with full transition history logging in both `sqlite_execution_store.py` and `sqlite_execution_journal.py`.
+- `feat(runtime)`: Implement `CrashRecoveryProtocol` running on service startup to detect orphaned/stale executions, verify worker lease validity, and safely resume uncompleted DAG steps.
+- `feat(runtime)`: Implement configurable `DurableRetryPolicy` supporting linear and exponential backoff, full and decorrelated jitter, and transient vs terminal error classification.
+- `feat(runtime)`: Add fine-grained `ExecutionSemantics` (`IDEMPOTENT`, `DEDUPLICATED`, `TRANSACTIONAL`, `AT_LEAST_ONCE`) to `BaseTool`; declare `IDEMPOTENT` on `ReadFileTool`, `ListDirectoryTool`, `GitStatusTool`, `RecallFactTool`, and other read-only tools.
+- `security(runtime)`: Enforce strict request-time security constraint: clients cannot spoof or override `execution_semantics` to force automatic retry on `AT_LEAST_ONCE` tools; semantics are strictly resolved from authoritative tool class declarations in `ToolRegistry`. Require explicit human approval before replaying `AT_LEAST_ONCE` tools with `HIGH` or `CRITICAL` risk.
+- `feat(runtime)`: Add durable cancellation protocol (`POST /api/v1/executions/{execution_id}/cancel`) with persistence that propagates to running tasks and prevents post-recovery execution.
+- `feat(api)`: Expose execution inspection endpoint (`GET /api/v1/executions/{execution_id}`) returning current status, node records, outputs, and full transition history.
+- `refactor(workflow)`: Deprecate volatile `WorkflowGraphEngine` in favor of `DurableExecutionEngine`.
+- `docs(adr)`: Publish ADR 0034 (`docs/adr/0034-durable-execution-engine-and-crash-recovery.md`) specifying the durable execution model, recovery protocol, and lease-fencing invariants.
+- `test(runtime)`: Add unit and integration suites in `tests/unit/runtime/test_execution_engine.py` and `tests/integration/test_crash_recovery.py` verifying checkpoint resume, lease reclamation, durable cancellation, anti-spoofing security constraints, and side-effect approval gates.
+
 ### 📊 Agent Runtime Evaluation and Regression Framework (Issue #35 / ADR-0032)
 - `test(eval)`: Implement standalone agent runtime evaluation and regression framework under `evals/` isolated from production packages (`src/nexusai`) conforming to AGENTS.md Rule 8.
 - `test(eval)`: Track 14 quantitative evaluation dimensions: Task Success Rate, Planning Accuracy, Tool Selection Accuracy, Unnecessary Tool Calls, Hallucinated Arguments Rate, Policy Violation Rate, Recovery Rate, Safety Violation Rate, Latency (p50/p95/p99/avg), Token Cost, Total Cost USD, Prompt Injection Resistance Rate, Data Exfiltration Prevention Rate, and Trust Boundary Violation Rate.

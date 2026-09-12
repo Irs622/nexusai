@@ -7,6 +7,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
+from nexusai.runtime.execution_semantics import ExecutionSemantics
 from nexusai.security.guard import RiskLevel
 from nexusai.tools.base import BaseTool
 
@@ -23,6 +24,7 @@ class GitStatusTool(BaseTool):
     name = "workspace_git_status"
     description = "Checks and returns current Git branch and working tree status."
     risk_level = RiskLevel.LOW
+    execution_semantics = ExecutionSemantics.IDEMPOTENT
     input_schema = EmptyInputSchema
 
     async def execute(self, **kwargs: Any) -> str:

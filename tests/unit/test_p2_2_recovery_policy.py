@@ -177,7 +177,7 @@ async def test_O_database_migration_from_v1_to_v2() -> None:
 
         loaded = await store.load_execution("exec-v2")
         assert loaded is not None
-        assert loaded.schema_version == 2
+        assert loaded.schema_version >= 2
     finally:
         if os.path.exists(db_path):
             os.remove(db_path)

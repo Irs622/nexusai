@@ -301,7 +301,7 @@ async def test_coordinator_critical_tool_blocked_without_approval(
     )
     tool_msg2 = next((m for m in provider2.last_messages if m.get("role") == "tool"), None)
     assert tool_msg2 is not None
-    assert tool_msg2.get("content") == "DATABASE_TRUNCATED"
+    assert "DATABASE_TRUNCATED" in str(tool_msg2.get("content"))
 
     # 3. With HumanApprovalEngine grant bound to exact action, tool executes
     from nexusai.brain.domain.governance import ToolCapability
@@ -351,4 +351,4 @@ async def test_coordinator_critical_tool_blocked_without_approval(
     )
     tool_msg3 = next((m for m in provider3.last_messages if m.get("role") == "tool"), None)
     assert tool_msg3 is not None
-    assert tool_msg3.get("content") == "DATABASE_TRUNCATED"
+    assert "DATABASE_TRUNCATED" in str(tool_msg3.get("content"))

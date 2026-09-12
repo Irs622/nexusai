@@ -155,3 +155,38 @@ def test_api_cors_hardening(api_client: TestClient) -> None:
     assert response.status_code == 200
     assert response.headers.get("access-control-allow-origin") == "http://localhost:8000"
     assert response.headers.get("access-control-allow-origin") != "*"
+
+
+def test_execution_state_and_cancel_endpoints(api_client: TestClient) -> None:
+    """Test GET /api/v1/executions/{id} and POST /api/v1/executions/{id}/cancel."""
+    # 1. Trigger DAG execution
+    resp = api_client.post(
+        "/api/v1/dag/execute",
+        json={
+            "plan_id": "incident_response",
+            "execution_id": "exec-api-test-01",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["status"] == "EXECUTION_STARTED"
+    exec_id = data["execution_id"]
+
+    # 2. Query execution state
+    get_resp = api_client.get(f"/api/v1/executions/{exec_id}")
+    assert get_resp.status_code == 200
+    state_data = get_resp.json()
+    assert state_data["execution_id"] == exec_id
+    assert "status" in state_data
+    assert "node_records" in state_data
+    assert "state_history" in state_data
+
+    # 3. Cancel execution
+    cancel_resp = api_client.post(
+        f"/api/v1/executions/{exec_id}/cancel",
+        params={"reason": "Test cancellation"},
+    )
+    assert cancel_resp.status_code == 200
+    cancel_data = cancel_resp.json()
+    assert cancel_data["status"] == "CANCELLED"
+    assert cancel_data["cancelled"] is True

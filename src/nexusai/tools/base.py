@@ -8,6 +8,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from nexusai.core.annotations import stable
+from nexusai.runtime.execution_semantics import ExecutionSemantics
 from nexusai.security.guard import RiskLevel
 
 
@@ -19,6 +20,7 @@ class BaseTool(ABC):
     description: str
     risk_level: RiskLevel
     input_schema: type[BaseModel]
+    execution_semantics: ExecutionSemantics = ExecutionSemantics.AT_LEAST_ONCE  # safe default
 
     @abstractmethod
     def execute(self, *args: Any, **kwargs: Any) -> Any:

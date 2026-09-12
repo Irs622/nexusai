@@ -23,6 +23,7 @@ load_dotenv(find_dotenv(usecwd=True))
 from nexusai.automation.scheduler import SchedulerService
 from nexusai.brain.coordinator import BrainCoordinator
 from nexusai.brain.domain.audit import GENESIS_HASH, AuditEvent
+from nexusai.brain.domain.execution_coordination import WorkerIdentity
 from nexusai.brain.ports.audit_store_port import IAuditStore
 from nexusai.bus.bus import CommandBus, EventBus
 from nexusai.bus.commands import ExecuteToolCommand, ExecuteToolCommandHandler
@@ -42,9 +43,16 @@ from nexusai.infrastructure.idempotency import (
 )
 from nexusai.infrastructure.observability.redaction import sanitize_secrets_recursive
 from nexusai.infrastructure.persistence.sqlite_audit_store import SQLiteAuditStore
+from nexusai.infrastructure.persistence.sqlite_execution_coordinator import (
+    SQLiteExecutionCoordinator,
+)
+from nexusai.infrastructure.persistence.sqlite_execution_journal import SQLiteExecutionJournal
+from nexusai.infrastructure.persistence.sqlite_execution_store import SQLiteExecutionStateStore
 from nexusai.logging.logger import logger
 from nexusai.memory.sqlite_memory import SQLiteMemory
 from nexusai.models.openai_provider import OpenAIProvider
+from nexusai.runtime.execution_engine import DurableExecutionEngine
+from nexusai.runtime.recovery import CrashRecoveryProtocol
 from nexusai.security.authentication import ApiKeyService, AuthMiddleware
 from nexusai.security.guard import RiskLevel, SecurityGuard
 from nexusai.security.identity import Identity, Role, TenantContext
@@ -568,6 +576,28 @@ def create_app(
     )
     command_bus.register(ExecuteToolCommand, handler)
 
+    # Coordinator & Durable Execution Infrastructure
+    exec_db_path = os.getenv("NEXUSAI_EXECUTION_DB", ":memory:")
+    coord_db_path = os.getenv("NEXUSAI_COORDINATOR_DB", ":memory:")
+    exec_store = SQLiteExecutionStateStore(db_path=exec_db_path)
+    exec_journal = SQLiteExecutionJournal(db_path=exec_db_path)
+    exec_coord = SQLiteExecutionCoordinator(db_path=coord_db_path)
+    api_worker = WorkerIdentity(worker_id=os.getenv("NEXUSAI_WORKER_ID", "worker-api-01"))
+    durable_engine = DurableExecutionEngine(
+        store=exec_store,
+        coordinator=exec_coord,
+        audit_store=aud_store,
+        worker_identity=api_worker,
+        tool_registry=registry,
+        journal=exec_journal,
+    )
+    crash_recovery = CrashRecoveryProtocol(
+        store=exec_store,
+        coordinator=exec_coord,
+        engine=durable_engine,
+        worker_identity=api_worker,
+    )
+
     # Memory & Coordinator
     memory = SQLiteMemory(db_path=db_path)
     try:
@@ -601,6 +631,16 @@ def create_app(
                 f"Audit log integrity verification PASSED on startup ({startup_verification.event_count} events verified)."
             )
 
+        # Startup crash recovery
+        try:
+            recovery_report = await crash_recovery.run_startup_recovery()
+            logger.info(
+                f"Startup crash recovery completed: {recovery_report.reclaimed_count} reclaimed, "
+                f"{recovery_report.cancelled_count} cancelled, {recovery_report.skipped_active_count} active skipped."
+            )
+        except Exception as rec_err:
+            logger.warning(f"Startup crash recovery encountered error: {rec_err}")
+
         # Load MCP configuration if present
         mcp_cfg_path = Path("config/mcp_servers.yaml")
         if mcp_cfg_path.exists():
@@ -624,6 +664,10 @@ def create_app(
     )
     app.state.idempotency_store = idem_store
     app.state.audit_store = aud_store
+    app.state.execution_store = exec_store
+    app.state.execution_coordinator = exec_coord
+    app.state.durable_engine = durable_engine
+    app.state.crash_recovery = crash_recovery
     app.state.studio_demo_mode = is_demo_mode
     app.state.audit_compromised = False
 
@@ -1147,6 +1191,13 @@ def create_app(
 
         tenant_id = identity.tenant_id if identity else "default"
         user_id = identity.user_id if identity else "anonymous"
+        if identity and identity.user_id:
+            actor_name = identity.user_id
+        elif auth_enabled:
+            actor_name = "nexusai-agent"
+        else:
+            actor_name = "local-user"
+
         effective_key = x_idempotency_key or req.idempotency_key
 
         if effective_key:
@@ -1160,20 +1211,20 @@ def create_app(
                     idempotency_key=effective_key,
                     fingerprint=fingerprint,
                 )
-            except IdempotencyPayloadMismatchError as pme:
-                raise HTTPException(status_code=409, detail=str(pme)) from pme
-            except IdempotencyConflictError as ce:
-                raise HTTPException(status_code=409, detail=str(ce)) from ce
+            except IdempotencyPayloadMismatchError as err:
+                raise HTTPException(status_code=409, detail=str(err))
+            except IdempotencyConflictError as err:
+                raise HTTPException(status_code=409, detail=str(err))
 
             if not should_execute:
+                if record.state == IdempotencyState.RUNNING:
+                    return JSONResponse(
+                        status_code=409,
+                        content={"error": "DAG execution already in progress"},
+                        headers={"Retry-After": "2"},
+                    )
                 if record.state == IdempotencyState.SUCCEEDED:
-                    resp_data = record.response or {
-                        "status": "EXECUTION_STARTED",
-                        "plan_id": req.plan_id,
-                        "execution_id": req.execution_id,
-                        "nodes_count": len(plan["nodes"]),
-                    }
-                    return JSONResponse(content=resp_data, headers={"X-Cache": "HIT"})
+                    return JSONResponse(content=record.response, headers={"X-Cache": "HIT"})
                 if record.state == IdempotencyState.FAILED_TERMINAL:
                     raise HTTPException(
                         status_code=400,
@@ -1181,137 +1232,142 @@ def create_app(
                         headers={"X-Cache": "HIT"},
                     )
 
+        # Persist execution state to SQLite before tool invocation begins
+        exec_store: SQLiteExecutionStateStore = app.state.execution_store
+        existing_exec = await exec_store.load_execution(req.execution_id)
+        if not existing_exec:
+            from nexusai.brain.domain.execution_state import (
+                ExecutionRecord,
+                ExecutionStatus,
+                NodeExecutionRecord,
+                NodeExecutionStatus,
+            )
+
+            node_records = {}
+            for idx, n in enumerate(plan["nodes"]):
+                nid = str(n.get("id", idx + 1))
+                node_records[nid] = NodeExecutionRecord(
+                    execution_id=req.execution_id,
+                    node_id=nid,
+                    status=NodeExecutionStatus.PENDING,
+                    tool_name=str(n.get("tool", "tool")),
+                    arguments=n.get("arguments", {}),
+                )
+            initial_rec = ExecutionRecord(
+                execution_id=req.execution_id,
+                plan_id=req.plan_id,
+                graph_hash=f"hash-{req.plan_id}",
+                status=ExecutionStatus.CREATED,
+                schema_version=3,
+                node_records=node_records,
+                worker_id=os.getenv("NEXUSAI_WORKER_ID", "worker-api-01"),
+                actor=actor_name,
+                tenant_id=tenant_id,
+            )
+            await exec_store.create_execution(initial_rec)
+
         # Reset nodes in plan to PENDING
         for node in plan["nodes"]:
             node["status"] = "PENDING"
             node["latency_ms"] = 0.0
 
-        async def _run_plan_async() -> None:
+        durable_engine: DurableExecutionEngine = app.state.durable_engine
+
+        async def _step_executor(node: dict[str, Any], attempt: int) -> Any:
+            node_id = str(node["id"])
+            node["status"] = "RUNNING"
+            start_t = time.time()
+            broadcast_event(
+                "dag_step_update",
+                {
+                    "plan_id": req.plan_id,
+                    "node_id": node_id,
+                    "status": "RUNNING",
+                    "timestamp": start_t,
+                },
+            )
+
+            await asyncio.sleep(0.18)
+
+            if req.simulate_failure_step == node_id:
+                node["status"] = "FAILED"
+                node["latency_ms"] = round((time.time() - start_t) * 1000, 1)
+                broadcast_event(
+                    "dag_step_update",
+                    {
+                        "plan_id": req.plan_id,
+                        "node_id": node_id,
+                        "status": "FAILED",
+                        "latency_ms": node["latency_ms"],
+                        "error": f"Simulated failure at step {node_id}",
+                    },
+                )
+                raise RuntimeError(f"Simulated failure at step {node_id}")
+
+            node["status"] = "COMPLETED"
+            node["latency_ms"] = round((time.time() - start_t) * 1000, 1)
+            node["output"] = {"status": "success", "executed_tool": node["tool"]}
+
+            tenant_budget = _get_tenant_governance_budget(request)
+            tenant_budget["usage"]["tool_invocations_used"] += 1
+            tenant_budget["usage"]["cpu_seconds_used"] = round(
+                tenant_budget["usage"]["cpu_seconds_used"] + 0.15, 2
+            )
+            tenant_budget["percentages"]["tools"] = round(
+                (
+                    tenant_budget["usage"]["tool_invocations_used"]
+                    / tenant_budget["limits"]["max_tool_invocations"]
+                )
+                * 100,
+                1,
+            )
+
+            broadcast_event(
+                "dag_step_update",
+                {
+                    "plan_id": req.plan_id,
+                    "node_id": node_id,
+                    "status": "COMPLETED",
+                    "latency_ms": node["latency_ms"],
+                    "output": node["output"],
+                },
+            )
+            broadcast_event("budget_updated", tenant_budget)
+            return node["output"]
+
+        async def _run_dag_durable() -> None:
             try:
-                for node in plan["nodes"]:
-                    node_id = str(node["id"])
-                    node["status"] = "RUNNING"
-                    start_t = time.time()
-                    broadcast_event(
-                        "dag_step_update",
-                        {
-                            "plan_id": req.plan_id,
-                            "node_id": node_id,
-                            "status": "RUNNING",
-                            "timestamp": start_t,
-                        },
-                    )
-
-                    await asyncio.sleep(0.18)
-
-                    if req.simulate_failure_step == node_id:
-                        node["status"] = "FAILED"
-                        node["latency_ms"] = round((time.time() - start_t) * 1000, 1)
-                        broadcast_event(
-                            "dag_step_update",
-                            {
-                                "plan_id": req.plan_id,
-                                "node_id": node_id,
-                                "status": "FAILED",
-                                "latency_ms": node["latency_ms"],
-                                "error": f"Simulated failure at step {node_id}",
-                            },
-                        )
-                        if effective_key:
-                            await idem_store.fail_execution(
-                                tenant_id=tenant_id,
-                                user_id=user_id,
-                                idempotency_key=effective_key,
-                                error=f"Simulated failure at step {node_id}",
-                                state=IdempotencyState.FAILED_TRANSIENT,
-                            )
-                        break
-
-                    node["status"] = "COMPLETED"
-                    node["latency_ms"] = round((time.time() - start_t) * 1000, 1)
-                    node["output"] = {"status": "success", "executed_tool": node["tool"]}
-
-                    tenant_chain = _get_tenant_audit_chain(request)
-                    tenant_budget = _get_tenant_governance_budget(request)
-
-                    if identity and identity.user_id:
-                        actor_name = identity.user_id
-                    elif auth_enabled:
-                        actor_name = "nexusai-agent"
-                    else:
-                        actor_name = "local-user"
-
-                    cur_tenant = identity.tenant_id if identity else "default"
-                    audit_store: IAuditStore = app.state.audit_store
-
-                    new_event = AuditEvent(
-                        event_id=f"evt-exec-{int(time.time() * 1000)}",
-                        event_type="TOOL_EXECUTION_COMPLETED",
-                        session_id="studio-session-1",
-                        execution_id=req.execution_id,
-                        plan_fingerprint=f"fp-{req.plan_id}",
-                        sequence_number=0,
-                        timestamp=time.time(),
-                        node_id=node_id,
-                        tool_id=str(node["tool"]),
-                        worker_id="worker-mac-01",
-                        actor=actor_name,
-                        tenant_id=cur_tenant,
-                        outcome="SUCCESS",
-                        severity="INFO",
-                        metadata={
-                            "node_title": node["title"],
-                            "latency_ms": node["latency_ms"],
-                        },
-                    )
-                    persisted_ev = await audit_store.append_event(new_event)
-                    tenant_chain.append(persisted_ev)
-
-                    tenant_budget["usage"]["tool_invocations_used"] += 1
-                    tenant_budget["usage"]["cpu_seconds_used"] = round(
-                        tenant_budget["usage"]["cpu_seconds_used"] + 0.15, 2
-                    )
-                    tenant_budget["percentages"]["tools"] = round(
-                        (
-                            tenant_budget["usage"]["tool_invocations_used"]
-                            / tenant_budget["limits"]["max_tool_invocations"]
-                        )
-                        * 100,
-                        1,
-                    )
-
-                    broadcast_event(
-                        "dag_step_update",
-                        {
-                            "plan_id": req.plan_id,
-                            "node_id": node_id,
-                            "status": "COMPLETED",
-                            "latency_ms": node["latency_ms"],
-                            "output": node["output"],
-                        },
-                    )
-                    broadcast_event("audit_event_created", persisted_ev.to_dict())
-                    broadcast_event("budget_updated", tenant_budget)
-
+                res = await durable_engine.execute_dag(
+                    execution_id=req.execution_id,
+                    plan_id=req.plan_id,
+                    nodes=plan["nodes"],
+                    step_executor=_step_executor,
+                    actor=actor_name,
+                    tenant_id=tenant_id,
+                )
                 broadcast_event(
                     "dag_completed",
                     {
                         "plan_id": req.plan_id,
                         "execution_id": req.execution_id,
+                        "status": res.get("status", "SUCCEEDED"),
                         "completed_at": time.time(),
                     },
                 )
-            except Exception as err:
-                logger.error(f"[DAG Execute] Execution error: {err}")
+            except Exception as d_err:
+                logger.error(f"[Durable DAG Execute] Failed: {d_err}")
                 if effective_key:
                     await idem_store.fail_execution(
                         tenant_id=tenant_id,
                         user_id=user_id,
                         idempotency_key=effective_key,
-                        error=err,
+                        error=d_err,
+                        state=IdempotencyState.FAILED_TRANSIENT,
                     )
 
-        asyncio.create_task(_run_plan_async())
+        dag_task = asyncio.create_task(_run_dag_durable())
+        durable_engine._active_tasks[req.execution_id] = dag_task
+
         resp_data = {
             "status": "EXECUTION_STARTED",
             "plan_id": req.plan_id,
@@ -1328,6 +1384,59 @@ def create_app(
             return JSONResponse(content=resp_data, headers={"X-Cache": "MISS"})
 
         return JSONResponse(content=resp_data)
+
+    @app.post("/api/v1/executions/{execution_id}/cancel")
+    async def cancel_execution_endpoint(
+        execution_id: str,
+        request: Request,
+        reason: str = Query("", description="Cancellation reason"),
+    ) -> dict[str, Any]:
+        """Durably cancel an execution in progress, surviving process restarts."""
+        durable_engine: DurableExecutionEngine = app.state.durable_engine
+        cancelled = await durable_engine.cancel_execution(execution_id, reason=reason)
+        return {
+            "execution_id": execution_id,
+            "status": "CANCELLED",
+            "cancelled": cancelled,
+            "reason": reason,
+        }
+
+    @app.get("/api/v1/executions/{execution_id}")
+    async def get_execution_state_endpoint(
+        execution_id: str,
+        request: Request,
+    ) -> dict[str, Any]:
+        """Retrieve full execution record, node checkpoints, and state transition history."""
+        exec_store: SQLiteExecutionStateStore = app.state.execution_store
+        record = await exec_store.load_execution(execution_id)
+        if not record:
+            raise HTTPException(status_code=404, detail=f"Execution '{execution_id}' not found")
+        history = await exec_store.get_state_history(execution_id)
+        return {
+            "execution_id": record.execution_id,
+            "plan_id": record.plan_id,
+            "graph_hash": record.graph_hash,
+            "status": record.status.value,
+            "worker_id": record.worker_id,
+            "fencing_token": record.fencing_token,
+            "actor": record.actor,
+            "tenant_id": record.tenant_id,
+            "cancellation_requested": record.cancellation_requested,
+            "created_at": record.created_at,
+            "updated_at": record.updated_at,
+            "node_records": {
+                str(k): {
+                    "node_id": v.node_id,
+                    "status": v.status.value,
+                    "tool_name": v.tool_name,
+                    "attempt_count": v.attempt_count,
+                    "output": v.output,
+                    "error_message": v.error_message,
+                }
+                for k, v in record.node_records.items()
+            },
+            "state_history": history,
+        }
 
     @app.get("/api/v1/audit/events")
     async def get_audit_events(

@@ -1,6 +1,7 @@
 """Workflow State Graph Execution Engine for NexusAI."""
 
 import inspect
+import warnings
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
@@ -25,9 +26,19 @@ class WorkflowNode:
 
 
 class WorkflowGraphEngine:
-    """DAG Workflow Engine with state checkpoints, conditional branching, and graceful recovery."""
+    """DAG Workflow Engine with state checkpoints, conditional branching, and graceful recovery.
+
+    .. deprecated:: 1.0.0
+        Use PlanGraphExecutionEngine or DurableExecutionEngine for authoritative, governed, durable execution.
+    """
 
     def __init__(self) -> None:
+        warnings.warn(
+            "WorkflowGraphEngine is deprecated and will be removed in a future release. "
+            "Use PlanGraphExecutionEngine or DurableExecutionEngine instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self.nodes: Dict[str, WorkflowNode] = {}
         self.edges: Dict[str, List[str]] = {}
         self.checkpoints: Dict[str, WorkflowState] = {}

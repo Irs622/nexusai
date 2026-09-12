@@ -9,6 +9,7 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from nexusai.knowledge.vector import VectorKnowledgeBase
+from nexusai.runtime.execution_semantics import ExecutionSemantics
 from nexusai.security.guard import RiskLevel
 from nexusai.tools.base import BaseTool
 
@@ -57,6 +58,7 @@ class RecallFactTool(BaseTool):
         "Searches long-term memory for past facts, preferences, or solutions using semantic search."
     )
     risk_level = RiskLevel.LOW
+    execution_semantics = ExecutionSemantics.IDEMPOTENT
     input_schema = RecallFactInputSchema
 
     def __init__(self, vector_kb: VectorKnowledgeBase | None = None) -> None:
