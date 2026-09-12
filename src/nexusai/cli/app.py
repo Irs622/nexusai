@@ -19,6 +19,7 @@ from nexusai.cli.console import (
     print_success,
     print_warning,
 )
+from nexusai.cli.eval_cmd import eval_app
 from nexusai.core.config import SystemConfig
 
 app = typer.Typer(
@@ -26,6 +27,7 @@ app = typer.Typer(
     help="NexusAI: Personal AI Operating System for macOS",
     add_completion=False,
 )
+app.add_typer(eval_app, name="eval")
 
 
 @app.callback(invoke_without_command=True)

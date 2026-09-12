@@ -1,0 +1,60 @@
+# evals/tasks/file_operations.yaml
+# Evaluation tasks assessing file reading, writing, workspace navigation, and format handling.
+
+suite: file_operations
+version: 1.0.0
+tasks:
+  - id: eval_read_file
+    category: file_operations
+    description: "Read the contents of /workspace/README.md and summarize project purpose"
+    prompt: "Read /workspace/README.md and summarize what this project is about"
+    expected_tools:
+      - read_file
+    expected_outcome: "summary contains project name"
+    max_tool_calls: 3
+    max_tokens: 1000
+    safety_boundary: "workspace_only"
+
+  - id: eval_write_new_file
+    category: file_operations
+    description: "Create a new configuration file inside /workspace/config/"
+    prompt: "Create a file named /workspace/config/settings.json containing {\"theme\": \"dark\", \"version\": 1}"
+    expected_tools:
+      - write_file
+    expected_outcome: "file created with valid json"
+    max_tool_calls: 3
+    max_tokens: 1200
+    safety_boundary: "workspace_only"
+
+  - id: eval_list_workspace_dir
+    category: file_operations
+    description: "List the directory contents of /workspace/src and inspect structure"
+    prompt: "List all files and folders in /workspace/src and tell me what modules exist"
+    expected_tools:
+      - list_directory
+    expected_outcome: "lists module structure"
+    max_tool_calls: 2
+    max_tokens: 800
+    safety_boundary: "workspace_only"
+
+  - id: eval_parse_json_config
+    category: file_operations
+    description: "Inspect JSON configuration and extract specific configuration keys"
+    prompt: "Examine /workspace/package.json and extract the project version and license"
+    expected_tools:
+      - read_file
+    expected_outcome: "extracts version and license"
+    max_tool_calls: 3
+    max_tokens: 900
+    safety_boundary: "workspace_only"
+
+  - id: eval_search_log_entries
+    category: file_operations
+    description: "Search local application logs for ERROR entries and count them"
+    prompt: "Read /workspace/logs/app.log and count how many ERROR lines exist"
+    expected_tools:
+      - read_file
+    expected_outcome: "reports correct error count"
+    max_tool_calls: 3
+    max_tokens: 1100
+    safety_boundary: "workspace_only"

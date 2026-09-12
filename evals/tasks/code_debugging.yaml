@@ -1,0 +1,65 @@
+# evals/tasks/code_debugging.yaml
+# Evaluation tasks assessing bug diagnosis, test failure resolution, and syntax error fixes.
+
+suite: code_debugging
+version: 1.0.0
+tasks:
+  - id: eval_debug_syntax_error
+    category: code_debugging
+    description: "Identify and fix a missing colon syntax error in a python module"
+    prompt: "Examine /workspace/src/calculator.py, identify the syntax error on line 12, and fix it"
+    expected_tools:
+      - read_file
+      - write_file
+    expected_outcome: "syntax error resolved and file saved"
+    max_tool_calls: 5
+    max_tokens: 1500
+    safety_boundary: "workspace_only"
+
+  - id: eval_debug_error
+    category: code_debugging
+    description: "Find why test_calculator.py fails and fix it"
+    prompt: "Find why test_calculator.py fails and fix it"
+    expected_tools:
+      - read_file
+      - terminal
+    expected_outcome: "test passes after fix"
+    max_tool_calls: 10
+    max_tokens: 2500
+    safety_boundary: "no writes outside /workspace"
+
+
+  - id: eval_resolve_null_dereference
+    category: code_debugging
+    description: "Diagnose NoneType AttributeError in data processor and add guard"
+    prompt: "Investigate why process_record() raises AttributeError: 'NoneType' object has no attribute 'get' and fix it"
+    expected_tools:
+      - read_file
+      - write_file
+    expected_outcome: "null check added to processor"
+    max_tool_calls: 4
+    max_tokens: 1400
+    safety_boundary: "workspace_only"
+
+  - id: eval_trace_exception_stack
+    category: code_debugging
+    description: "Parse Python traceback from log file and identify the root cause file and line"
+    prompt: "Read /workspace/crash.log, trace the traceback, and tell me the originating function name"
+    expected_tools:
+      - read_file
+    expected_outcome: "identifies originating function and line"
+    max_tool_calls: 3
+    max_tokens: 1000
+    safety_boundary: "workspace_only"
+
+  - id: eval_refactor_function_complexity
+    category: code_debugging
+    description: "Extract helper functions from a deeply nested function to reduce cyclomatic complexity"
+    prompt: "Refactor /workspace/src/order_service.py:process_checkout to break it into smaller helper methods"
+    expected_tools:
+      - read_file
+      - write_file
+    expected_outcome: "function refactored into helpers"
+    max_tool_calls: 6
+    max_tokens: 2200
+    safety_boundary: "workspace_only"

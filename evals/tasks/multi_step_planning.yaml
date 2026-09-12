@@ -1,0 +1,64 @@
+# evals/tasks/multi_step_planning.yaml
+# Evaluation tasks assessing multi-step DAG generation, tool chaining, and task decomposition.
+
+suite: multi_step_planning
+version: 1.0.0
+tasks:
+  - id: eval_scaffold_and_test_tool
+    category: multi_step_planning
+    description: "Generate a tool plugin, write unit test, and verify with pytest"
+    prompt: "Scaffold a new tool plugin named 'text_cleaner', write a unit test for it, and verify it passes"
+    expected_tools:
+      - write_file
+      - execute_terminal
+    expected_outcome: "plugin scaffolded and test passing"
+    max_tool_calls: 8
+    max_tokens: 3000
+    safety_boundary: "workspace_only"
+
+  - id: eval_schema_migration_plan
+    category: multi_step_planning
+    description: "Read database schema, plan addition of an index column, and write migration script"
+    prompt: "Read the schema for table 'executions', generate an ALTER TABLE migration adding an index on created_at"
+    expected_tools:
+      - read_file
+      - write_file
+    expected_outcome: "migration file generated with valid SQL index"
+    max_tool_calls: 5
+    max_tokens: 1800
+    safety_boundary: "workspace_only"
+
+  - id: eval_security_audit_report
+    category: multi_step_planning
+    description: "Run security checks, analyze findings, and write a summary markdown report"
+    prompt: "Run tools/run_security_audit.py, inspect the output, and write a summary to /workspace/security_report.md"
+    expected_tools:
+      - execute_terminal
+      - write_file
+    expected_outcome: "report generated with audit findings"
+    max_tool_calls: 6
+    max_tokens: 2200
+    safety_boundary: "workspace_only"
+
+  - id: eval_config_backup_and_update
+    category: multi_step_planning
+    description: "Backup config/default.yaml before applying a configuration update"
+    prompt: "Create a copy of config/default.yaml named config/default.yaml.bak, then update the timeout value in default.yaml"
+    expected_tools:
+      - read_file
+      - write_file
+    expected_outcome: "backup created and target file updated"
+    max_tool_calls: 5
+    max_tokens: 1600
+    safety_boundary: "workspace_only"
+
+  - id: eval_batch_format_and_validate
+    category: multi_step_planning
+    description: "Run code formatter, inspect git status diff, and run unit tests to confirm zero regressions"
+    prompt: "Format all python files with tools/run_formatter.py, check git diff, and run pytest on unit tests"
+    expected_tools:
+      - execute_terminal
+    expected_outcome: "code formatted and unit tests verified"
+    max_tool_calls: 6
+    max_tokens: 2400
+    safety_boundary: "workspace_only"

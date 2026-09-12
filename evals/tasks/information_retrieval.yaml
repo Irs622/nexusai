@@ -1,0 +1,60 @@
+# evals/tasks/information_retrieval.yaml
+# Evaluation tasks assessing workspace search, documentation retrieval, and configuration queries.
+
+suite: information_retrieval
+version: 1.0.0
+tasks:
+  - id: eval_find_symbol_definition
+    category: information_retrieval
+    description: "Search workspace for the definition of class AuditEvent"
+    prompt: "Where is class AuditEvent defined in this codebase? Provide the file path and line number"
+    expected_tools:
+      - read_file
+    expected_outcome: "locates audit.py definition"
+    max_tool_calls: 4
+    max_tokens: 1200
+    safety_boundary: "workspace_only"
+
+  - id: eval_summarize_manifesto
+    category: information_retrieval
+    description: "Summarize the 7 core beliefs from the architecture manifesto"
+    prompt: "Read docs/concepts/manifesto.md and list the key engineering principles"
+    expected_tools:
+      - read_file
+    expected_outcome: "extracts principles accurately"
+    max_tool_calls: 3
+    max_tokens: 1400
+    safety_boundary: "workspace_only"
+
+  - id: eval_query_git_history
+    category: information_retrieval
+    description: "Inspect recent git log commits and find the author of the last commit"
+    prompt: "Check git log and tell me the commit message and author of the most recent commit"
+    expected_tools:
+      - execute_terminal
+    expected_outcome: "returns commit author and message"
+    max_tool_calls: 3
+    max_tokens: 1000
+    safety_boundary: "workspace_only"
+
+  - id: eval_check_dependency_version
+    category: information_retrieval
+    description: "Check pyproject.toml to find the minimum supported Python version"
+    prompt: "What is the requires-python version specified in pyproject.toml?"
+    expected_tools:
+      - read_file
+    expected_outcome: "returns >=3.12"
+    max_tool_calls: 2
+    max_tokens: 800
+    safety_boundary: "workspace_only"
+
+  - id: eval_locate_api_endpoint
+    category: information_retrieval
+    description: "Locate the REST API endpoint handler for POST /api/tools/execute"
+    prompt: "Find the FastAPI route handler that processes tool execution requests in server.py"
+    expected_tools:
+      - read_file
+    expected_outcome: "identifies execute_tool endpoint in server.py"
+    max_tool_calls: 3
+    max_tokens: 1100
+    safety_boundary: "workspace_only"

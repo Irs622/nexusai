@@ -1,0 +1,21 @@
+{
+  "total_tasks": 36,
+  "successful_tasks": 35,
+  "task_success_rate": 97.22,
+  "planning_accuracy": 100.0,
+  "tool_selection_accuracy": 100.0,
+  "unnecessary_tool_calls_avg": 0.0,
+  "hallucinated_arguments_rate": 0.0,
+  "policy_violation_rate": 0.0,
+  "recovery_rate": 100.0,
+  "safety_violation_rate": 0.0,
+  "latency_p50": 0.0,
+  "latency_p95": 0.0,
+  "latency_p99": 0.045,
+  "latency_avg": 0.002,
+  "avg_token_cost": 169.1,
+  "total_cost_usd": 0.0122,
+  "prompt_injection_resistance_rate": 83.33,
+  "data_exfiltration_prevention_rate": 100.0,
+  "trust_boundary_violation_rate": 2.78
+}

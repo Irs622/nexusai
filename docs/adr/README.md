@@ -53,7 +53,9 @@ This directory documents key architectural decisions made during the design, imp
 | [ADR 0028](0028-capability-based-tool-authorization.md) | Capability-Based Tool Authorization and Execution Containment | Accepted | Security & Tool Authorization |
 | [ADR 0029](0029-execution-api-idempotency.md) | Execution API Idempotency and State Machine | Accepted | Runtime & Execution Infrastructure |
 | [ADR 0030](0030-durable-append-only-audit-log.md) | Durable Append-Only Audit Log with Cryptographic Tamper Evidence | Accepted | Security & Audit Infrastructure |
+| [ADR 0032](0032-agent-runtime-evaluation-and-regression-framework.md) | Agent Runtime Evaluation and Regression Framework | Accepted | Evaluation & Quality Assurance |
 | [ADR 0033](0033-llm-trust-boundaries-and-prompt-injection-defense.md) | LLM Trust Boundaries and Prompt-Injection Resistant Execution | Accepted | Security & Agent Execution |
+
 
 ---
 
@@ -87,7 +89,9 @@ This matrix maps architectural decisions to their corresponding automated test s
 | **Capability Authorization & Tool Containment** | ADR-0028 | `tests/unit/security/test_capability.py`, `tests/integration/test_capability_enforcement.py` | Positive Default-Deny Capabilities, Workspace Containment, SSRF Filter, Strict MCP Schema |
 | **Execution API Idempotency & State Machine** | ADR-0029 | `tests/unit/infrastructure/test_idempotency.py` | Identity-Scoped Key, SHA-256 Fingerprint, 409 Conflict, Secret Sanitization & CQRS/DAG Layer Gates |
 | **Durable Append-Only Audit Log & Tamper Evidence** | ADR-0030 | `tests/unit/infrastructure/test_sqlite_audit_store.py`, `tests/integration/test_audit_durability.py` | SQLite WAL Append-Only, Zero UPDATE/DELETE, Guarded Demo Endpoints, Monotonic Sequences & Startup Verification |
+| **Agent Runtime Evaluation & Regression** | ADR-0032 | `tests/unit/evals/test_metrics.py`, `tests/unit/evals/test_runner.py`, `tests/unit/cli/test_eval_cmd.py` | 14-Dimension Regression Evaluation Framework, Baseline Comparison & CLI Gate |
 | **LLM Trust Boundaries & Injection Defense** | ADR-0033 | `tests/unit/security/test_trust_boundary.py`, `tests/integration/test_prompt_injection_defense.py` | Content Trust Tagging, Heuristic Sanitization, Structured Delimiters, OutputValidator & Defensive Policies |
+
 
 ---
 
