@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🔒 CI Supply Chain Hardening & Workflow Permissions (Issue #36)
+- `security(ci)`: Pin all 6 third-party GitHub Actions across all 7 workflows to immutable 40-character commit SHAs with semantic version trailing comments (`actions/checkout`, `actions/setup-python`, `actions/upload-artifact`, `github/codeql-action/init`, `github/codeql-action/analyze`, `softprops/action-gh-release`).
+- `security(ci)`: Establish explicit top-level least-privilege `permissions: contents: read` across all 7 GitHub Actions workflows (`architecture-enforcement.yml`, `ci.yml`, `codeql.yml`, `lint.yml`, `release.yml`, `security.yml`, `tests.yml`).
+- `security(ci)`: Restrict elevated write permissions (`contents: write`) strictly to the release publishing job in `release.yml`.
+- `security(ci)`: Add automated SHA256 checksum generation (`SHA256SUMS`) for release distribution artifacts before publishing in `release.yml`.
+- `security(ci)`: Verify Dependabot tracking for `github-actions` updates in `.github/dependabot.yml`.
+
 ### 🔄 Durable Execution Engine with Crash Recovery (Issue #32 / ADR-0034)
 - `feat(runtime)`: Implement `DurableExecutionEngine` with crash-resistant multi-step DAG execution, step-level checkpointing, and monotonic fencing token verification via `IExecutionCoordinator`.
 - `feat(runtime)`: Add persistent execution state machine transitions (`CREATED` → `QUEUED` → `RUNNING` → `CHECKPOINT` → `SUCCEEDED` / `FAILED_RETRYABLE` / `FAILED_TERMINAL` / `CANCELLED` / `TIMED_OUT`) with full transition history logging in both `sqlite_execution_store.py` and `sqlite_execution_journal.py`.
