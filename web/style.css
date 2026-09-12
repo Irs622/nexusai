@@ -1687,3 +1687,59 @@ body {
     box-shadow: 0 0 12px rgba(255, 51, 102, 0.4);
 }
 
+/* ==============================================================================
+   STUDIO SIMULATION / DEMO MODE BANNER (ISSUE #29)
+   ============================================================================== */
+.dag-demo-banner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 18px;
+    margin: 10px 0 14px 0;
+    border-radius: var(--radius-md);
+    background: rgba(255, 184, 0, 0.08);
+    border: 1px solid rgba(255, 184, 0, 0.4);
+    box-shadow: 0 0 16px rgba(255, 184, 0, 0.08);
+    transition: var(--transition-smooth);
+}
+
+.dag-demo-banner .banner-icon {
+    font-size: 18px;
+    color: var(--color-amber);
+    flex-shrink: 0;
+}
+
+.dag-demo-banner .banner-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.dag-demo-banner .banner-title {
+    font-family: var(--font-sans);
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--color-amber);
+}
+
+.dag-demo-banner .banner-desc {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.badge-warning {
+    background: rgba(255, 184, 0, 0.15);
+    border: 1px solid rgba(255, 184, 0, 0.45);
+    color: var(--color-amber);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+

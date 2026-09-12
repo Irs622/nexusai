@@ -14,9 +14,9 @@ NexusAI orchestrates autonomous agent execution plans using Directed Acyclic Gra
 We implement **NexusAI Studio** — an interactive web visualizer and operator console integrated directly with the FastAPI backend:
 
 1. **Architecture & API Endpoints (`nexusai.api.server`)**:
-   - `GET /api/v1/dag/plans`: Lists pre-configured execution plan templates (`incident_response`, `vulnerability_audit`, `data_pipeline`).
-   - `GET /api/v1/dag/current`: Returns full `PlanGraph` structure including nodes, dependencies, tools, and execution outputs.
-   - `POST /api/v1/dag/execute` & `POST /api/v1/execute`: Triggers asynchronous DAG execution with real-time SSE broadcasts.
+   - `GET /api/v1/dag/plans`: Lists pre-configured execution plan templates (`incident_response`, `vulnerability_audit`, `data_pipeline`) with `X-NexusAI-Mode: simulation` header.
+   - `GET /api/v1/dag/current`: Returns full `PlanGraph` structure including nodes, dependencies, tools, and execution outputs with `X-NexusAI-Mode: simulation` header.
+   - `POST /api/v1/dag/execute` & `POST /api/v1/execute`: Triggers asynchronous DAG execution with real-time SSE broadcasts. Explicitly serves as an interactive visualization/demonstration layer returning `X-NexusAI-Mode: simulation` header.
    - `GET /api/v1/audit/events`: Returns serialized `AuditEvent` chain records with genesis linkages.
    - `POST /api/v1/audit/verify`: Verifies SHA-256 hash linkages and reports integrity status and sequence anomalies.
    - `POST /api/v1/audit/tamper`: Simulates unauthorized payload modification to demonstrate cryptographic tripwire detection.
@@ -27,6 +27,7 @@ We implement **NexusAI Studio** — an interactive web visualizer and operator c
    - `GET /api/events/stream` & `GET /events`: SSE event stream broadcasting `dag_step_update`, `dag_completed`, `audit_event_created`, `audit_tampered`, and `budget_updated`.
 
 2. **Interactive SVG DAG Engine (`web/app.js`, `web/style.css`, `web/index.html`)**:
+   - Displays a prominent `[DEMO MODE — Simulated Execution]` banner in `#viewDagStudio` to clearly designate the visualization harness to operators.
    - Calculates dynamic topological layering for multi-branch graphs.
    - Renders smooth cubic Bézier curves with dynamic glow and directional markers (`#arrowhead`, `#arrowhead-active`).
    - Visualizes node execution states with status badges, tool tags, and execution latency.
@@ -61,6 +62,7 @@ We implement **NexusAI Studio** — an interactive web visualizer and operator c
 
 ### Negative
 - **In-Memory State for Studio Demo**: The mock studio templates and audit chain are maintained in `app.state` for rapid interactive exploration; distributed multi-node production clusters require persistence through PostgreSQL / Transactional Outbox.
+- **Simulation / Demonstration Mode Classification (Issue #29)**: The Studio DAG execution (`POST /api/v1/dag/execute`) functions as an interactive visualization and demonstration layer rather than executing actual production workloads against live external infrastructure. Step execution employs simulated delays (`asyncio.sleep(0.18)`) and synthetic telemetry for operator observation. This is explicitly surfaced via `X-NexusAI-Mode: simulation` response headers and the UI demo banner.
 
 ## Validation Criteria
 - Comprehensive API test suite in `tests/unit/api/test_studio_api.py` (11/11 tests passing).

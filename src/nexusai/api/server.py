@@ -1136,12 +1136,19 @@ def create_app(
         )
 
     # =========================================================================
-    # NEXUSAI STUDIO: DAG WORKFLOW & AUDIT CHAIN VISUALIZER (ISSUE #24)
+    # NEXUSAI STUDIO: DAG WORKFLOW & AUDIT CHAIN VISUALIZER (ISSUE #24, #29)
+    # NOTE: The Studio DAG endpoints below operate as an interactive visualization
+    # and demonstration layer (simulated execution mode). Step transitions and
+    # timings simulate node latency (asyncio.sleep) and broadcast state over SSE
+    # for interactive operator observation, rather than executing live tasks
+    # against real external systems. All Studio DAG endpoints return the header
+    # 'X-NexusAI-Mode: simulation' to explicitly declare this simulation nature.
     # =========================================================================
 
     @app.get("/api/v1/dag/plans")
-    async def get_dag_plans(request: Request) -> list[dict[str, Any]]:
-        """Return available DAG plan templates with metadata."""
+    async def get_dag_plans(request: Request, response: Response) -> list[dict[str, Any]]:
+        """Return available DAG plan templates with metadata (Simulation Mode)."""
+        response.headers["X-NexusAI-Mode"] = "simulation"
         plans_dict = _get_tenant_studio_plans(request)
         plans = []
         for p_id, p_data in plans_dict.items():
@@ -1158,9 +1165,10 @@ def create_app(
 
     @app.get("/api/v1/dag/current")
     async def get_current_dag(
-        request: Request, plan_id: str = "incident_response"
+        request: Request, response: Response, plan_id: str = "incident_response"
     ) -> dict[str, Any]:
-        """Return full PlanGraph nodes and edge specifications for specified plan."""
+        """Return full PlanGraph nodes and edge specifications for specified plan (Simulation Mode)."""
+        response.headers["X-NexusAI-Mode"] = "simulation"
         plans_dict = _get_tenant_studio_plans(request)
         plan = plans_dict.get(plan_id)
         if not plan:
@@ -1174,7 +1182,7 @@ def create_app(
         request: Request,
         x_idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
     ) -> Response:
-        """Trigger execution of a DAG plan, broadcasting live node transitions via SSE."""
+        """Trigger execution of a DAG plan, broadcasting live node transitions via SSE (Simulation Mode)."""
         identity: Identity | None = (
             getattr(request.state, "identity", None) or TenantContext.get_current_identity()
         )
@@ -1221,15 +1229,18 @@ def create_app(
                     return JSONResponse(
                         status_code=409,
                         content={"error": "DAG execution already in progress"},
-                        headers={"Retry-After": "2"},
+                        headers={"Retry-After": "2", "X-NexusAI-Mode": "simulation"},
                     )
                 if record.state == IdempotencyState.SUCCEEDED:
-                    return JSONResponse(content=record.response, headers={"X-Cache": "HIT"})
+                    return JSONResponse(
+                        content=record.response,
+                        headers={"X-Cache": "HIT", "X-NexusAI-Mode": "simulation"},
+                    )
                 if record.state == IdempotencyState.FAILED_TERMINAL:
                     raise HTTPException(
                         status_code=400,
                         detail=f"Cached terminal failure: {record.error_message}",
-                        headers={"X-Cache": "HIT"},
+                        headers={"X-Cache": "HIT", "X-NexusAI-Mode": "simulation"},
                     )
 
         # Persist execution state to SQLite before tool invocation begins
@@ -1273,6 +1284,9 @@ def create_app(
 
         durable_engine: DurableExecutionEngine = app.state.durable_engine
 
+        # Studio Demonstration Step Executor (Simulation Mode):
+        # This simulates node latency (0.18s) and telemetry transitions for the
+        # frontend visualization layer rather than executing live production tasks.
         async def _step_executor(node: dict[str, Any], attempt: int) -> Any:
             node_id = str(node["id"])
             node["status"] = "RUNNING"
@@ -1287,6 +1301,7 @@ def create_app(
                 },
             )
 
+            # Simulated node processing delay (visualization harness)
             await asyncio.sleep(0.18)
 
             if req.simulate_failure_step == node_id:
@@ -1374,6 +1389,7 @@ def create_app(
             "execution_id": req.execution_id,
             "nodes_count": len(plan["nodes"]),
         }
+        resp_headers = {"X-NexusAI-Mode": "simulation"}
         if effective_key:
             await idem_store.complete_execution(
                 tenant_id=tenant_id,
@@ -1381,9 +1397,10 @@ def create_app(
                 idempotency_key=effective_key,
                 response=resp_data,
             )
-            return JSONResponse(content=resp_data, headers={"X-Cache": "MISS"})
+            resp_headers["X-Cache"] = "MISS"
+            return JSONResponse(content=resp_data, headers=resp_headers)
 
-        return JSONResponse(content=resp_data)
+        return JSONResponse(content=resp_data, headers=resp_headers)
 
     @app.post("/api/v1/executions/{execution_id}/cancel")
     async def cancel_execution_endpoint(
@@ -1441,6 +1458,7 @@ def create_app(
     @app.get("/api/v1/audit/events")
     async def get_audit_events(
         request: Request,
+        response: Response,
         tenant_id: str | None = Query(None, description="Optional tenant ID to query"),
     ) -> list[dict[str, Any]]:
         """Return chronological list of cryptographic AuditEvent records forming the hash chain."""
@@ -1451,6 +1469,7 @@ def create_app(
         caller_role = identity.role if identity else Role.OPERATOR
 
         if getattr(app.state, "studio_demo_mode", False):
+            response.headers["X-NexusAI-Mode"] = "simulation"
             demo_chains = getattr(app.state, "demo_audit_chains", {})
             target_tenant = tenant_id or caller_tenant
             if target_tenant not in demo_chains:
@@ -1477,6 +1496,7 @@ def create_app(
     @app.post("/api/v1/audit/verify")
     async def verify_audit_chain_endpoint(
         request: Request,
+        response: Response,
         tenant_id: str | None = Query(None, description="Optional tenant ID to verify"),
     ) -> dict[str, Any]:
         """Perform cryptographic SHA-256 integrity verification across the full audit chain."""
@@ -1487,6 +1507,7 @@ def create_app(
         caller_role = identity.role if identity else Role.OPERATOR
 
         if getattr(app.state, "studio_demo_mode", False):
+            response.headers["X-NexusAI-Mode"] = "simulation"
             demo_chains = getattr(app.state, "demo_audit_chains", {})
             target_tenant = tenant_id or caller_tenant
             if target_tenant not in demo_chains:
@@ -1567,9 +1588,10 @@ def create_app(
 
     @app.post("/api/v1/audit/tamper")
     async def tamper_audit_event_endpoint(
-        req: AuditTamperRequest, request: Request
+        req: AuditTamperRequest, request: Request, response: Response
     ) -> dict[str, Any]:
         """Simulate malicious tampering on an event in the audit chain to test cryptographic detection."""
+        response.headers["X-NexusAI-Mode"] = "simulation"
         if not getattr(app.state, "studio_demo_mode", False):
             raise HTTPException(
                 status_code=403,
@@ -1637,8 +1659,9 @@ def create_app(
         }
 
     @app.post("/api/v1/audit/reset")
-    async def reset_audit_chain_endpoint(request: Request) -> dict[str, Any]:
+    async def reset_audit_chain_endpoint(request: Request, response: Response) -> dict[str, Any]:
         """Reset the audit chain back to verified clean genesis state."""
+        response.headers["X-NexusAI-Mode"] = "simulation"
         if not getattr(app.state, "studio_demo_mode", False):
             raise HTTPException(
                 status_code=403,
@@ -1665,22 +1688,25 @@ def create_app(
         }
 
     @app.get("/api/v1/governance/budget")
-    async def get_governance_budget(request: Request) -> dict[str, Any]:
+    async def get_governance_budget(request: Request, response: Response) -> dict[str, Any]:
         """Return active resource budget and consumed quotas."""
+        response.headers["X-NexusAI-Mode"] = "simulation"
         budget = _get_tenant_governance_budget(request)
         return budget
 
     @app.get("/api/v1/governance/approvals")
-    async def get_pending_approvals(request: Request) -> list[dict[str, Any]]:
+    async def get_pending_approvals(request: Request, response: Response) -> list[dict[str, Any]]:
         """Return list of pending human-in-the-loop safety approvals."""
+        response.headers["X-NexusAI-Mode"] = "simulation"
         approvals = _get_tenant_pending_approvals(request)
         return approvals
 
     @app.post("/api/v1/governance/approvals/{approval_id}/decision")
     async def submit_approval_decision_endpoint(
-        approval_id: str, req: GovernanceDecisionRequest, request: Request
+        approval_id: str, req: GovernanceDecisionRequest, request: Request, response: Response
     ) -> dict[str, Any]:
         """Submit human operator approval or denial decision for governed tool invocation."""
+        response.headers["X-NexusAI-Mode"] = "simulation"
         identity: Identity | None = (
             getattr(request.state, "identity", None) or TenantContext.get_current_identity()
         )

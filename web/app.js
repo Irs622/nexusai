@@ -839,7 +839,7 @@ async function executeCurrentPlan() {
 
     document.getElementById('dagExecStatus').innerText = 'EXECUTING';
     document.getElementById('dagExecStatus').style.color = 'var(--color-cyan)';
-    logDagMessage(`Started autonomous execution run for [${currentPlanId}]`);
+    logDagMessage(`Started execution run for [${currentPlanId}] [DEMO MODE — Simulated Execution]`);
 
     // Reset nodes to pending locally
     currentPlanData.nodes.forEach(n => {
@@ -857,6 +857,10 @@ async function executeCurrentPlan() {
                 session_id: `studio-run-${Date.now()}`
             })
         });
+
+        if (res.headers.get('x-nexusai-mode') === 'simulation') {
+            logDagMessage(`[SIMULATION MODE] Studio DAG execution running in simulated demonstration harness.`);
+        }
 
         if (!res.ok) {
             const err = await res.json();

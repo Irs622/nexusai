@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🖥️ Studio DAG Visualizer Simulation Mode Classification (Issue #29 / ADR-0024)
+- `docs(ui)`: Explicitly designate NexusAI Studio DAG execution as an interactive visualization and demonstration layer rather than live production task execution.
+- `feat(api)`: Add `X-NexusAI-Mode: simulation` response header to Studio DAG endpoints (`GET /api/v1/dag/plans`, `GET /api/v1/dag/current`, `POST /api/v1/dag/execute`, `POST /api/v1/execute`).
+- `feat(ui)`: Add prominent `[DEMO MODE — Simulated Execution]` banner in Studio UI (`web/index.html` & `web/style.css`) informing operators of simulated execution latencies and node telemetry.
+- `feat(ui)`: Add simulation mode telemetry notices in execution event logs (`web/app.js`).
+- `docs(code)`: Add comprehensive code comments clarifying the simulation harness in `src/nexusai/api/server.py`.
+- `docs(adr)`: Update ADR 0024 (`docs/adr/0024-nexusai-studio-interactive-dag-and-audit-visualizer.md`) documenting Studio DAG execution as a visualization layer.
+- `test(api)`: Add automated test coverage in `tests/unit/api/test_studio_api.py` verifying `X-NexusAI-Mode: simulation` headers and demo banner presence.
+
 ### 🔒 CI Supply Chain Hardening & Workflow Permissions (Issue #36)
 - `security(ci)`: Pin all 6 third-party GitHub Actions across all 7 workflows to immutable 40-character commit SHAs with semantic version trailing comments (`actions/checkout`, `actions/setup-python`, `actions/upload-artifact`, `github/codeql-action/init`, `github/codeql-action/analyze`, `softprops/action-gh-release`).
 - `security(ci)`: Establish explicit top-level least-privilege `permissions: contents: read` across all 7 GitHub Actions workflows (`architecture-enforcement.yml`, `ci.yml`, `codeql.yml`, `lint.yml`, `release.yml`, `security.yml`, `tests.yml`).

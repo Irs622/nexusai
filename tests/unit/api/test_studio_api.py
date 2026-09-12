@@ -21,6 +21,7 @@ def test_studio_dag_plans_listing(studio_client: TestClient) -> None:
     """Test listing available DAG plan templates."""
     response = studio_client.get("/api/v1/dag/plans")
     assert response.status_code == 200
+    assert response.headers.get("X-NexusAI-Mode") == "simulation"
     plans = response.json()
     assert isinstance(plans, list)
     assert len(plans) >= 3
@@ -41,6 +42,7 @@ def test_studio_dag_current_plan(studio_client: TestClient) -> None:
     """Test retrieving full PlanGraph structure for a specified plan."""
     response = studio_client.get("/api/v1/dag/current?plan_id=incident_response")
     assert response.status_code == 200
+    assert response.headers.get("X-NexusAI-Mode") == "simulation"
     data = response.json()
     assert data["plan_id"] == "incident_response"
     assert "nodes" in data
@@ -64,6 +66,7 @@ def test_studio_dag_execute_endpoint(studio_client: TestClient) -> None:
         json={"plan_id": "incident_response"},
     )
     assert res1.status_code == 200
+    assert res1.headers.get("X-NexusAI-Mode") == "simulation"
     data1 = res1.json()
     assert data1["status"] == "EXECUTION_STARTED"
     assert data1["plan_id"] == "incident_response"
@@ -76,6 +79,7 @@ def test_studio_dag_execute_endpoint(studio_client: TestClient) -> None:
         json={"plan_id": "vulnerability_audit"},
     )
     assert res2.status_code == 200
+    assert res2.headers.get("X-NexusAI-Mode") == "simulation"
     data2 = res2.json()
     assert data2["status"] == "EXECUTION_STARTED"
     assert data2["plan_id"] == "vulnerability_audit"
@@ -85,6 +89,7 @@ def test_studio_audit_events_endpoint(studio_client: TestClient) -> None:
     """Test retrieving cryptographic audit chain records."""
     response = studio_client.get("/api/v1/audit/events")
     assert response.status_code == 200
+    assert response.headers.get("X-NexusAI-Mode") == "simulation"
     events = response.json()
     assert isinstance(events, list)
     assert len(events) >= 5
@@ -105,6 +110,7 @@ def test_studio_audit_verify_intact_chain(studio_client: TestClient) -> None:
     """Test that initial undisturbed audit chain verifies with zero violations."""
     response = studio_client.post("/api/v1/audit/verify")
     assert response.status_code == 200
+    assert response.headers.get("X-NexusAI-Mode") == "simulation"
     data = response.json()
     assert data["valid"] is True
     assert data["hash_chain_valid"] is True
@@ -128,6 +134,7 @@ def test_studio_audit_tamper_and_detection(studio_client: TestClient) -> None:
         },
     )
     assert tamper_res.status_code == 200
+    assert tamper_res.headers.get("X-NexusAI-Mode") == "simulation"
     tamper_data = tamper_res.json()
     assert tamper_data["status"] == "TAMPERED"
 
@@ -153,6 +160,7 @@ def test_studio_audit_reset(studio_client: TestClient) -> None:
     # Reset
     reset_res = studio_client.post("/api/v1/audit/reset")
     assert reset_res.status_code == 200
+    assert reset_res.headers.get("X-NexusAI-Mode") == "simulation"
     assert reset_res.json()["status"] == "RESET_SUCCESS"
 
     # Must verify clean again
@@ -165,6 +173,7 @@ def test_studio_governance_budget_endpoint(studio_client: TestClient) -> None:
     """Test retrieving resource quota limits and current usage metrics."""
     response = studio_client.get("/api/v1/governance/budget")
     assert response.status_code == 200
+    assert response.headers.get("X-NexusAI-Mode") == "simulation"
     budget = response.json()
     assert "limits" in budget
     assert "usage" in budget
@@ -179,6 +188,7 @@ def test_studio_governance_approvals_and_decision(studio_client: TestClient) -> 
     # List pending
     list_res = studio_client.get("/api/v1/governance/approvals")
     assert list_res.status_code == 200
+    assert list_res.headers.get("X-NexusAI-Mode") == "simulation"
     approvals = list_res.json()
     assert len(approvals) >= 2
     app_id = approvals[0]["approval_id"]
@@ -189,6 +199,7 @@ def test_studio_governance_approvals_and_decision(studio_client: TestClient) -> 
         json={"decision": "APPROVED", "actor": "lead-sec-operator"},
     )
     assert approve_res.status_code == 200
+    assert approve_res.headers.get("X-NexusAI-Mode") == "simulation"
     data = approve_res.json()
     assert data["status"] == "APPROVED"
     assert data["grant_id"].startswith("grant-")
@@ -225,3 +236,13 @@ async def test_studio_sse_endpoint_handshake(studio_client: TestClient) -> None:
             found += 1
 
     assert found >= 2
+
+
+def test_studio_ui_demo_mode_banner_present(studio_client: TestClient) -> None:
+    """Test that web/index.html includes the prominent [DEMO MODE — Simulated Execution] banner (Issue #29)."""
+    response = studio_client.get("/")
+    assert response.status_code == 200
+    html_content = response.text
+    assert "[DEMO MODE — Simulated Execution]" in html_content
+    assert "dag-demo-banner" in html_content
+    assert "SIMULATION" in html_content
