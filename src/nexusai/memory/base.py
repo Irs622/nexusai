@@ -12,14 +12,26 @@ class BaseMemory(ABC):
     """Abstract Base Class for session conversation memory."""
 
     @abstractmethod
+    async def get_or_create_session(
+        self,
+        session_id: str | None,
+        tenant_id: str = "default",
+        user_id: str = "anonymous",
+    ) -> str:
+        """Verify session ownership or issue a new random cryptographically secure session ID."""
+        ...
+
+    @abstractmethod
     async def add_message(
         self,
         session_id: str,
         role: str,
         content: str,
         name: str | None = None,
+        tenant_id: str = "default",
+        user_id: str = "anonymous",
     ) -> None:
-        """Add a conversation message to session memory."""
+        """Add a conversation message to session memory scoped by tenant and user."""
         ...
 
     @abstractmethod
@@ -27,11 +39,16 @@ class BaseMemory(ABC):
         self,
         session_id: str,
         limit: int = 50,
+        tenant_id: str = "default",
     ) -> list[dict[str, Any]]:
-        """Retrieve recent conversation history for a session."""
+        """Retrieve recent conversation history for a session scoped by tenant."""
         ...
 
     @abstractmethod
-    async def clear_session(self, session_id: str) -> None:
-        """Clear all stored messages for a specific session."""
+    async def clear_session(
+        self,
+        session_id: str,
+        tenant_id: str = "default",
+    ) -> None:
+        """Clear all stored messages for a specific session scoped by tenant."""
         ...

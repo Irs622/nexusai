@@ -127,8 +127,25 @@ class GoalAnalyzer:
 class TaskDecomposer:
     """Stage 2: Decomposes goal analysis into executable PlanStep items."""
 
-    def decompose(self, ctx: PlanningContext, analysis: dict[str, str]) -> list[PlanStep]:
+    def decompose(
+        self,
+        ctx: PlanningContext,
+        analysis: dict[str, str],
+        target_tool: str | None = None,
+    ) -> list[PlanStep]:
         steps: list[PlanStep] = []
+        if target_tool:
+            steps.append(
+                PlanStep(
+                    step_id=1,
+                    title=f"Execute {target_tool}",
+                    description=f"Invoke selected tool '{target_tool}' for goal: {ctx.goal.description}",
+                    tool_name=target_tool,
+                    status=StepStatus.PENDING,
+                )
+            )
+            return steps
+
         if ctx.available_tools:
             for idx, tool in enumerate(ctx.available_tools, 1):
                 steps.append(
@@ -298,21 +315,37 @@ class ExecutionPlanner:
         self, ctx: PlanningContext, session_id: str = "session-1"
     ) -> tuple[PlanGraph, DecisionTrace]:
         analysis = self.analyzer.analyze(ctx)
-        raw_steps = self.decomposer.decompose(ctx, analysis)
+
+        # 1. Rank candidate actions from available tool catalog
+        if ctx.available_tools:
+            candidate_objs: list[ActionCandidate] = []
+            for tool in ctx.available_tools:
+                cand = self.ranker.score_candidate(tool, weights=ctx.policy.weights)
+                candidate_objs.append(cand)
+
+            ranked, rejected = self.ranker.rank(candidate_objs)
+            selected_name = ranked[0].name if ranked else "default_tool"
+            top_score = ranked[0].score if ranked else 1.0
+
+            # 2. NEX-009: Candidate selection strictly determines the executable plan graph.
+            # Only the selected action and its prerequisites (resolved via CapabilityGraph)
+            # materialize as executable DAG nodes, preventing multi-tool fanout/excessive agency.
+            selected_steps = self.decomposer.decompose(ctx, analysis, target_tool=selected_name)
+        else:
+            selected_name = "default_tool"
+            top_score = 1.0
+            candidate_objs = [
+                self.ranker.score_candidate("default_tool", weights=ctx.policy.weights)
+            ]
+            ranked = candidate_objs
+            rejected = []
+            selected_steps = self.decomposer.decompose(ctx, analysis)
+
         plan_graph = self.resolver.resolve(
-            raw_steps,
+            selected_steps,
             graph=ctx.resources_component.capability_graph,
             auto_insert=ctx.policy.auto_insert_missing_dependencies,
         )
-
-        candidate_objs: list[ActionCandidate] = []
-        for tool in ctx.available_tools or ("default_action",):
-            cand = self.ranker.score_candidate(tool, weights=ctx.policy.weights)
-            candidate_objs.append(cand)
-
-        ranked, rejected = self.ranker.rank(candidate_objs)
-        selected_name = ranked[0].name if ranked else "default_action"
-        top_score = ranked[0].score if ranked else 1.0
 
         trace = DecisionTrace(
             trace_id=str(uuid4()),

@@ -62,6 +62,7 @@ class BrainCoordinator:
         session_id: str = "",
         approval_token: str | None = None,
         user_id: str = "anonymous",
+        tenant_id: str = "default",
     ) -> Dict[str, Any]:
         """Process user text input through Brain Runtime DAG pipeline (Planner -> Validator -> Engine -> Provider)."""
         sys_prompt = PromptBuilder().DEFAULT_SYSTEM_PROMPT
@@ -72,15 +73,53 @@ class BrainCoordinator:
             except Exception:
                 pass
 
-        effective_session_id = session_id or "cli_session"
+        # Resolve session ID through memory ownership or generate cryptographically random session
+        effective_session_id = session_id
+        if self.memory and hasattr(self.memory, "get_or_create_session"):
+            effective_session_id = await self.memory.get_or_create_session(
+                session_id=session_id or None,
+                tenant_id=tenant_id,
+                user_id=user_id,
+            )
+        elif not effective_session_id:
+            import secrets
+
+            effective_session_id = f"session_{secrets.token_urlsafe(24)}"
 
         # 1. Retrieve conversation history from memory if available
         history: list[dict[str, Any]] = []
         if self.memory and hasattr(self.memory, "get_messages"):
             try:
+                history = await self.memory.get_messages(
+                    effective_session_id, limit=20, tenant_id=tenant_id
+                )
+            except TypeError:
                 history = await self.memory.get_messages(effective_session_id, limit=20)
             except Exception:
                 pass
+
+        # NEX-012: Request-scoped OutputValidator instance to prevent concurrency state race conditions
+        req_capability_resolver = (
+            self.output_validator.capability_resolver if self.output_validator else None
+        )
+        request_validator = OutputValidator(
+            max_untrusted_influence=(
+                self.output_validator.max_untrusted_influence if self.output_validator else 3
+            ),
+            no_tool_from_untrusted=(
+                self.output_validator.no_tool_from_untrusted if self.output_validator else True
+            ),
+            no_exfiltration=(
+                self.output_validator.no_exfiltration if self.output_validator else True
+            ),
+            no_privilege_escalation=(
+                self.output_validator.no_privilege_escalation if self.output_validator else True
+            ),
+            intent_alignment=(
+                self.output_validator.intent_alignment if self.output_validator else True
+            ),
+            capability_resolver=req_capability_resolver,
+        )
 
         sys_context = tag_context_content(content=sys_prompt, source="system", sanitize=False)
         user_context = tag_context_content(content=user_text, source="user", sanitize=False)
@@ -200,9 +239,9 @@ class BrainCoordinator:
 
                     # Post-LLM Output Validation against defensive policies
                     identity = TenantContext.get_current_identity() or Identity(
-                        user_id=user_id, tenant_id="default", role=Role.OPERATOR
+                        user_id=user_id, tenant_id=tenant_id, role=Role.OPERATOR
                     )
-                    validation = self.output_validator.validate_tool_call(
+                    validation = request_validator.validate_tool_call(
                         tool_name=tool_name,
                         arguments=arguments,
                         user_goal=user_text,
@@ -239,6 +278,7 @@ class BrainCoordinator:
                                 approval_token=approval_token,
                                 execution_id=effective_session_id,
                                 user_id=user_id,
+                                tenant_id=tenant_id,
                             )
                             tool_result = await self.command_bus.dispatch(cmd)
                         except Exception as err:
@@ -264,7 +304,7 @@ class BrainCoordinator:
                     )
 
                     # Record observation to maintain causal trust tracking
-                    self.output_validator.record_observation(
+                    request_validator.record_observation(
                         trust_level=tool_context.trust_level,
                         source=tool_context.source,
                         content=raw_result,
@@ -309,6 +349,21 @@ class BrainCoordinator:
 
                 if self.memory and hasattr(self.memory, "add_message"):
                     try:
+                        await self.memory.add_message(
+                            effective_session_id,
+                            "user",
+                            user_text,
+                            tenant_id=tenant_id,
+                            user_id=user_id,
+                        )
+                        await self.memory.add_message(
+                            effective_session_id,
+                            "assistant",
+                            final_content,
+                            tenant_id=tenant_id,
+                            user_id=user_id,
+                        )
+                    except TypeError:
                         await self.memory.add_message(effective_session_id, "user", user_text)
                         await self.memory.add_message(
                             effective_session_id, "assistant", final_content
@@ -318,6 +373,7 @@ class BrainCoordinator:
 
                 res_copy: dict[str, Any] = dict(res)
                 res_copy["content"] = final_content
+                res_copy["session_id"] = effective_session_id
                 res_copy["iterations"] = step
                 res_copy["trace_id"] = decision_trace.trace_id
                 res_copy["plan_nodes"] = len(plan_graph.nodes)
@@ -338,6 +394,21 @@ class BrainCoordinator:
 
             if self.memory and hasattr(self.memory, "add_message"):
                 try:
+                    await self.memory.add_message(
+                        effective_session_id,
+                        "user",
+                        user_text,
+                        tenant_id=tenant_id,
+                        user_id=user_id,
+                    )
+                    await self.memory.add_message(
+                        effective_session_id,
+                        "assistant",
+                        final_content,
+                        tenant_id=tenant_id,
+                        user_id=user_id,
+                    )
+                except TypeError:
                     await self.memory.add_message(effective_session_id, "user", user_text)
                     await self.memory.add_message(effective_session_id, "assistant", final_content)
                 except Exception:
@@ -346,6 +417,7 @@ class BrainCoordinator:
             return {
                 "type": "text",
                 "content": final_content,
+                "session_id": effective_session_id,
                 "iterations": step,
                 "trace_id": decision_trace.trace_id,
                 "plan_nodes": len(plan_graph.nodes),

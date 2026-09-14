@@ -73,7 +73,10 @@ web_dir = Path(__file__).resolve().parent.parent.parent.parent / "web"
 # Request Schemas
 class ChatRequest(BaseModel):
     prompt: str = Field(..., description="User prompt text")
-    session_id: str = Field("web_session", description="Session ID")
+    session_id: str | None = Field(
+        default=None,
+        description="Optional session ID. If omitted, an unguessable server-side random session is issued.",
+    )
     approval_token: str | None = Field(
         default=None, description="Optional approval token for high-risk tool execution"
     )
@@ -579,6 +582,21 @@ def create_app(
     # Coordinator & Durable Execution Infrastructure
     exec_db_path = os.getenv("NEXUSAI_EXECUTION_DB", ":memory:")
     coord_db_path = os.getenv("NEXUSAI_COORDINATOR_DB", ":memory:")
+
+    # NEX-010: Topology validation: multi-replica or production mode requires shared persistent backends
+    is_prod = os.getenv("NEXUSAI_ENV") in ("production", "prod") or (
+        config
+        and getattr(getattr(config, "app", None), "environment", "") in ("production", "prod")
+    )
+    replica_count = int(os.getenv("NEXUSAI_REPLICAS", "1"))
+    if (is_prod or replica_count > 1) and (
+        exec_db_path == ":memory:" or coord_db_path == ":memory:"
+    ):
+        raise ConfigurationError(
+            "Production / multi-replica deployment aborted: NEXUSAI_EXECUTION_DB and NEXUSAI_COORDINATOR_DB "
+            "cannot be ':memory:'. A durable shared storage backend or persistent volume path must be configured."
+        )
+
     exec_store = SQLiteExecutionStateStore(db_path=exec_db_path)
     exec_journal = SQLiteExecutionJournal(db_path=exec_db_path)
     exec_coord = SQLiteExecutionCoordinator(db_path=coord_db_path)
@@ -692,19 +710,18 @@ def create_app(
 
     # Authentication & API Key Service
     auth_cfg = getattr(config, "auth", None)
+    key_storage_path = os.getenv("NEXUSAI_KEY_STORAGE_PATH") or (
+        auth_cfg.key_storage_path if auth_cfg else None
+    )
     api_key_service = ApiKeyService(
-        storage_path=auth_cfg.key_storage_path if auth_cfg else None,
+        storage_path=key_storage_path,
         default_rate_limit=auth_cfg.rate_limit_per_minute if auth_cfg else 100,
     )
 
-    # Register default administrative test key for local development and seamless testing
-    default_test_key = os.getenv("NEXUSAI_TEST_API_KEY", "nx_test_admin_key_123")
-    api_key_service.register_raw_key(
-        raw_key=default_test_key,
-        tenant_id="default",
-        user_id="admin-user",
-        role=Role.ADMIN,
-        name="Default System Admin Key",
+    # Environment mode detection
+    is_production = os.getenv("NEXUSAI_ENV") in ("production", "prod") or (
+        config
+        and getattr(getattr(config, "app", None), "environment", "") in ("production", "prod")
     )
 
     auth_enabled = (
@@ -714,6 +731,42 @@ def create_app(
     )
     if os.getenv("NEXUSAI_AUTH_ENABLED", "").lower() == "false":
         auth_enabled = False
+
+    # NEX-002: Production credential hardening - eliminate hardcoded admin fallback in production
+    configured_admin_key = os.getenv("NEXUSAI_ADMIN_API_KEY") or os.getenv("NEXUSAI_TEST_API_KEY")
+    if is_production:
+        if configured_admin_key == "nx_test_admin_key_123":
+            raise ConfigurationError(
+                "Production startup aborted: Default test key 'nx_test_admin_key_123' is strictly forbidden in production."
+            )
+        if configured_admin_key:
+            api_key_service.register_raw_key(
+                raw_key=configured_admin_key,
+                tenant_id="default",
+                user_id="admin-user",
+                role=Role.ADMIN,
+                name="Production Administrative Key",
+            )
+        elif auth_enabled and not api_key_service.list_keys():
+            raise ConfigurationError(
+                "Production startup aborted: Authentication is enabled but no administrative API key is provisioned. "
+                "Configure NEXUSAI_ADMIN_API_KEY or supply keys via config/api_keys.json."
+            )
+    else:
+        # Development / Testing mode: register development test key with prominent warning
+        dev_key = configured_admin_key or "nx_test_admin_key_123"
+        if dev_key == "nx_test_admin_key_123":
+            logger.warning(
+                "DEVELOPMENT/TEST MODE: Registering hardcoded administrative test key 'nx_test_admin_key_123'. "
+                "This fallback is strictly disabled and rejected in production mode."
+            )
+        api_key_service.register_raw_key(
+            raw_key=dev_key,
+            tenant_id="default",
+            user_id="admin-user",
+            role=Role.ADMIN,
+            name="Development Admin Key",
+        )
 
     app.add_middleware(
         AuthMiddleware,
@@ -844,15 +897,19 @@ def create_app(
                 status_code=403,
                 detail=f"RBAC access denied: Role '{identity.role.value}' is read-only and cannot invoke chat",
             )
+        tenant_id = identity.tenant_id if identity else "default"
         user_id = identity.user_id if identity else "anonymous"
         try:
             res = await coordinator.process_user_input(
                 user_text=req.prompt,
-                session_id=req.session_id,
+                session_id=req.session_id or "",
                 approval_token=req.approval_token,
                 user_id=user_id,
+                tenant_id=tenant_id,
             )
             return res
+        except SecurityError as sec_err:
+            raise HTTPException(status_code=403, detail=str(sec_err)) from sec_err
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e)) from e
 
@@ -1028,7 +1085,7 @@ def create_app(
     # =========================================================================
 
     @app.get("/api/mcp/servers")
-    async def list_mcp_servers() -> dict[str, Any]:
+    async def list_mcp_servers(request: Request) -> dict[str, Any]:
         """List all configured MCP servers, connection status, and discovered tools."""
         servers = [
             mcp_manager.get_server_info(name) for name in mcp_manager.configured_server_names
@@ -1036,8 +1093,16 @@ def create_app(
         return {"total_servers": len(servers), "servers": servers}
 
     @app.post("/api/mcp/servers/{server_name}/ping")
-    async def ping_mcp_server(server_name: str) -> dict[str, Any]:
+    async def ping_mcp_server(server_name: str, request: Request) -> dict[str, Any]:
         """Ping a specific MCP server to check liveliness."""
+        identity: Identity | None = (
+            getattr(request.state, "identity", None) or TenantContext.get_current_identity()
+        )
+        if identity and identity.role == Role.VIEWER:
+            raise HTTPException(
+                status_code=403,
+                detail=f"RBAC access denied: Role '{identity.role.value}' cannot ping MCP servers. Operator or Admin required.",
+            )
         try:
             is_alive = await mcp_manager.ping_server(server_name)
             return {"server": server_name, "is_alive": is_alive}
@@ -1045,8 +1110,16 @@ def create_app(
             raise HTTPException(status_code=404, detail=str(e)) from e
 
     @app.post("/api/mcp/reload")
-    async def reload_mcp_config() -> dict[str, Any]:
+    async def reload_mcp_config(request: Request) -> dict[str, Any]:
         """Reload MCP declarative configuration file."""
+        identity: Identity | None = (
+            getattr(request.state, "identity", None) or TenantContext.get_current_identity()
+        )
+        if identity and identity.role not in (Role.ADMIN, Role.SYSTEM):
+            raise HTTPException(
+                status_code=403,
+                detail=f"RBAC access denied: Role '{identity.role.value}' cannot reload MCP configuration. Admin role required.",
+            )
         mcp_cfg_path = Path("config/mcp_servers.yaml")
         if not mcp_cfg_path.exists():
             return {"status": "NO_CONFIG_FILE", "message": f"{mcp_cfg_path} not found"}
@@ -1065,24 +1138,51 @@ def create_app(
     # REAL-TIME SERVER-SENT EVENTS (SSE) ENDPOINT & STUDIO BROADCASTER
     # =========================================================================
 
-    def broadcast_event(event_name: str, payload: dict[str, Any]) -> None:
-        """Broadcast real-time event to all actively connected SSE clients."""
+    def broadcast_event(
+        event_name: str, payload: dict[str, Any], tenant_id: str | None = None
+    ) -> None:
+        """Broadcast real-time event to authorized SSE clients scoped by tenant."""
         msg = f"event: {event_name}\ndata: {json.dumps(payload)}\n\n"
-        subscribers: list[asyncio.Queue[str]] = getattr(app.state, "event_subscribers", [])
-        for q in list(subscribers):
+        subscribers: list[Any] = getattr(app.state, "event_subscribers", [])
+        for sub in list(subscribers):
             try:
-                q.put_nowait(msg)
+                if isinstance(sub, dict):
+                    sub_role = sub.get("role")
+                    sub_tenant = sub.get("tenant_id")
+                    if (
+                        tenant_id is None
+                        or sub_role in (Role.ADMIN, Role.SYSTEM)
+                        or sub_tenant == tenant_id
+                    ):
+                        sub["queue"].put_nowait(msg)
+                elif isinstance(sub, asyncio.Queue):
+                    sub.put_nowait(msg)
             except Exception:
                 pass
 
     @app.get("/api/events/stream")
     @app.get("/events")
-    async def sse_stream() -> StreamingResponse:
+    async def sse_stream(request: Request = cast(Request, None)) -> StreamingResponse:
         """Stream real-time system telemetry, DAG step updates, audit events, and governance changes."""
+        identity: Identity | None = None
+        if request is not None and hasattr(request, "state"):
+            identity = getattr(request.state, "identity", None)
+        if identity is None:
+            identity = TenantContext.get_current_identity()
+
+        sub_tenant_id = identity.tenant_id if identity else "default"
+        sub_role = identity.role if identity else Role.VIEWER
+        sub_user_id = identity.user_id if identity else "anonymous"
 
         async def event_generator() -> AsyncGenerator[str, None]:
             queue: asyncio.Queue[str] = asyncio.Queue()
-            app.state.event_subscribers.append(queue)
+            sub_record = {
+                "queue": queue,
+                "tenant_id": sub_tenant_id,
+                "role": sub_role,
+                "user_id": sub_user_id,
+            }
+            app.state.event_subscribers.append(sub_record)
 
             # Initial handshake event
             init_payload = json.dumps(
@@ -1091,6 +1191,7 @@ def create_app(
                     "status": "CONNECTED",
                     "timestamp": time.time(),
                     "server": "NexusAI-Studio",
+                    "tenant_id": sub_tenant_id,
                 }
             )
             yield f"event: handshake\ndata: {init_payload}\n\n"
@@ -1118,12 +1219,12 @@ def create_app(
                             )
                             yield f"event: telemetry\ndata: {telemetry_payload}\n\n"
                         except Exception:
-                            pass
+                            yield ": keepalive\n\n"
             except asyncio.CancelledError:
                 pass
             finally:
-                if queue in app.state.event_subscribers:
-                    app.state.event_subscribers.remove(queue)
+                if sub_record in app.state.event_subscribers:
+                    app.state.event_subscribers.remove(sub_record)
 
         return StreamingResponse(
             event_generator(),
@@ -1132,6 +1233,7 @@ def create_app(
                 "Cache-Control": "no-cache",
                 "Connection": "keep-alive",
                 "X-Accel-Buffering": "no",
+                "X-NexusAI-Mode": "simulation",
             },
         )
 
@@ -1299,6 +1401,7 @@ def create_app(
                     "status": "RUNNING",
                     "timestamp": start_t,
                 },
+                tenant_id=tenant_id,
             )
 
             # Simulated node processing delay (visualization harness)
@@ -1316,6 +1419,7 @@ def create_app(
                         "latency_ms": node["latency_ms"],
                         "error": f"Simulated failure at step {node_id}",
                     },
+                    tenant_id=tenant_id,
                 )
                 raise RuntimeError(f"Simulated failure at step {node_id}")
 
@@ -1346,8 +1450,9 @@ def create_app(
                     "latency_ms": node["latency_ms"],
                     "output": node["output"],
                 },
+                tenant_id=tenant_id,
             )
-            broadcast_event("budget_updated", tenant_budget)
+            broadcast_event("budget_updated", tenant_budget, tenant_id=tenant_id)
             return node["output"]
 
         async def _run_dag_durable() -> None:
@@ -1368,7 +1473,22 @@ def create_app(
                         "status": res.get("status", "SUCCEEDED"),
                         "completed_at": time.time(),
                     },
+                    tenant_id=tenant_id,
                 )
+                # NEX-007: Only mark idempotency SUCCEEDED after actual background DAG completion
+                if effective_key:
+                    dag_result = {
+                        "status": "COMPLETED",
+                        "plan_id": req.plan_id,
+                        "execution_id": req.execution_id,
+                        "result": res,
+                    }
+                    await idem_store.complete_execution(
+                        tenant_id=tenant_id,
+                        user_id=user_id,
+                        idempotency_key=effective_key,
+                        response=dag_result,
+                    )
             except Exception as d_err:
                 logger.error(f"[Durable DAG Execute] Failed: {d_err}")
                 if effective_key:
@@ -1391,12 +1511,7 @@ def create_app(
         }
         resp_headers = {"X-NexusAI-Mode": "simulation"}
         if effective_key:
-            await idem_store.complete_execution(
-                tenant_id=tenant_id,
-                user_id=user_id,
-                idempotency_key=effective_key,
-                response=resp_data,
-            )
+            # NEX-007: Record stays in RUNNING state while task executes in background
             resp_headers["X-Cache"] = "MISS"
             return JSONResponse(content=resp_data, headers=resp_headers)
 
@@ -1649,7 +1764,11 @@ def create_app(
             **extra_fencing,
         )
         chain[target_idx] = tampered_ev
-        broadcast_event("audit_tampered", {"event_id": ev.event_id, "field": req.tampered_field})
+        broadcast_event(
+            "audit_tampered",
+            {"event_id": ev.event_id, "field": req.tampered_field},
+            tenant_id=tenant_id,
+        )
         return {
             "status": "TAMPERED",
             "tampered_event_id": ev.event_id,
@@ -1681,7 +1800,7 @@ def create_app(
         demo_chains = getattr(app.state, "demo_audit_chains", {})
         demo_chains[tenant_id] = _create_initial_audit_chain()
         chain = demo_chains[tenant_id]
-        broadcast_event("audit_reset", {"event_count": len(chain)})
+        broadcast_event("audit_reset", {"event_count": len(chain)}, tenant_id=tenant_id)
         return {
             "status": "RESET_SUCCESS",
             "event_count": len(chain),
@@ -1740,6 +1859,7 @@ def create_app(
         target["resolved_at"] = time.time()
         target["actor"] = req.actor
 
+        tenant_id = _get_tenant_id(request)
         if req.decision == "APPROVED":
             grant_id = f"grant-{approval_id}"
             budget["usage"]["tool_invocations_used"] += 1
@@ -1750,8 +1870,9 @@ def create_app(
                     "status": "APPROVED",
                     "grant_id": grant_id,
                 },
+                tenant_id=tenant_id,
             )
-            broadcast_event("budget_updated", budget)
+            broadcast_event("budget_updated", budget, tenant_id=tenant_id)
             return {
                 "approval_id": approval_id,
                 "status": "APPROVED",
@@ -1765,6 +1886,7 @@ def create_app(
                     "approval_id": approval_id,
                     "status": "DENIED",
                 },
+                tenant_id=tenant_id,
             )
             return {
                 "approval_id": approval_id,

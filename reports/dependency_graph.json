@@ -40,7 +40,7 @@
     "voice",
     "workflow"
   ],
-  "edge_count": 2690,
+  "edge_count": 2703,
   "edges": [
     {
       "source": "root",
@@ -130,6 +130,11 @@
     {
       "source": "api",
       "target": "core",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "infrastructure",
       "file": "api/server.py"
     },
     {
@@ -8924,6 +8929,11 @@
     },
     {
       "source": "memory",
+      "target": "core",
+      "file": "memory/sqlite_memory.py"
+    },
+    {
+      "source": "memory",
       "target": "memory",
       "file": "memory/sqlite_memory.py"
     },
@@ -12569,6 +12579,21 @@
     },
     {
       "source": "security",
+      "target": "security",
+      "file": "security/approval_token.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/approval_token.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/approval_token.py"
+    },
+    {
+      "source": "security",
       "target": "core",
       "file": "security/authentication.py"
     },
@@ -12591,6 +12616,11 @@
       "source": "security",
       "target": "security",
       "file": "security/authentication.py"
+    },
+    {
+      "source": "security",
+      "target": "core",
+      "file": "security/authorization.py"
     },
     {
       "source": "security",
@@ -12626,6 +12656,11 @@
       "source": "security",
       "target": "security",
       "file": "security/capability.py"
+    },
+    {
+      "source": "security",
+      "target": "core",
+      "file": "security/guard.py"
     },
     {
       "source": "security",
@@ -12679,6 +12714,11 @@
     },
     {
       "source": "security",
+      "target": "core",
+      "file": "security/guard.py"
+    },
+    {
+      "source": "security",
       "target": "brain",
       "file": "security/guard.py"
     },
@@ -12686,6 +12726,16 @@
       "source": "security",
       "target": "core",
       "file": "security/identity.py"
+    },
+    {
+      "source": "security",
+      "target": "core",
+      "file": "security/nonce_store.py"
+    },
+    {
+      "source": "security",
+      "target": "logging",
+      "file": "security/nonce_store.py"
     },
     {
       "source": "security",
@@ -12845,6 +12895,11 @@
     {
       "source": "tools",
       "target": "knowledge",
+      "file": "tools/knowledge/memory_tools.py"
+    },
+    {
+      "source": "tools",
+      "target": "runtime",
       "file": "tools/knowledge/memory_tools.py"
     },
     {
@@ -13454,6 +13509,11 @@
     },
     {
       "source": "tools",
+      "target": "runtime",
+      "file": "tools/workspace/fs.py"
+    },
+    {
+      "source": "tools",
       "target": "security",
       "file": "tools/workspace/fs.py"
     },
@@ -13461,6 +13521,11 @@
       "source": "tools",
       "target": "tools",
       "file": "tools/workspace/fs.py"
+    },
+    {
+      "source": "tools",
+      "target": "runtime",
+      "file": "tools/workspace/git.py"
     },
     {
       "source": "tools",

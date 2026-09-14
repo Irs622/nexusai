@@ -20,10 +20,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy dependency specifications and install
-COPY pyproject.toml .
+# Copy dependency specifications and install pinned dependencies
+COPY pyproject.toml requirements.lock* ./
 RUN pip install --upgrade pip setuptools wheel hatchling
-RUN pip install .
+RUN if [ -f requirements.lock ]; then \
+        pip install --no-deps -r requirements.lock; \
+    fi && pip install --no-deps .
 
 # =============================================================================
 # Stage 2: Production Runtime

@@ -493,11 +493,10 @@ def test_api_dag_execute_idempotency() -> None:
     data1 = resp1.json()
     assert data1["status"] == "EXECUTION_STARTED"
 
-    # 2. Duplicate execution request -> 200 OK with X-Cache: HIT
+    # 2. Duplicate execution request while in progress -> 409 Conflict (NEX-007 lifecycle)
     resp2 = client.post("/api/v1/dag/execute", json=payload, headers=headers)
-    assert resp2.status_code == 200
-    assert resp2.headers.get("X-Cache") == "HIT"
-    assert resp2.json()["status"] == "EXECUTION_STARTED"
+    assert resp2.status_code == 409
+    assert "in progress" in resp2.json()["detail"].lower()
 
     # 3. Payload mismatch with same key -> 409 Conflict
     mismatch_payload = {

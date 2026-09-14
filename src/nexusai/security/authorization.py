@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from nexusai.core.errors import AuthorizationError
+from nexusai.core.errors import AuthenticationError, AuthorizationError
 from nexusai.security.identity import ROLE_HIERARCHY, Identity, Role, TenantContext
 
 
@@ -79,9 +79,12 @@ class RbacEngine:
             identity = TenantContext.get_current_identity()
 
         if identity is None:
-            # If no ambient identity context is established, default to permitting
-            # so legacy/internal non-HTTP callers without identity are governed by downstream guards
-            return True
+            if isinstance(user_or_identity, str) and user_or_identity in ("admin", "system"):
+                identity = Identity(user_id=user_or_identity, tenant_id="default", role=Role.ADMIN)
+            else:
+                raise AuthenticationError(
+                    "Authentication required: Unauthenticated caller cannot evaluate permissions"
+                )
 
         if action_name.startswith("tool:"):
             if risk_level is not None:

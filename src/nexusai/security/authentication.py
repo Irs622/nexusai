@@ -217,6 +217,11 @@ class ApiKeyService:
         """Revoke key access immediately by raw key string."""
         return self.revoke_key(self.hash_key(raw_key))
 
+    def list_keys(self) -> list[ApiKeyRecord]:
+        """List all registered API key records."""
+        with self._lock:
+            return list(self._records.values())
+
     def check_rate_limit(self, key_id_or_hash: str) -> None:
         """Evaluate sliding-window rate limit for a key_id or key_hash."""
         with self._lock:

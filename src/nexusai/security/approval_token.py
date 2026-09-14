@@ -12,6 +12,8 @@ import time
 from typing import Any
 
 from nexusai.core.errors import SecurityError
+from nexusai.security.identity import TenantContext
+from nexusai.security.nonce_store import IDistributedNonceStore, create_distributed_nonce_store
 
 
 class ApprovalTokenService:
@@ -28,6 +30,7 @@ class ApprovalTokenService:
         self,
         secret: str | bytes | None = None,
         default_ttl_seconds: float = 300.0,
+        nonce_store: IDistributedNonceStore | None = None,
     ) -> None:
         """Initialize ApprovalTokenService with HMAC secret and default expiration window.
 
@@ -35,12 +38,18 @@ class ApprovalTokenService:
             secret: Optional HMAC signing secret string or bytes. If omitted, reads from
                 NEXUSAI_APPROVAL_SECRET environment variable or generates an in-memory random secret.
             default_ttl_seconds: Token validity window in seconds (default: 300.0s = 5 minutes).
+            nonce_store: Optional distributed nonce store instance for single-use replay protection.
         """
+        is_production = os.getenv("NEXUSAI_ENV") in ("production", "prod")
         if secret is None:
             env_secret = os.getenv("NEXUSAI_APPROVAL_SECRET")
             if env_secret:
                 self._secret_bytes = env_secret.encode("utf-8")
             else:
+                if is_production:
+                    raise SecurityError(
+                        "Production startup aborted: NEXUSAI_APPROVAL_SECRET environment variable must be set for approval token service."
+                    )
                 self._secret_bytes = secrets.token_bytes(32)
         elif isinstance(secret, str):
             self._secret_bytes = secret.encode("utf-8")
@@ -48,6 +57,7 @@ class ApprovalTokenService:
             self._secret_bytes = secret
 
         self.default_ttl_seconds = default_ttl_seconds
+        self.nonce_store = nonce_store or create_distributed_nonce_store()
         self._consumed_nonces: set[str] = set()
         self._lock = threading.Lock()
 
@@ -106,8 +116,12 @@ class ApprovalTokenService:
         now = time.time()
         expires_at = now + ttl
         expires_at_int = int(expires_at)
-        nonce = secrets.token_hex(16)
+        if user_id in ("anonymous", "", None):
+            ambient = TenantContext.get_current_identity()
+            if ambient is not None:
+                user_id = ambient.user_id
 
+        nonce = secrets.token_hex(16)
         args_digest = self.compute_arguments_digest(arguments)
         payload = self._build_signing_payload(
             user_id=user_id,
@@ -176,50 +190,57 @@ class ApprovalTokenService:
             SecurityError: If token is expired, replayed, tampered, or mismatched.
         """
         nonce, expires_at_int, signature = self.parse_token(token)
+        now = time.time()
+        # 1. Expiration check
+        if now > expires_at_int:
+            raise SecurityError(
+                f"Approval token expired at {expires_at_int} (current time: {int(now)})",
+                details={
+                    "token": token,
+                    "expires_at": str(expires_at_int),
+                    "current_time": str(int(now)),
+                    "tool_name": tool_name,
+                },
+            )
 
+        # 2. Signature & Binding verification
+        if user_id in ("anonymous", "", None):
+            ambient = TenantContext.get_current_identity()
+            if ambient is not None:
+                user_id = ambient.user_id
+
+        args_digest = self.compute_arguments_digest(arguments)
+        expected_payload = self._build_signing_payload(
+            user_id=user_id,
+            tool_name=tool_name,
+            args_digest=args_digest,
+            execution_id=execution_id,
+            expires_at_int=expires_at_int,
+            nonce=nonce,
+        )
+        expected_signature = self._sign_payload(expected_payload)
+
+        if not hmac.compare_digest(expected_signature, signature):
+            raise SecurityError(
+                f"Approval token binding mismatch or invalid signature for tool '{tool_name}'",
+                details={
+                    "token": token,
+                    "tool_name": tool_name,
+                    "expected_args_digest": args_digest,
+                },
+            )
+
+        # 3. Distributed atomic single-use consumption & replay check
+        ttl_remaining = max(float(expires_at_int - now), 1.0)
         with self._lock:
-            # 1. Replay check
-            if nonce in self._consumed_nonces:
+            if (
+                not self.nonce_store.consume_nonce(nonce, ttl_remaining)
+                or nonce in self._consumed_nonces
+            ):
                 raise SecurityError(
                     f"Approval token has already been consumed (replay detected for nonce '{nonce}')",
                     details={"token": token, "nonce": nonce, "tool_name": tool_name},
                 )
-
-            # 2. Expiration check
-            now = time.time()
-            if now > expires_at_int:
-                raise SecurityError(
-                    f"Approval token expired at {expires_at_int} (current time: {int(now)})",
-                    details={
-                        "token": token,
-                        "expires_at": str(expires_at_int),
-                        "current_time": str(int(now)),
-                        "tool_name": tool_name,
-                    },
-                )
-
-            # 3. Signature & Binding verification
-            args_digest = self.compute_arguments_digest(arguments)
-            expected_payload = self._build_signing_payload(
-                user_id=user_id,
-                tool_name=tool_name,
-                args_digest=args_digest,
-                execution_id=execution_id,
-                expires_at_int=expires_at_int,
-                nonce=nonce,
-            )
-            expected_signature = self._sign_payload(expected_payload)
-
-            if not hmac.compare_digest(expected_signature, signature):
-                raise SecurityError(
-                    f"Approval token binding mismatch or invalid signature for tool '{tool_name}'",
-                    details={
-                        "token": token,
-                        "tool_name": tool_name,
-                        "expected_args_digest": args_digest,
-                    },
-                )
-
-            # 4. Atomic single-use consumption
             self._consumed_nonces.add(nonce)
-            return True
+
+        return True

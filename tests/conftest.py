@@ -3,6 +3,7 @@ Pytest global fixtures.
 """
 
 from pathlib import Path
+from typing import Generator
 
 import pytest
 
@@ -10,6 +11,20 @@ from nexusai.bus.bus import CommandBus, EventBus, QueryBus
 from nexusai.core.config import SecuritySettings, SystemConfig
 from nexusai.core.container import DependencyContainer
 from nexusai.security.guard import SecurityGuard
+from nexusai.security.identity import Identity, Role, TenantContext
+
+
+@pytest.fixture(autouse=True)
+def setup_test_identity() -> Generator[Identity, None, None]:
+    """Provide a default ambient test identity for unit tests unless overridden."""
+    identity = Identity(
+        tenant_id="default",
+        user_id="test-operator",
+        role=Role.ADMIN,
+    )
+    TenantContext.set_current_identity(identity)
+    yield identity
+    TenantContext.set_current_identity(None)
 
 
 @pytest.fixture

@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 if TYPE_CHECKING:
     from nexusai.core.config import SecuritySettings
 
-from nexusai.core.errors import SecurityError
+from nexusai.core.errors import AuthenticationError, SecurityError
 from nexusai.logging.logger import log_audit
 from nexusai.security.approval_token import ApprovalTokenService
 from nexusai.security.authorization import RbacEngine
@@ -124,13 +124,17 @@ class SecurityGuard:
 
     def __init__(
         self,
-        settings: SecuritySettings,
+        settings: SecuritySettings | None = None,
         approval_service: ApprovalTokenService | None = None,
         auth_middleware: Any | None = None,
         rbac_engine: Any | None = None,
         capability_resolver: CapabilityResolver | None = None,
         human_approval_engine: Any | None = None,
     ) -> None:
+        if settings is None:
+            from nexusai.core.config import SecuritySettings
+
+            settings = SecuritySettings()
         self.settings = settings
         self.sanitizer = InputSanitizer(
             forbidden_commands=settings.forbidden_commands,
@@ -246,6 +250,16 @@ class SecurityGuard:
             eff_user_id = ambient_identity.user_id
         eff_execution_id = execution_id or request.execution_id
 
+        # NEX-004: Fail-closed identity check. Unauthenticated/anonymous caller cannot evaluate permissions.
+        if ambient_identity is None and eff_user_id in ("anonymous", "", None):
+            log_audit(
+                "ACTION_DENIED_UNAUTHENTICATED",
+                {"action": request.action_name, "reason": "No authenticated identity established"},
+            )
+            raise AuthenticationError(
+                "Authentication required: Unauthenticated caller cannot evaluate permissions (fail-closed)"
+            )
+
         # 1. Identity & Auth gate (#31 hook)
         if self.auth_middleware is not None and hasattr(self.auth_middleware, "validate_identity"):
             if not self.auth_middleware.validate_identity(eff_user_id):
@@ -268,16 +282,16 @@ class SecurityGuard:
         if self.capability_resolver is not None:
             identity = TenantContext.get_current_identity()
             if identity is None:
-                # Backwards-compatible ambient fallback when invoked outside HTTP middleware
-                identity = Identity(
-                    tenant_id="default",
-                    user_id=eff_user_id,
-                    role=(
-                        Role.ADMIN
-                        if eff_user_id in ("admin", "system", "anonymous")
-                        else Role.OPERATOR
-                    ),
-                )
+                if eff_user_id in ("admin", "system"):
+                    identity = Identity(
+                        tenant_id="default",
+                        user_id=eff_user_id,
+                        role=Role.ADMIN,
+                    )
+                else:
+                    raise AuthenticationError(
+                        f"Authentication required: No authenticated identity established for user '{eff_user_id}'"
+                    )
 
             domain, cap_action, resource, cap_context = self._map_request_to_capability(request)
 

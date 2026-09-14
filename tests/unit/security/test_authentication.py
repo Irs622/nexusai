@@ -125,6 +125,7 @@ def test_api_key_rate_limiting() -> None:
 
 def test_tenant_context_vars() -> None:
     """Verify TenantContext isolation with ContextVar."""
+    TenantContext.set_current_identity(None)
     assert TenantContext.get() is None
     token = TenantContext.set("tenant-isolated-1")
     try:
