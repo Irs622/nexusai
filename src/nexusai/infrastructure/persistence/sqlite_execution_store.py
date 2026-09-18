@@ -261,16 +261,26 @@ class SQLiteExecutionStateStore(IExecutionStateStore):
         finally:
             conn.close()
 
-    async def load_execution(self, execution_id: str) -> ExecutionRecord | None:
+    async def load_execution(
+        self, execution_id: str, tenant_id: str | None = None
+    ) -> ExecutionRecord | None:
         """Load an execution record and its node checkpoints from durable storage."""
-        return await asyncio.to_thread(self._sync_load_execution, execution_id)
+        return await asyncio.to_thread(self._sync_load_execution, execution_id, tenant_id)
 
-    def _sync_load_execution(self, execution_id: str) -> ExecutionRecord | None:
+    def _sync_load_execution(
+        self, execution_id: str, tenant_id: str | None = None
+    ) -> ExecutionRecord | None:
         conn = self._get_connection()
         try:
-            row = conn.execute(
-                "SELECT * FROM executions WHERE execution_id = ?", (execution_id,)
-            ).fetchone()
+            if tenant_id is not None:
+                row = conn.execute(
+                    "SELECT * FROM executions WHERE execution_id = ? AND tenant_id = ?",
+                    (execution_id, tenant_id),
+                ).fetchone()
+            else:
+                row = conn.execute(
+                    "SELECT * FROM executions WHERE execution_id = ?", (execution_id,)
+                ).fetchone()
             if row is None:
                 return None
 
@@ -661,19 +671,32 @@ class SQLiteExecutionStateStore(IExecutionStateStore):
         finally:
             conn.close()
 
-    async def mark_cancellation_requested(self, execution_id: str) -> None:
+    async def mark_cancellation_requested(
+        self, execution_id: str, tenant_id: str | None = None
+    ) -> bool:
         """Atomically set cancellation_requested flag for an execution."""
-        await asyncio.to_thread(self._sync_mark_cancellation_requested, execution_id)
+        return await asyncio.to_thread(
+            self._sync_mark_cancellation_requested, execution_id, tenant_id
+        )
 
-    def _sync_mark_cancellation_requested(self, execution_id: str) -> None:
+    def _sync_mark_cancellation_requested(
+        self, execution_id: str, tenant_id: str | None = None
+    ) -> bool:
         conn = self._get_connection()
         now = time.time()
         try:
             with conn:
-                conn.execute(
-                    "UPDATE executions SET cancellation_requested = 1, updated_at = ? WHERE execution_id = ?",
-                    (now, execution_id),
-                )
+                if tenant_id is not None:
+                    cur = conn.execute(
+                        "UPDATE executions SET cancellation_requested = 1, updated_at = ? WHERE execution_id = ? AND tenant_id = ?",
+                        (now, execution_id, tenant_id),
+                    )
+                else:
+                    cur = conn.execute(
+                        "UPDATE executions SET cancellation_requested = 1, updated_at = ? WHERE execution_id = ?",
+                        (now, execution_id),
+                    )
+                return cur.rowcount > 0
         finally:
             conn.close()
 

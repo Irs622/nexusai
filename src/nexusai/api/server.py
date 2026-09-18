@@ -54,6 +54,7 @@ from nexusai.models.openai_provider import OpenAIProvider
 from nexusai.runtime.execution_engine import DurableExecutionEngine
 from nexusai.runtime.recovery import CrashRecoveryProtocol
 from nexusai.security.authentication import ApiKeyService, AuthMiddleware
+from nexusai.security.execution_policy import ExecutionAccessPolicy
 from nexusai.security.guard import RiskLevel, SecurityGuard
 from nexusai.security.identity import Identity, Role, TenantContext
 
@@ -1348,6 +1349,11 @@ def create_app(
         # Persist execution state to SQLite before tool invocation begins
         exec_store: SQLiteExecutionStateStore = app.state.execution_store
         existing_exec = await exec_store.load_execution(req.execution_id)
+        if existing_exec and existing_exec.tenant_id != tenant_id:
+            raise HTTPException(
+                status_code=409,
+                detail=f"Execution ID '{req.execution_id}' already belongs to another tenant",
+            )
         if not existing_exec:
             from nexusai.brain.domain.execution_state import (
                 ExecutionRecord,
@@ -1524,8 +1530,39 @@ def create_app(
         reason: str = Query("", description="Cancellation reason"),
     ) -> dict[str, Any]:
         """Durably cancel an execution in progress, surviving process restarts."""
+        identity: Identity | None = (
+            getattr(request.state, "identity", None) or TenantContext.get_current_identity()
+        )
+
+        exec_store: SQLiteExecutionStateStore = app.state.execution_store
+        record = await exec_store.load_execution(execution_id)
+        if not record:
+            raise HTTPException(status_code=404, detail=f"Execution '{execution_id}' not found")
+
+        # RBAC & Object-level authorization enforcement
+        if identity and identity.role == Role.VIEWER:
+            raise HTTPException(
+                status_code=403,
+                detail="RBAC access denied: Viewer role cannot cancel executions",
+            )
+
+        if not ExecutionAccessPolicy.can_cancel(identity, record.tenant_id):
+            raise HTTPException(
+                status_code=403,
+                detail="Cross-tenant execution cancellation denied. Admin or System role required.",
+            )
+
         durable_engine: DurableExecutionEngine = app.state.durable_engine
-        cancelled = await durable_engine.cancel_execution(execution_id, reason=reason)
+        effective_tenant = (
+            None
+            if (identity and identity.role in (Role.ADMIN, Role.SYSTEM))
+            else (identity.tenant_id if identity else None)
+        )
+        cancelled = await durable_engine.cancel_execution(
+            execution_id,
+            reason=reason,
+            tenant_id=effective_tenant,
+        )
         return {
             "execution_id": execution_id,
             "status": "CANCELLED",
@@ -1539,10 +1576,22 @@ def create_app(
         request: Request,
     ) -> dict[str, Any]:
         """Retrieve full execution record, node checkpoints, and state transition history."""
+        identity: Identity | None = (
+            getattr(request.state, "identity", None) or TenantContext.get_current_identity()
+        )
+
         exec_store: SQLiteExecutionStateStore = app.state.execution_store
         record = await exec_store.load_execution(execution_id)
         if not record:
             raise HTTPException(status_code=404, detail=f"Execution '{execution_id}' not found")
+
+        # Object-level authorization enforcement (BOLA / IDOR protection)
+        if not ExecutionAccessPolicy.can_read(identity, record.tenant_id):
+            raise HTTPException(
+                status_code=403,
+                detail="Cross-tenant execution access denied. Admin or System role required.",
+            )
+
         history = await exec_store.get_state_history(execution_id)
         return {
             "execution_id": record.execution_id,

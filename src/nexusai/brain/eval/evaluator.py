@@ -11,7 +11,7 @@ from nexusai.brain.telemetry.metrics import CompactionMetricsSnapshot, InMemoryM
 
 
 @dataclass(frozen=True)
-class EvaluationResult:  # type: ignore[no-redef]
+class EvaluationResult:
     """Standardized evaluation report output measuring quality across a scenario execution run.
 
     Attributes:

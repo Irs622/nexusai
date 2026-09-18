@@ -128,9 +128,7 @@ class DurableExecutionEngine:
         metadata: dict[str, Any] | None = None,
     ) -> bool:
         """Atomically transition execution state with fencing token and transition matrix validation."""
-        target_val = (
-            to_state.value if isinstance(to_state, DurableExecutionState) else str(to_state)
-        )
+        target_val = to_state.value if isinstance(to_state, DurableExecutionState) else to_state
 
         record = await self.store.load_execution(execution_id)
         current_status = record.status.value if record else DurableExecutionState.CREATED.value
@@ -301,7 +299,7 @@ class DurableExecutionEngine:
 
                 # Check if node was already completed in durable store (resume scenario!)
                 existing_node = record.node_records.get(node_id) or (
-                    record.node_records.get(int(node_id)) if str(node_id).isdigit() else None
+                    record.node_records.get(int(node_id)) if node_id.isdigit() else None
                 )
                 if existing_node and existing_node.status == NodeExecutionStatus.COMPLETED:
                     logger.info(
@@ -592,9 +590,28 @@ class DurableExecutionEngine:
             tenant_id=record.tenant_id,
         )
 
-    async def cancel_execution(self, execution_id: str, reason: str = "") -> bool:
+    async def cancel_execution(
+        self,
+        execution_id: str,
+        reason: str = "",
+        tenant_id: str | None = None,
+    ) -> bool:
         """Durably cancel an execution, signaling in-memory tasks and preventing recovery."""
-        await self.store.mark_cancellation_requested(execution_id)
+        record = await self.store.load_execution(execution_id)
+        if not record:
+            return False
+
+        if tenant_id is not None and record.tenant_id != tenant_id:
+            logger.warning(
+                "Cross-tenant cancellation attempt rejected: caller tenant={} vs execution tenant={}",
+                tenant_id,
+                record.tenant_id,
+            )
+            return False
+
+        updated = await self.store.mark_cancellation_requested(execution_id, tenant_id=tenant_id)
+        if not updated:
+            return False
 
         # Cancel running in-memory task if active
         if execution_id in self._active_tasks:

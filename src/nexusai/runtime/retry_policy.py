@@ -73,7 +73,7 @@ class DurableRetryPolicy:
             err_type = type(error).__name__.upper()
             err_str = (err_type + " " + str(error)).upper()
         else:
-            err_str = str(error).upper()
+            err_str = error.upper()
 
         # Check explicit non-retryable first
         for non_ret in self.non_retryable_errors:

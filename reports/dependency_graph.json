@@ -40,7 +40,7 @@
     "voice",
     "workflow"
   ],
-  "edge_count": 2703,
+  "edge_count": 2708,
   "edges": [
     {
       "source": "root",
@@ -200,6 +200,11 @@
     {
       "source": "api",
       "target": "runtime",
+      "file": "api/server.py"
+    },
+    {
+      "source": "api",
+      "target": "security",
       "file": "api/server.py"
     },
     {
@@ -12574,6 +12579,11 @@
     },
     {
       "source": "security",
+      "target": "security",
+      "file": "security/__init__.py"
+    },
+    {
+      "source": "security",
       "target": "core",
       "file": "security/approval_token.py"
     },
@@ -12656,6 +12666,26 @@
       "source": "security",
       "target": "security",
       "file": "security/capability.py"
+    },
+    {
+      "source": "security",
+      "target": "core",
+      "file": "security/execution_policy.py"
+    },
+    {
+      "source": "security",
+      "target": "core",
+      "file": "security/execution_policy.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/execution_policy.py"
+    },
+    {
+      "source": "security",
+      "target": "security",
+      "file": "security/execution_policy.py"
     },
     {
       "source": "security",
@@ -12670,11 +12700,6 @@
     {
       "source": "security",
       "target": "logging",
-      "file": "security/guard.py"
-    },
-    {
-      "source": "security",
-      "target": "security",
       "file": "security/guard.py"
     },
     {

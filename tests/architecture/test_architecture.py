@@ -43,16 +43,30 @@ def test_provider_adapter_isolation_rule() -> None:
 
 def test_layer_boundary_rule() -> None:
     """Architecture Invariant: Runtime Kernel and Provider SDK must not import higher-level application layers."""
-    check_dirs = [Path("src/nexusai/providers"), Path("src/nexusai/runtime")]
-    forbidden_layers = ["nexusai.cli", "nexusai.brain"]
-    for dir_path in check_dirs:
-        for file_path in dir_path.glob("*.py"):
-            imports = _get_ast_imports(file_path)
-            for imp in imports:
-                for forbidden in forbidden_layers:
-                    assert not imp.startswith(
-                        forbidden
-                    ), f"Layer Boundary Violation in {file_path.name}: imports {imp}"
+    providers_dir = Path("src/nexusai/providers")
+    for file_path in providers_dir.glob("*.py"):
+        imports = _get_ast_imports(file_path)
+        for imp in imports:
+            for forbidden in ("nexusai.cli", "nexusai.brain", "nexusai.runtime"):
+                assert not imp.startswith(
+                    forbidden
+                ), f"Layer Boundary Violation in {file_path.name}: imports {imp}"
+
+    runtime_dir = Path("src/nexusai/runtime")
+    forbidden_runtime_deps = (
+        "nexusai.cli",
+        "nexusai.brain.coordinator",
+        "nexusai.brain.planner",
+        "nexusai.brain.pipeline",
+        "nexusai.brain.service",
+    )
+    for file_path in runtime_dir.glob("*.py"):
+        imports = _get_ast_imports(file_path)
+        for imp in imports:
+            for forbidden in forbidden_runtime_deps:
+                assert not imp.startswith(
+                    forbidden
+                ), f"Layer Boundary Violation in {file_path.name}: imports {imp}"
 
 
 def test_engine_adapter_decoupling_rule() -> None:

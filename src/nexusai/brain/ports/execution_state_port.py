@@ -20,7 +20,9 @@ class IExecutionStateStore(Protocol):
         """Persist a new execution record and initialize node checkpoints."""
         ...
 
-    async def load_execution(self, execution_id: str) -> ExecutionRecord | None:
+    async def load_execution(
+        self, execution_id: str, tenant_id: str | None = None
+    ) -> ExecutionRecord | None:
         """Load an execution record and its node checkpoints from durable storage."""
         ...
 
@@ -58,4 +60,14 @@ class IExecutionStateStore(Protocol):
         status: ExecutionStatus,
     ) -> None:
         """Update overall execution status."""
+        ...
+
+    async def mark_cancellation_requested(
+        self, execution_id: str, tenant_id: str | None = None
+    ) -> bool:
+        """Atomically set cancellation_requested flag for an execution."""
+        ...
+
+    async def is_cancellation_requested(self, execution_id: str) -> bool:
+        """Check whether cancellation has been requested or recorded for an execution."""
         ...

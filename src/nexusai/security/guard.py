@@ -18,8 +18,8 @@ from nexusai.core.errors import AuthenticationError, SecurityError
 from nexusai.logging.logger import log_audit
 from nexusai.security.approval_token import ApprovalTokenService
 from nexusai.security.authorization import RbacEngine
-from nexusai.security.capability import CapabilityResolver
-from nexusai.security.identity import Identity, Role, TenantContext
+from nexusai.security.capability import Capability, CapabilityResolver
+from nexusai.security.identity import TenantContext
 from nexusai.security.sanitizer import InputSanitizer
 
 
@@ -282,18 +282,12 @@ class SecurityGuard:
         if self.capability_resolver is not None:
             identity = TenantContext.get_current_identity()
             if identity is None:
-                if eff_user_id in ("admin", "system"):
-                    identity = Identity(
-                        tenant_id="default",
-                        user_id=eff_user_id,
-                        role=Role.ADMIN,
-                    )
-                else:
-                    raise AuthenticationError(
-                        f"Authentication required: No authenticated identity established for user '{eff_user_id}'"
-                    )
+                raise AuthenticationError(
+                    f"Authentication required: No authenticated identity established for user '{eff_user_id}'"
+                )
 
             domain, cap_action, resource, cap_context = self._map_request_to_capability(request)
+            matched_cap: Capability | None = None
 
             # For shell execution, evaluate EVERY command binary in the pipeline/chain
             if domain == "shell" and cap_action == "execute":

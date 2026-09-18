@@ -24,7 +24,7 @@ If applicable, add screenshots or paste error stack traces here.
 **Environment (please complete the following information):**
  - OS: [e.g. macOS 14.5 Apple Silicon]
  - Python Version: [e.g. 3.12.2]
- - NexusAI Version: [e.g. 0.1.0]
+ - NexusAI Version: [e.g. 1.0.0]
 
 **Additional context**
 Add any other context about the problem here.

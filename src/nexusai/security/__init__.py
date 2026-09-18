@@ -28,6 +28,7 @@ __all__ = [
     "tag_context_content",
     "OutputValidator",
     "ValidationResult",
+    "ExecutionAccessPolicy",
 ]
 
 
@@ -75,4 +76,8 @@ def __getattr__(name: str) -> Any:
         import nexusai.security.output_validator as _validator
 
         return getattr(_validator, name)
+    if name == "ExecutionAccessPolicy":
+        from nexusai.security.execution_policy import ExecutionAccessPolicy
+
+        return ExecutionAccessPolicy
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")

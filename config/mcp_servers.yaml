@@ -30,14 +30,14 @@ mcp_servers:
     risk_level: "MEDIUM"
     timeout_seconds: 30.0
 
-  # 3. Native Web Fetcher & HTTP MCP Server
+  # 3. Native Web Fetcher & HTTP MCP Server (Disabled by default for egress containment)
   web_fetcher:
     transport: "stdio"
     command: "python3"
     args: ["-m", "nexusai.tools.mcp.servers.web_fetcher"]
     env:
       PYTHONPATH: "src:."
-    enabled: true
+    enabled: false
     risk_level: "MEDIUM"
     timeout_seconds: 30.0
 

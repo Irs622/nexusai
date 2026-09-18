@@ -292,9 +292,7 @@ class CapabilityResolver:
             desc = p_data.get("description", "")
             raw_extends = p_data.get("extends", [])
             extends_list = (
-                [str(raw_extends)]
-                if isinstance(raw_extends, str)
-                else [str(e) for e in raw_extends]
+                [raw_extends] if isinstance(raw_extends, str) else [str(e) for e in raw_extends]
             )
 
             caps_list: list[Capability] = []

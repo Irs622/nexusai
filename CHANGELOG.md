@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🛡️ Pre-Release Security Audit Remediation & Object-Level Authorization (ADR-0035)
+- `security(api)`: **NEX-SEC-001 (Execution inspection BOLA/IDOR)**: Enforce object-level authorization on `GET /api/v1/executions/{execution_id}` via `ExecutionAccessPolicy.can_read()`. Cross-tenant retrieval is strictly denied (403 Forbidden) unless holding `Role.ADMIN` or `Role.SYSTEM`.
+- `security(api)`: **NEX-SEC-002 (Execution cancellation BOLA & viewer restriction)**: Enforce object-level authorization on `POST /api/v1/executions/{execution_id}/cancel`. Cross-tenant cancellation is denied (403 Forbidden); `Role.VIEWER` role is rejected fail-closed (403 Forbidden).
+- `security(persistence)`: Make `SQLiteExecutionStateStore` tenant-aware (`load_execution(..., tenant_id=...)` and `mark_cancellation_requested(..., tenant_id=...)`) applying database-level `AND tenant_id = ?` scoping.
+- `security(runtime)`: Make `DurableExecutionEngine.cancel_execution(..., tenant_id=...)` tenant-aware, verifying execution ownership before modifying durable state or cancelling in-memory tasks.
+- `security(mcp)`: **NEX-SEC-003 (Web Fetcher default state)**: Set `web_fetcher.enabled: false` in `config/mcp_servers.yaml`, aligning default configuration with the zero-egress security baseline.
+- `security(auth)`: **NEX-SEC-004 / CQ-002 (Legacy identity fallback elimination)**: Remove legacy string promotion (`user_or_identity in ("admin", "system")`) in `RbacEngine` and `SecurityGuard`, enforcing fail-closed `Identity` resolution.
+- `security(ci)`: **NEX-CI-001 (CI gate reliability)**: Remove `|| true` on dependency installation across GitHub Actions workflows (`security.yml`, `ci.yml`, `tests.yml`, `lint.yml`) so installation failures reliably block pipeline gates.
+- `docs(version)`: **CQ-003 (Version harmonization)**: Harmonize version to `1.0.0` across `config/default.yaml`, `SECURITY.md`, and `.github/ISSUE_TEMPLATE/bug_report.md`.
+- `docs(adr)`: Publish ADR 0035 (`docs/adr/0035-execution-object-level-authorization.md`) establishing centralized `ExecutionAccessPolicy` and durable tenant isolation.
+- `test(security)`: Add unit tests for `ExecutionAccessPolicy` and integration tests for cross-tenant execution inspection, cancellation, and store isolation.
+
 ### 🛡️ Comprehensive Security Audit Hardening & Boundary Enforcement (NEX-001 - NEX-012)
 - `security(auth)`: **NEX-001 (Cross-tenant session enumeration)**: Enforce unguessable CSPRNG session IDs (`session_{secrets.token_urlsafe(32)}`), persistent session ownership validation with `(tenant_id, user_id)` metadata in `sessions` table, composite `(tenant_id, session_id)` indexing, and strict tenant-scoped operations across `SqliteMemory` and `BrainCoordinator`.
 - `security(auth)`: **NEX-002 (Hardcoded default API keys)**: Forbid default and insecure keys (`nx_test_admin_key_123`) in production environments; fail-closed on service startup if authentication is enabled without an explicitly configured administrator key.

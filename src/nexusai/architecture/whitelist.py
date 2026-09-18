@@ -43,7 +43,7 @@ class ArchitectureWhitelist:
             return
 
         try:
-            import yaml  # type: ignore[import-untyped]
+            import yaml
 
             content = self.whitelist_file.read_text(encoding="utf-8")
             data = yaml.safe_load(content) or {}

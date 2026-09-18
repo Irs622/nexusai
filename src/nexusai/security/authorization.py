@@ -79,12 +79,9 @@ class RbacEngine:
             identity = TenantContext.get_current_identity()
 
         if identity is None:
-            if isinstance(user_or_identity, str) and user_or_identity in ("admin", "system"):
-                identity = Identity(user_id=user_or_identity, tenant_id="default", role=Role.ADMIN)
-            else:
-                raise AuthenticationError(
-                    "Authentication required: Unauthenticated caller cannot evaluate permissions"
-                )
+            raise AuthenticationError(
+                "Authentication required: Unauthenticated caller cannot evaluate permissions"
+            )
 
         if action_name.startswith("tool:"):
             if risk_level is not None:

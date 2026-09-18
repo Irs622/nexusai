@@ -40,6 +40,12 @@ def multi_tenant_app():
         role=Role.ADMIN,
         name="beta-admin-key",
     )
+    beta_operator_key, _ = api_key_service.generate_key(
+        tenant_id="tenant-beta",
+        user_id="charlie-operator",
+        role=Role.OPERATOR,
+        name="beta-operator-key",
+    )
 
     # Register Tenant Gamma keys (Viewer)
     gamma_viewer_key, _ = api_key_service.generate_key(
@@ -54,6 +60,7 @@ def multi_tenant_app():
         "alpha_admin_key": alpha_admin_key,
         "alpha_operator_key": alpha_operator_key,
         "beta_admin_key": beta_admin_key,
+        "beta_operator_key": beta_operator_key,
         "gamma_viewer_key": gamma_viewer_key,
     }
 
@@ -266,3 +273,138 @@ def test_audit_event_actor_and_metadata_tenant_binding(multi_tenant_app: dict) -
 
     assert len(post_reset_alpha) >= 1
     assert len(post_reset_beta) >= 5
+
+
+def test_execution_inspection_cross_tenant_bola_blocked(multi_tenant_app: dict) -> None:
+    """Verify Tenant Beta cannot inspect Tenant Alpha's execution records (NEX-SEC-001 BOLA)."""
+    app = multi_tenant_app["app"]
+    client_alpha = TestClient(
+        app, headers={"X-NexusAI-API-Key": multi_tenant_app["alpha_operator_key"]}
+    )
+    client_beta_op = TestClient(
+        app, headers={"X-NexusAI-API-Key": multi_tenant_app["beta_operator_key"]}
+    )
+    client_beta_admin = TestClient(
+        app, headers={"X-NexusAI-API-Key": multi_tenant_app["beta_admin_key"]}
+    )
+
+    # 1. Trigger execution as Tenant Alpha
+    exec_id = "exec-alpha-inspection-test"
+    start_res = client_alpha.post(
+        "/api/v1/dag/execute",
+        json={"plan_id": "incident_response", "execution_id": exec_id},
+    )
+    assert start_res.status_code == 200
+
+    # 2. Tenant Alpha inspects own execution -> 200 OK
+    res_alpha = client_alpha.get(f"/api/v1/executions/{exec_id}")
+    assert res_alpha.status_code == 200
+    data_alpha = res_alpha.json()
+    assert data_alpha["execution_id"] == exec_id
+    assert data_alpha["tenant_id"] == "tenant-alpha"
+
+    # 3. Tenant Beta (Operator) tries to inspect Tenant Alpha's execution -> 403 Forbidden (BOLA blocked!)
+    res_beta = client_beta_op.get(f"/api/v1/executions/{exec_id}")
+    assert res_beta.status_code == 403
+    assert "Cross-tenant execution access denied" in res_beta.json()["detail"]
+
+    # 4. Admin tries to inspect -> 200 OK (admin cross-tenant governance permitted)
+    res_admin = client_beta_admin.get(f"/api/v1/executions/{exec_id}")
+    assert res_admin.status_code == 200
+    assert res_admin.json()["execution_id"] == exec_id
+
+    # 5. Non-existent execution -> 404 Not Found
+    res_404 = client_alpha.get("/api/v1/executions/exec-nonexistent")
+    assert res_404.status_code == 404
+
+
+def test_execution_cancellation_cross_tenant_bola_blocked(multi_tenant_app: dict) -> None:
+    """Verify Tenant Beta cannot cancel Tenant Alpha's execution, and Viewer role cannot cancel (NEX-SEC-002)."""
+    app = multi_tenant_app["app"]
+    client_alpha = TestClient(
+        app, headers={"X-NexusAI-API-Key": multi_tenant_app["alpha_operator_key"]}
+    )
+    client_beta_op = TestClient(
+        app, headers={"X-NexusAI-API-Key": multi_tenant_app["beta_operator_key"]}
+    )
+    client_viewer = TestClient(
+        app, headers={"X-NexusAI-API-Key": multi_tenant_app["gamma_viewer_key"]}
+    )
+
+    # 1. Trigger execution as Tenant Alpha
+    exec_id = "exec-alpha-cancel-test"
+    start_res = client_alpha.post(
+        "/api/v1/dag/execute",
+        json={"plan_id": "incident_response", "execution_id": exec_id},
+    )
+    assert start_res.status_code == 200
+
+    # 2. Viewer role attempts cancellation -> 403 Forbidden
+    res_viewer = client_viewer.post(
+        f"/api/v1/executions/{exec_id}/cancel",
+        params={"reason": "Unauthorized viewer attempt"},
+    )
+    assert res_viewer.status_code == 403
+    assert "Viewer role cannot cancel executions" in res_viewer.json()["detail"]
+
+    # 3. Tenant Beta (Operator) attempts cross-tenant cancellation -> 403 Forbidden
+    res_cross = client_beta_op.post(
+        f"/api/v1/executions/{exec_id}/cancel",
+        params={"reason": "Malicious cross-tenant cancellation"},
+    )
+    assert res_cross.status_code == 403
+    assert "Cross-tenant execution cancellation denied" in res_cross.json()["detail"]
+
+    # 4. Verify execution was NOT cancelled by unauthorized requests
+    check_res = client_alpha.get(f"/api/v1/executions/{exec_id}")
+    assert check_res.status_code == 200
+    assert check_res.json()["cancellation_requested"] is False
+
+    # 5. Tenant Alpha cancels own execution -> 200 OK
+    res_cancel = client_alpha.post(
+        f"/api/v1/executions/{exec_id}/cancel",
+        params={"reason": "Authorized cancellation"},
+    )
+    assert res_cancel.status_code == 200
+    assert res_cancel.json()["status"] == "CANCELLED"
+    assert res_cancel.json()["cancelled"] is True
+
+
+@pytest.mark.asyncio
+async def test_sqlite_execution_store_tenant_isolation(tmp_path) -> None:
+    """Verify SQLiteExecutionStateStore enforces tenant scoping at the database level."""
+    from nexusai.brain.domain.execution_state import ExecutionRecord, ExecutionStatus
+    from nexusai.infrastructure.persistence.sqlite_execution_store import SQLiteExecutionStateStore
+
+    store = SQLiteExecutionStateStore(db_path=str(tmp_path / "exec_test.db"))
+    exec_id = "exec-store-tenant-test"
+
+    rec = ExecutionRecord(
+        execution_id=exec_id,
+        plan_id="plan-test",
+        graph_hash="hash-test",
+        status=ExecutionStatus.RUNNING,
+        tenant_id="tenant-alpha",
+        actor="alice",
+    )
+    await store.create_execution(rec)
+
+    # 1. Loading with matching tenant returns record
+    loaded_alpha = await store.load_execution(exec_id, tenant_id="tenant-alpha")
+    assert loaded_alpha is not None
+    assert loaded_alpha.execution_id == exec_id
+    assert loaded_alpha.tenant_id == "tenant-alpha"
+
+    # 2. Loading with mismatched tenant returns None (database-level containment)
+    loaded_beta = await store.load_execution(exec_id, tenant_id="tenant-beta")
+    assert loaded_beta is None
+
+    # 3. Cancellation request with mismatched tenant returns False and does not mutate
+    updated_beta = await store.mark_cancellation_requested(exec_id, tenant_id="tenant-beta")
+    assert updated_beta is False
+    assert await store.is_cancellation_requested(exec_id) is False
+
+    # 4. Cancellation request with matching tenant succeeds and sets cancellation flag
+    updated_alpha = await store.mark_cancellation_requested(exec_id, tenant_id="tenant-alpha")
+    assert updated_alpha is True
+    assert await store.is_cancellation_requested(exec_id) is True
