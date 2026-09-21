@@ -4,6 +4,7 @@ Background AsyncIOScheduler Service for Proactive Automation.
 
 from __future__ import annotations
 
+import logging
 from datetime import datetime, timedelta, timezone
 from typing import Any, Callable
 
@@ -12,6 +13,9 @@ from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.date import DateTrigger
 
 from nexusai.core.errors import CommandExecutionError
+
+# Suppress APScheduler execution delay warnings from polluting user terminal
+logging.getLogger("apscheduler").setLevel(logging.ERROR)
 
 
 class SchedulerService:
@@ -61,7 +65,7 @@ class SchedulerService:
         """
         run_date = datetime.now(timezone.utc) + timedelta(seconds=delay_seconds)
         trigger = DateTrigger(run_date=run_date)
-        job = self.scheduler.add_job(func, trigger=trigger, args=args)
+        job = self.scheduler.add_job(func, trigger=trigger, args=args, misfire_grace_time=3600)
         return str(job.id)
 
     def add_cron_task(
@@ -82,7 +86,7 @@ class SchedulerService:
         """
         try:
             trigger = CronTrigger.from_crontab(cron_expression)
-            job = self.scheduler.add_job(func, trigger=trigger, args=args)
+            job = self.scheduler.add_job(func, trigger=trigger, args=args, misfire_grace_time=3600)
             return str(job.id)
         except Exception as e:
             raise CommandExecutionError(f"Invalid cron expression '{cron_expression}': {e}") from e

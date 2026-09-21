@@ -14,18 +14,24 @@ from nexusai.core.config import LoggingSettings
 __all__ = ["logger", "setup_logger", "log_audit"]
 
 
-def setup_logger(settings: LoggingSettings) -> None:
+def setup_logger(
+    settings: LoggingSettings,
+    console: bool = True,
+    console_level: str | None = None,
+) -> None:
     """Configure Loguru sinks for console, system log file, and audit log file."""
     logger.remove()
     logger.enable("nexusai")
 
-    # Console sink
-    logger.add(
-        sys.stderr,
-        level=settings.level,
-        format=settings.format,
-        colorize=True,
-    )
+    # Console sink (excludes audit events by default to prevent raw developer telemetry on stdout/stderr)
+    if console:
+        logger.add(
+            sys.stderr,
+            level=console_level or settings.level,
+            format=settings.format,
+            colorize=True,
+            filter=lambda record: "audit" not in record["extra"],
+        )
 
     # File sink for general application logs
     log_file_path = Path(settings.file_path)

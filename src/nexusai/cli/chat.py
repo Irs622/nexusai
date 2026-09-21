@@ -5,7 +5,6 @@ Interactive CLI Chat Loop for NexusAI with real-time UI event streaming, Voice, 
 from __future__ import annotations
 
 import getpass
-import json
 import os
 from typing import Any, Callable
 
@@ -54,7 +53,9 @@ async def start_chat_session(
         prompt_and_configure_api_key(interactive=True)
 
     config = SystemConfig.load_from_yaml()
-    setup_logger(config.logging)
+    # Suppress console Loguru sinks during interactive chat so raw logs don't pollute the user UI.
+    # All system logs and security audits are preserved in log files.
+    setup_logger(config.logging, console=False)
 
     # Establish authenticated operator identity for local CLI session
     try:
@@ -80,13 +81,33 @@ async def start_chat_session(
         event_bus = EventBus()
         command_bus = CommandBus()
 
+        FRIENDLY_ACTIONS: dict[str, str] = {
+            "workspace_list_directory": "Memeriksa folder proyek",
+            "workspace_read_file": "Membaca file",
+            "workspace_write_file": "Menulis file",
+            "workspace_git_status": "Mengecek status Git",
+            "macos_get_active_window": "Mendeteksi aplikasi aktif",
+            "macos_send_notification": "Mengirim notifikasi desktop",
+            "automation_schedule_reminder": "Menyetel pengingat jadwal",
+            "execute_terminal": "Menjalankan perintah terminal",
+            "macos_execute_applescript": "Otomatisasi sistem macOS",
+            "open_app": "Membuka aplikasi",
+            "screen_capture": "Mengambil tangkapan layar",
+        }
+
         # 2. Subscribe Real-Time Progress Stream to EventBus
         async def on_tool_executed(event: ToolExecutedEvent) -> None:
+            action_desc = FRIENDLY_ACTIONS.get(event.tool_name, event.tool_name)
+            detail = ""
+            if event.tool_name == "workspace_read_file" and "path" in event.arguments:
+                detail = f" [cyan]({event.arguments['path']})[/cyan]"
+            elif event.tool_name == "open_app" and "app_name" in event.arguments:
+                detail = f" [cyan]({event.arguments['app_name']})[/cyan]"
+
             status_color = "green" if event.success else "red"
             symbol = "✔" if event.success else "✘"
             console.print(
-                f"  [dim italic]⚙️ Executed tool '[bold]{event.tool_name}[/bold]' "
-                f"([{status_color}]{symbol}[/{status_color}])[/dim italic]"
+                f"  [dim]• {action_desc}{detail} [{status_color}]{symbol}[/{status_color}][/dim]"
             )
 
         event_bus.subscribe(ToolExecutedEvent, on_tool_executed)
@@ -114,21 +135,35 @@ async def start_chat_session(
             if custom_input is not None:
                 return False
 
-            risk_str = getattr(risk_level, "value", str(risk_level))
             console.print(
-                f"\n[bold yellow]⚠️  Security Gate: Tool '[bold cyan]{tool_name}[/bold cyan]' "
-                f"([bold red]{risk_str}[/bold red] risk) requires authorization.[/bold yellow]"
+                "\n[bold yellow]🛡️  Izin Diperlukan: Tindakan berikut memerlukan persetujuan Anda[/bold yellow]"
             )
-            if arguments:
-                try:
-                    formatted_args = json.dumps(arguments, indent=2)
-                except Exception:
-                    formatted_args = str(arguments)
-                console.print(f"  [dim]Parameters:\n{formatted_args}[/dim]")
+            if tool_name == "execute_terminal":
+                cmd = str(arguments.get("command", "")).strip()
+                console.print("  [bold]Aksi:[/bold] Menjalankan perintah di Terminal macOS")
+                console.print(f"  [bold]Perintah:[/bold] [cyan]{cmd}[/cyan]")
+            elif tool_name == "macos_execute_applescript":
+                console.print("  [bold]Aksi:[/bold] Menjalankan skrip otomatisasi macOS")
+                script_raw = str(arguments.get("script", "")).strip()
+                lines = script_raw.splitlines()
+                if len(lines) <= 2:
+                    console.print(f"  [dim]Deskripsi: {script_raw}[/dim]")
+                else:
+                    preview = "\n    ".join(lines[:2])
+                    console.print(f"  [dim]Deskripsi:\n    {preview}\n    ...[/dim]")
+            elif tool_name == "workspace_write_file":
+                path = str(arguments.get("file_path") or arguments.get("path", ""))
+                console.print(
+                    f"  [bold]Aksi:[/bold] Menyimpan perubahan ke file [cyan]{path}[/cyan]"
+                )
+            else:
+                action_desc = FRIENDLY_ACTIONS.get(tool_name, tool_name)
+                console.print(f"  [bold]Aksi:[/bold] {action_desc}")
+                if arguments:
+                    summary = ", ".join(f"{k}={v}" for k, v in arguments.items())
+                    console.print(f"  [dim]Detail: {summary}[/dim]")
 
-            return Confirm.ask(
-                "  [bold green]Approve and execute this tool?[/bold green]", default=False
-            )
+            return Confirm.ask("  [bold green]Izinkan tindakan ini?[/bold green]", default=False)
 
         # Register ExecuteToolCommand handler
         handler = ExecuteToolCommandHandler(
