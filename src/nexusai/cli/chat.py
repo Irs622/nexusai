@@ -70,11 +70,14 @@ async def start_chat_session(
         scopes=frozenset(["*"]),
         metadata={"channel": "cli", "platform": "macos"},
     )
-    identity_reset_token = TenantContext.set_current_identity(cli_identity)
+    identity_reset_handle = TenantContext.set_current_identity(cli_identity)
 
     # Initialize Scheduler
     scheduler = SchedulerService()
     scheduler.start()
+
+    memory: SQLiteMemory | None = None
+    provider: Any = None
 
     try:
         # 1. Initialize EventBus & CommandBus
@@ -229,5 +232,19 @@ async def start_chat_session(
                     break
 
     finally:
-        TenantContext.reset_current_identity(identity_reset_token)
+        TenantContext.reset_current_identity(identity_reset_handle)
         scheduler.stop()
+        if memory is not None:
+            try:
+                await memory.close()
+            except Exception:
+                pass
+        if (
+            provider is not None
+            and hasattr(provider, "client")
+            and hasattr(provider.client, "close")
+        ):
+            try:
+                await provider.client.close()
+            except Exception:
+                pass

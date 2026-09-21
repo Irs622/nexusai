@@ -179,3 +179,33 @@ async def test_execute_tool_command_handler_approval_callback() -> None:
         assert len(denied_calls) == 1
     finally:
         TenantContext.set_current_identity(None)
+
+
+@pytest.mark.asyncio
+async def test_start_chat_session_closes_memory(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Verify SQLiteMemory is cleanly closed when chat session terminates."""
+    from nexusai.memory.sqlite_memory import SQLiteMemory
+
+    close_called = False
+    orig_close = SQLiteMemory.close
+
+    async def mock_close(self: SQLiteMemory) -> None:
+        nonlocal close_called
+        close_called = True
+        await orig_close(self)
+
+    monkeypatch.setattr(SQLiteMemory, "close", mock_close)
+
+    inputs = iter(["exit"])
+
+    def custom_input() -> str:
+        return next(inputs)
+
+    mock_provider = MockModelProvider()
+    await start_chat_session(
+        session_id="test_cli_close_session",
+        custom_input=custom_input,
+        model_provider_override=mock_provider,
+    )
+
+    assert close_called is True
