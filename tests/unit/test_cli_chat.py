@@ -184,16 +184,11 @@ async def test_execute_tool_command_handler_approval_callback() -> None:
 @pytest.mark.asyncio
 async def test_start_chat_session_closes_memory(monkeypatch: pytest.MonkeyPatch) -> None:
     """Verify SQLiteMemory is cleanly closed when chat session terminates."""
+    from unittest.mock import AsyncMock
+
     from nexusai.memory.sqlite_memory import SQLiteMemory
 
-    close_called = False
-    orig_close = SQLiteMemory.close
-
-    async def mock_close(self: SQLiteMemory) -> None:
-        nonlocal close_called
-        close_called = True
-        await orig_close(self)
-
+    mock_close = AsyncMock()
     monkeypatch.setattr(SQLiteMemory, "close", mock_close)
 
     inputs = iter(["exit"])
@@ -208,4 +203,4 @@ async def test_start_chat_session_closes_memory(monkeypatch: pytest.MonkeyPatch)
         model_provider_override=mock_provider,
     )
 
-    assert close_called is True
+    mock_close.assert_awaited_once()
