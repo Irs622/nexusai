@@ -122,7 +122,7 @@ class ExecuteToolCommandHandler:
             import inspect
 
             cb_result = self.approval_callback(tool.name, command.arguments, tool.risk_level)
-            user_approved = await cb_result if inspect.isawaitable(cb_result) else bool(cb_result)
+            user_approved = await cb_result if inspect.isawaitable(cb_result) else cb_result
             if user_approved:
                 # Issue approval token on-the-fly via security_guard approval_service
                 token, _ = self.security_guard.approval_service.create_token(
