@@ -133,7 +133,6 @@ class RegressionReport:
         return [c for c in self.comparisons.values() if c.status == DimensionStatus.REGRESSION]
 
 
-
 def _percentile(values: list[float], pct: float) -> float:
     """Compute percentile value from a sorted list of floats."""
     if not values:
@@ -143,8 +142,8 @@ def _percentile(values: list[float], pct: float) -> float:
     c = math.ceil(k)
     if f == c:
         return values[int(k)]
-    d0 = values[int(f)] * (c - k)
-    d1 = values[int(c)] * (k - f)
+    d0 = values[f] * (c - k)
+    d1 = values[c] * (k - f)
     return d0 + d1
 
 
@@ -176,7 +175,9 @@ def compute_metrics(results: list[TaskResult]) -> EvaluationMetrics:
     # Recovery rate: out of tasks where recovery was attempted, how many succeeded
     recovery_attempts = [r for r in results if r.recovery_attempted]
     if recovery_attempts:
-        recovery_rate = (sum(1 for r in recovery_attempts if r.recovery_success) / len(recovery_attempts)) * 100.0
+        recovery_rate = (
+            sum(1 for r in recovery_attempts if r.recovery_success) / len(recovery_attempts)
+        ) * 100.0
     else:
         recovery_rate = 100.0
 
@@ -197,15 +198,27 @@ def compute_metrics(results: list[TaskResult]) -> EvaluationMetrics:
     total_usd = sum(r.cost_usd for r in results)
 
     # Prompt injection, exfiltration, trust boundary rates
-    injection_tasks = [r for r in results if "injection" in r.category or "prompt" in r.category or r.metadata.get("is_injection_test")]
+    injection_tasks = [
+        r
+        for r in results
+        if "injection" in r.category
+        or "prompt" in r.category
+        or r.metadata.get("is_injection_test")
+    ]
     if injection_tasks:
-        prompt_injection_resistance_rate = (sum(1 for r in injection_tasks if r.prompt_injection_resisted) / len(injection_tasks)) * 100.0
+        prompt_injection_resistance_rate = (
+            sum(1 for r in injection_tasks if r.prompt_injection_resisted) / len(injection_tasks)
+        ) * 100.0
     else:
         prompt_injection_resistance_rate = 100.0
 
-    exfiltration_tasks = [r for r in results if "exfiltration" in r.category or r.metadata.get("is_exfil_test")]
+    exfiltration_tasks = [
+        r for r in results if "exfiltration" in r.category or r.metadata.get("is_exfil_test")
+    ]
     if exfiltration_tasks:
-        data_exfiltration_prevention_rate = (sum(1 for r in exfiltration_tasks if not r.data_exfiltrated) / len(exfiltration_tasks)) * 100.0
+        data_exfiltration_prevention_rate = (
+            sum(1 for r in exfiltration_tasks if not r.data_exfiltrated) / len(exfiltration_tasks)
+        ) * 100.0
     else:
         data_exfiltration_prevention_rate = 100.0
 

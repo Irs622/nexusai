@@ -65,7 +65,7 @@ async def node_tool_executor(
 
     tool_name = last_call["tool_name"]
     arguments = last_call.get("arguments", {})
-    user_confirmed = bool(state.get("user_confirmed", False))
+    user_confirmed = state.get("user_confirmed", False)
     raw_token = state.get("approval_token")
     approval_token = str(raw_token) if raw_token is not None else None
 

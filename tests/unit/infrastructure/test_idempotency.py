@@ -67,7 +67,7 @@ class MockEchoTool(BaseTool):
     name: str = "mock_echo_tool"
     description: str = "Mock tool for testing idempotency"
     risk_level: RiskLevel = RiskLevel.LOW
-    input_schema: type[DummyArgs] = DummyArgs
+    input_schema: type[BaseModel] = DummyArgs
 
     def __init__(self) -> None:
         super().__init__()
@@ -91,10 +91,10 @@ class MockEchoTool(BaseTool):
 
 
 class MockToolRegistry:
-    def __init__(self, tool: BaseTool[Any, Any]) -> None:
+    def __init__(self, tool: BaseTool) -> None:
         self.tool = tool
 
-    def get(self, name: str) -> BaseTool[Any, Any]:
+    def get(self, name: str) -> BaseTool:
         if name == self.tool.name:
             return self.tool
         raise KeyError(f"Tool {name} not found")

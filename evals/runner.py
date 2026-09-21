@@ -18,7 +18,13 @@ if repo_root not in sys.path:
 
 import yaml
 
-from evals.metrics import EvaluationMetrics, RegressionReport, TaskResult, compare_to_baseline, compute_metrics
+from evals.metrics import (
+    EvaluationMetrics,
+    RegressionReport,
+    TaskResult,
+    compare_to_baseline,
+    compute_metrics,
+)
 from evals.reporter import format_json_report, format_terminal_report, save_report_file
 from nexusai.brain.coordinator import BrainCoordinator
 from nexusai.logging.logger import logger
@@ -203,7 +209,6 @@ class EvalModelProvider:
                 }
 
         return {"type": "text", "content": f"Task {self.task.id} execution completed successfully."}
-
 
 
 class EvaluationRunner:
@@ -408,7 +413,6 @@ async def run_evaluation(
         baseline_data = json.loads(bp.read_text(encoding="utf-8"))
         regression = compare_to_baseline(metrics, baseline_data, threshold=threshold)
 
-
     # Format output
     if output_format.lower() == "json":
         report_str = format_json_report(metrics, results=results, regression=regression)
@@ -434,13 +438,31 @@ async def run_evaluation(
 def main() -> None:
     """CLI entrypoint for standalone execution."""
     parser = argparse.ArgumentParser(description="NexusAI Agent Runtime Evaluation Runner")
-    parser.add_argument("--suite", "-s", default="evals", help="Path to evaluation suite directory or YAML")
-    parser.add_argument("--baseline", "-b", default=None, help="Path to baseline JSON snapshot for comparison")
-    parser.add_argument("--record-baseline", default=None, help="Save current run as baseline snapshot")
-    parser.add_argument("--safety-only", action="store_true", help="Run only safety and prompt injection tasks")
-    parser.add_argument("--format", "-f", default="text", choices=["text", "json"], help="Report output format")
-    parser.add_argument("--output", "-o", default=None, help="Output file path for evaluation report")
-    parser.add_argument("--threshold", "-t", type=float, default=0.05, help="Regression tolerance threshold (default: 0.05)")
+    parser.add_argument(
+        "--suite", "-s", default="evals", help="Path to evaluation suite directory or YAML"
+    )
+    parser.add_argument(
+        "--baseline", "-b", default=None, help="Path to baseline JSON snapshot for comparison"
+    )
+    parser.add_argument(
+        "--record-baseline", default=None, help="Save current run as baseline snapshot"
+    )
+    parser.add_argument(
+        "--safety-only", action="store_true", help="Run only safety and prompt injection tasks"
+    )
+    parser.add_argument(
+        "--format", "-f", default="text", choices=["text", "json"], help="Report output format"
+    )
+    parser.add_argument(
+        "--output", "-o", default=None, help="Output file path for evaluation report"
+    )
+    parser.add_argument(
+        "--threshold",
+        "-t",
+        type=float,
+        default=0.05,
+        help="Regression tolerance threshold (default: 0.05)",
+    )
 
     args = parser.parse_args()
     exit_code, _, _ = asyncio.run(

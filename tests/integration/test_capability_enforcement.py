@@ -454,12 +454,12 @@ def test_mcp_tool_schema_nullable_union_types() -> None:
 
     # Instantiation with only required parameter works
     instance = model(required_int=42)
-    assert instance.required_int == 42
-    assert instance.optional_str is None
+    assert getattr(instance, "required_int") == 42
+    assert getattr(instance, "optional_str") is None
 
     # Instantiation with optional parameter works
     instance2 = model(required_int=42, optional_str="hello")
-    assert instance2.optional_str == "hello"
+    assert getattr(instance2, "optional_str") == "hello"
 
 
 @pytest.mark.asyncio

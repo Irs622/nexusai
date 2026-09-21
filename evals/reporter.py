@@ -6,7 +6,12 @@ import json
 from pathlib import Path
 from typing import Any
 
-from evals.metrics import DimensionComparison, DimensionStatus, EvaluationMetrics, RegressionReport, TaskResult
+from evals.metrics import (
+    DimensionStatus,
+    EvaluationMetrics,
+    RegressionReport,
+    TaskResult,
+)
 
 
 def _format_dim_title(name: str) -> str:
@@ -45,7 +50,6 @@ def _format_value(value: float, unit: str) -> str:
     return f"{value:.2f}"
 
 
-
 def format_terminal_report(
     metrics: EvaluationMetrics,
     regression: RegressionReport | None = None,
@@ -68,7 +72,9 @@ def format_terminal_report(
 
     if regression is not None:
         lines.append("DIMENSION                   CURRENT        BASELINE       STATUS")
-        lines.append("--------------------------------------------------------------------------------")
+        lines.append(
+            "--------------------------------------------------------------------------------"
+        )
         for dim, comp in regression.comparisons.items():
             title = _format_dim_title(dim).ljust(26)
             curr_str = _format_value(comp.current_value, comp.unit).ljust(14)
@@ -83,7 +89,9 @@ def format_terminal_report(
 
             lines.append(f"{title} {curr_str} {base_str} {status_str}")
 
-        lines.append("--------------------------------------------------------------------------------")
+        lines.append(
+            "--------------------------------------------------------------------------------"
+        )
         if regression.has_regression:
             lines.append(
                 f"[STATUS] ❌ REGRESSION DETECTED: {regression.regression_count} dimension(s) dropped beyond {int(regression.threshold * 100)}% threshold."
@@ -94,21 +102,41 @@ def format_terminal_report(
             )
     else:
         lines.append("DIMENSION                   MEASUREMENT")
-        lines.append("--------------------------------------------------------------------------------")
-        lines.append(f"{'Task Success Rate'.ljust(26)} {metrics.task_success_rate:.1f}% ({metrics.successful_tasks}/{metrics.total_tasks})")
+        lines.append(
+            "--------------------------------------------------------------------------------"
+        )
+        lines.append(
+            f"{'Task Success Rate'.ljust(26)} {metrics.task_success_rate:.1f}% ({metrics.successful_tasks}/{metrics.total_tasks})"
+        )
         lines.append(f"{'Planning Accuracy'.ljust(26)} {metrics.planning_accuracy:.1f}%")
-        lines.append(f"{'Tool Selection Accuracy'.ljust(26)} {metrics.tool_selection_accuracy:.1f}%")
-        lines.append(f"{'Unnecessary Tool Calls'.ljust(26)} {metrics.unnecessary_tool_calls_avg:.2f} avg")
-        lines.append(f"{'Hallucinated Args Rate'.ljust(26)} {metrics.hallucinated_arguments_rate:.1f}%")
+        lines.append(
+            f"{'Tool Selection Accuracy'.ljust(26)} {metrics.tool_selection_accuracy:.1f}%"
+        )
+        lines.append(
+            f"{'Unnecessary Tool Calls'.ljust(26)} {metrics.unnecessary_tool_calls_avg:.2f} avg"
+        )
+        lines.append(
+            f"{'Hallucinated Args Rate'.ljust(26)} {metrics.hallucinated_arguments_rate:.1f}%"
+        )
         lines.append(f"{'Policy Violation Rate'.ljust(26)} {metrics.policy_violation_rate:.1f}%")
         lines.append(f"{'Recovery Rate'.ljust(26)} {metrics.recovery_rate:.1f}%")
-        lines.append(f"{'Avg Latency'.ljust(26)} {metrics.latency_avg:.2f}s (p50: {metrics.latency_p50:.2f}s, p95: {metrics.latency_p95:.2f}s, p99: {metrics.latency_p99:.2f}s)")
+        lines.append(
+            f"{'Avg Latency'.ljust(26)} {metrics.latency_avg:.2f}s (p50: {metrics.latency_p50:.2f}s, p95: {metrics.latency_p95:.2f}s, p99: {metrics.latency_p99:.2f}s)"
+        )
         lines.append(f"{'Avg Token Cost'.ljust(26)} {int(metrics.avg_token_cost):,} tokens")
         lines.append(f"{'Total Cost USD'.ljust(26)} ${metrics.total_cost_usd:.4f}")
-        lines.append(f"{'Prompt Injection Resisted'.ljust(26)} {metrics.prompt_injection_resistance_rate:.1f}%")
-        lines.append(f"{'Data Exfiltration Blocked'.ljust(26)} {metrics.data_exfiltration_prevention_rate:.1f}%")
-        lines.append(f"{'Trust Boundary Violations'.ljust(26)} {metrics.trust_boundary_violation_rate:.1f}%")
-        lines.append("--------------------------------------------------------------------------------")
+        lines.append(
+            f"{'Prompt Injection Resisted'.ljust(26)} {metrics.prompt_injection_resistance_rate:.1f}%"
+        )
+        lines.append(
+            f"{'Data Exfiltration Blocked'.ljust(26)} {metrics.data_exfiltration_prevention_rate:.1f}%"
+        )
+        lines.append(
+            f"{'Trust Boundary Violations'.ljust(26)} {metrics.trust_boundary_violation_rate:.1f}%"
+        )
+        lines.append(
+            "--------------------------------------------------------------------------------"
+        )
         lines.append("[STATUS] ✅ Evaluation run completed successfully.")
 
     lines.append("================================================================================")
