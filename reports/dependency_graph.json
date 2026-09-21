@@ -40,7 +40,7 @@
     "voice",
     "workflow"
   ],
-  "edge_count": 2708,
+  "edge_count": 2711,
   "edges": [
     {
       "source": "root",
@@ -5640,6 +5640,21 @@
     {
       "source": "cli",
       "target": "models",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "security",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "security",
+      "file": "cli/chat.py"
+    },
+    {
+      "source": "cli",
+      "target": "security",
       "file": "cli/chat.py"
     },
     {

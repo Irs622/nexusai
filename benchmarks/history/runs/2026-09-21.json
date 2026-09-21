@@ -3,25 +3,25 @@
   "passed": true,
   "metrics": {
     "startup_time_seconds": {
-      "current": 0.585,
+      "current": 0.5714,
       "baseline_median": 1.21,
-      "delta_pct": -51.65,
+      "delta_pct": -52.78,
       "max_threshold": 1.8,
       "passed": true,
       "unit": "seconds"
     },
     "memory_rss_mb": {
-      "current": 21.77,
+      "current": 21.84,
       "baseline_median": 145.2,
-      "delta_pct": -85.01,
+      "delta_pct": -84.96,
       "max_threshold": 200.0,
       "passed": true,
       "unit": "MB"
     },
     "tool_latency_ms": {
-      "current": 0.408,
+      "current": 0.407,
       "baseline_median": 12.4,
-      "delta_pct": -96.71,
+      "delta_pct": -96.72,
       "max_threshold": 50.0,
       "passed": true,
       "unit": "ms"

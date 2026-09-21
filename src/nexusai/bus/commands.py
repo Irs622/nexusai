@@ -4,6 +4,7 @@ CQRS Commands & Command Handlers for NexusAI.
 
 from __future__ import annotations
 
+from collections.abc import Awaitable, Callable
 from typing import Any
 
 from pydantic import BaseModel, Field, ValidationError
@@ -43,11 +44,15 @@ class ExecuteToolCommandHandler:
         security_guard: SecurityGuard,
         event_bus: EventBus,
         idempotency_store: IdempotencyStore | None = None,
+        approval_callback: (
+            Callable[[str, dict[str, Any], Any], Awaitable[bool] | bool] | None
+        ) = None,
     ) -> None:
         self.registry = registry
         self.security_guard = security_guard
         self.event_bus = event_bus
         self.idempotency_store = idempotency_store
+        self.approval_callback = approval_callback
 
     async def __call__(self, command: ExecuteToolCommand) -> Any:
         """Process the ExecuteToolCommand with optional idempotency enforcement."""
@@ -112,6 +117,28 @@ class ExecuteToolCommandHandler:
             execution_id=command.execution_id,
             user_confirmed=command.user_confirmed,
         )
+
+        if not is_permitted and self.approval_callback is not None:
+            import inspect
+
+            cb_result = self.approval_callback(tool.name, command.arguments, tool.risk_level)
+            user_approved = await cb_result if inspect.isawaitable(cb_result) else bool(cb_result)
+            if user_approved:
+                # Issue approval token on-the-fly via security_guard approval_service
+                token, _ = self.security_guard.approval_service.create_token(
+                    tool_name=tool.name,
+                    arguments=command.arguments,
+                    user_id=command.user_id,
+                    execution_id=command.execution_id,
+                )
+                action_request.approval_token = token
+                is_permitted = self.security_guard.evaluate_permission(
+                    action_request,
+                    approval_token=token,
+                    user_id=command.user_id,
+                    execution_id=command.execution_id,
+                    user_confirmed=True,
+                )
 
         if not is_permitted:
             sec_err = SecurityError(

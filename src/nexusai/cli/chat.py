@@ -4,11 +4,14 @@ Interactive CLI Chat Loop for NexusAI with real-time UI event streaming, Voice, 
 
 from __future__ import annotations
 
+import getpass
+import json
+import os
 from typing import Any, Callable
 
 from rich.console import Console
 from rich.markdown import Markdown
-from rich.prompt import Prompt
+from rich.prompt import Confirm, Prompt
 
 from nexusai.automation.scheduler import SchedulerService
 from nexusai.brain.coordinator import BrainCoordinator
@@ -21,6 +24,7 @@ from nexusai.logging.logger import setup_logger
 from nexusai.memory.sqlite_memory import SQLiteMemory
 from nexusai.models.openai_provider import OpenAIProvider
 from nexusai.security.guard import SecurityGuard
+from nexusai.security.identity import Identity, Role, TenantContext
 
 # Import default tools
 from nexusai.tools.automation import ScheduleReminderTool
@@ -51,6 +55,21 @@ async def start_chat_session(
 
     config = SystemConfig.load_from_yaml()
     setup_logger(config.logging)
+
+    # Establish authenticated operator identity for local CLI session
+    try:
+        current_user = getpass.getuser()
+    except Exception:
+        current_user = os.getenv("USER") or "local-operator"
+
+    cli_identity = Identity(
+        tenant_id="default",
+        user_id=current_user,
+        role=Role.ADMIN,
+        scopes=frozenset(["*"]),
+        metadata={"channel": "cli", "platform": "macos"},
+    )
+    identity_reset_token = TenantContext.set_current_identity(cli_identity)
 
     # Initialize Scheduler
     scheduler = SchedulerService()
@@ -88,8 +107,33 @@ async def start_chat_session(
         registry.register(GitStatusTool())
         registry.register(ScreenCaptureTool())
 
+        # Interactive approval callback for CLI
+        async def cli_approval_callback(
+            tool_name: str, arguments: dict[str, Any], risk_level: Any
+        ) -> bool:
+            if custom_input is not None:
+                return False
+
+            risk_str = getattr(risk_level, "value", str(risk_level))
+            console.print(
+                f"\n[bold yellow]⚠️  Security Gate: Tool '[bold cyan]{tool_name}[/bold cyan]' "
+                f"([bold red]{risk_str}[/bold red] risk) requires authorization.[/bold yellow]"
+            )
+            if arguments:
+                try:
+                    formatted_args = json.dumps(arguments, indent=2)
+                except Exception:
+                    formatted_args = str(arguments)
+                console.print(f"  [dim]Parameters:\n{formatted_args}[/dim]")
+
+            return Confirm.ask(
+                "  [bold green]Approve and execute this tool?[/bold green]", default=False
+            )
+
         # Register ExecuteToolCommand handler
-        handler = ExecuteToolCommandHandler(registry, security_guard, event_bus)
+        handler = ExecuteToolCommandHandler(
+            registry, security_guard, event_bus, approval_callback=cli_approval_callback
+        )
         command_bus.register(ExecuteToolCommand, handler)
 
         # 4. Initialize Memory Store & Brain
@@ -131,6 +175,8 @@ async def start_chat_session(
                 response = await coordinator.process_user_input(
                     cleaned_input,
                     session_id=session_id,
+                    user_id=cli_identity.user_id,
+                    tenant_id=cli_identity.tenant_id,
                 )
 
                 content = response.get("content", "")
@@ -148,4 +194,5 @@ async def start_chat_session(
                     break
 
     finally:
+        TenantContext.reset_current_identity(identity_reset_token)
         scheduler.stop()
