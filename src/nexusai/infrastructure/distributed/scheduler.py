@@ -11,6 +11,7 @@ from nexusai.brain.ports.tool_port import IToolPort, ToolExecutionRequest, ToolE
 from nexusai.brain.runtime.execution_policy import CircuitBreaker, ExecutionPolicy
 from nexusai.infrastructure.distributed.pool import DistributedWorkerPool, RoutingStrategy
 from nexusai.infrastructure.distributed.worker_node import WorkerNode
+from nexusai.logging.logger import logger
 
 
 class DistributedExecutionScheduler:
@@ -215,8 +216,10 @@ class DistributedExecutionScheduler:
                                         lease_id=lease.lease_id,
                                         worker=worker_ident,
                                     )
-                                except Exception:
-                                    pass
+                                except Exception as exc:
+                                    logger.warning(
+                                        "worker_loop: best-effort operation failed: {!r}", exc
+                                    )
 
                 async with lock:
                     results_map[node_id] = res

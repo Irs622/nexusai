@@ -13,6 +13,7 @@ from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.date import DateTrigger
 
 from nexusai.core.errors import CommandExecutionError
+from nexusai.logging.logger import logger
 
 # Suppress APScheduler execution delay warnings from polluting user terminal
 logging.getLogger("apscheduler").setLevel(logging.ERROR)
@@ -38,8 +39,8 @@ class SchedulerService:
             if self.scheduler.running:
                 try:
                     self.scheduler.shutdown(wait=False)
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.warning("stop: best-effort operation failed: {!r}", exc)
             self._running = False
 
     @property

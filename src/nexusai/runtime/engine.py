@@ -160,8 +160,8 @@ class ExecutionEngine:
                         default_p.id,
                     )
                     selected_provider = default_p
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning("execute_chat: best-effort operation failed: {!r}", exc)
 
         decision = RoutingDecision(
             provider_id=selected_provider.id,

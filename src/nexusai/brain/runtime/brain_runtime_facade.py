@@ -27,6 +27,7 @@ from nexusai.brain.ports.agent_runtime_port import IAgentRuntime
 from nexusai.brain.ports.memory_port import IContextBuilder, IMemoryStore
 from nexusai.brain.ports.observability_port import IObservabilityPort
 from nexusai.brain.ports.tool_port import IToolPort
+from nexusai.logging.logger import logger
 
 
 class BrainRuntimeFacade(IAgentRuntime):
@@ -63,8 +64,8 @@ class BrainRuntimeFacade(IAgentRuntime):
                 attributes={"session_id": session_id, **(attributes or {})},
             )
             await self.telemetry.emit_event(evt)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("_safe_telemetry_event: telemetry emission failed: {!r}", exc)
 
     async def run_agent(
         self,
@@ -89,8 +90,8 @@ class BrainRuntimeFacade(IAgentRuntime):
                     query_text=request.user_prompt,
                     max_tokens=4096,
                 )
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning("run_agent: best-effort operation failed: {!r}", exc)
 
         # 2. PlanningContext Construction
         combined_prompt = f"{context_text}\nUser Query: {request.user_prompt}".strip()
@@ -131,8 +132,8 @@ class BrainRuntimeFacade(IAgentRuntime):
                         provenance=prov,
                     )
                     await self.memory_store.store(mem_entry)
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.warning("run_agent: best-effort operation failed: {!r}", exc)
 
             dur_ms = (time.perf_counter() - t0) * 1000.0
             await self._safe_telemetry_event(

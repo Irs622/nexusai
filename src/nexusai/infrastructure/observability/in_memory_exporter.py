@@ -8,6 +8,7 @@ from typing import Any, Mapping
 
 from nexusai.brain.domain.observability import RuntimeEvent
 from nexusai.brain.ports.observability_port import IObservabilityPort
+from nexusai.logging.logger import logger
 
 FORBIDDEN_METRIC_LABELS = {
     "execution_id",
@@ -80,8 +81,8 @@ class InMemoryMetricsExporter(IObservabilityPort):
             _clean_attrs = sanitize_metric_attributes(attributes)
             async with self._lock:
                 self._counters[name] = self._counters.get(name, 0) + value
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("increment_counter: telemetry emission failed: {!r}", exc)
 
     async def record_duration(
         self,
@@ -99,8 +100,8 @@ class InMemoryMetricsExporter(IObservabilityPort):
                 if name not in self._duration_samples:
                     self._duration_samples[name] = []
                 self._duration_samples[name].append(duration_ms)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("record_duration: telemetry emission failed: {!r}", exc)
 
     async def record_gauge(
         self,
@@ -116,8 +117,8 @@ class InMemoryMetricsExporter(IObservabilityPort):
             _clean_attrs = sanitize_metric_attributes(attributes)
             async with self._lock:
                 self._gauges[name] = value
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("record_gauge: telemetry emission failed: {!r}", exc)
 
     async def record_histogram(
         self,

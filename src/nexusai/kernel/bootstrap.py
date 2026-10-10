@@ -47,8 +47,8 @@ class KernelBootstrap:
             self.container.register_singleton(SystemConfig, self.config)
             self.container.register_singleton(ServiceRegistry, self.registry)
             self.container.register_singleton(RuntimeDependencyGraph, self.dependency_graph)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("prepare_container: best-effort operation failed: {!r}", exc)
         return self.container
 
     def validate_and_freeze(self) -> tuple[tuple[str, ...], tuple[str, ...]]:

@@ -6,6 +6,7 @@ import sys
 from typing import Any, Dict, Optional
 
 from nexusai.core.errors import ToolExecutionError
+from nexusai.logging.logger import logger
 
 
 class SubprocessPluginRunner:
@@ -40,8 +41,8 @@ class SubprocessPluginRunner:
                     await asyncio.sleep(0.1)
                     if process.returncode is None:
                         process.kill()
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.warning("execute_isolated_code: best-effort operation failed: {!r}", exc)
                 raise ToolExecutionError(
                     f"Subprocess plugin execution timed out after {self.timeout_seconds} seconds"
                 )

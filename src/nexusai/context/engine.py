@@ -10,6 +10,7 @@ import psutil
 from pydantic import BaseModel
 
 from nexusai.tools.macos.active_window import GetActiveWindowTool
+from nexusai.logging.logger import logger
 
 
 class WorkingContext(BaseModel):
@@ -34,8 +35,8 @@ class ContextEngine:
             res = await self._active_window_tool.execute()
             if isinstance(res, dict):
                 return res.get("active_app", "Unknown"), res.get("window_title", "Unknown")
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("_get_active_window: best-effort operation failed: {!r}", exc)
         return "Unknown", "Unknown"
 
     async def _get_git_branch(self) -> str | None:
@@ -50,8 +51,8 @@ class ContextEngine:
             if process.returncode == 0:
                 branch = stdout_bytes.decode("utf-8", errors="replace").strip()
                 return branch if branch else None
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("_get_git_branch: best-effort operation failed: {!r}", exc)
         return None
 
     def _get_hardware_telemetry(self) -> tuple[float, float]:

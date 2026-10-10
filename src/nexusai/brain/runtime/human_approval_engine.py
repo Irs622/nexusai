@@ -60,8 +60,8 @@ class HumanApprovalEngine(IHumanApprovalPort):
                 attributes={"approval_id": approval_id, **(attributes or {})},
             )
             await self.telemetry.emit_event(evt)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("_safe_telemetry_event: telemetry emission failed: {!r}", exc)
 
     def _dispatch_notify_request(self, request: HumanApprovalRequest) -> None:
         """Asynchronously dispatch notification that approval is required in non-blocking write-behind fashion."""

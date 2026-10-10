@@ -20,6 +20,7 @@ from nexusai.brain.domain.tool_registry import (
 )
 from nexusai.brain.ports.observability_port import IObservabilityPort
 from nexusai.brain.ports.tool_registry_port import IToolRegistry
+from nexusai.logging.logger import logger
 
 
 class ToolRegistry(IToolRegistry):
@@ -50,8 +51,8 @@ class ToolRegistry(IToolRegistry):
                 attributes={"tool_id": tool_id, **(attributes or {})},
             )
             await self.telemetry.emit_event(evt)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("_safe_telemetry_event: telemetry emission failed: {!r}", exc)
 
     async def register(self, metadata: ToolMetadata) -> None:
         """Register a new tool metadata declaration atomically. Rejects duplicate tool_ids."""

@@ -9,6 +9,7 @@ from pathlib import Path
 from nexusai.brain.domain.governance import ToolCapability
 from nexusai.brain.domain.tool_registry import ToolMetadata, ToolStatus, ToolTrustLevel
 from nexusai.brain.ports.tool_port import IToolPort, ToolExecutionRequest, ToolExecutionResult
+from nexusai.logging.logger import logger
 
 
 class ProcessTool(IToolPort):
@@ -110,8 +111,8 @@ class ProcessTool(IToolPort):
                 try:
                     proc.kill()
                     await proc.wait()
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.warning("execute: best-effort operation failed: {!r}", exc)
             return ToolExecutionResult(
                 request_id=request.execution_id,
                 tool_name=request.tool_name,

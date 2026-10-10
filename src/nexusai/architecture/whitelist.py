@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Set
+from nexusai.logging.logger import logger
 
 # Default fallback whitelist definitions (empty when no active technical debt)
 DEFAULT_WHITELIST: Dict[str, Set[str]] = {}
@@ -95,6 +96,6 @@ class ArchitectureWhitelist:
                         f"expired on {entry.expires} (Owner: {entry.owner}). "
                         f"Refactoring required!"
                     )
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning("check_expired_exceptions: best-effort operation failed: {!r}", exc)
         return expired_warnings
