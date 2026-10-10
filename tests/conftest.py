@@ -86,3 +86,17 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
             item.add_marker(pytest.mark.architecture)
         elif "/tests/unit/" in fspath:
             item.add_marker(pytest.mark.unit)
+
+
+@pytest.fixture
+def log_records() -> Generator[list[tuple[str, str]], None, None]:
+    """Capture loguru output as ``(level_name, message)`` tuples."""
+    from loguru import logger
+
+    records: list[tuple[str, str]] = []
+    handler_id = logger.add(
+        lambda msg: records.append((msg.record["level"].name, msg.record["message"])),
+        level="DEBUG",
+    )
+    yield records
+    logger.remove(handler_id)

@@ -79,3 +79,18 @@ async def test_stt_listen_fallback_on_exception() -> None:
         microphone_override=mock_mic,
     )
     assert result == ""
+
+
+@pytest.mark.asyncio
+async def test_listen_degrades_gracefully_without_pyaudio(
+    log_records: list[tuple[str, str]],
+) -> None:
+    mic = MagicMock()
+    mic.__enter__.side_effect = AttributeError("Could not find PyAudio; check installation")
+
+    result = await listen(recognizer_override=MagicMock(), microphone_override=mic)
+
+    assert result == ""
+    assert any(
+        level == "WARNING" and "nexusai[audio]" in message for level, message in log_records
+    )

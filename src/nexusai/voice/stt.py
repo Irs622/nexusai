@@ -5,6 +5,14 @@ Speech-to-Text Engine utilizing SpeechRecognition library and microphone input.
 import asyncio
 from typing import Any
 
+from nexusai.logging.logger import logger
+
+_AUDIO_INSTALL_HINT = (
+    "Microphone input requires PyAudio. Install the audio extra: "
+    "pip install 'nexusai[audio]' (macOS: brew install portaudio first; "
+    "Debian/Ubuntu: apt-get install portaudio19-dev libasound2-dev)."
+)
+
 
 def _record_and_transcribe(
     recognizer_override: Any = None,
@@ -23,7 +31,14 @@ def _record_and_transcribe(
 
         text = recognizer.recognize_google(audio)
         return str(text).strip()
-    except Exception:
+    except (ImportError, AttributeError) as exc:
+        # SpeechRecognition raises AttributeError("Could not find PyAudio...") when the
+        # native audio stack is absent; degrade to text-only input.
+        logger.warning("Voice input unavailable: {}. {}", exc, _AUDIO_INSTALL_HINT)
+        return ""
+    except Exception as exc:
+        # Permission denied, timeout, or unintelligible audio: treat as no input.
+        logger.debug("Speech recognition produced no result: {!r}", exc)
         return ""
 
 
@@ -41,5 +56,6 @@ async def listen(
             recognizer_override,
             microphone_override,
         )
-    except Exception:
+    except Exception as exc:
+        logger.debug("Speech recognition worker failed: {!r}", exc)
         return ""

@@ -18,6 +18,7 @@ Thank you for your interest in contributing to **NexusAI**! We welcome contribut
    source .venv/bin/activate
    pip install -e ".[dev]"
    ```
+   The `dev` extra does not need native libraries. To work on voice input, also install the `audio` extra. It needs PortAudio first: `brew install portaudio` on macOS, or `sudo apt-get install portaudio19-dev libasound2-dev` on Debian/Ubuntu. See [Getting Started](docs/tutorials/getting-started.md#optional-extras--platform-prerequisites).
 
 3. **Verify Environment Installation:**
    ```bash

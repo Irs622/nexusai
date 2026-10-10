@@ -26,6 +26,17 @@ source .venv/bin/activate
 pip install -e .
 ```
 
+### Optional extras & platform prerequisites
+
+| Extra | Install | Native prerequisite |
+|---|---|---|
+| `audio` (microphone input for `--voice`) | `pip install -e ".[audio]"` | **macOS:** `brew install portaudio` · **Debian/Ubuntu:** `sudo apt-get install portaudio19-dev libasound2-dev` · **Windows:** prebuilt PyAudio wheels, no extra step |
+| `workflow` (LangGraph agent graph) | `pip install -e ".[workflow]"` | none |
+| `postgres` | `pip install -e ".[postgres]"` | none |
+| `qdrant` | `pip install -e ".[qdrant]"` | none |
+
+All extras are optional. NexusAI starts and runs normally without them. If PyAudio/PortAudio is missing, `--voice` logs a warning with the install hint and falls back to text input.
+
 ---
 
 ## Step 2: Set API Key
