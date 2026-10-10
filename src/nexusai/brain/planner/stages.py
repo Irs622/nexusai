@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any, Protocol, runtime_checkable
 from uuid import uuid4
 
@@ -26,6 +27,55 @@ from nexusai.brain.domain.agent import (
 )
 
 
+_TOKEN_SYNONYMS: dict[str, str] = {
+    "show": "read",
+    "view": "read",
+    "open": "read",
+    "cat": "read",
+    "examine": "read",
+    "inspect": "read",
+    "create": "write",
+    "save": "write",
+    "edit": "write",
+    "run": "execute",
+    "exec": "execute",
+    "command": "terminal",
+    "shell": "terminal",
+    "ls": "list",
+    "folder": "directory",
+    "dir": "directory",
+    "fetch": "web",
+    "url": "web",
+    "http": "web",
+    "https": "web",
+    "download": "web",
+}
+
+
+def _normalize_tokens(text: str) -> set[str]:
+    tokens: set[str] = set()
+    for raw in re.split(r"[^a-z0-9]+", text.lower()):
+        if len(raw) < 2:
+            continue
+        tok = raw[:-1] if raw.endswith("s") and len(raw) > 3 else raw
+        tokens.add(_TOKEN_SYNONYMS.get(tok, tok))
+    return tokens
+
+
+def goal_relevance(goal_description: str, candidate_name: str) -> float:
+    """Lexical relevance in [0, 1] between a goal and a tool name.
+
+    Returns the fraction of the tool name's tokens (e.g. ``read`` and ``file`` for
+    ``read_file``) present in the goal after light normalization (case, plurals, and a
+    small verb/noun synonym table). This is a cheap, deterministic pre-planning
+    signal; semantic selection proper remains the model's job during function calling.
+    """
+    name_tokens = _normalize_tokens(candidate_name)
+    if not name_tokens:
+        return 0.0
+    return len(name_tokens & _normalize_tokens(goal_description)) / len(name_tokens)
+
+
 @runtime_checkable
 class IScoringStrategy(Protocol):
     """Protocol interface for candidate action scoring strategies."""
@@ -44,7 +94,12 @@ class IScoringStrategy(Protocol):
 
 
 class WeightedLinearStrategy:
-    """Default linear scoring strategy using PlannerWeights."""
+    """Default linear scoring strategy using PlannerWeights.
+
+    The strategy itself is goal-agnostic arithmetic over its inputs. Goal awareness
+    enters through ``info_gain``, which ``ActionRanker`` derives from
+    :func:`goal_relevance` when a goal description is available.
+    """
 
     def score(
         self,
@@ -257,8 +312,19 @@ class ActionRanker:
     def __init__(self, strategy: IScoringStrategy | None = None) -> None:
         self.strategy = strategy or WeightedLinearStrategy()
 
-    def score_candidate(self, candidate_name: str, weights: PlannerWeights) -> ActionCandidate:
-        return self.strategy.score(candidate_name, weights)
+    def score_candidate(
+        self, candidate_name: str, weights: PlannerWeights, goal_description: str = ""
+    ) -> ActionCandidate:
+        """Score a candidate tool, using goal relevance as its expected information gain.
+
+        Without a goal description the strategy defaults apply (legacy behavior). With
+        one, ``info_gain`` scales from 0.4 (no lexical overlap) to 1.0 (full overlap), so
+        tools that match the goal outrank unrelated ones. Ties keep catalog order.
+        """
+        if not goal_description:
+            return self.strategy.score(candidate_name, weights)
+        relevance = goal_relevance(goal_description, candidate_name)
+        return self.strategy.score(candidate_name, weights, info_gain=0.4 + 0.6 * relevance)
 
     def rank(
         self, candidates: list[ActionCandidate]
@@ -320,7 +386,9 @@ class ExecutionPlanner:
         if ctx.available_tools:
             candidate_objs: list[ActionCandidate] = []
             for tool in ctx.available_tools:
-                cand = self.ranker.score_candidate(tool, weights=ctx.policy.weights)
+                cand = self.ranker.score_candidate(
+                    tool, weights=ctx.policy.weights, goal_description=ctx.goal.description
+                )
                 candidate_objs.append(cand)
 
             ranked, rejected = self.ranker.rank(candidate_objs)
