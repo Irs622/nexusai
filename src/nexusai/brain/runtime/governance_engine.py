@@ -19,6 +19,7 @@ from nexusai.brain.domain.governance import (
 from nexusai.brain.domain.observability import RuntimeEvent, RuntimeEventType
 from nexusai.brain.ports.governance_port import IGovernancePort
 from nexusai.brain.ports.observability_port import IObservabilityPort
+from nexusai.logging.logger import logger
 
 DEFAULT_TOOL_CAPABILITIES: dict[str, set[ToolCapability]] = {
     "terminal": {ToolCapability.PROCESS_EXEC},
@@ -94,8 +95,8 @@ class GovernanceEngine(IGovernancePort):
                 attributes=attributes or {},
             )
             await self.telemetry.emit_event(evt)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("_safe_telemetry_event: telemetry emission failed: {!r}", exc)
 
     async def _safe_telemetry_counter(
         self, name: str, value: int = 1, attributes: dict[str, Any] | None = None
@@ -104,8 +105,8 @@ class GovernanceEngine(IGovernancePort):
             return
         try:
             await self.telemetry.increment_counter(name, value, attributes=attributes)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("_safe_telemetry_counter: telemetry emission failed: {!r}", exc)
 
     async def authorize(
         self,
@@ -368,8 +369,8 @@ class GovernanceEngine(IGovernancePort):
                         await self.telemetry.increment_counter(
                             "nexusai_resource_reservation_failures_total"
                         )
-                    except Exception:
-                        pass
+                    except Exception as exc:
+                        logger.debug("reserve: telemetry emission failed: {!r}", exc)
                 return None
 
             # All checks passed: atomically create reservation
@@ -398,8 +399,8 @@ class GovernanceEngine(IGovernancePort):
                     )
                 )
                 await self.telemetry.increment_counter("nexusai_resource_reservations_total")
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("reserve: telemetry emission failed: {!r}", exc)
 
         return reservation
 
@@ -418,8 +419,8 @@ class GovernanceEngine(IGovernancePort):
                         node_id=reservation.node_id,
                     )
                 )
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("release: telemetry emission failed: {!r}", exc)
 
         return reservation is not None
 
@@ -431,8 +432,8 @@ class GovernanceEngine(IGovernancePort):
                     "nexusai_resource_usage_total",
                     value=usage.tool_invocations_used,
                 )
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("record_usage: telemetry emission failed: {!r}", exc)
 
     def get_active_reservation_count(self) -> int:
         """Return count of currently active resource reservations."""
