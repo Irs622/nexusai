@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🧹 Code Hygiene & Repository Maintenance
+- `fix(observability)`: `ConsoleExporter` now emits spans/metrics through the loguru logger instead of `print()`.
+- `fix(brain)`: Replace 24 silent `except Exception: pass` blocks in the scheduler, governance engine, crash recovery manager, planner engine, and coordinator with logging (`debug` for best-effort telemetry, `warning` otherwise). Control flow is unchanged.
+- `chore(build)`: Make `pyproject.toml` the single source of package metadata; `setup.py` is now an empty shim (it previously declared a conflicting version `0.1.0`).
+- `refactor(brain)`: Remove unreachable `brain/planner.py` and `brain/prompt.py`, which were shadowed by the same-named packages.
+- `docs`: Add the `vault/` second-brain notes required by AGENTS.md, plus draft RFC 0002 (package consolidation).
+
 ### 🛡️ Pre-Release Security Audit Remediation & Object-Level Authorization (ADR-0035)
 - `security(api)`: **NEX-SEC-001 (Execution inspection BOLA/IDOR)**: Enforce object-level authorization on `GET /api/v1/executions/{execution_id}` via `ExecutionAccessPolicy.can_read()`. Cross-tenant retrieval is strictly denied (403 Forbidden) unless holding `Role.ADMIN` or `Role.SYSTEM`.
 - `security(api)`: **NEX-SEC-002 (Execution cancellation BOLA & viewer restriction)**: Enforce object-level authorization on `POST /api/v1/executions/{execution_id}/cancel`. Cross-tenant cancellation is denied (403 Forbidden); `Role.VIEWER` role is rejected fail-closed (403 Forbidden).
