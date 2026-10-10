@@ -7,9 +7,12 @@ import asyncio
 import ipaddress
 import re
 import socket
+import typing
 import urllib.parse
+from collections.abc import Awaitable, Callable
 from typing import Any
 
+import httpcore
 import httpx
 
 from nexusai.tools.mcp.servers.base import McpServerBase
@@ -23,6 +26,143 @@ BLOCKED_HOSTNAMES = {
     "metadata.google.internal",
     "instance-data",
 }
+
+DEFAULT_MAX_RESPONSE_BYTES = 5 * 1024 * 1024
+
+
+class SSRFBlockedError(ValueError):
+    """Raised when a destination resolves to a forbidden (non-public) address."""
+
+
+class ResponseTooLargeError(ValueError):
+    """Raised when a response declares a body larger than the configured ceiling."""
+
+
+def is_blocked_ip(ip: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
+    """Return True for any address that is not safe to reach from the fetcher.
+
+    Blocks loopback, RFC1918/ULA private, link-local (incl. 169.254.169.254 cloud
+    metadata), CGNAT, multicast, reserved, unspecified, and every other non-global
+    range. IPv4-mapped/6to4/Teredo IPv6 forms are unwrapped and checked as IPv4.
+    """
+    candidates: list[ipaddress.IPv4Address | ipaddress.IPv6Address] = [ip]
+    if isinstance(ip, ipaddress.IPv6Address):
+        if ip.ipv4_mapped is not None:
+            candidates.append(ip.ipv4_mapped)
+        if ip.sixtofour is not None:
+            candidates.append(ip.sixtofour)
+        if ip.teredo is not None:
+            candidates.extend(ip.teredo)
+    return any(
+        not c.is_global or c.is_multicast or c.is_unspecified or c.is_reserved for c in candidates
+    )
+
+
+Resolver = Callable[[str, int], Awaitable[list[str]]]
+
+
+async def _system_resolver(host: str, port: int) -> list[str]:
+    infos = await asyncio.to_thread(socket.getaddrinfo, host, port, type=socket.SOCK_STREAM)
+    return list(dict.fromkeys(str(info[4][0]) for info in infos))
+
+
+class SSRFGuardNetworkBackend(httpcore.AsyncNetworkBackend):
+    """httpcore network backend that validates the destination IP at connect time.
+
+    DNS is resolved exactly once per TCP connection and the socket is opened to the
+    validated IP, closing the TOCTOU window exploited by DNS rebinding. Because the
+    check sits below the connection pool, it covers every hop, redirect, and new
+    pooled connection. TLS still verifies the certificate against the original
+    hostname (httpcore passes ``server_hostname`` separately).
+    """
+
+    def __init__(
+        self,
+        inner: httpcore.AsyncNetworkBackend | None = None,
+        resolver: Resolver | None = None,
+    ) -> None:
+        self._inner = inner or httpcore.AnyIOBackend()
+        self._resolver = resolver or _system_resolver
+
+    async def connect_tcp(
+        self,
+        host: str,
+        port: int,
+        timeout: float | None = None,
+        local_address: str | None = None,
+        socket_options: typing.Iterable[Any] | None = None,
+    ) -> httpcore.AsyncNetworkStream:
+        try:
+            addresses = await self._resolver(host, port)
+        except socket.gaierror as exc:
+            raise httpcore.ConnectError(f"DNS resolution failed for '{host}': {exc}") from exc
+        if not addresses:
+            raise httpcore.ConnectError(f"DNS resolution returned no addresses for '{host}'")
+        for addr in addresses:
+            if is_blocked_ip(ipaddress.ip_address(addr)):
+                raise SSRFBlockedError(
+                    f"SSRF Protection: Host '{host}' resolved to blocked address '{addr}' "
+                    "at connection time"
+                )
+        last_error: Exception | None = None
+        for addr in addresses:
+            try:
+                return await self._inner.connect_tcp(
+                    addr,
+                    port,
+                    timeout=timeout,
+                    local_address=local_address,
+                    socket_options=socket_options,
+                )
+            except (httpcore.ConnectError, httpcore.ConnectTimeout, OSError) as exc:
+                last_error = exc
+        raise httpcore.ConnectError(f"Could not connect to '{host}': {last_error}")
+
+    async def connect_unix_socket(
+        self,
+        path: str,
+        timeout: float | None = None,
+        socket_options: typing.Iterable[Any] | None = None,
+    ) -> httpcore.AsyncNetworkStream:
+        raise SSRFBlockedError("SSRF Protection: Unix socket connections are not allowed")
+
+    async def sleep(self, seconds: float) -> None:
+        await self._inner.sleep(seconds)
+
+
+def build_guarded_transport(
+    resolver: Resolver | None = None,
+    inner: httpcore.AsyncNetworkBackend | None = None,
+) -> httpx.AsyncHTTPTransport:
+    """Create an httpx transport whose every TCP connection is SSRF-validated."""
+    transport = httpx.AsyncHTTPTransport(trust_env=False)
+    pool = transport._pool  # httpx exposes no public hook for the network backend
+    if not hasattr(pool, "_network_backend"):
+        raise RuntimeError("Unsupported httpcore version: cannot install SSRF guard backend")
+    pool._network_backend = SSRFGuardNetworkBackend(inner=inner, resolver=resolver)
+    return transport
+
+
+async def read_limited_body(resp: httpx.Response, max_bytes: int) -> tuple[bytes, bool]:
+    """Read a streamed response body without exceeding ``max_bytes`` of decoded data.
+
+    Rejects up front when ``Content-Length`` already exceeds the limit. Otherwise reads
+    decompressed chunks and stops as soon as the ceiling is reached, so oversized and
+    compression-bomb payloads are never fully buffered. Returns ``(body, truncated)``.
+    """
+    declared = resp.headers.get("content-length")
+    if declared and declared.isdigit() and int(declared) > max_bytes:
+        raise ResponseTooLargeError(
+            f"Response declares {int(declared)} bytes, exceeding the {max_bytes}-byte limit"
+        )
+    buf = bytearray()
+    async for chunk in resp.aiter_bytes():
+        remaining = max_bytes - len(buf)
+        if len(chunk) > remaining:
+            buf.extend(chunk[:remaining])
+            return bytes(buf), True
+        buf.extend(chunk)
+    return bytes(buf), False
 
 
 def validate_ssrf_url(
@@ -133,6 +273,8 @@ class WebFetcherMcpServer(McpServerBase):
         default_timeout_sec: float = 15.0,
         allowed_hosts: set[str] | None = None,
         enabled: bool = False,
+        max_response_bytes: int = DEFAULT_MAX_RESPONSE_BYTES,
+        transport: httpx.AsyncBaseTransport | None = None,
     ) -> None:
         super().__init__(
             name="nexus-web-fetcher",
@@ -142,7 +284,16 @@ class WebFetcherMcpServer(McpServerBase):
         self.default_timeout_sec = default_timeout_sec
         self.allowed_hosts = allowed_hosts
         self.enabled = enabled
+        self.max_response_bytes = max_response_bytes
+        # Tests may inject a transport; production always uses the SSRF-guarded one.
+        self._transport_override = transport
         self._register_fetcher_tools()
+
+    def _make_client(self, timeout: float) -> httpx.AsyncClient:
+        transport = self._transport_override or build_guarded_transport()
+        return httpx.AsyncClient(
+            timeout=timeout, follow_redirects=False, transport=transport, trust_env=False
+        )
 
     def _register_fetcher_tools(self) -> None:
         # 1. fetch_url
@@ -204,32 +355,7 @@ class WebFetcherMcpServer(McpServerBase):
             handler=self._handle_http_request,
         )
 
-    async def _safe_http_get(
-        self,
-        url: str,
-        headers: dict[str, str],
-        timeout: float,
-        max_redirects: int = 5,
-    ) -> httpx.Response:
-        """Execute HTTP GET with hop-by-hop SSRF validation on redirects."""
-        current_url = url
-        validate_ssrf_url(current_url, allowed_hosts=self.allowed_hosts)
-
-        async with httpx.AsyncClient(timeout=timeout, follow_redirects=False) as client:
-            for _ in range(max_redirects + 1):
-                resp = await client.get(current_url, headers=headers)
-                if resp.is_redirect:
-                    location = resp.headers.get("Location")
-                    if not location:
-                        return resp
-                    next_url = urllib.parse.urljoin(current_url, location)
-                    validate_ssrf_url(next_url, allowed_hosts=self.allowed_hosts)
-                    current_url = next_url
-                else:
-                    return resp
-            raise ValueError(f"Too many redirects (limit {max_redirects})")
-
-    async def _safe_http_request(
+    async def _safe_fetch(
         self,
         method: str,
         url: str,
@@ -237,24 +363,39 @@ class WebFetcherMcpServer(McpServerBase):
         content: bytes | None,
         timeout: float,
         max_redirects: int = 5,
-    ) -> httpx.Response:
-        """Execute HTTP request with hop-by-hop SSRF validation on redirects."""
+    ) -> tuple[httpx.Response, bytes, bool]:
+        """Execute a request with per-hop SSRF validation and a bounded body read.
+
+        Hostname policy (scheme, blocklist, allowlist) is checked for every hop here;
+        the resolved IP is checked again at TCP connect time by the guarded transport.
+        Returns ``(response, body_bytes, truncated)``.
+        """
         current_url = url
         validate_ssrf_url(current_url, allowed_hosts=self.allowed_hosts)
 
-        async with httpx.AsyncClient(timeout=timeout, follow_redirects=False) as client:
+        async with self._make_client(timeout) as client:
             for _ in range(max_redirects + 1):
-                resp = await client.request(method, current_url, headers=headers, content=content)
-                if resp.is_redirect and method in ("GET", "HEAD"):
-                    location = resp.headers.get("Location")
-                    if not location:
-                        return resp
-                    next_url = urllib.parse.urljoin(current_url, location)
-                    validate_ssrf_url(next_url, allowed_hosts=self.allowed_hosts)
-                    current_url = next_url
-                else:
-                    return resp
+                request = client.build_request(
+                    method, current_url, headers=headers, content=content
+                )
+                resp = await client.send(request, stream=True)
+                try:
+                    if resp.is_redirect and method in ("GET", "HEAD"):
+                        location = resp.headers.get("Location")
+                        if location:
+                            next_url = urllib.parse.urljoin(current_url, location)
+                            validate_ssrf_url(next_url, allowed_hosts=self.allowed_hosts)
+                            current_url = next_url
+                            continue
+                    body, truncated = await read_limited_body(resp, self.max_response_bytes)
+                    return resp, body, truncated
+                finally:
+                    await resp.aclose()
             raise ValueError(f"Too many redirects (limit {max_redirects})")
+
+    @staticmethod
+    def _decode(resp: httpx.Response, body: bytes) -> str:
+        return body.decode(resp.encoding or "utf-8", errors="replace")
 
     async def _handle_fetch_url(self, args: dict[str, Any]) -> dict[str, Any]:
         if not self.enabled:
@@ -273,10 +414,12 @@ class WebFetcherMcpServer(McpServerBase):
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         }
 
-        resp = await self._safe_http_get(url, headers=headers, timeout=self.default_timeout_sec)
+        resp, body, download_truncated = await self._safe_fetch(
+            "GET", url, headers=headers, content=None, timeout=self.default_timeout_sec
+        )
 
         content_type = resp.headers.get("content-type", "")
-        raw_text = resp.text
+        raw_text = self._decode(resp, body)
 
         if "html" in content_type.lower():
             title = _extract_title(raw_text)
@@ -285,7 +428,7 @@ class WebFetcherMcpServer(McpServerBase):
             title = ""
             extracted_text = raw_text.strip()
 
-        truncated = len(extracted_text) > max_chars
+        truncated = len(extracted_text) > max_chars or download_truncated
         final_text = extracted_text[:max_chars]
 
         return {
@@ -314,13 +457,13 @@ class WebFetcherMcpServer(McpServerBase):
         validate_ssrf_url(url, allowed_hosts=self.allowed_hosts)
 
         req_content = body.encode("utf-8") if body else None
-        resp = await self._safe_http_request(
+        resp, resp_body, download_truncated = await self._safe_fetch(
             method, url, headers=headers, content=req_content, timeout=timeout
         )
 
-        resp_text = resp.text
+        resp_text = self._decode(resp, resp_body)
         max_limit = 20000
-        truncated = len(resp_text) > max_limit
+        truncated = len(resp_text) > max_limit or download_truncated
 
         return {
             "url": str(resp.url),

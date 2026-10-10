@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 import httpx
 import pytest
@@ -16,6 +16,8 @@ from nexusai.tools.mcp.servers.base import McpServerBase
 from nexusai.tools.mcp.servers.filesystem import FilesystemMcpServer
 from nexusai.tools.mcp.servers.sqlite import SqliteMcpServer
 from nexusai.tools.mcp.servers.web_fetcher import WebFetcherMcpServer
+
+_PUBLIC_ADDRINFO = [(2, 1, 6, "", ("93.184.216.34", 0))]
 
 
 @pytest.mark.unit
@@ -287,8 +289,6 @@ async def test_sqlite_mcp_server(tmp_path: Path) -> None:
 @pytest.mark.asyncio
 async def test_web_fetcher_mcp_server() -> None:
     """Verify Web Fetcher HTML extraction and HTTP request handling."""
-    server = WebFetcherMcpServer(enabled=True)
-
     mock_html = """
     <!DOCTYPE html>
     <html>
@@ -302,16 +302,21 @@ async def test_web_fetcher_mcp_server() -> None:
     </html>
     """
 
-    mock_resp = httpx.Response(
-        status_code=200,
-        headers={"content-type": "text/html; charset=utf-8"},
-        text=mock_html,
-        request=httpx.Request("GET", "https://nexusai.local/docs"),
-    )
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.method == "GET":
+            return httpx.Response(
+                200, headers={"content-type": "text/html; charset=utf-8"}, text=mock_html
+            )
+        assert request.content == b'{"title": "analyze"}'
+        return httpx.Response(
+            201,
+            headers={"content-type": "application/json"},
+            text='{"status": "created", "id": "task_100"}',
+        )
 
-    with patch("httpx.AsyncClient.get", new_callable=AsyncMock) as mock_get:
-        mock_get.return_value = mock_resp
+    server = WebFetcherMcpServer(enabled=True, transport=httpx.MockTransport(handler))
 
+    with patch("socket.getaddrinfo", return_value=_PUBLIC_ADDRINFO):
         fetch_res = await server.handle_request(
             {
                 "jsonrpc": "2.0",
@@ -330,17 +335,6 @@ async def test_web_fetcher_mcp_server() -> None:
         assert "Autonomous Agent Architecture" in content_text
         assert "<script>" not in content_text
         assert "alert(" not in content_text
-
-    # Generic HTTP request test
-    mock_post_resp = httpx.Response(
-        status_code=201,
-        headers={"content-type": "application/json"},
-        text='{"status": "created", "id": "task_100"}',
-        request=httpx.Request("POST", "https://api.nexusai.local/tasks"),
-    )
-
-    with patch("httpx.AsyncClient.request", new_callable=AsyncMock) as mock_req:
-        mock_req.return_value = mock_post_resp
 
         req_res = await server.handle_request(
             {

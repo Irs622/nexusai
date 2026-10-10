@@ -5,17 +5,18 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
+import httpx
 import pytest
 
 from nexusai.core.config import SecuritySettings
 from nexusai.core.errors import SecurityError, ToolExecutionError
+from nexusai.plugins.runtime.loader import PluginLoader, PluginLoadError
 from nexusai.security.capability import Capability, CapabilityProfile, CapabilityResolver
 from nexusai.security.guard import ActionRequest, RiskLevel, SecurityGuard
 from nexusai.security.identity import Identity, Role, TenantContext
 from nexusai.tools.mcp.models import McpToolDefinition
 from nexusai.tools.mcp.servers.web_fetcher import WebFetcherMcpServer, validate_ssrf_url
 from nexusai.tools.mcp.tool import McpToolWrapper
-from nexusai.tools.plugin_loader import PluginLoader, PluginLoadError
 from nexusai.tools.plugin_manifest import PluginCapabilities, PluginManifest
 from nexusai.tools.registry import ToolRegistry
 from nexusai.tools.workspace.fs import ListDirectoryTool, ReadFileTool
@@ -253,16 +254,17 @@ def test_mcp_web_fetcher_ssrf_protection() -> None:
 @pytest.mark.asyncio
 async def test_mcp_web_fetcher_redirect_hop_validation() -> None:
     """Verify MCP web fetcher intercepts and blocks redirects pointing to private metadata."""
-    server = WebFetcherMcpServer()
 
-    # Mock response that redirects to 169.254.169.254
-    mock_redirect_resp = AsyncMock()
-    mock_redirect_resp.is_redirect = True
-    mock_redirect_resp.headers = {"Location": "http://169.254.169.254/latest/meta-data/"}
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(302, headers={"Location": "http://169.254.169.254/latest/meta-data/"})
 
-    with patch("httpx.AsyncClient.get", return_value=mock_redirect_resp):
+    server = WebFetcherMcpServer(transport=httpx.MockTransport(handler))
+
+    with patch("socket.getaddrinfo", return_value=[(2, 1, 6, "", ("93.184.216.34", 0))]):
         with pytest.raises(ValueError) as exc_info:
-            await server._safe_http_get("http://example.com/redirect", headers={}, timeout=5.0)
+            await server._safe_fetch(
+                "GET", "http://example.com/redirect", headers={}, content=None, timeout=5.0
+            )
 
         assert "SSRF Protection" in str(exc_info.value)
         assert "169.254.169.254" in str(exc_info.value)
