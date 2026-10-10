@@ -14,6 +14,7 @@ from nexusai.brain.domain.scheduler import (
 )
 from nexusai.brain.ports.observability_port import IObservabilityPort
 from nexusai.brain.ports.scheduler_port import IScheduler
+from nexusai.logging.logger import logger
 
 
 class PriorityScheduler(IScheduler):
@@ -52,8 +53,8 @@ class PriorityScheduler(IScheduler):
             await self.telemetry.record_gauge("nexusai_scheduler_queue_depth", float(total_size))
             await self.telemetry.record_gauge("nexusai_scheduler_ready_depth", float(ready_cnt))
             await self.telemetry.record_gauge("nexusai_scheduler_delayed_depth", float(delayed_cnt))
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("_emit_gauges: telemetry emission failed: {!r}", exc)
 
     async def submit(self, task: ScheduledTask) -> None:
         """Submit a new or retried task to the scheduler."""
@@ -62,8 +63,8 @@ class PriorityScheduler(IScheduler):
                 if self.telemetry:
                     try:
                         await self.telemetry.increment_counter("nexusai_scheduler_rejected_total")
-                    except Exception:
-                        pass
+                    except Exception as exc:
+                        logger.debug("submit: telemetry emission failed: {!r}", exc)
                 raise SchedulerClosedError("Cannot submit task to a shutdown scheduler")
 
             now = time.time()
@@ -94,8 +95,8 @@ class PriorityScheduler(IScheduler):
                 )
                 await self.telemetry.increment_counter("nexusai_scheduler_submitted_total")
                 await self._emit_gauges()
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("submit: telemetry emission failed: {!r}", exc)
 
     async def next(self) -> ScheduledTask:
         """Wait for eligible task and atomically claim ownership of the highest priority task."""
@@ -150,8 +151,8 @@ class PriorityScheduler(IScheduler):
                                 "nexusai_scheduler_task_wait_ms", max(0.0, wait_ms)
                             )
                             await self._emit_gauges()
-                        except Exception:
-                            pass
+                        except Exception as exc:
+                            logger.debug("next: telemetry emission failed: {!r}", exc)
 
                     return claimed_task
 
@@ -197,8 +198,8 @@ class PriorityScheduler(IScheduler):
                     )
                     await self.telemetry.increment_counter("nexusai_scheduler_cancelled_total")
                     await self._emit_gauges()
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.debug("cancel: telemetry emission failed: {!r}", exc)
 
             return cancelled_task is not None
 
@@ -234,5 +235,5 @@ class PriorityScheduler(IScheduler):
                         event_type=RuntimeEventType.SCHEDULER_SHUTDOWN,
                     )
                 )
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("shutdown: telemetry emission failed: {!r}", exc)

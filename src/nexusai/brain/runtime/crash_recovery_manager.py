@@ -17,6 +17,7 @@ from nexusai.brain.ports.governance_port import IGovernancePort
 from nexusai.brain.ports.human_approval_port import IHumanApprovalPort
 from nexusai.brain.ports.observability_port import IObservabilityPort
 from nexusai.brain.ports.tool_registry_port import IToolRegistry
+from nexusai.logging.logger import logger
 
 
 class CrashRecoveryManager:
@@ -101,8 +102,8 @@ class CrashRecoveryManager:
                 # Release orphaned governance reservation
                 try:
                     await self.governance.release(latest.governance_reservation_id)
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.warning("recover_execution: best-effort operation failed: {!r}", exc)
 
         # Append recovery resume journal entry
         now = time.time()
@@ -154,14 +155,14 @@ class CrashRecoveryManager:
         if self.governance and latest.governance_reservation_id:
             try:
                 await self.governance.release(latest.governance_reservation_id)
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning("_fail_closed: best-effort operation failed: {!r}", exc)
 
         if self.approval_engine:
             try:
                 await self.approval_engine.cancel_pending_requests(latest.execution_id)
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning("_fail_closed: best-effort operation failed: {!r}", exc)
 
     async def _safe_telemetry(self, entry: JournalEntry, status: RecoveryStatus) -> None:
         if not self.telemetry:
@@ -180,5 +181,5 @@ class CrashRecoveryManager:
                 },
             )
             await self.telemetry.emit_event(evt)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("_safe_telemetry: telemetry emission failed: {!r}", exc)

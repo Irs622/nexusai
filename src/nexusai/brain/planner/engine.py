@@ -49,6 +49,7 @@ from nexusai.brain.ports.tool_port import IToolPort, ToolExecutionRequest, ToolE
 from nexusai.brain.runtime.execution_policy import CircuitBreaker, ExecutionPolicy
 from nexusai.brain.runtime.governance_engine import DEFAULT_TOOL_CAPABILITIES, GovernanceEngine
 from nexusai.brain.runtime.priority_scheduler import PriorityScheduler
+from nexusai.logging.logger import logger
 
 
 class PlanGraphExecutionEngine:
@@ -133,8 +134,8 @@ class PlanGraphExecutionEngine:
                 attributes=attributes or {},
             )
             await self.telemetry.emit_event(evt)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("_safe_telemetry_event: telemetry emission failed: {!r}", exc)
 
     async def _safe_telemetry_counter(
         self, name: str, value: int = 1, attributes: dict[str, Any] | None = None
@@ -143,8 +144,8 @@ class PlanGraphExecutionEngine:
             return
         try:
             await self.telemetry.increment_counter(name, value, attributes=attributes)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("_safe_telemetry_counter: telemetry emission failed: {!r}", exc)
 
     async def _safe_telemetry_duration(
         self, name: str, duration_ms: float, attributes: dict[str, Any] | None = None
@@ -153,8 +154,8 @@ class PlanGraphExecutionEngine:
             return
         try:
             await self.telemetry.record_duration(name, duration_ms, attributes=attributes)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("_safe_telemetry_duration: telemetry emission failed: {!r}", exc)
 
     def get_topological_execution_order(self, plan_graph: PlanGraph) -> list[Any]:
         """Derive deterministic topological execution order for PlanGraph DAG nodes."""
@@ -866,8 +867,8 @@ class PlanGraphExecutionEngine:
                                             priority=TaskPriority.NORMAL,
                                         )
                                         await self.scheduler.submit(stask)
-                    except Exception:
-                        pass
+                    except Exception as exc:
+                        logger.warning("_run_single_node: best-effort operation failed: {!r}", exc)
         except asyncio.CancelledError:
             for task in list(active_tasks.keys()):
                 if not task.done():
