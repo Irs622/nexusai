@@ -733,6 +733,13 @@ def create_app(
     if os.getenv("NEXUSAI_AUTH_ENABLED", "").lower() == "false":
         auth_enabled = False
 
+    # [AUDIT-06] Fail-closed invariant: authentication cannot be disabled in production
+    if is_production and not auth_enabled:
+        raise ConfigurationError(
+            "Production startup aborted: Authentication cannot be disabled when running in production mode. "
+            "Set NEXUSAI_AUTH_ENABLED=true or remove the override to start in production."
+        )
+
     # NEX-002: Production credential hardening - eliminate hardcoded admin fallback in production
     configured_admin_key = os.getenv("NEXUSAI_ADMIN_API_KEY") or os.getenv("NEXUSAI_TEST_API_KEY")
     if is_production:
@@ -916,21 +923,52 @@ def create_app(
 
     @app.post("/api/v1/approvals/request")
     async def request_approval_token(req: ApprovalRequest, request: Request) -> dict[str, Any]:
-        """Issue a cryptographic HMAC-SHA256 single-use approval token for tool execution."""
+        """Submit an approval request. Only ADMIN role may self-issue a token immediately.
+        All other callers create a PENDING request that requires explicit supervisor approval.
+        [AUDIT-04] Requesting an approval token must NOT itself constitute approval.
+        """
         identity: Identity | None = (
             getattr(request.state, "identity", None) or TenantContext.get_current_identity()
         )
         user_id = identity.user_id if identity else "anonymous"
-        try:
-            token, expires_at = security_guard.approval_service.create_token(
-                tool_name=req.tool_name,
-                arguments=req.arguments,
-                user_id=user_id,
-                execution_id=req.execution_id,
-            )
-            return {"approval_token": token, "expires_at": expires_at}
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=str(e)) from e
+        tenant_id = identity.tenant_id if identity else "default"
+        caller_role: Role = identity.role if identity else Role.VIEWER
+
+        # Only ADMIN may immediately issue an approval token (e.g., for scripted/automated pipelines).
+        # All other roles must wait for an authorised supervisor to grant approval.
+        if caller_role == Role.ADMIN:
+            try:
+                token, expires_at = security_guard.approval_service.create_token(
+                    tool_name=req.tool_name,
+                    arguments=req.arguments,
+                    user_id=user_id,
+                    execution_id=req.execution_id,
+                )
+                return {"approval_token": token, "expires_at": expires_at, "status": "APPROVED"}
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=str(e)) from e
+
+        # Non-admin: create a pending approval request and return PENDING state.
+        import uuid as _uuid
+        pending_id = str(_uuid.uuid4())
+        pending_approvals = _get_tenant_pending_approvals(request)
+        pending_approvals.append(
+            {
+                "id": pending_id,
+                "tool_name": req.tool_name,
+                "arguments": req.arguments,
+                "execution_id": req.execution_id,
+                "requested_by": user_id,
+                "tenant_id": tenant_id,
+                "status": "PENDING_REVIEW",
+                "created_at": time.time(),
+            }
+        )
+        return {
+            "approval_id": pending_id,
+            "status": "PENDING_REVIEW",
+            "message": "Approval request submitted. An authorized supervisor must approve before execution can proceed.",
+        }
 
     @app.post("/api/tools/execute")
     async def execute_tool_endpoint(
@@ -1136,6 +1174,31 @@ def create_app(
             raise HTTPException(status_code=500, detail=str(e)) from e
 
     # =========================================================================
+    # =========================================================================
+    # [AUDIT-01] SSE AUTHENTICATION: Short-lived, scoped stream tokens
+    # =========================================================================
+
+    @app.post("/api/v1/auth/sse-token")
+    async def issue_sse_token(request: Request) -> dict[str, Any]:
+        """Issue a short-lived (60s) SSE-scoped stream token for authenticated callers.
+        The token may only be used to connect to /api/events/stream via stream_token query param.
+        Long-lived API keys must NEVER be placed in URLs.
+        """
+        identity: Identity | None = (
+            getattr(request.state, "identity", None) or TenantContext.get_current_identity()
+        )
+        if identity is None:
+            raise HTTPException(status_code=401, detail="Authentication required to obtain an SSE stream token.")
+
+        token, expires_at = security_guard.approval_service.create_token(
+            tool_name="__sse_stream__",
+            arguments={"scope": "sse_only", "tenant_id": identity.tenant_id},
+            user_id=identity.user_id,
+            execution_id="sse",
+            ttl_seconds=60.0,
+        )
+        return {"stream_token": token, "expires_at": expires_at, "ttl_seconds": 60}
+
     # REAL-TIME SERVER-SENT EVENTS (SSE) ENDPOINT & STUDIO BROADCASTER
     # =========================================================================
 
@@ -1163,13 +1226,34 @@ def create_app(
 
     @app.get("/api/events/stream")
     @app.get("/events")
-    async def sse_stream(request: Request = cast(Request, None)) -> StreamingResponse:
-        """Stream real-time system telemetry, DAG step updates, audit events, and governance changes."""
+    async def sse_stream(
+        request: Request = cast(Request, None),
+        stream_token: str | None = Query(default=None),
+    ) -> StreamingResponse:
+        """Stream real-time system telemetry, DAG step updates, audit events, and governance changes.
+        [AUDIT-01] Authenticate via short-lived stream_token (from POST /api/v1/auth/sse-token).
+        EventSource cannot send custom headers; the stream_token query param is the scoped alternative.
+        """
         identity: Identity | None = None
         if request is not None and hasattr(request, "state"):
             identity = getattr(request.state, "identity", None)
         if identity is None:
             identity = TenantContext.get_current_identity()
+
+        # Validate stream_token when auth middleware is active and no session identity present
+        if identity is None and stream_token:
+            try:
+                security_guard.approval_service.validate_and_consume(
+                    token=stream_token,
+                    tool_name="__sse_stream__",
+                    arguments={"scope": "sse_only"},
+                    user_id="anonymous",
+                    execution_id="sse",
+                )
+            except Exception:
+                raise HTTPException(status_code=401, detail="Invalid or expired SSE stream token.")
+        elif identity is None and auth_enabled:
+            raise HTTPException(status_code=401, detail="Authentication required. Obtain a stream token from POST /api/v1/auth/sse-token.")
 
         sub_tenant_id = identity.tenant_id if identity else "default"
         sub_role = identity.role if identity else Role.VIEWER

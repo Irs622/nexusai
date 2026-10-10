@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 from nexusai.knowledge.vector import VectorKnowledgeBase
 from nexusai.runtime.execution_semantics import ExecutionSemantics
 from nexusai.security.guard import RiskLevel
+from nexusai.security.identity import TenantContext
 from nexusai.tools.base import BaseTool
 
 
@@ -37,8 +38,10 @@ class RememberFactTool(BaseTool):
         self.vector_kb = vector_kb or VectorKnowledgeBase()
 
     async def execute(self, fact: str, **kwargs: Any) -> str:
-        """Store fact into vector database."""
-        await self.vector_kb.store_memory(fact)
+        """Store fact into vector database, scoped to authenticated tenant."""
+        identity = TenantContext.get_current_identity()
+        tenant_id = identity.tenant_id if identity else "default"
+        await self.vector_kb.store_memory(fact, tenant_id=tenant_id)
         return f"Fact successfully stored in long-term memory: '{fact}'"
 
 
@@ -65,8 +68,10 @@ class RecallFactTool(BaseTool):
         self.vector_kb = vector_kb or VectorKnowledgeBase()
 
     async def execute(self, query: str, **kwargs: Any) -> str:
-        """Search vector database for relevant memories."""
-        results = await self.vector_kb.search_memory(query)
+        """Search vector database for relevant memories, scoped to authenticated tenant."""
+        identity = TenantContext.get_current_identity()
+        tenant_id = identity.tenant_id if identity else "default"
+        results = await self.vector_kb.search_memory(query, tenant_id=tenant_id)
         if not results:
             return "No relevant memories found."
 

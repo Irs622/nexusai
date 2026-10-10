@@ -54,11 +54,15 @@ class VectorKnowledgeBase:
         self,
         text: str,
         metadata: dict[str, Any] | None = None,
+        tenant_id: str = "default",
     ) -> str:
-        """Store a text fact asynchronously into the vector database."""
+        """Store a text fact asynchronously into the vector database, scoped to tenant_id."""
         await self._ensure_initialized()
         doc_id = str(uuid.uuid4())
-        meta = metadata or {"source": "user_interaction"}
+        meta: dict[str, Any] = dict(metadata) if metadata else {}
+        meta.setdefault("source", "user_interaction")
+        # [AUDIT-02] Always stamp tenant_id so every record is isolated by tenant
+        meta["tenant_id"] = tenant_id
 
         def _add() -> None:
             assert self.collection is not None
@@ -78,8 +82,9 @@ class VectorKnowledgeBase:
         self,
         query: str,
         n_results: int = 3,
+        tenant_id: str = "default",
     ) -> list[str]:
-        """Search long-term memory for semantically relevant facts."""
+        """Search long-term memory for semantically relevant facts, scoped to tenant_id."""
         await self._ensure_initialized()
 
         def _query() -> list[str]:
@@ -87,9 +92,11 @@ class VectorKnowledgeBase:
             count = self.collection.count()
             if count == 0:
                 return []
+            # [AUDIT-02] Enforce tenant isolation on every query via where filter
             res = self.collection.query(
                 query_texts=[query],
                 n_results=min(n_results, count),
+                where={"tenant_id": tenant_id},
             )
             documents = res.get("documents", [])
             if documents and len(documents) > 0:

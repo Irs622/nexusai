@@ -136,7 +136,8 @@ class BrainCoordinator:
                 source = "memory" if role == "user" else "assistant"
                 hist_context = tag_context_content(content=content, source=source, sanitize=False)
                 self.last_context_contents.append(hist_context)
-                messages.append({"role": role, "content": content})
+                bounded_content = format_content_with_boundary(hist_context)
+                messages.append({"role": role, "content": bounded_content})
         messages.append({"role": "user", "content": user_bounded})
 
         # 2. Resolve tool availability & schemas

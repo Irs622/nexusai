@@ -17,14 +17,87 @@ let governanceBudget = null;
 let pendingApprovalsList = [];
 
 // ==============================================================================
+// [AUDIT-01] AUTHENTICATION — API Key storage and authenticated fetch helper
+// ==============================================================================
+
+const API_KEY_STORAGE_KEY = 'nexusai_api_key';
+
+function getApiKey() {
+    return sessionStorage.getItem(API_KEY_STORAGE_KEY) || '';
+}
+
+function setApiKey(key) {
+    sessionStorage.setItem(API_KEY_STORAGE_KEY, key.trim());
+}
+
+function clearApiKey() {
+    sessionStorage.removeItem(API_KEY_STORAGE_KEY);
+}
+
+/**
+ * Authenticated fetch wrapper — injects X-NexusAI-API-Key on every request.
+ * Falls back to plain fetch if no key is configured (dev mode / open deployments).
+ */
+async function apiFetch(url, options = {}) {
+    const key = getApiKey();
+    const headers = Object.assign({}, options.headers || {});
+    if (key) {
+        headers['X-NexusAI-API-Key'] = key;
+    }
+    return fetch(url, Object.assign({}, options, { headers }));
+}
+
+/**
+ * Prompt the user for an API key and store it.
+ * Called on first load when no key is stored.
+ */
+function promptApiKey() {
+    const key = prompt(
+        'NexusAI Studio requires an API key.\n\nEnter your X-NexusAI-API-Key to continue:',
+        ''
+    );
+    if (key && key.trim()) {
+        setApiKey(key.trim());
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Obtain a short-lived SSE stream token and connect the EventSource.
+ * Uses the scoped POST /api/v1/auth/sse-token endpoint so the long-lived API key
+ * is never placed in a URL query string.
+ */
+async function fetchSseToken() {
+    try {
+        const res = await apiFetch('/api/v1/auth/sse-token', { method: 'POST' });
+        if (res.status === 401) {
+            if (promptApiKey()) return fetchSseToken();
+            return null;
+        }
+        if (!res.ok) return null;
+        const data = await res.json();
+        return data.stream_token || null;
+    } catch (e) {
+        console.error('[SSE Token] Failed to obtain stream token:', e);
+        return null;
+    }
+}
+
+// ==============================================================================
 // INITIALIZATION
 // ==============================================================================
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     updateClock();
     setInterval(updateClock, 1000);
 
-    initSSE();
+    // Prompt for API key on first visit if not stored
+    if (!getApiKey()) {
+        promptApiKey();
+    }
+
+    await initSSE();
     fetchStatus();
     fetchTools();
     fetchMcpServers();
@@ -60,7 +133,7 @@ function toggleVoiceMode() {
 // SERVER-SENT EVENTS (SSE) REAL-TIME STREAM
 // ==============================================================================
 
-function initSSE() {
+async function initSSE() {
     const badge = document.getElementById('sseStatusBadge');
 
     try {
@@ -68,7 +141,13 @@ function initSSE() {
             sseSource.close();
         }
 
-        sseSource = new EventSource('/api/events/stream');
+        // [AUDIT-01] Obtain a short-lived scoped stream token; never pass the long-lived API key in a URL.
+        const streamToken = await fetchSseToken();
+        const sseUrl = streamToken
+            ? `/api/events/stream?stream_token=${encodeURIComponent(streamToken)}`
+            : '/api/events/stream';
+
+        sseSource = new EventSource(sseUrl);
 
         sseSource.addEventListener('handshake', (e) => {
             if (badge) {
@@ -195,7 +274,7 @@ function updateTelemetryUI(data) {
 // Fallback REST Status Sync
 async function fetchStatus() {
     try {
-        const res = await fetch('/api/status');
+        const res = await apiFetch('/api/status');
         if (!res.ok) return;
         const data = await res.json();
         const ctx = data.context || {};
@@ -217,7 +296,7 @@ async function fetchStatus() {
 
 async function fetchTools() {
     try {
-        const res = await fetch('/api/tools');
+        const res = await apiFetch('/api/tools');
         if (!res.ok) return;
         allTools = await res.json();
         renderTools();
@@ -313,7 +392,7 @@ async function submitToolExecution(e) {
 
     try {
         animateGraphNode('nodeExecutor');
-        const res = await fetch('/api/tools/execute', {
+        const res = await apiFetch('/api/tools/execute', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -365,7 +444,7 @@ async function fetchMcpServers() {
     if (!feed) return;
 
     try {
-        const res = await fetch('/api/mcp/servers');
+        const res = await apiFetch('/api/mcp/servers');
         if (!res.ok) {
             feed.innerHTML = '<div class="loading-text">Failed to load MCP servers.</div>';
             return;
@@ -423,7 +502,7 @@ async function pingMcpServer(serverName, event) {
     const startTime = performance.now();
 
     try {
-        const res = await fetch(`/api/mcp/servers/${encodeURIComponent(serverName)}/ping`, {
+        const res = await apiFetch(`/api/mcp/servers/${encodeURIComponent(serverName)}/ping`, {
             method: 'POST'
         });
         const elapsed = Math.round(performance.now() - startTime);
@@ -441,7 +520,7 @@ async function pingMcpServer(serverName, event) {
 
 async function reloadMcpConfig() {
     try {
-        const res = await fetch('/api/mcp/reload', { method: 'POST' });
+        const res = await apiFetch('/api/mcp/reload', { method: 'POST' });
         const data = await res.json();
         alert(`MCP Config Reloaded: ${data.status} (Total: ${data.total_servers} servers)`);
         fetchMcpServers();
@@ -500,7 +579,7 @@ async function handleChatSubmit(e) {
     document.getElementById('graphIterCount').innerText = '1';
 
     try {
-        const res = await fetch('/api/chat', {
+        const res = await apiFetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -628,7 +707,7 @@ async function loadPlan(planId) {
     });
 
     try {
-        const res = await fetch(`/api/v1/dag/current?plan_id=${encodeURIComponent(planId)}`);
+        const res = await apiFetch(`/api/v1/dag/current?plan_id=${encodeURIComponent(planId)}`);
         if (!res.ok) return;
         const plan = await res.json();
         currentPlanData = plan;
@@ -849,7 +928,7 @@ async function executeCurrentPlan() {
     renderDagSvg(currentPlanData);
 
     try {
-        const res = await fetch('/api/v1/dag/execute', {
+        const res = await apiFetch('/api/v1/dag/execute', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -939,7 +1018,7 @@ function logDagMessage(msg) {
 
 async function fetchAuditEvents() {
     try {
-        const res = await fetch('/api/v1/audit/events');
+        const res = await apiFetch('/api/v1/audit/events');
         if (!res.ok) return;
         const data = await res.json();
         auditEventsList = data.events || [];
@@ -1012,7 +1091,7 @@ function renderAuditChain(events, tamperedIdx = -1) {
 
 async function verifyAuditChain() {
     try {
-        const res = await fetch('/api/v1/audit/verify', { method: 'POST' });
+        const res = await apiFetch('/api/v1/audit/verify', { method: 'POST' });
         const data = await res.json();
         const banner = document.getElementById('auditStatusBanner');
         const bannerDesc = document.getElementById('auditBannerDesc');
@@ -1045,7 +1124,7 @@ async function verifyAuditChain() {
 
 async function tamperAuditChain() {
     try {
-        const res = await fetch('/api/v1/audit/tamper', {
+        const res = await apiFetch('/api/v1/audit/tamper', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1078,7 +1157,7 @@ async function tamperAuditChain() {
 
 async function resetAuditChain() {
     try {
-        const res = await fetch('/api/v1/audit/reset', { method: 'POST' });
+        const res = await apiFetch('/api/v1/audit/reset', { method: 'POST' });
         const banner = document.getElementById('auditStatusBanner');
         const bannerDesc = document.getElementById('auditBannerDesc');
         if (banner) {
@@ -1120,8 +1199,8 @@ function handleAuditTampered(data) {
 async function fetchGovernanceBudget() {
     try {
         const [bRes, aRes] = await Promise.all([
-            fetch('/api/v1/governance/budget'),
-            fetch('/api/v1/governance/approvals')
+            apiFetch('/api/v1/governance/budget'),
+            apiFetch('/api/v1/governance/approvals')
         ]);
 
         if (bRes.ok) {
@@ -1213,7 +1292,7 @@ async function submitApprovalDecision(approvalId, decision) {
     }
 
     try {
-        const res = await fetch(`/api/v1/governance/approvals/${approvalId}/decision`, {
+        const res = await apiFetch(`/api/v1/governance/approvals/${approvalId}/decision`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

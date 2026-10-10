@@ -40,6 +40,51 @@ class ActionRequest(BaseModel):
     execution_id: str = ""
 
 
+# [AUDIT-05] Interpreters that can execute arbitrary code via argument flags on the host.
+# These must not appear in host-level shell capability allowlists; use an isolated sandbox instead.
+_DANGEROUS_INTERPRETERS: frozenset[str] = frozenset(
+    {"python", "python3", "python2", "pip", "pip3", "bash", "sh", "zsh", "node", "ruby", "perl", "php"}
+)
+
+# [AUDIT-05] Argument flags that allow inline code execution — defense-in-depth check.
+_INTERPRETER_EXEC_FLAGS: frozenset[str] = frozenset({"-c", "-m", "-e", "-exec", "--exec"})
+
+
+def check_interpreter_injection(command_str: str, allowed_binaries: list[str]) -> str | None:
+    """Return an error message if the command uses a dangerous interpreter with inline-execution flags.
+
+    This is defense-in-depth. The primary boundary is sandbox isolation; this catches
+    obvious injection patterns on the host execution path.
+    """
+    try:
+        tokens = shlex.split(command_str)
+    except Exception:
+        tokens = command_str.split()
+
+    if not tokens:
+        return None
+
+    binary = Path(tokens[0]).name
+    if binary in _DANGEROUS_INTERPRETERS:
+        for tok in tokens[1:]:
+            if tok in _INTERPRETER_EXEC_FLAGS:
+                return (
+                    f"Shell command rejected: interpreter '{binary}' used with inline-execution "
+                    f"flag '{tok}'. Use an isolated sandbox for interpreter-based execution."
+                )
+
+    # Detect find/xargs -exec patterns
+    if binary in ("find", "xargs"):
+        for tok in tokens[1:]:
+            if tok in ("-exec", "-execdir", "--exec"):
+                return (
+                    f"Shell command rejected: '{binary}' with '{tok}' can execute arbitrary commands. "
+                    "Use an isolated sandbox."
+                )
+
+    return None
+
+
 def extract_command_binaries(command_str: str) -> list[str]:
     """Extract all distinct command binaries invoked in a shell command string.
 
@@ -292,6 +337,16 @@ class SecurityGuard:
             # For shell execution, evaluate EVERY command binary in the pipeline/chain
             if domain == "shell" and cap_action == "execute":
                 cmd_str = str(cap_context.get("command", ""))
+
+                # [AUDIT-05] Defense-in-depth: reject interpreter inline-execution flag patterns
+                injection_err = check_interpreter_injection(cmd_str, [])
+                if injection_err:
+                    log_audit(
+                        "ACTION_DENIED_INTERPRETER_INJECTION",
+                        {"action": request.action_name, "user": identity.user_id, "command": cmd_str, "reason": injection_err},
+                    )
+                    raise SecurityError(injection_err, details={"user_id": identity.user_id, "command": cmd_str})
+
                 binaries = extract_command_binaries(cmd_str)
                 if not binaries:
                     binaries = [resource]
