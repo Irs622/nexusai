@@ -18,9 +18,12 @@ profiles:
       - domain: tool
         action: execute
         resource: "*"
+      # [AUDIT-05] Interpreters (python, pip) and find removed from host-level shell allowlist.
+      # They can execute arbitrary code via -c/-exec flags, bypassing the capability policy.
+      # Use a sandboxed execution gateway for interpreter-based commands.
       - domain: shell
         action: execute
-        resource: [git, pytest, python, pip, ls, cat, echo, grep, find, mkdir, touch, head, tail]
+        resource: [git, pytest, ls, cat, echo, grep, mkdir, touch, head, tail]
         constraints:
           max_duration_seconds: 120
       - domain: network

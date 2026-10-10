@@ -19,6 +19,44 @@ from nexusai.core.errors import ConfigurationError, ModelProviderError
 from nexusai.models.base import BaseModelProvider
 
 
+_ALLOWED_IMAGE_EXTENSIONS: frozenset[str] = frozenset(
+    {".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp"}
+)
+_MAX_IMAGE_BYTES: int = 5 * 1024 * 1024  # 5 MB
+
+
+def _get_workspace_root() -> Path:
+    return Path(os.getenv("NEXUSAI_WORKSPACE_ROOT", ".")).resolve()
+
+
+def _validate_image_path(raw_path: str) -> tuple[Path, str | None]:
+    """Validate image path against workspace root. Returns (resolved_path, error_message)."""
+    workspace_root = _get_workspace_root()
+    try:
+        candidate = Path(raw_path).resolve()
+    except Exception:
+        return Path(raw_path), "Error: Invalid image path."
+
+    # Reject symlinks that resolve outside workspace
+    if Path(raw_path).is_symlink():
+        try:
+            candidate.relative_to(workspace_root)
+        except ValueError:
+            return candidate, "Error: Symlink resolves outside allowed workspace root."
+
+    # Enforce workspace containment
+    try:
+        candidate.relative_to(workspace_root)
+    except ValueError:
+        return candidate, "Error: Image path is outside allowed workspace root."
+
+    # Enforce file extension
+    if candidate.suffix.lower() not in _ALLOWED_IMAGE_EXTENSIONS:
+        return candidate, f"Error: File type '{candidate.suffix}' is not an allowed image type."
+
+    return candidate, None
+
+
 async def process_multimodal_messages(messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Transform messages containing image_path payloads into OpenAI base64 image_url objects asynchronously."""
     formatted_messages: list[dict[str, Any]] = []
@@ -39,17 +77,23 @@ async def process_multimodal_messages(messages: list[dict[str, Any]]) -> list[di
                         data = None
 
                 if isinstance(data, dict) and data.get("type") == "image_path":
-                    img_path = Path(data.get("path", ""))
-                    if img_path.exists() and img_path.is_file():
-                        img_bytes = await asyncio.to_thread(img_path.read_bytes)
-                        b64_str = base64.b64encode(img_bytes).decode("utf-8")
-                        msg_copy["content"] = [
-                            {"type": "text", "text": "Screenshot captured from user screen."},
-                            {
-                                "type": "image_url",
-                                "image_url": {"url": f"data:image/png;base64,{b64_str}"},
-                            },
-                        ]
+                    img_path, err = _validate_image_path(data.get("path", ""))
+                    if err:
+                        msg_copy["content"] = err
+                    elif img_path.exists() and img_path.is_file():
+                        # Enforce size ceiling before reading
+                        if img_path.stat().st_size > _MAX_IMAGE_BYTES:
+                            msg_copy["content"] = "Error: Image file exceeds maximum allowed size (5MB)."
+                        else:
+                            img_bytes = await asyncio.to_thread(img_path.read_bytes)
+                            b64_str = base64.b64encode(img_bytes).decode("utf-8")
+                            msg_copy["content"] = [
+                                {"type": "text", "text": "Screenshot captured from user screen."},
+                                {
+                                    "type": "image_url",
+                                    "image_url": {"url": f"data:image/png;base64,{b64_str}"},
+                                },
+                            ]
                     else:
                         msg_copy["content"] = f"Error: Screenshot file not found at '{img_path}'."
             except Exception:
