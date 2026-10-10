@@ -17,6 +17,7 @@ from starlette.responses import JSONResponse, Response
 
 from nexusai.core.errors import AuthenticationError, RateLimitExceededError
 from nexusai.security.identity import Identity, Role, TenantContext
+from nexusai.logging.logger import logger
 
 
 @dataclass
@@ -320,8 +321,8 @@ class ApiKeyService:
             for key_hash, r_data in data.items():
                 r_data["role"] = Role(r_data["role"])
                 self._records[key_hash] = ApiKeyRecord(**r_data)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("load_keys: best-effort operation failed: {!r}", exc)
 
 
 DEFAULT_EXEMPT_PATHS: frozenset[str] = frozenset(

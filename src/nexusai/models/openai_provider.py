@@ -18,7 +18,6 @@ from nexusai.core.config import ModelSettings
 from nexusai.core.errors import ConfigurationError, ModelProviderError
 from nexusai.models.base import BaseModelProvider
 
-
 _ALLOWED_IMAGE_EXTENSIONS: frozenset[str] = frozenset(
     {".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp"}
 )
@@ -83,7 +82,9 @@ async def process_multimodal_messages(messages: list[dict[str, Any]]) -> list[di
                     elif img_path.exists() and img_path.is_file():
                         # Enforce size ceiling before reading
                         if img_path.stat().st_size > _MAX_IMAGE_BYTES:
-                            msg_copy["content"] = "Error: Image file exceeds maximum allowed size (5MB)."
+                            msg_copy["content"] = (
+                                "Error: Image file exceeds maximum allowed size (5MB)."
+                            )
                         else:
                             img_bytes = await asyncio.to_thread(img_path.read_bytes)
                             b64_str = base64.b64encode(img_bytes).decode("utf-8")

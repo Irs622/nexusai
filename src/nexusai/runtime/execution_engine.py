@@ -410,8 +410,10 @@ class DurableExecutionEngine:
             elif hasattr(self.tool_registry, "get"):
                 try:
                     tool_instance = self.tool_registry.get(tool_name)
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.warning(
+                        "_execute_step_with_retries: best-effort operation failed: {!r}", exc
+                    )
 
         if tool_instance is not None:
             tool_semantics = getattr(

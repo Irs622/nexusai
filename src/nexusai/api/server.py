@@ -950,6 +950,7 @@ def create_app(
 
         # Non-admin: create a pending approval request and return PENDING state.
         import uuid as _uuid
+
         pending_id = str(_uuid.uuid4())
         pending_approvals = _get_tenant_pending_approvals(request)
         pending_approvals.append(
@@ -1188,7 +1189,9 @@ def create_app(
             getattr(request.state, "identity", None) or TenantContext.get_current_identity()
         )
         if identity is None:
-            raise HTTPException(status_code=401, detail="Authentication required to obtain an SSE stream token.")
+            raise HTTPException(
+                status_code=401, detail="Authentication required to obtain an SSE stream token."
+            )
 
         token, expires_at = security_guard.approval_service.create_token(
             tool_name="__sse_stream__",
@@ -1221,8 +1224,8 @@ def create_app(
                         sub["queue"].put_nowait(msg)
                 elif isinstance(sub, asyncio.Queue):
                     sub.put_nowait(msg)
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning("broadcast_event: best-effort operation failed: {!r}", exc)
 
     @app.get("/api/events/stream")
     @app.get("/events")
@@ -1253,7 +1256,10 @@ def create_app(
             except Exception:
                 raise HTTPException(status_code=401, detail="Invalid or expired SSE stream token.")
         elif identity is None and auth_enabled:
-            raise HTTPException(status_code=401, detail="Authentication required. Obtain a stream token from POST /api/v1/auth/sse-token.")
+            raise HTTPException(
+                status_code=401,
+                detail="Authentication required. Obtain a stream token from POST /api/v1/auth/sse-token.",
+            )
 
         sub_tenant_id = identity.tenant_id if identity else "default"
         sub_role = identity.role if identity else Role.VIEWER
