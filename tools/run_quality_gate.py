@@ -96,7 +96,12 @@ def main() -> int:
         ),
         (
             "Test Suite Verification",
-            [sys.executable, str(PROJECT_ROOT / "tools" / "run_tests.py"), "--mode=local"],
+            [
+                sys.executable,
+                str(PROJECT_ROOT / "tools" / "run_tests.py"),
+                # Releases also run integration and contract suites.
+                "--mode=ci-pr" if args.release else "--mode=local",
+            ],
         ),
         (
             "Benchmark Quality Gate",
