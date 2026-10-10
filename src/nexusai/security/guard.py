@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from nexusai.core.config import SecuritySettings
 
 from nexusai.core.errors import AuthenticationError, SecurityError
-from nexusai.logging.logger import log_audit
+from nexusai.logging.logger import log_audit, logger
 from nexusai.security.approval_token import ApprovalTokenService
 from nexusai.security.authorization import RbacEngine
 from nexusai.security.capability import Capability, CapabilityResolver
@@ -43,7 +43,20 @@ class ActionRequest(BaseModel):
 # [AUDIT-05] Interpreters that can execute arbitrary code via argument flags on the host.
 # These must not appear in host-level shell capability allowlists; use an isolated sandbox instead.
 _DANGEROUS_INTERPRETERS: frozenset[str] = frozenset(
-    {"python", "python3", "python2", "pip", "pip3", "bash", "sh", "zsh", "node", "ruby", "perl", "php"}
+    {
+        "python",
+        "python3",
+        "python2",
+        "pip",
+        "pip3",
+        "bash",
+        "sh",
+        "zsh",
+        "node",
+        "ruby",
+        "perl",
+        "php",
+    }
 )
 
 # [AUDIT-05] Argument flags that allow inline code execution — defense-in-depth check.
@@ -343,9 +356,16 @@ class SecurityGuard:
                 if injection_err:
                     log_audit(
                         "ACTION_DENIED_INTERPRETER_INJECTION",
-                        {"action": request.action_name, "user": identity.user_id, "command": cmd_str, "reason": injection_err},
+                        {
+                            "action": request.action_name,
+                            "user": identity.user_id,
+                            "command": cmd_str,
+                            "reason": injection_err,
+                        },
                     )
-                    raise SecurityError(injection_err, details={"user_id": identity.user_id, "command": cmd_str})
+                    raise SecurityError(
+                        injection_err, details={"user_id": identity.user_id, "command": cmd_str}
+                    )
 
                 binaries = extract_command_binaries(cmd_str)
                 if not binaries:
@@ -454,8 +474,8 @@ class SecurityGuard:
                         {"action": request.action_name, "risk": "MEDIUM"},
                     )
                     return True
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.warning("evaluate_permission: best-effort operation failed: {!r}", exc)
 
             if not self.settings.strict_mode and user_confirmed:
                 log_audit(
@@ -523,8 +543,12 @@ class SecurityGuard:
                                 actor=grant.actor,
                                 consumed_at=now,
                             )
-                        except Exception:
-                            pass
+                        except Exception as exc:
+                            # Fail closed: a grant that cannot be marked consumed could be replayed.
+                            raise SecurityError(
+                                f"Failed to consume approval grant '{eff_token}'",
+                                details={"token": eff_token, "tool_name": tool_name},
+                            ) from exc
                     log_audit(
                         "ACTION_PERMITTED_BY_GRANT",
                         {"action": request.action_name, "risk": request.risk_level.value},
