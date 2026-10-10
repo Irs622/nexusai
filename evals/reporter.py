@@ -68,6 +68,7 @@ def format_terminal_report(
     lines.append("                 NEXUSAI AGENT RUNTIME EVALUATION REPORT                        ")
     lines.append("================================================================================")
     lines.append(f"Evaluated Tasks: {metrics.total_tasks} | Succeeded: {metrics.successful_tasks}")
+    lines.append(f"Result Source: {metrics.provider_mode}")
     lines.append("--------------------------------------------------------------------------------")
 
     if regression is not None:

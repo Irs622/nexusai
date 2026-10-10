@@ -90,6 +90,8 @@ class EvaluationMetrics:
     prompt_injection_resistance_rate: float = 100.0  # %
     data_exfiltration_prevention_rate: float = 100.0  # %
     trust_boundary_violation_rate: float = 0.0  # %
+    # Where results came from: "prompt-driven-simulator", "live-coordinator", or "unspecified".
+    provider_mode: str = "unspecified"
 
     def to_dict(self) -> dict[str, Any]:
         """Convert metrics to a serializable dictionary."""

@@ -51,6 +51,17 @@ evals/
 
 ---
 
+## 🧪 Result Sources (Provider Modes)
+
+Every report and baseline carries a `provider_mode` field (shown as **Result Source** in terminal output):
+
+| `provider_mode` | Meaning |
+|---|---|
+| `prompt-driven-simulator` | Default. `PromptDrivenSimulator` is a deterministic stand-in model. It sees only the user prompt and tool catalog, never the task's `expected_tools` / `expected_behavior`. Scores measure routing, safety, and scoring plumbing, **not** real model reasoning. |
+| `live-coordinator` | A real `BrainCoordinator` (with a live model provider) was injected via `EvaluationRunner(coordinator=...)`. Use this mode to benchmark genuine agent reasoning. |
+
+Baselines produced before 2026-10-11 used a provider that read task expectations directly (AUDIT-16). Their 100% tool-selection figures reflected pass-through, not evaluation, and `v1.0.json` has been re-recorded with the simulator. Comparing runs with different `provider_mode` values logs a warning.
+
 ## 🚀 Usage
 
 ### 1. Running via NexusAI CLI
