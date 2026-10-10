@@ -23,8 +23,9 @@ This document defines the strict rules, conventions, and constraints for **AI Ag
    - **BEFORE** generating, modifying, refactoring, or proposing ANY code (Python, JS, CSS, HTML, Config, Shell):
      - The AI Agent **MUST ALWAYS FIRST READ** `vault/00-Index.md` and `vault/Status-Terkini.md` (and relevant architecture docs like `vault/Konteks-Proyek.md` or `vault/ANALISIS-TOTAL-ARSITEKTUR-NEXUSAI.md`).
      - Never make blind code changes or assume architecture without verifying existing patterns and decisions in `vault/`.
+     - **Fallback when `vault/` is absent** (fresh clones, forks, CI runners — `vault/` is private and git-ignored): consult `ARCHITECTURE.md`, `ROADMAP.md`, `CHANGELOG.md`, `docs/` (including `docs/adr/`), and `rfcs/` instead. The absence of `vault/` is not a blocker.
    - **AFTER** completing any code changes:
-     - The AI Agent **MUST UPDATE** `vault/Status-Terkini.md` and log the changes in `vault/Log-Sesi/YYYY-MM-DD.md`.
+     - The AI Agent **MUST UPDATE** `vault/Status-Terkini.md` and log the changes in `vault/Log-Sesi/YYYY-MM-DD.md` when `vault/` exists locally. Without a local vault, record user-facing changes in `CHANGELOG.md` and architectural decisions under `docs/adr/`.
 
 1. **Do Not Over-Write or Fabricate Documentation**
 
@@ -166,5 +167,5 @@ All runtime implementations MUST comply with systemic performance ceilings:
 
 ### 9. Persistent AI Context Management (Obsidian Second Brain)
 - **Second Brain Vault**: Located at `vault/` as an Obsidian-compatible Markdown vault for zero-context-loss across agent interactions.
-- **Context Synchronization**: Agents must consult `vault/00-Index.md` and `vault/Status-Terkini.md` before initiating major tasks and update relevant session logs under `vault/Log-Sesi/` upon task completion. Full rules in `.agents/rules/context_memory.md`.
+- **Context Synchronization**: Agents must consult `vault/00-Index.md` and `vault/Status-Terkini.md` before initiating major tasks and update relevant session logs under `vault/Log-Sesi/` upon task completion. Full rules in `.agents/rules/context_memory.md`. The vault is private and git-ignored; when it is absent, fall back to `ARCHITECTURE.md`, `docs/`, `docs/adr/`, and `rfcs/` (see Directive 0).
 

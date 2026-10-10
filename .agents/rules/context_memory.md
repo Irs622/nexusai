@@ -15,6 +15,7 @@ Aturan ini wajib dipatuhi oleh setiap sesi AI yang bekerja di repositori ini aga
   - `vault/00-Index.md` (Map of Content utama)
   - `vault/Status-Terkini.md` (Pekerjaan aktif & target saat ini)
   - `vault/Preferensi-User.md` (Preferensi gaya kerja pengguna)
+- Jika `vault/` tidak ada (clone baru, fork, CI — vault bersifat privat dan di-gitignore), gunakan `ARCHITECTURE.md`, `docs/`, `docs/adr/`, dan `rfcs/` sebagai gantinya. Ketiadaan vault bukan penghalang.
 - Pastikan tidak mengajukan pertanyaan yang jawabannya sudah tercatat di dalam vault.
 
 ---
