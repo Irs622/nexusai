@@ -48,7 +48,8 @@ async def test_screen_capture_tool_failure() -> None:
 
 
 @pytest.mark.asyncio
-async def test_process_multimodal_messages(tmp_path: Path) -> None:
+async def test_process_multimodal_messages(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("NEXUSAI_WORKSPACE_ROOT", str(tmp_path))
     dummy_img = tmp_path / "test_screen.png"
     dummy_bytes = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR"
     dummy_file = dummy_img
@@ -74,16 +75,34 @@ async def test_process_multimodal_messages(tmp_path: Path) -> None:
 
 
 @pytest.mark.asyncio
-async def test_process_multimodal_messages_missing_file() -> None:
+async def test_process_multimodal_messages_missing_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("NEXUSAI_WORKSPACE_ROOT", str(tmp_path))
+    missing = tmp_path / "non_existent_12345.png"
     messages = [
-        {
-            "role": "tool",
-            "content": '{"type": "image_path", "path": "/tmp/non_existent_12345.png"}',
-        },
+        {"role": "tool", "content": f'{{"type": "image_path", "path": "{missing}"}}'},
     ]
 
     formatted = await process_multimodal_messages(messages)
     assert "Screenshot file not found" in formatted[0]["content"]
+
+
+@pytest.mark.asyncio
+async def test_process_multimodal_messages_rejects_path_outside_workspace(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    outside = tmp_path / "outside.png"
+    outside.write_bytes(b"\x89PNG")
+    monkeypatch.setenv("NEXUSAI_WORKSPACE_ROOT", str(workspace))
+    messages = [
+        {"role": "tool", "content": f'{{"type": "image_path", "path": "{outside}"}}'},
+    ]
+
+    formatted = await process_multimodal_messages(messages)
+    assert "outside allowed workspace root" in formatted[0]["content"]
 
 
 def test_vision_tool_registry() -> None:
