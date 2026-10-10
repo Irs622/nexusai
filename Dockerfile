@@ -25,7 +25,7 @@ COPY pyproject.toml requirements.lock* ./
 RUN pip install --upgrade pip setuptools wheel hatchling
 RUN if [ -f requirements.lock ]; then \
         pip install --no-deps -r requirements.lock; \
-    fi && pip install --no-deps .
+    fi
 
 # =============================================================================
 # Stage 2: Production Runtime
@@ -38,7 +38,8 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PATH="/opt/venv/bin:$PATH" \
     NEXUSAI_ENV=production \
-    PORT=8080
+    PORT=8080 \
+    NEXUSAI_WEB_DIR=/app/web
 
 # Install runtime utilities (curl for healthcheck)
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -52,10 +53,11 @@ COPY --from=builder /opt/venv /opt/venv
 # Copy application source and assets
 COPY src/ /app/src/
 COPY web/ /app/web/
-COPY pyproject.toml /app/pyproject.toml
+COPY pyproject.toml README.md /app/
 
-# Install package in editable/local mode into venv
-RUN pip install --no-deps -e .
+# Install package as an immutable (non-editable) wheel into the venv,
+# then drop the source tree so runtime only uses site-packages.
+RUN pip install --no-deps . && rm -rf /app/src
 
 # Create non-root user and directories (UID 10001 matching Kubernetes Helm spec)
 RUN groupadd -g 10001 nexusai && \
