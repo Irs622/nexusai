@@ -73,8 +73,8 @@ class ProviderRouter:
                     default_p.id,
                 )
                 return default_p
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("route: best-effort operation failed: {!r}", exc)
 
         logger.error("No suitable provider candidate found for policy evaluation")
         raise ProviderNotFoundError("No healthy provider found matching policy criteria.")

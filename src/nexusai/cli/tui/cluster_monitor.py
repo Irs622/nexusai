@@ -18,6 +18,7 @@ from rich.text import Text
 from nexusai.infrastructure.distributed.cluster_manager import ClusterOrchestrator
 from nexusai.infrastructure.distributed.pool import DistributedWorkerPool
 from nexusai.infrastructure.distributed.worker_node import WorkerNodeStatus
+from nexusai.logging.logger import logger
 
 
 class ClusterMonitorTUI:
@@ -45,8 +46,8 @@ class ClusterMonitorTUI:
                 with open(self.config_path, "r", encoding="utf-8") as f:
                     data = yaml.safe_load(f)
                 return DistributedWorkerPool.from_config_dict(data)
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("_load_pool: best-effort operation failed: {!r}", exc)
         return DistributedWorkerPool()
 
     def generate_header(self) -> Panel:

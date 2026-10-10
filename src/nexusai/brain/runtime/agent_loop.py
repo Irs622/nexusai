@@ -33,6 +33,7 @@ from nexusai.brain.ports.outcome_evaluator_port import IOutcomeEvaluator
 from nexusai.brain.ports.tool_port import IToolPort
 from nexusai.brain.ports.tool_registry_port import IToolRegistry
 from nexusai.brain.runtime.deterministic_evaluator import DeterministicOutcomeEvaluator
+from nexusai.logging.logger import logger
 
 
 class AgentLoop(IAgentLoop):
@@ -79,8 +80,8 @@ class AgentLoop(IAgentLoop):
                 attributes={"session_id": session_id, "iteration": iteration, **(attributes or {})},
             )
             await self.telemetry.emit_event(evt)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("_safe_telemetry_event: telemetry emission failed: {!r}", exc)
 
     async def run(
         self,
@@ -151,8 +152,8 @@ class AgentLoop(IAgentLoop):
                         query_text=request.user_prompt,
                         max_tokens=4096,
                     )
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.debug("_execute_loop: telemetry emission failed: {!r}", exc)
 
             combined_prompt = f"{context_text}\nUser Query: {request.user_prompt}".strip()
             goal = AgentGoal(description=combined_prompt)
@@ -266,8 +267,8 @@ class AgentLoop(IAgentLoop):
                     provenance=prov,
                 )
                 await self.memory_store.store(mem)
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning("_execute_loop: best-effort operation failed: {!r}", exc)
 
         await self._safe_telemetry_event(
             (

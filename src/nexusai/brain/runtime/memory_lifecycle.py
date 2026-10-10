@@ -26,6 +26,7 @@ from nexusai.brain.ports.memory_port import IContextBuilder, IMemoryRetriever, I
 from nexusai.brain.ports.observability_port import IObservabilityPort
 from nexusai.brain.runtime.deterministic_memory_extractor import DeterministicMemoryExtractor
 from nexusai.brain.runtime.memory_learning_policy import MemoryLearningPolicy
+from nexusai.logging.logger import logger
 
 
 class MemoryLifecycle(IMemoryLifecycle):
@@ -66,8 +67,8 @@ class MemoryLifecycle(IMemoryLifecycle):
                 attributes={"session_id": session_id, **(attributes or {})},
             )
             await self.telemetry.emit_event(evt)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("_safe_telemetry_event: telemetry emission failed: {!r}", exc)
 
     async def retrieve_context(
         self,

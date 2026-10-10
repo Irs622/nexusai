@@ -19,7 +19,7 @@ from nexusai.bus.commands import ExecuteToolCommand, ExecuteToolCommandHandler
 from nexusai.bus.events import ToolExecutedEvent
 from nexusai.cli.console import print_banner, print_info, print_success
 from nexusai.core.config import SystemConfig
-from nexusai.logging.logger import setup_logger
+from nexusai.logging.logger import setup_logger, logger
 from nexusai.memory.sqlite_memory import SQLiteMemory
 from nexusai.models.openai_provider import OpenAIProvider
 from nexusai.security.guard import SecurityGuard
@@ -237,8 +237,8 @@ async def start_chat_session(
         if memory is not None:
             try:
                 await memory.close()
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("cli_approval_callback: best-effort operation failed: {!r}", exc)
         if (
             provider is not None
             and hasattr(provider, "client")
@@ -246,5 +246,5 @@ async def start_chat_session(
         ):
             try:
                 await provider.client.close()
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("cli_approval_callback: best-effort operation failed: {!r}", exc)
