@@ -26,7 +26,6 @@ from nexusai.brain.domain.agent import (
     StepStatus,
 )
 
-
 _TOKEN_SYNONYMS: dict[str, str] = {
     "show": "read",
     "view": "read",

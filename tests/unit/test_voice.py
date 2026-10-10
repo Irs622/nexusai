@@ -91,6 +91,4 @@ async def test_listen_degrades_gracefully_without_pyaudio(
     result = await listen(recognizer_override=MagicMock(), microphone_override=mic)
 
     assert result == ""
-    assert any(
-        level == "WARNING" and "nexusai[audio]" in message for level, message in log_records
-    )
+    assert any(level == "WARNING" and "nexusai[audio]" in message for level, message in log_records)

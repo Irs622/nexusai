@@ -196,7 +196,10 @@ _DANGEROUS_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
 _TOOL_RULES: tuple[tuple[re.Pattern[str], str], ...] = tuple(
     (re.compile(p, re.IGNORECASE), tool)
     for p, tool in (
-        (r"\b(read|examine|inspect|show|summari[sz]e|trace|where is|find|look at|open)\b", "read_file"),
+        (
+            r"\b(read|examine|inspect|show|summari[sz]e|trace|where is|find|look at|open)\b",
+            "read_file",
+        ),
         (r"\b(create|write|save|scaffold|generate|update|fix|refactor|copy)\b", "write_file"),
         (r"\b(list|folders?|director(y|ies))\b", "list_directory"),
         (r"\b(run|execute|git|pytest|format)\b", "execute_terminal"),

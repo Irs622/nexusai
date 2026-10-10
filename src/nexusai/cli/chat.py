@@ -19,7 +19,7 @@ from nexusai.bus.commands import ExecuteToolCommand, ExecuteToolCommandHandler
 from nexusai.bus.events import ToolExecutedEvent
 from nexusai.cli.console import print_banner, print_info, print_success
 from nexusai.core.config import SystemConfig
-from nexusai.logging.logger import setup_logger, logger
+from nexusai.logging.logger import logger, setup_logger
 from nexusai.memory.sqlite_memory import SQLiteMemory
 from nexusai.models.openai_provider import OpenAIProvider
 from nexusai.security.guard import SecurityGuard

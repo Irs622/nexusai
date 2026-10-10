@@ -9,8 +9,8 @@ import asyncio
 import psutil
 from pydantic import BaseModel
 
-from nexusai.tools.macos.active_window import GetActiveWindowTool
 from nexusai.logging.logger import logger
+from nexusai.tools.macos.active_window import GetActiveWindowTool
 
 
 class WorkingContext(BaseModel):
