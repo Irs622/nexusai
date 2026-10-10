@@ -1,17 +1,10 @@
 """
-Setuptools build script for NexusAI editable installation compatibility.
+Setuptools shim for legacy editable installs.
+
+All package metadata (name, version, packages, entry points) lives in
+``pyproject.toml``; this file intentionally declares nothing.
 """
 
-from setuptools import find_packages, setup
+from setuptools import setup
 
-setup(
-    name="nexusai",
-    version="0.1.0",
-    package_dir={"": "src"},
-    packages=find_packages(where="src"),
-    entry_points={
-        "console_scripts": [
-            "nexusai = nexusai.cli.app:app",
-        ],
-    },
-)
+setup()
