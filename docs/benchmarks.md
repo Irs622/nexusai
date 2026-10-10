@@ -48,6 +48,18 @@ pytest tests/stress -m stress
 
 ---
 
+## 2a. Audit Store Event-Loop Responsiveness (AUDIT-11)
+
+**Target:** concurrent audit writes must not stall the asyncio event loop. A 1 ms sleep probe stands in for `/health/live`.
+**Methodology:** `python -m benchmarks.audit_store_loop_lag --writes 400 --concurrency 50`, file-backed SQLite in a temp dir. 3 runs each, Apple Silicon macOS, Python 3.12, 2026-10-11.
+
+| Implementation | Probe samples | p50 lateness | p95 lateness | p99 lateness | max |
+|---|---|---|---|---|---|
+| Before (sync `sqlite3` on loop) | 10 | 0.14–0.17 ms | 101–104 ms | 101–104 ms | 101–104 ms |
+| After (`asyncio.to_thread`) | 124–126 | 0.03–0.04 ms | 0.14–0.16 ms | 1.7–2.2 ms | 6.4–7.7 ms |
+
+Regression guard: `tests/integration/test_audit_store_event_loop.py` (p95 < 50 ms).
+
 ## 3. System Budgets & Performance Ceilings
 
 NexusAI enforces systemic performance ceilings to prevent runtime overhead:

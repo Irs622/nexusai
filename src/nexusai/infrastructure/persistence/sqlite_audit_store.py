@@ -143,81 +143,95 @@ class SQLiteAuditStore(IAuditStore):
 
     async def append_event(self, event: AuditEvent) -> AuditEvent:
         """Atomically append a correlated audit event with tamper-evident SHA-256 hash chaining."""
+        # SQLite I/O runs in a worker thread so disk/lock waits never block the event loop;
+        # the asyncio lock keeps sequence allocation serialized within this process.
         async with self._write_lock:
-            with self._get_connection() as conn:
-                t_id = event.tenant_id if event.tenant_id else "default"
+            return await asyncio.to_thread(self._append_event_sync, event)
 
-                # Check if this is a pre-sequenced event or needs monotonic sequence allocation
-                if event.sequence_number > 0 and event.previous_event_hash:
-                    seq_num = event.sequence_number
-                    prev_hash = event.previous_event_hash
-                else:
-                    # Query latest event in tenant chain
-                    row = conn.execute(
-                        "SELECT sequence, event_hash FROM audit_events WHERE tenant_id = ? ORDER BY sequence DESC LIMIT 1",
-                        (t_id,),
-                    ).fetchone()
+    def _append_event_sync(self, event: AuditEvent) -> AuditEvent:
+        with self._get_connection() as conn:
+            # Take the database write lock before reading the chain head so concurrent
+            # writers (other store instances, threads, or processes on the same file)
+            # cannot allocate the same sequence number.
+            conn.execute("BEGIN IMMEDIATE")
+            t_id = event.tenant_id if event.tenant_id else "default"
 
-                    seq_num = (row["sequence"] + 1) if row else 1
-                    prev_hash = row["event_hash"] if row else GENESIS_HASH
+            # Check if this is a pre-sequenced event or needs monotonic sequence allocation
+            if event.sequence_number > 0 and event.previous_event_hash:
+                seq_num = event.sequence_number
+                prev_hash = event.previous_event_hash
+            else:
+                # Query latest event in tenant chain
+                row = conn.execute(
+                    "SELECT sequence, event_hash FROM audit_events WHERE tenant_id = ? ORDER BY sequence DESC LIMIT 1",
+                    (t_id,),
+                ).fetchone()
 
-                final_event = AuditEvent(
-                    event_id=event.event_id,
-                    event_type=event.event_type,
-                    session_id=event.session_id,
-                    execution_id=event.execution_id,
-                    plan_fingerprint=event.plan_fingerprint,
-                    sequence_number=seq_num,
-                    timestamp=event.timestamp if event.timestamp > 0 else time.time(),
-                    node_id=event.node_id,
-                    tool_id=event.tool_id,
-                    worker_id=event.worker_id,
-                    fencing_token=event.fencing_token,
-                    actor=event.actor if event.actor else "anonymous",
-                    tenant_id=t_id,
-                    outcome=event.outcome,
-                    severity=event.severity,
-                    previous_event_hash=prev_hash,
-                    metadata=dict(event.metadata),
-                )
+                seq_num = (row["sequence"] + 1) if row else 1
+                prev_hash = row["event_hash"] if row else GENESIS_HASH
 
-                meta_str = json.dumps(dict(final_event.metadata), sort_keys=True, default=str)
-                conn.execute(
-                    """
-                    INSERT INTO audit_events (
-                        id, sequence, timestamp, event_type, actor, tenant_id,
-                        tool_name, outcome, metadata_json, previous_hash, event_hash,
-                        session_id, execution_id, plan_fingerprint, node_id, worker_id,
-                        fencing_token, severity
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    (
-                        final_event.event_id,
-                        final_event.sequence_number,
-                        final_event.timestamp,
-                        final_event.event_type,
-                        final_event.actor,
-                        final_event.tenant_id,
-                        final_event.tool_id,
-                        final_event.outcome,
-                        meta_str,
-                        final_event.previous_event_hash,
-                        final_event.event_hash,
-                        final_event.session_id,
-                        final_event.execution_id,
-                        final_event.plan_fingerprint,
-                        final_event.node_id,
-                        final_event.worker_id,
-                        final_event.fencing_token,
-                        final_event.severity,
-                    ),
-                )
-                return final_event
+            final_event = AuditEvent(
+                event_id=event.event_id,
+                event_type=event.event_type,
+                session_id=event.session_id,
+                execution_id=event.execution_id,
+                plan_fingerprint=event.plan_fingerprint,
+                sequence_number=seq_num,
+                timestamp=event.timestamp if event.timestamp > 0 else time.time(),
+                node_id=event.node_id,
+                tool_id=event.tool_id,
+                worker_id=event.worker_id,
+                fencing_token=event.fencing_token,
+                actor=event.actor if event.actor else "anonymous",
+                tenant_id=t_id,
+                outcome=event.outcome,
+                severity=event.severity,
+                previous_event_hash=prev_hash,
+                metadata=dict(event.metadata),
+            )
+
+            meta_str = json.dumps(dict(final_event.metadata), sort_keys=True, default=str)
+            conn.execute(
+                """
+                INSERT INTO audit_events (
+                    id, sequence, timestamp, event_type, actor, tenant_id,
+                    tool_name, outcome, metadata_json, previous_hash, event_hash,
+                    session_id, execution_id, plan_fingerprint, node_id, worker_id,
+                    fencing_token, severity
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    final_event.event_id,
+                    final_event.sequence_number,
+                    final_event.timestamp,
+                    final_event.event_type,
+                    final_event.actor,
+                    final_event.tenant_id,
+                    final_event.tool_id,
+                    final_event.outcome,
+                    meta_str,
+                    final_event.previous_event_hash,
+                    final_event.event_hash,
+                    final_event.session_id,
+                    final_event.execution_id,
+                    final_event.plan_fingerprint,
+                    final_event.node_id,
+                    final_event.worker_id,
+                    final_event.fencing_token,
+                    final_event.severity,
+                ),
+            )
+            return final_event
 
     async def get_events(
         self, execution_id: str | None = None, tenant_id: str | None = None
     ) -> Sequence[AuditEvent]:
         """Retrieve full ordered audit history filtered by execution_id and/or tenant_id."""
+        return await asyncio.to_thread(self._get_events_sync, execution_id, tenant_id)
+
+    def _get_events_sync(
+        self, execution_id: str | None = None, tenant_id: str | None = None
+    ) -> Sequence[AuditEvent]:
         with self._get_connection() as conn:
             if execution_id and tenant_id:
                 rows = conn.execute(
@@ -240,6 +254,9 @@ class SQLiteAuditStore(IAuditStore):
 
     async def get_event(self, event_id: str) -> AuditEvent | None:
         """Retrieve a specific audit event by event_id or id."""
+        return await asyncio.to_thread(self._get_event_sync, event_id)
+
+    def _get_event_sync(self, event_id: str) -> AuditEvent | None:
         with self._get_connection() as conn:
             row = conn.execute("SELECT * FROM audit_events WHERE id = ?", (event_id,)).fetchone()
             if not row:
@@ -250,6 +267,11 @@ class SQLiteAuditStore(IAuditStore):
         self, execution_id: str | None = None, tenant_id: str | None = None
     ) -> AuditEvent | None:
         """Retrieve the most recent audit event for an execution and/or tenant."""
+        return await asyncio.to_thread(self._get_latest_event_sync, execution_id, tenant_id)
+
+    def _get_latest_event_sync(
+        self, execution_id: str | None = None, tenant_id: str | None = None
+    ) -> AuditEvent | None:
         with self._get_connection() as conn:
             if execution_id and tenant_id:
                 row = conn.execute(
@@ -380,12 +402,7 @@ class SQLiteAuditStore(IAuditStore):
         self, tenant_id: str | None = None
     ) -> AuditVerificationResult:
         """Perform startup integrity verification across all persistent audit log events."""
-        with self._get_connection() as conn:
-            if tenant_id:
-                tenants = [tenant_id]
-            else:
-                rows = conn.execute("SELECT DISTINCT tenant_id FROM audit_events").fetchall()
-                tenants = [r["tenant_id"] for r in rows]
+        tenants = [tenant_id] if tenant_id else await asyncio.to_thread(self._list_tenants_sync)
 
         if not tenants:
             return AuditVerificationResult(
@@ -422,6 +439,11 @@ class SQLiteAuditStore(IAuditStore):
             violations=all_violations,
             broken_at_sequence=broken_seq,
         )
+
+    def _list_tenants_sync(self) -> list[str]:
+        with self._get_connection() as conn:
+            rows = conn.execute("SELECT DISTINCT tenant_id FROM audit_events").fetchall()
+            return [r["tenant_id"] for r in rows]
 
     def _row_to_event(self, row: sqlite3.Row) -> AuditEvent:
         row_keys = row.keys()
