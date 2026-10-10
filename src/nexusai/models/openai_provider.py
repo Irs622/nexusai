@@ -16,6 +16,7 @@ from openai import AsyncOpenAI
 
 from nexusai.core.config import ModelSettings
 from nexusai.core.errors import ConfigurationError, ModelProviderError
+from nexusai.logging.logger import logger
 from nexusai.models.base import BaseModelProvider
 
 _ALLOWED_IMAGE_EXTENSIONS: frozenset[str] = frozenset(
@@ -140,7 +141,14 @@ class OpenAIProvider(BaseModelProvider):
         messages: list[dict[str, Any]],
         tools: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
-        """Send chat messages to OpenAI API and parse normalized response."""
+        """Send chat messages to OpenAI API and parse normalized response.
+
+        The ``BaseModelProvider`` contract returns at most one tool call per model
+        turn (ADR 0036), so parallel tool calling is disabled whenever tools are
+        supplied. If a backend ignores that flag and still returns several calls,
+        only the first is executed and the rest are logged; the agent loop will
+        request them again on the next turn.
+        """
         formatted_messages = await process_multimodal_messages(messages)
 
         kwargs: dict[str, Any] = {
@@ -153,6 +161,7 @@ class OpenAIProvider(BaseModelProvider):
 
         if tools:
             kwargs["tools"] = tools
+            kwargs["parallel_tool_calls"] = False
 
         try:
             response = await self.client.chat.completions.create(**kwargs)
@@ -161,6 +170,17 @@ class OpenAIProvider(BaseModelProvider):
             message = response.choices[0].message
 
             if message.tool_calls:
+                if len(message.tool_calls) > 1:
+                    dropped = [
+                        getattr(getattr(tc, "function", None), "name", "?")
+                        for tc in message.tool_calls[1:]
+                    ]
+                    logger.warning(
+                        "Model returned {} tool calls despite parallel_tool_calls=False; "
+                        "executing only the first, ignoring: {}",
+                        len(message.tool_calls),
+                        dropped,
+                    )
                 first_call = message.tool_calls[0]
                 func = getattr(first_call, "function", None)
                 if func is not None:

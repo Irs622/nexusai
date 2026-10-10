@@ -129,6 +129,57 @@ async def test_openai_provider_tool_call_response() -> None:
     }
 
 
+def _tool_call(name: str, arguments: str) -> MagicMock:
+    call = MagicMock()
+    call.function.name = name
+    call.function.arguments = arguments
+    return call
+
+
+@pytest.mark.asyncio
+async def test_openai_provider_disables_parallel_tool_calls_when_tools_given() -> None:
+    mock_client = MagicMock()
+    mock_message = MagicMock(tool_calls=None, content="ok")
+    mock_client.chat.completions.create = AsyncMock(
+        return_value=MagicMock(choices=[MagicMock(message=mock_message)])
+    )
+    provider = OpenAIProvider(client=mock_client)
+
+    await provider.chat([{"role": "user", "content": "Hi"}], tools=[{"type": "function"}])
+    assert mock_client.chat.completions.create.call_args.kwargs["parallel_tool_calls"] is False
+
+    await provider.chat([{"role": "user", "content": "Hi"}])
+    assert "parallel_tool_calls" not in mock_client.chat.completions.create.call_args.kwargs
+
+
+@pytest.mark.asyncio
+async def test_openai_provider_warns_and_keeps_first_of_multiple_tool_calls(
+    log_records: list[tuple[str, str]],
+) -> None:
+    mock_client = MagicMock()
+    mock_message = MagicMock()
+    mock_message.tool_calls = [
+        _tool_call("open_app", '{"app_name": "Safari"}'),
+        _tool_call("notify", '{"message": "done"}'),
+    ]
+    mock_client.chat.completions.create = AsyncMock(
+        return_value=MagicMock(choices=[MagicMock(message=mock_message)])
+    )
+
+    provider = OpenAIProvider(client=mock_client)
+    res = await provider.chat([{"role": "user", "content": "Go"}], tools=[{"type": "function"}])
+
+    assert res == {
+        "type": "tool_call",
+        "tool_name": "open_app",
+        "arguments": {"app_name": "Safari"},
+    }
+    assert any(
+        level == "WARNING" and "2 tool calls" in message and "notify" in message
+        for level, message in log_records
+    )
+
+
 @pytest.mark.asyncio
 async def test_brain_coordinator_text_flow(
     registry: ToolRegistry,
