@@ -190,3 +190,22 @@ def test_execution_state_and_cancel_endpoints(api_client: TestClient) -> None:
     cancel_data = cancel_resp.json()
     assert cancel_data["status"] == "CANCELLED"
     assert cancel_data["cancelled"] is True
+
+
+def test_api_chat_internal_error_is_sanitized(
+    api_client: TestClient, log_records: list[tuple[str, str]]
+) -> None:
+    secret = "sqlite3.OperationalError: /var/lib/nexusai/private.db is locked"
+    with patch(
+        "nexusai.brain.coordinator.BrainCoordinator.process_user_input",
+        new_callable=AsyncMock,
+        side_effect=RuntimeError(secret),
+    ):
+        response = api_client.post("/api/chat", json={"prompt": "hi", "session_id": "s"})
+
+    assert response.status_code == 500
+    detail = response.json()["detail"]
+    assert secret not in detail
+    assert detail.startswith("Internal server error (reference: ")
+    ref_id = detail.removeprefix("Internal server error (reference: ").rstrip(")")
+    assert any(level == "ERROR" and ref_id in message for level, message in log_records)
