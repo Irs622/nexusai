@@ -70,8 +70,8 @@ class BrainCoordinator:
             try:
                 working_ctx = await self.context_engine.gather_context()
                 sys_prompt = PromptBuilder().build_system_prompt(context=working_ctx)
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning("process_user_input: best-effort operation failed: {!r}", exc)
 
         # Resolve session ID through memory ownership or generate cryptographically random session
         effective_session_id = session_id
@@ -95,8 +95,8 @@ class BrainCoordinator:
                 )
             except TypeError:
                 history = await self.memory.get_messages(effective_session_id, limit=20)
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning("process_user_input: best-effort operation failed: {!r}", exc)
 
         # NEX-012: Request-scoped OutputValidator instance to prevent concurrency state race conditions
         req_capability_resolver = (
@@ -369,8 +369,10 @@ class BrainCoordinator:
                         await self.memory.add_message(
                             effective_session_id, "assistant", final_content
                         )
-                    except Exception:
-                        pass
+                    except Exception as exc:
+                        logger.warning(
+                            "process_user_input: best-effort operation failed: {!r}", exc
+                        )
 
                 res_copy: dict[str, Any] = dict(res)
                 res_copy["content"] = final_content
@@ -412,8 +414,8 @@ class BrainCoordinator:
                 except TypeError:
                     await self.memory.add_message(effective_session_id, "user", user_text)
                     await self.memory.add_message(effective_session_id, "assistant", final_content)
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.warning("process_user_input: best-effort operation failed: {!r}", exc)
 
             return {
                 "type": "text",
