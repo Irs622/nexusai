@@ -2195,6 +2195,9 @@ postgres = [
 qdrant = [
     { name = "qdrant-client" },
 ]
+redis = [
+    { name = "redis" },
+]
 workflow = [
     { name = "langgraph" },
 ]
@@ -2231,6 +2234,7 @@ requires-dist = [
     { name = "pyyaml", specifier = ">=6.0.1" },
     { name = "qdrant-client", marker = "extra == 'dev'", specifier = ">=1.9.0" },
     { name = "qdrant-client", marker = "extra == 'qdrant'", specifier = ">=1.9.0" },
+    { name = "redis", marker = "extra == 'redis'", specifier = ">=5.0.0" },
     { name = "rich", specifier = ">=13.7.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.3.0" },
     { name = "speechrecognition", specifier = ">=3.10.0" },
@@ -2239,7 +2243,7 @@ requires-dist = [
     { name = "types-pyyaml", marker = "extra == 'dev'", specifier = ">=6.0.12" },
     { name = "uvicorn", specifier = ">=0.28.0" },
 ]
-provides-extras = ["audio", "postgres", "qdrant", "workflow", "dev"]
+provides-extras = ["audio", "postgres", "qdrant", "workflow", "redis", "dev"]
 
 [[package]]
 name = "numpy"
@@ -3342,6 +3346,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/3a/33/c6e4ec45b4fca5a0b808e8804e60be54a6d7505b68b53c0b1d0d62ba86c1/qdrant_client-1.19.0.tar.gz", hash = "sha256:365395a04b0a26c309b25b7d8b1c99ef2071ec9a2b74bc8a5fd3b7a3642fe963", size = 350953, upload-time = "2026-08-04T14:32:56.923Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/fc/3c/480c61cc8d5a3e76bb44e86231f408c93643e5498beadbbeb381ab55d02b/qdrant_client-1.19.0-py3-none-any.whl", hash = "sha256:13602a2b3478a95ecdf42f97b93d7f703b63a3361cd912a04495a33a5ac14121", size = 396157, upload-time = "2026-08-04T14:32:55.734Z" },
+]
+
+[[package]]
+name = "redis"
+version = "8.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/a8/99/604f0b666d4c616d891cf77ebb9db6bb21601344c051aebf1b72b9ff915f/redis-8.1.0.tar.gz", hash = "sha256:6e1a19beef9225c83efd689c7e6b7da2d5215b1f42cd13b7fc3714d0a09c7b25", size = 5254356, upload-time = "2026-07-30T08:51:00.269Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/66/9d/c5731f6e3608663d4d3656fd8d3aecee8b509c3082818f5a13eae925baea/redis-8.1.0-py3-none-any.whl", hash = "sha256:a4fe1aac3d3b3cc791d4b3d5931c5a956045dc951ee74d1c913ee3ac4d2ee9fb", size = 560618, upload-time = "2026-07-30T08:50:58.497Z" },
 ]
 
 [[package]]
