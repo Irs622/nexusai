@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🔐 Audit Backlog Remediation (AUDIT-08 – AUDIT-24)
+- `ci(release)`: Release publishing now `needs` a `release-validation` job. It verifies the tag matches the package version and runs `tools/run_quality_gate.py --release`: tests in `ci-pr` mode, architecture checks, security audit, and fresh install (#49).
+- `fix(mcp)`: The Web Fetcher validates the destination IP at TCP connect time through an SSRF-guarded httpcore backend. This closes the DNS-rebinding TOCTOU gap and covers redirects and pooled connections. IPv4/IPv6 non-global ranges are blocked, including mapped, 6to4, and Teredo forms. Proxy env vars are ignored (#50).
+- `fix(mcp)`: Web Fetcher responses are streamed with a 5 MB decoded-byte ceiling. Oversized `Content-Length` is rejected before download, and compression bombs are cut off at the limit (#55).
+- `fix(security)`: Corrupt API key stores log an `ERROR` naming the file. Remaining silent exception handlers log their failures (#51).
+- `perf(audit)`: `SQLiteAuditStore` runs SQLite I/O in worker threads; event-loop p95 lateness under 400 concurrent writes dropped from ~100 ms to ~0.2 ms (see `docs/benchmarks.md`). Sequence allocation uses `BEGIN IMMEDIATE`, so concurrent writers can no longer collide (#52).
+- `fix(models)`: `OpenAIProvider` sends `parallel_tool_calls=False` and logs a warning if extra tool calls still arrive (ADR 0036) (#53).
+- `fix(api)`: HTTP 500 responses from `/api/chat` and `/api/mcp/reload` return a sanitized message with a reference ID; details go to server logs only (#54).
+- `feat(security)`: Pluggable `IRateLimiter`, with `InMemoryRateLimiter` (process-local) and `RedisRateLimiter` (shared, atomic sliding window). It is selected automatically when `NEXUSAI_REDIS_URL`/`REDIS_URL` is set. New `redis` extra; see `docs/deployment/rate-limiting.md` (#56).
+- `fix(evals)`: The default eval provider is now `PromptDrivenSimulator`, which never reads task `expected_*` fields. Reports and baselines carry `provider_mode`, and `v1.0.json` was re-recorded (#57).
+- `docs`: Documented macOS/Linux native prerequisites for the `audio` extra. Voice input degrades to text with a warning when PyAudio is missing (#58).
+- `feat(planner)`: `ActionRanker` uses goal–tool lexical relevance as `info_gain`, so pre-planning no longer always picks the first catalog tool (#59).
+- `refactor(api)`: `api/server.py` is now a ~75-line composition root. Wiring moved to `api/bootstrap.py`, shared state to `api/context.py`, and endpoints to `api/routes/*`. The route table and OpenAPI schema are unchanged (#60).
+- `chore(deps)`: Removed unused `langchain-core`. `langgraph` moved to the optional `workflow` extra and is imported lazily. `requirements.lock` now pins production runtime dependencies only (#61).
+- `refactor(plugins)`: Single canonical `PluginLoader` in `nexusai.plugins.runtime.loader`; `nexusai.tools.plugin_loader` is a deprecated alias that emits `DeprecationWarning` (#62).
+- `docs(agents)`: `AGENTS.md` falls back to `docs/`, `docs/adr/`, and `rfcs/` when the private `vault/` is absent (#63).
+- `fix(docker)`: The production image installs the package non-editable and drops `/app/src`. The web UI path is configurable via `NEXUSAI_WEB_DIR` (#64).
+- `chore(build)`: Removed obsolete `setup.py`; `pyproject.toml` is the single source of metadata (#65).
+
 ### 🧹 Code Hygiene & Repository Maintenance
 - `fix(observability)`: `ConsoleExporter` now emits spans/metrics through the loguru logger instead of `print()`.
 - `fix(brain)`: Replace 24 silent `except Exception: pass` blocks in the scheduler, governance engine, crash recovery manager, planner engine, and coordinator with logging (`debug` for best-effort telemetry, `warning` otherwise). Control flow is unchanged.
