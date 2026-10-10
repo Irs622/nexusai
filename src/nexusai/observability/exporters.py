@@ -9,6 +9,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Sequence
 
+from nexusai.logging.logger import logger
 from nexusai.observability.metrics import TokenLatencyMetric
 from nexusai.observability.tracer import TraceSpan
 
@@ -28,17 +29,17 @@ class TelemetryExporter(ABC):
 
 
 class ConsoleExporter(TelemetryExporter):
-    """Prints trace spans and metrics to stdout/console."""
+    """Emits trace spans and metrics to the console via the loguru logger."""
 
     def export_spans(self, spans: Sequence[TraceSpan]) -> None:
         for span in spans:
-            print(
+            logger.info(
                 f"[TRACE] {span.name} (Duration: {span.duration_ms:.2f}ms, Status: {span.status})"
             )
 
     def export_metrics(self, metrics: Sequence[TokenLatencyMetric]) -> None:
         for m in metrics:
-            print(
+            logger.info(
                 f"[METRIC] Provider: {m.provider} | Model: {m.model} | "
                 f"TTFT: {m.time_to_first_token_ms:.2f}ms | TPS: {m.tokens_per_second:.2f} tok/s"
             )
