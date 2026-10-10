@@ -16,8 +16,9 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
 from nexusai.core.errors import AuthenticationError, RateLimitExceededError
-from nexusai.security.identity import Identity, Role, TenantContext
 from nexusai.logging.logger import logger
+from nexusai.security.identity import Identity, Role, TenantContext
+from nexusai.security.rate_limiter import InMemoryRateLimiter, IRateLimiter
 
 
 @dataclass
@@ -55,14 +56,24 @@ class ApiKeyService:
         storage_path: str | Path | None = None,
         default_rate_limit: int = 100,
         rate_limit_per_minute: int | None = None,
+        rate_limiter: IRateLimiter | None = None,
     ) -> None:
-        """Initialize ApiKeyService with optional persistence path and rate limit."""
+        """Initialize ApiKeyService with optional persistence path and rate limit.
+
+        Args:
+            storage_path: Optional JSON file for persisted key records.
+            default_rate_limit: Default per-minute limit for new keys.
+            rate_limit_per_minute: Alias overriding ``default_rate_limit``.
+            rate_limiter: Rate limiter backend. Defaults to a process-local
+                ``InMemoryRateLimiter``; pass ``create_rate_limiter()`` (or a
+                ``RedisRateLimiter``) to share limits across workers and replicas.
+        """
         self.storage_path = Path(storage_path) if storage_path else None
         self.default_rate_limit = (
             rate_limit_per_minute if rate_limit_per_minute is not None else default_rate_limit
         )
         self._records: dict[str, ApiKeyRecord] = {}
-        self._rate_limiter: dict[str, list[float]] = {}
+        self.rate_limiter: IRateLimiter = rate_limiter or InMemoryRateLimiter()
         self._lock = threading.Lock()
 
         if self.storage_path and self.storage_path.is_file():
@@ -235,19 +246,17 @@ class ApiKeyService:
             if not record:
                 return
 
-            key_hash = record.key_hash
-            now = time.time()
-            timestamps = self._rate_limiter.setdefault(key_hash, [])
-            cutoff = now - 60.0
-            valid_timestamps = [t for t in timestamps if t > cutoff]
-            if len(valid_timestamps) >= record.rate_limit_per_minute:
-                self._rate_limiter[key_hash] = valid_timestamps
-                raise RateLimitExceededError(
-                    f"Rate limit exceeded: max {record.rate_limit_per_minute} requests per minute",
-                    details={"rate_limit": str(record.rate_limit_per_minute), "key_hash": key_hash},
-                )
-            valid_timestamps.append(now)
-            self._rate_limiter[key_hash] = valid_timestamps
+            self._enforce_rate_limit(record)
+
+    def _enforce_rate_limit(self, record: ApiKeyRecord) -> None:
+        if not self.rate_limiter.try_acquire(record.key_hash, record.rate_limit_per_minute, 60.0):
+            raise RateLimitExceededError(
+                f"Rate limit exceeded: max {record.rate_limit_per_minute} requests per minute",
+                details={
+                    "rate_limit": str(record.rate_limit_per_minute),
+                    "key_hash": record.key_hash,
+                },
+            )
 
     def authenticate(self, raw_key: str) -> Identity:
         """Authenticate raw API key, verify active status and expiration, and enforce rate limits.
@@ -282,18 +291,7 @@ class ApiKeyService:
                 raise AuthenticationError("API key has expired", details={"key_hash": key_hash})
 
             # Sliding-window rate limit enforcement (per minute)
-            timestamps = self._rate_limiter.setdefault(key_hash, [])
-            cutoff = now - 60.0
-            valid_timestamps = [t for t in timestamps if t > cutoff]
-            if len(valid_timestamps) >= record.rate_limit_per_minute:
-                self._rate_limiter[key_hash] = valid_timestamps
-                raise RateLimitExceededError(
-                    f"Rate limit exceeded: max {record.rate_limit_per_minute} requests per minute",
-                    details={"rate_limit": str(record.rate_limit_per_minute), "key_hash": key_hash},
-                )
-
-            valid_timestamps.append(now)
-            self._rate_limiter[key_hash] = valid_timestamps
+            self._enforce_rate_limit(record)
 
             return Identity(
                 tenant_id=record.tenant_id,
@@ -322,7 +320,14 @@ class ApiKeyService:
                 r_data["role"] = Role(r_data["role"])
                 self._records[key_hash] = ApiKeyRecord(**r_data)
         except Exception as exc:
-            logger.warning("load_keys: best-effort operation failed: {!r}", exc)
+            # Keep serving with whatever keys loaded so far, but make the corruption loud:
+            # an empty key store silently locks out every API client.
+            logger.error(
+                "Failed to load API key store '{}' ({}); keys from this file are not active: {!r}",
+                self.storage_path,
+                type(exc).__name__,
+                exc,
+            )
 
 
 DEFAULT_EXEMPT_PATHS: frozenset[str] = frozenset(

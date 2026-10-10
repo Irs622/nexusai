@@ -1,6 +1,7 @@
 """Unit tests for ApiKeyService, AuthMiddleware, and TenantContext."""
 
 import time
+from pathlib import Path
 
 import pytest
 from starlette.applications import Starlette
@@ -207,3 +208,19 @@ def test_auth_middleware_flow() -> None:
     resp = client.get("/api/data", headers={"X-NexusAI-API-Key": raw_key})
     assert resp.status_code == 429
     assert "Rate limit exceeded" in resp.json()["detail"]
+
+
+def test_load_keys_logs_error_on_malformed_json(
+    tmp_path: Path, log_records: list[tuple[str, str]]
+) -> None:
+    store = tmp_path / "api_keys.json"
+    store.write_text("{not valid json", encoding="utf-8")
+
+    service = ApiKeyService(storage_path=store)
+    service.load_keys()
+
+    assert service.list_keys() == []
+    assert any(
+        level == "ERROR" and "Failed to load API key store" in message and str(store) in message
+        for level, message in log_records
+    )

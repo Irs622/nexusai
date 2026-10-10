@@ -94,6 +94,7 @@ def log_records() -> Generator[list[tuple[str, str]], None, None]:
     from loguru import logger
 
     records: list[tuple[str, str]] = []
+    logger.enable("nexusai")  # some tests disable the package logger globally
     handler_id = logger.add(
         lambda msg: records.append((msg.record["level"].name, msg.record["message"])),
         level="DEBUG",
