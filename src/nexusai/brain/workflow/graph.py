@@ -1,17 +1,22 @@
 """
 LangGraph StateGraph builder for Agentic Workflow Orchestration.
+
+``langgraph`` is an optional dependency (``pip install nexusai[workflow]``); it is
+imported lazily so the core runtime does not require it.
 """
 
 from __future__ import annotations
 
 from typing import Any
 
-from langgraph.graph import END, StateGraph
-
 from nexusai.brain.workflow.nodes import node_reasoner, node_tool_executor
 from nexusai.brain.workflow.state import NexusGraphState
 from nexusai.bus.bus import CommandBus
+from nexusai.core.errors import NexusAIError
 from nexusai.models.base import BaseModelProvider
+
+# Mirrors ``langgraph.graph.END`` so routing works without importing langgraph.
+END = "__end__"
 
 
 def should_continue(state: NexusGraphState) -> str:
@@ -28,7 +33,19 @@ def build_agent_graph(
     command_bus: CommandBus,
     security_guard: Any = None,
 ) -> Any:
-    """Build and compile the LangGraph workflow graph."""
+    """Build and compile the LangGraph workflow graph.
+
+    Raises:
+        NexusAIError: If the optional ``langgraph`` dependency is not installed.
+    """
+    try:
+        from langgraph.graph import StateGraph
+    except ImportError as exc:
+        raise NexusAIError(
+            "build_agent_graph requires the optional 'langgraph' dependency. "
+            "Install it with: pip install 'nexusai[workflow]'"
+        ) from exc
+
     workflow = StateGraph(NexusGraphState)
 
     async def reasoner_node(state: NexusGraphState) -> dict[str, Any]:
