@@ -9,10 +9,10 @@ from nexusai.core.config import SystemConfig
 from nexusai.core.container import DependencyContainer
 from nexusai.memory.hierarchy import MemoryHierarchy
 from nexusai.memory.sqlite_memory import SQLiteMemory
+from nexusai.plugins.runtime.loader import PluginLoader
 from nexusai.security.guard import SecurityGuard
 from nexusai.security.policy import PluginPolicyEngine
 from nexusai.tools.isolation import SubprocessPluginRunner
-from nexusai.tools.plugin_loader import PluginLoader
 from nexusai.tools.registry import ToolRegistry
 from nexusai.workflow.engine import WorkflowGraphEngine
 

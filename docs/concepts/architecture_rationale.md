@@ -68,7 +68,7 @@ This document exists to ensure future maintainers understand the deep engineerin
 | `nexusai.knowledge` | Manages local vector embedding storage (`BaseVectorStore`) for workspace indexing and RAG retrieval. | Local context retrieval without cloud exfiltration. | [ADR-0002](../adr/0002-memory-storage.md) |
 | `nexusai.workflow` | Executes multi-step declarative workflow graphs with state recovery and retry boundaries. | Durable multi-step workflow persistence. | Workflow Specification |
 | `nexusai.automation` | Manages background task scheduling, cron triggers, and time-based agent triggers (`Scheduler`). | Background task execution decoupling. | System Architecture |
-| `nexusai.tools` | Hosts tool registry (`ToolRegistry`), plugin loader (`plugin_loader.py`), sandboxing, and OS driver interfaces (`nexusai.tools.macos`, etc.). | Minimalist driver plugin extensions. | [ADR-0001](../adr/0001-plugin-system.md) |
+| `nexusai.tools` | Hosts tool registry (`ToolRegistry`), sandboxing, and OS driver interfaces (`nexusai.tools.macos`, etc.). | Minimalist driver plugin extensions. | [ADR-0001](../adr/0001-plugin-system.md) |
 
 ---
 
