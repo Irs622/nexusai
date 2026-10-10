@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🧹 Code Hygiene & Repository Maintenance
 - `fix(observability)`: `ConsoleExporter` now emits spans/metrics through the loguru logger instead of `print()`.
 - `fix(brain)`: Replace 24 silent `except Exception: pass` blocks in the scheduler, governance engine, crash recovery manager, planner engine, and coordinator with logging (`debug` for best-effort telemetry, `warning` otherwise). Control flow is unchanged.
+- `fix(security)`: `SecurityGuard` now fails closed (raises `SecurityError`) when an approval grant cannot be marked consumed, preventing grant replay.
+- `fix`: Replace all remaining silent `except Exception: pass` handlers across `src/` with logging.
+- `test(vision)`: Align multimodal tests with workspace path containment and add an outside-workspace rejection test.
 - `chore(build)`: Make `pyproject.toml` the single source of package metadata; `setup.py` is now an empty shim (it previously declared a conflicting version `0.1.0`).
 - `refactor(brain)`: Remove unreachable `brain/planner.py` and `brain/prompt.py`, which were shadowed by the same-named packages.
 - `docs`: Add the `vault/` second-brain notes required by AGENTS.md, plus draft RFC 0002 (package consolidation).
