@@ -118,5 +118,125 @@
       "p99": 1.153,
       "max": 1.262
     }
+  },
+  {
+    "benchmark": "P4-8-D Durable Approval Load",
+    "workers": 50,
+    "total_operations": 50,
+    "successful_operations": 50,
+    "failed_operations": 0,
+    "timeout_operations": 0,
+    "sqlite_contention_count": 0,
+    "security_violations": 0,
+    "duration_seconds": 0.069,
+    "throughput_ops_sec": 723.86,
+    "latency_ms": {
+      "min": 0.902,
+      "mean": 1.354,
+      "p50": 1.148,
+      "p95": 2.366,
+      "p99": 4.936,
+      "max": 4.936
+    }
+  },
+  {
+    "benchmark": "P4-8-E Audit 10k Scaling Load",
+    "workers": 1,
+    "total_operations": 10000,
+    "successful_operations": 10000,
+    "failed_operations": 0,
+    "timeout_operations": 0,
+    "sqlite_contention_count": 0,
+    "security_violations": 0,
+    "duration_seconds": 5.852,
+    "throughput_ops_sec": 1708.86,
+    "latency_ms": {
+      "min": 0.315,
+      "mean": 0.584,
+      "p50": 0.446,
+      "p95": 1.315,
+      "p99": 2.527,
+      "max": 21.582
+    }
+  },
+  {
+    "benchmark": "P4-8-A Baseline Audit Operations",
+    "workers": 1,
+    "total_operations": 1000,
+    "successful_operations": 1000,
+    "failed_operations": 0,
+    "timeout_operations": 0,
+    "sqlite_contention_count": 0,
+    "security_violations": 0,
+    "duration_seconds": 0.457,
+    "throughput_ops_sec": 2187.81,
+    "latency_ms": {
+      "min": 0.339,
+      "mean": 0.456,
+      "p50": 0.4,
+      "p95": 0.734,
+      "p99": 1.367,
+      "max": 4.258
+    }
+  },
+  {
+    "benchmark": "P4-8-B Concurrent Execution Load",
+    "workers": 50,
+    "total_operations": 50,
+    "successful_operations": 50,
+    "failed_operations": 0,
+    "timeout_operations": 0,
+    "sqlite_contention_count": 0,
+    "security_violations": 0,
+    "duration_seconds": 0.029,
+    "throughput_ops_sec": 1745.14,
+    "latency_ms": {
+      "min": 0.294,
+      "mean": 0.558,
+      "p50": 0.364,
+      "p95": 1.238,
+      "p99": 3.715,
+      "max": 3.715
+    }
+  },
+  {
+    "benchmark": "P4-8-C SQLite WAL Contention",
+    "workers": 30,
+    "total_operations": 300,
+    "successful_operations": 300,
+    "failed_operations": 0,
+    "timeout_operations": 0,
+    "sqlite_contention_count": 0,
+    "security_violations": 0,
+    "duration_seconds": 0.173,
+    "throughput_ops_sec": 1732.44,
+    "latency_ms": {
+      "min": 0.389,
+      "mean": 10.223,
+      "p50": 6.954,
+      "p95": 21.278,
+      "p99": 111.049,
+      "max": 151.73
+    }
+  },
+  {
+    "benchmark": "P4-8-G Sustained Stress 50 Workers",
+    "workers": 50,
+    "total_operations": 250,
+    "successful_operations": 250,
+    "failed_operations": 0,
+    "timeout_operations": 0,
+    "sqlite_contention_count": 0,
+    "security_violations": 0,
+    "duration_seconds": 0.453,
+    "throughput_ops_sec": 551.71,
+    "latency_ms": {
+      "min": 0.972,
+      "mean": 1.519,
+      "p50": 1.187,
+      "p95": 2.63,
+      "p99": 6.572,
+      "max": 9.092
+    }
   }
 ]

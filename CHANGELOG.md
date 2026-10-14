@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `fix(docker)`: The production image installs the package non-editable and drops `/app/src`. The web UI path is configurable via `NEXUSAI_WEB_DIR` (#64).
 - `chore(build)`: Removed obsolete `setup.py`; `pyproject.toml` is the single source of metadata (#65).
 
+- `fix(evals)`: Baseline comparison applies a 50 ms absolute noise floor to `latency_avg`, so timer jitter over a near-zero baseline no longer fails `nexusai eval run`.
+
 ### 🧹 Code Hygiene & Repository Maintenance
 - `fix(observability)`: `ConsoleExporter` now emits spans/metrics through the loguru logger instead of `print()`.
 - `fix(brain)`: Replace 24 silent `except Exception: pass` blocks in the scheduler, governance engine, crash recovery manager, planner engine, and coordinator with logging (`debug` for best-effort telemetry, `warning` otherwise). Control flow is unchanged.

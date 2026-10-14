@@ -172,3 +172,15 @@ def test_baseline_comparison_regression_detection() -> None:
     dim_names = [d.name for d in report.regressions]
     assert "task_success_rate" in dim_names
     assert "tool_selection_accuracy" in dim_names
+
+
+def test_baseline_comparison_ignores_latency_jitter_near_zero() -> None:
+    """Sub-noise-floor latency changes over a zero baseline stay stable."""
+    report = compare_to_baseline(EvaluationMetrics(latency_avg=0.001), {"latency_avg": 0.0})
+    assert not report.has_regression
+
+
+def test_baseline_comparison_flags_real_latency_regression() -> None:
+    """Latency increases beyond the noise floor are still regressions."""
+    report = compare_to_baseline(EvaluationMetrics(latency_avg=0.5), {"latency_avg": 0.0})
+    assert "latency_avg" in [d.name for d in report.regressions]

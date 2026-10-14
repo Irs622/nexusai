@@ -270,6 +270,14 @@ DIMENSION_METADATA: dict[str, tuple[bool, str]] = {
 }
 
 
+# Absolute noise floor per dimension. A change smaller than this never counts
+# as a regression, so near-zero baselines (e.g. simulated latency) do not turn
+# timer jitter into a relative regression.
+ABSOLUTE_TOLERANCE: dict[str, float] = {
+    "latency_avg": 0.05,
+}
+
+
 def compare_to_baseline(
     current: EvaluationMetrics,
     baseline: EvaluationMetrics | dict[str, Any],
@@ -319,7 +327,9 @@ def compare_to_baseline(
             if curr_val > base_val * 1.01:
                 status = DimensionStatus.IMPROVED
                 imp_count += 1
-            elif curr_val < base_val * (1.0 - threshold):
+            elif curr_val < base_val * (1.0 - threshold) and -delta > ABSOLUTE_TOLERANCE.get(
+                dim, 0.0
+            ):
                 status = DimensionStatus.REGRESSION
                 has_regression = True
                 reg_count += 1
@@ -330,7 +340,9 @@ def compare_to_baseline(
             if curr_val < base_val * 0.99:
                 status = DimensionStatus.IMPROVED
                 imp_count += 1
-            elif curr_val > base_val * (1.0 + threshold):
+            elif curr_val > base_val * (1.0 + threshold) and delta > ABSOLUTE_TOLERANCE.get(
+                dim, 0.0
+            ):
                 status = DimensionStatus.REGRESSION
                 has_regression = True
                 reg_count += 1

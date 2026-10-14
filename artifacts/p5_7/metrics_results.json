@@ -18,5 +18,25 @@
       "p99": 0.003,
       "max": 44.701
     }
+  },
+  {
+    "benchmark": "P5-7 Observability High-Volume Load",
+    "workers": 1,
+    "total_operations": 10000,
+    "successful_operations": 10000,
+    "failed_operations": 0,
+    "timeout_operations": 0,
+    "sqlite_contention_count": 0,
+    "security_violations": 0,
+    "duration_seconds": 0.045,
+    "throughput_ops_sec": 221014.57,
+    "latency_ms": {
+      "min": 0.003,
+      "mean": 0.004,
+      "p50": 0.004,
+      "p95": 0.005,
+      "p99": 0.012,
+      "max": 0.235
+    }
   }
 ]
