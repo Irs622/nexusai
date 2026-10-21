@@ -277,7 +277,8 @@ class McpSseClient(BaseMcpClient):
         try:
             res = await self._send_request("ping", {})
             return res.error is None
-        except Exception:
+        except Exception as exc:
+            logger.warning("sse_client: suppressed exception: {!r}", exc)
             return False
 
     async def _send_request(self, method: str, params: dict[str, Any]) -> JsonRpcResponse:

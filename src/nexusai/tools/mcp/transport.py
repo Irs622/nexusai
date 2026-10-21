@@ -191,7 +191,8 @@ class McpHttpTransport:
                     data = response.json()
                     if isinstance(data, dict):
                         parsed_json = data
-                except Exception:
+                except Exception as exc:
+                    logger.debug("transport: suppressed exception: {!r}", exc)
                     parsed_json = None
 
             return response.status_code, parsed_json, response.text

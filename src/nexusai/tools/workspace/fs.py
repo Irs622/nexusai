@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 from nexusai.runtime.execution_semantics import ExecutionSemantics
 from nexusai.security.guard import RiskLevel
 from nexusai.tools.base import BaseTool
+from nexusai.logging.logger import logger
 
 
 class ListDirectoryInputSchema(BaseModel):
@@ -56,6 +57,7 @@ class ListDirectoryTool(BaseTool):
         except PermissionError as pe:
             return f"Error: {pe}"
         except Exception as e:
+            logger.warning("fs: suppressed exception: {!r}", e)
             return f"Error resolving directory '{path}': {e}"
 
         try:
@@ -67,6 +69,7 @@ class ListDirectoryTool(BaseTool):
             items = [item.name for item in target.iterdir()]
             return sorted(items)
         except Exception as e:
+            logger.warning("fs: suppressed exception: {!r}", e)
             return f"Error listing directory '{path}': {e}"
 
 
@@ -114,6 +117,7 @@ class ReadFileTool(BaseTool):
         except PermissionError as pe:
             return f"Error: {pe}"
         except Exception as e:
+            logger.warning("fs: suppressed exception: {!r}", e)
             return f"Error resolving file '{file_path}': {e}"
 
         try:
@@ -124,6 +128,7 @@ class ReadFileTool(BaseTool):
 
             return target.read_text(encoding="utf-8", errors="replace")
         except Exception as e:
+            logger.warning("fs: suppressed exception: {!r}", e)
             return f"Error reading file '{file_path}': {e}"
 
 
@@ -171,6 +176,7 @@ class WriteFileTool(BaseTool):
         except PermissionError as pe:
             return f"Error: {pe}"
         except Exception as e:
+            logger.warning("fs: suppressed exception: {!r}", e)
             return f"Error resolving file '{file_path}': {e}"
 
         try:
@@ -181,4 +187,5 @@ class WriteFileTool(BaseTool):
             target.write_text(content, encoding="utf-8")
             return f"Successfully wrote {len(content)} characters to '{file_path}'."
         except Exception as e:
+            logger.warning("fs: suppressed exception: {!r}", e)
             return f"Error writing file '{file_path}': {e}"

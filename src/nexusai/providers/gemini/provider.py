@@ -27,6 +27,7 @@ from nexusai.providers.models import (
 )
 from nexusai.providers.translators.error_mapper import CanonicalErrorMapper
 from nexusai.providers.translators.gemini import GeminiTranslator
+from nexusai.logging.logger import logger
 
 
 @stable
@@ -167,7 +168,8 @@ class GeminiProvider(BaseProvider):
                                 chunk_payload, provider_id=self.id
                             )
                             yield chunk_response
-                        except Exception:
+                        except Exception as exc:
+                            logger.debug("gemini: suppressed exception: {!r}", exc)
                             continue
                     else:
                         try:
@@ -176,7 +178,8 @@ class GeminiProvider(BaseProvider):
                                 chunk_payload, provider_id=self.id
                             )
                             yield chunk_response
-                        except Exception:
+                        except Exception as exc:
+                            logger.debug("gemini: suppressed exception: {!r}", exc)
                             continue
         except httpx.TimeoutException as te:
             raise CanonicalErrorMapper.map_http_error(408, str(te), self.id)
@@ -246,7 +249,8 @@ class GeminiProvider(BaseProvider):
                 ctx = item.get("inputTokenLimit", 1000000)
                 models.append(ModelInfo(id=m_id, display_name=m_name, context_window=ctx))
             return models
-        except Exception:
+        except Exception as exc:
+            logger.warning("gemini: suppressed exception: {!r}", exc)
             return [
                 ModelInfo(
                     id="models/gemini-1.5-flash",
@@ -266,4 +270,5 @@ class GeminiProvider(BaseProvider):
                 available_models=len(models),
             )
         except Exception as err:
+            logger.warning("gemini: suppressed exception: {!r}", err)
             return ProviderHealth(healthy=False, error=str(err))

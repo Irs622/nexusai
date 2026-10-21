@@ -16,6 +16,7 @@ from nexusai.providers.exceptions import (
     ProviderSDKError,
     ProviderTimeoutError,
 )
+from nexusai.logging.logger import logger
 
 
 @stable
@@ -68,7 +69,8 @@ class CanonicalErrorMapper:
                             now = datetime.now(timezone.utc)
                             diff = (dt - now).total_seconds()
                             retry_after = max(0.0, diff)
-                        except Exception:
+                        except Exception as exc:
+                            logger.debug("error_mapper: suppressed exception: {!r}", exc)
                             retry_after = None
             return ProviderRateLimitError(msg, retry_after=retry_after)
         if status_code in (408, 504):

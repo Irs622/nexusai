@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 
 from nexusai.security.guard import RiskLevel
 from nexusai.tools.base import BaseTool
+from nexusai.logging.logger import logger
 
 
 async def send_macos_notification(title: str, message: str) -> None:
@@ -26,7 +27,8 @@ async def send_macos_notification(title: str, message: str) -> None:
             stderr=asyncio.subprocess.PIPE,
         )
         await process.communicate()
-    except Exception:
+    except Exception as exc:
+        logger.debug("notify: suppressed exception: {!r}", exc)
         pass  # Do not fail application if notification permissions fail
 
 

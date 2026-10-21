@@ -7,6 +7,7 @@ from pathlib import Path
 from nexusai.brain.domain.governance import ToolCapability
 from nexusai.brain.domain.tool_registry import ToolMetadata, ToolStatus, ToolTrustLevel
 from nexusai.brain.ports.tool_port import IToolPort, ToolExecutionRequest, ToolExecutionResult
+from nexusai.logging.logger import logger
 
 
 class FilesystemTool(IToolPort):
@@ -123,6 +124,7 @@ class FilesystemTool(IToolPort):
                 error_message=str(err),
             )
         except Exception as err:
+            logger.warning("filesystem_tool: suppressed exception: {!r}", err)
             return ToolExecutionResult(
                 request_id=request.execution_id,
                 tool_name=request.tool_name,

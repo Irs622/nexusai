@@ -216,7 +216,8 @@ class McpClient(BaseMcpClient):
         try:
             res = await self._send_request("ping", {})
             return res.error is None
-        except Exception:
+        except Exception as exc:
+            logger.warning("client: suppressed exception: {!r}", exc)
             return False
 
     async def list_prompts(self) -> list[McpPromptDefinition]:

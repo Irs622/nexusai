@@ -16,6 +16,7 @@ from nexusai.providers.models import (
     Usage,
 )
 from nexusai.providers.translators.base import BaseTranslator
+from nexusai.logging.logger import logger
 
 
 @stable
@@ -48,7 +49,8 @@ class OpenAITranslator(BaseTranslator):
             if isinstance(raw_args, str):
                 try:
                     args = json.loads(raw_args)
-                except Exception:
+                except Exception as exc:
+                    logger.debug("openai: suppressed exception: {!r}", exc)
                     args = {}
             else:
                 args = raw_args

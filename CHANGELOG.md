@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `chore(build)`: Removed obsolete `setup.py`; `pyproject.toml` is the single source of metadata (#65).
 
 ### 🧹 Code Hygiene & Repository Maintenance
+- `fix(tools,providers)`: Broad `except Exception` handlers in `tools/`, `providers/`, and `infrastructure/tools/` that neither logged nor re-raised now log the exception through loguru (`debug` for skipped stream chunks and best-effort fallbacks, `warning` otherwise). Control flow and return values are unchanged.
 - `fix(observability)`: `ConsoleExporter` now emits spans/metrics through the loguru logger instead of `print()`.
 - `fix(brain)`: Replace 24 silent `except Exception: pass` blocks in the scheduler, governance engine, crash recovery manager, planner engine, and coordinator with logging (`debug` for best-effort telemetry, `warning` otherwise). Control flow is unchanged.
 - `fix(security)`: `SecurityGuard` now fails closed (raises `SecurityError`) when an approval grant cannot be marked consumed, preventing grant replay.

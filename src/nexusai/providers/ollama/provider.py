@@ -26,6 +26,7 @@ from nexusai.providers.models import (
 )
 from nexusai.providers.translators.error_mapper import CanonicalErrorMapper
 from nexusai.providers.translators.ollama import OllamaTranslator
+from nexusai.logging.logger import logger
 
 
 @stable
@@ -151,7 +152,8 @@ class OllamaProvider(BaseProvider):
                             chunk_payload, provider_id=self.id
                         )
                         yield chunk_response
-                    except Exception:
+                    except Exception as exc:
+                        logger.debug("ollama: suppressed exception: {!r}", exc)
                         continue
         except httpx.TimeoutException as te:
             raise CanonicalErrorMapper.map_http_error(408, str(te), self.id)
@@ -231,7 +233,8 @@ class OllamaProvider(BaseProvider):
                     )
                 )
             return result
-        except Exception:
+        except Exception as exc:
+            logger.warning("ollama: suppressed exception: {!r}", exc)
             return []
 
     async def health_check(self) -> ProviderHealth:
@@ -245,4 +248,5 @@ class OllamaProvider(BaseProvider):
                 available_models=len(models),
             )
         except Exception as err:
+            logger.warning("ollama: suppressed exception: {!r}", err)
             return ProviderHealth(healthy=False, error=str(err))

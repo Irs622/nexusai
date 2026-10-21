@@ -13,6 +13,7 @@ from nexusai.tools.mcp.models import (
     McpToolContent,
     McpToolDefinition,
 )
+from nexusai.logging.logger import logger
 
 ToolHandler = Callable[[dict[str, Any]], Awaitable[Any] | Any]
 
@@ -183,7 +184,8 @@ class McpServerBase:
                 if not line_bytes:
                     break
                 yield line_bytes.decode("utf-8")
-        except Exception:
+        except Exception as exc:
+            logger.warning("base: suppressed exception: {!r}", exc)
             # Fallback to threaded readline
             while True:
                 line = await loop.run_in_executor(None, sys.stdin.readline)

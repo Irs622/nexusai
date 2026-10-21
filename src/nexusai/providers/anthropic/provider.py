@@ -26,6 +26,7 @@ from nexusai.providers.models import (
 )
 from nexusai.providers.translators.anthropic import AnthropicTranslator
 from nexusai.providers.translators.error_mapper import CanonicalErrorMapper
+from nexusai.logging.logger import logger
 
 
 @stable
@@ -174,7 +175,8 @@ class AnthropicProvider(BaseProvider):
                                 yield self._translator.to_canonical_response(
                                     raw_c, provider_id=self.id
                                 )
-                        except Exception:
+                        except Exception as exc:
+                            logger.debug("anthropic: suppressed exception: {!r}", exc)
                             continue
         except httpx.TimeoutException as te:
             raise CanonicalErrorMapper.map_http_error(408, str(te), self.id)
@@ -220,4 +222,5 @@ class AnthropicProvider(BaseProvider):
                 available_models=len(models),
             )
         except Exception as err:
+            logger.warning("anthropic: suppressed exception: {!r}", err)
             return ProviderHealth(healthy=False, error=str(err))

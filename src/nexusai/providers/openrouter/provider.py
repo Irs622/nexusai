@@ -27,6 +27,7 @@ from nexusai.providers.models import (
 )
 from nexusai.providers.translators.error_mapper import CanonicalErrorMapper
 from nexusai.providers.translators.openai import OpenAITranslator
+from nexusai.logging.logger import logger
 
 
 @stable
@@ -170,7 +171,8 @@ class OpenRouterProvider(BaseProvider):
                                 chunk_payload, provider_id=self.id
                             )
                             yield chunk_response
-                        except Exception:
+                        except Exception as exc:
+                            logger.debug("openrouter: suppressed exception: {!r}", exc)
                             continue
                     else:
                         try:
@@ -179,7 +181,8 @@ class OpenRouterProvider(BaseProvider):
                                 chunk_payload, provider_id=self.id
                             )
                             yield chunk_response
-                        except Exception:
+                        except Exception as exc:
+                            logger.debug("openrouter: suppressed exception: {!r}", exc)
                             continue
         except httpx.TimeoutException as te:
             raise CanonicalErrorMapper.map_http_error(408, str(te), self.id)
@@ -237,7 +240,8 @@ class OpenRouterProvider(BaseProvider):
                 ctx = item.get("context_length", 4096)
                 models.append(ModelInfo(id=m_id, display_name=m_name, context_window=ctx))
             return models
-        except Exception:
+        except Exception as exc:
+            logger.warning("openrouter: suppressed exception: {!r}", exc)
             return []
 
     async def health_check(self) -> ProviderHealth:
@@ -251,4 +255,5 @@ class OpenRouterProvider(BaseProvider):
                 available_models=len(models),
             )
         except Exception as err:
+            logger.warning("openrouter: suppressed exception: {!r}", err)
             return ProviderHealth(healthy=False, error=str(err))

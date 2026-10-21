@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from nexusai.runtime.execution_semantics import ExecutionSemantics
 from nexusai.security.guard import RiskLevel
 from nexusai.tools.base import BaseTool
+from nexusai.logging.logger import logger
 
 
 class EmptyInputSchema(BaseModel):
@@ -44,4 +45,5 @@ class GitStatusTool(BaseTool):
 
             return stdout_str or "Git status clean."
         except Exception as e:
+            logger.warning("git: suppressed exception: {!r}", e)
             return f"Error executing git status: {e}"
