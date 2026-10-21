@@ -1,5 +1,7 @@
 # P5-9 Implementation Report: Multi-Node Cluster Verification & Adversarial Distributed System Chaos Testing
 
+> **⚠️ Historical internal report.** NexusAI is under active development and is **not production-ready**. This report records the result of an internal engineering gate at the time it was written. It is not an independent certification or a production guarantee, and its figures have not been re-measured since.
+
 ```text
 ╔══════════════════════════════════════════════════════════════╗
 ║           NEXUSAI MULTI-NODE CLUSTER VERDICT                ║

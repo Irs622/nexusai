@@ -1,5 +1,7 @@
 # P5-8 Implementation Report: Kubernetes Helm Deployment & Security
 
+> **⚠️ Historical internal report.** NexusAI is under active development and is **not production-ready**. This report records the result of an internal engineering gate at the time it was written. It is not an independent certification or a production guarantee, and its figures have not been re-measured since.
+
 ```text
 ╔══════════════════════════════════════════════════════════════╗
 ║             NEXUSAI KUBERNETES SECURITY VERDICT              ║

@@ -25,9 +25,9 @@ NexusAI is an open-source, model-agnostic agent runtime designed to coordinate A
 
 Rather than coupling agent behavior to a single model provider or application, NexusAI separates planning, execution, memory, security policies, and infrastructure behind modular interfaces.
 
-The project targets production-oriented agent infrastructure, with ongoing validation of distributed deployments, external telemetry integrations, and multi-cloud operation.
+The project is aimed at production-grade agent infrastructure, but it is still under active development. Distributed deployments, external telemetry integrations, and multi-cloud operation are not yet validated.
 
-> **Project status:** `v1.0.0 Release Candidate`. See the current testing results, release verification, and deployment documentation before using NexusAI in production environments.
+> **Project status: under active development — not production-ready.** APIs, schemas, and behavior may change without notice. Internal readiness and certification reports under `docs/` record past engineering gates only; they are not an independent certification. Do not deploy NexusAI in production environments yet.
 
 ---
 
@@ -300,7 +300,7 @@ python tools/run_quality_gate.py
 
 The documented quality gate covers linting, formatting, static type checking, unit tests, and benchmarks.
 
-### 2. Release Candidate Verification
+### 2. Release Verification (pre-release checks)
 
 ```bash
 python tools/verify_release.py

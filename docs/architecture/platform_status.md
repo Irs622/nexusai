@@ -14,7 +14,9 @@ last_reviewed: 2026-08-04
 
 # 🎛️ NexusAI Single-Page Platform Status Dashboard
 
-*Single source of truth summarizing runtime kernel health, adapter certification, and platform governance.*
+*Single source of truth summarizing runtime kernel health, adapter status, and platform governance.*
+
+> **Note:** NexusAI is under active development and is not production-ready. Levels and scores below come from internal engineering gates, not independent certification.
 
 ---
 

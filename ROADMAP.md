@@ -1,15 +1,15 @@
 # 🗺️ NexusAI Product & Architecture Roadmap
 
 > [!NOTE]
-> **Engineering Status**: Current Version: `v1.0.0` (**Production Release Candidate & Level 4 Certified**).
-> The project has completed full architectural implementation, 6-Gate Release Candidate certification, zero-debt architecture boundaries, and comprehensive end-to-end automated quality gates. Operational validation and containerized ecosystem rollout are active.
+> **Engineering Status**: Package version `v1.0.0` — **under active development, not production-ready**.
+> The core architecture is implemented and passes the automated quality gates (ruff, black, `mypy --strict`, unit/architecture tests). Operational validation, external review, and real-workload testing are still pending, so no production or certification claim should be assumed. Earlier "certified" wording in historical reports refers to internal engineering gates only.
 
 ---
 
 ## 📌 Implementation Milestones
 
 ### 🟢 Phase 0–3 — Foundation & Kernel Architecture `[COMPLETE]`
-- [x] **Model-Agnostic Provider Adapters**: OpenAI, OpenRouter, Gemini, Anthropic, and local Ollama L5 Certified.
+- [x] **Model-Agnostic Provider Adapters**: OpenAI, OpenRouter, Gemini, Anthropic, and local Ollama adapters implemented (internal contract tests; live validation pending).
 - [x] **Provider SDK Foundation**: `BaseProvider`, `ProviderRegistry`, `ProviderManager`, `ProviderRouter`, typed contracts.
 - [x] **Kernel Orchestration Engine**: Boot coordinator, DAG dependency graph, lifecycle manager (`KernelOrchestrator`).
 - [x] **Brain Runtime Core**: `BrainSession` v1.0, `ExecutionContext` sub-contexts, `PromptBundle` v1.0, `ArtifactRegistry`.

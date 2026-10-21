@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 📝 Project Status Wording
+- `docs`: Reworded README, ROADMAP, platform status, and the web dashboard badge to state that NexusAI is under active development and not production-ready. Added a historical-report notice to the `docs/P*_REPORT.md` readiness and certification reports.
+
 ### 🔐 Audit Backlog Remediation (AUDIT-08 – AUDIT-24)
 - `ci(release)`: Release publishing now `needs` a `release-validation` job. It verifies the tag matches the package version and runs `tools/run_quality_gate.py --release`: tests in `ci-pr` mode, architecture checks, security audit, and fresh install (#49).
 - `fix(mcp)`: The Web Fetcher validates the destination IP at TCP connect time through an SSRF-guarded httpcore backend. This closes the DNS-rebinding TOCTOU gap and covers redirects and pooled connections. IPv4/IPv6 non-global ranges are blocked, including mapped, 6to4, and Teredo forms. Proxy env vars are ignored (#50).

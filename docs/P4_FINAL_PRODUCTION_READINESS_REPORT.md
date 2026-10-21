@@ -1,5 +1,7 @@
 # P4-FINAL: Production Readiness Gate Report
 
+> **⚠️ Historical internal report.** NexusAI is under active development and is **not production-ready**. This report records the result of an internal engineering gate at the time it was written. It is not an independent certification or a production guarantee, and its figures have not been re-measured since.
+
 ```text
 ╔══════════════════════════════════════════════════════════════╗
 ║              NEXUSAI PRODUCTION READINESS                  ║
