@@ -20,7 +20,7 @@ apscheduler>=3.10.0,<4.0.0
 
 # Web Dashboard & API
 fastapi>=0.110.0
-uvicorn>=0.28.0
+uvicorn>=0.52.4
 
 # Optional / Audio
 pyaudio>=0.2.14; sys_platform == "darwin"
