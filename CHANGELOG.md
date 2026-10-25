@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### ☸️ Helm Chart Fixes
+- `fix(helm)`: The chart now renders container `env`, a data PVC, a control-plane `Service`, and writable `/tmp` and `/app/logs` `emptyDir` mounts, so pods can boot with `readOnlyRootFilesystem`. Previously none of these were rendered: `values-production.yaml` settings were ignored, and the control plane hit the `:memory:` production guard at startup.
+- `fix(helm)`: Storage paths (`NEXUSAI_EXECUTION_DB`, `NEXUSAI_COORDINATOR_DB`, `NEXUSAI_KEY_STORAGE_PATH`) are derived from `persistence.mountPath`. Credentials come from the `secrets.name` Secret via `secretEnv`, and an `env` entry overrides either without creating duplicate variables.
+- `fix(helm)`: The sandbox manifest was schema-invalid (`resources.sandbox.memory`). The production values' `digest` no longer silently overrides `tag`.
+- `fix(helm)`: Added the `nexusai-control-plane-allow` NetworkPolicy. The default-deny policy previously blocked all traffic to the API and from it to DNS, LLM providers, and Redis.
+- `fix(helm)`: Rendering now fails for unsafe or incomplete setups: more than one control-plane replica on SQLite (opt-out: `persistence.allowSharedSqlite`), and worker or sandbox enabled without a `command`. Both are disabled by default, since the image has no dedicated entrypoint for them yet. The production control plane is now 1 replica on a `ReadWriteOnce` volume with the `Recreate` strategy.
+- `test(helm)`: `test_p5_8_kubernetes_deployment.py` renders the chart and checks mounts, env, PVC, Service, and the render-time guards when `helm` is installed.
+
 ### ♻️ Package Consolidation (RFC 0002)
 - `refactor(providers)`: Single canonical `CircuitBreaker` in `nexusai.providers.circuit_breaker` (ADR 0037). It now accepts an injectable `clock` and tracks sliding-window metrics: `can_execute()`, `calculate_health_score()`, `get_metrics()`, `trip_count`, and latency recorded by `call()`. `nexusai.runtime.circuit_breaker` and `nexusai.models.circuit_breaker` are deprecated aliases that emit `DeprecationWarning`. `from nexusai.runtime import CircuitBreaker` keeps working without a warning. Behavior change: `CircuitState` from the `models` alias now uses lower-case values (`"open"`).
 

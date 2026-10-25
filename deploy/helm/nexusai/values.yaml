@@ -1,5 +1,7 @@
 replicaCount:
-  controlPlane: 2
+  # Keep at 1 while execution/coordinator state is SQLite; the chart refuses >1 unless
+  # persistence.allowSharedSqlite=true.
+  controlPlane: 1
   worker: 3
   sandbox: 2
 
@@ -51,8 +53,78 @@ resources:
       cpu: "250m"
       memory: "256Mi"
 
+service:
+  enabled: true
+  type: ClusterIP
+  port: 80
+
+# Writable storage for the read-only root filesystem.
+# The PVC holds execution.db, coordinator.db and api_keys.json (paths are derived from
+# mountPath and injected as NEXUSAI_EXECUTION_DB / NEXUSAI_COORDINATOR_DB /
+# NEXUSAI_KEY_STORAGE_PATH). With persistence disabled an emptyDir is used: the pod
+# still boots, but all state is lost on restart.
+persistence:
+  enabled: true
+  existingClaim: ""
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 5Gi
+  mountPath: /data
+  # SQLite WAL is unsafe on network filesystems; only set this if you understand the risk.
+  allowSharedSqlite: false
+tmpSizeLimit: 256Mi
+logsSizeLimit: 256Mi
+
+# Secret holding credentials, created out of band, e.g.:
+#   kubectl create secret generic nexusai-secrets \
+#     --from-literal=admin-api-key=... --from-literal=approval-secret=... \
+#     --from-literal=redis-url=redis://...
+secrets:
+  name: nexusai-secrets
+  # Variables from secretEnv that may be absent from the Secret.
+  optionalKeys:
+    - OPENROUTER_API_KEY
+    - OPENAI_API_KEY
+    - ANTHROPIC_API_KEY
+    - GEMINI_API_KEY
+
+# ENV_VAR_NAME: key-in-secrets.name
+# Production startup requires NEXUSAI_ADMIN_API_KEY, NEXUSAI_APPROVAL_SECRET and a
+# distributed nonce store (NEXUSAI_REDIS_URL or NEXUSAI_DATABASE_URL).
+secretEnv:
+  NEXUSAI_ADMIN_API_KEY: admin-api-key
+  NEXUSAI_APPROVAL_SECRET: approval-secret
+  NEXUSAI_REDIS_URL: redis-url
+  OPENROUTER_API_KEY: openrouter-api-key
+  OPENAI_API_KEY: openai-api-key
+  ANTHROPIC_API_KEY: anthropic-api-key
+  GEMINI_API_KEY: gemini-api-key
+
+# Extra environment. Values are either plain strings or a map such as
+# {valueFrom: {...}}. An entry here overrides a chart-derived or secretEnv variable.
+env:
+  NEXUSAI_ENV: "production"
+
+# Worker and sandbox gateway have no dedicated entrypoint in the image yet. They stay
+# disabled until a command is provided; without one they would run the API server.
+worker:
+  enabled: false
+  command: []
+sandbox:
+  enabled: false
+  command: []
+
 networkPolicy:
   enabled: true
+  controlPlane:
+    # NetworkPolicyPeer list allowed to reach port 8080 (e.g. your ingress controller's
+    # namespace). Empty means any source, restricted to that port.
+    ingressFrom: []
+    # Outbound TCP ports: HTTPS (LLM providers), Redis, Postgres.
+    egressPorts:
+      - 443
+      - 6379
+      - 5432
 
 rbac:
   create: true

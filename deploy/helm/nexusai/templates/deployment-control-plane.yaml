@@ -1,11 +1,21 @@
+{{- if and (gt (int .Values.replicaCount.controlPlane) 1) (not .Values.persistence.allowSharedSqlite) }}
+{{- fail "replicaCount.controlPlane > 1 is not supported: execution/coordinator state is SQLite (WAL), which is unsafe on shared network volumes. Keep 1 replica, or set persistence.allowSharedSqlite=true to accept the risk." }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nexusai-control-plane
+  namespace: {{ .Release.Namespace }}
   labels:
     app: nexusai-control-plane
+    {{- include "nexusai.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount.controlPlane }}
+  {{- if .Values.persistence.enabled }}
+  strategy:
+    # A ReadWriteOnce volume cannot be attached to the old and new pod at once.
+    type: Recreate
+  {{- end }}
   selector:
     matchLabels:
       app: nexusai-control-plane
@@ -13,35 +23,26 @@ spec:
     metadata:
       labels:
         app: nexusai-control-plane
+        {{- include "nexusai.labels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ .Values.serviceAccount.name }}
       securityContext:
-        runAsNonRoot: true
-        runAsUser: 10001
-        runAsGroup: 10001
-        fsGroup: 10001
-        seccompProfile:
-          type: RuntimeDefault
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: control-plane
-          image: "{{ if .Values.image.digest }}{{ .Values.image.repository }}@{{ .Values.image.digest }}{{ else }}{{ .Values.image.repository }}:{{ .Values.image.tag }}{{ end }}"
+          image: {{ include "nexusai.image" . | quote }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-            capabilities:
-              drop:
-                - ALL
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            {{- include "nexusai.env" . | trim | nindent 12 }}
           resources:
-            limits:
-              cpu: {{ .Values.resources.controlPlane.limits.cpu }}
-              memory: {{ .Values.resources.controlPlane.limits.memory }}
-            requests:
-              cpu: {{ .Values.resources.controlPlane.requests.cpu }}
-              memory: {{ .Values.resources.controlPlane.requests.memory }}
+            {{- toYaml .Values.resources.controlPlane | nindent 12 }}
           ports:
             - containerPort: 8080
               name: http
+          volumeMounts:
+            {{- include "nexusai.volumeMounts" . | nindent 12 }}
           readinessProbe:
             httpGet:
               path: {{ .Values.probes.readiness.path }}
@@ -54,3 +55,5 @@ spec:
               port: {{ .Values.probes.liveness.port }}
             initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
             periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+      volumes:
+        {{- include "nexusai.volumes" . | nindent 8 }}

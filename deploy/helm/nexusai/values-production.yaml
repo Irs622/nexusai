@@ -1,50 +1,25 @@
+# Production overrides. Secrets come from the `nexusai-secrets` Secret (see values.yaml).
 replicaCount:
-  controlPlane: 3
-  worker: 5
-  sandbox: 3
+  # SQLite-backed state: a single control-plane replica until a shared database backend
+  # exists. The chart refuses >1 unless persistence.allowSharedSqlite=true.
+  controlPlane: 1
 
 image:
   repository: nexusai/runtime
   pullPolicy: Always
   tag: "1.0.0-prod"
+  # Clear the base digest so the tag above is actually used; pin a digest here instead.
+  digest: ""
 
 networkPolicy:
   enabled: true
 
-podSecurityContext:
-  runAsNonRoot: true
-  runAsUser: 10001
-  runAsGroup: 10001
-  fsGroup: 10001
-  seccompProfile:
-    type: RuntimeDefault
-
-securityContext:
-  allowPrivilegeEscalation: false
-  readOnlyRootFilesystem: true
-  capabilities:
-    drop:
-      - ALL
-
-env:
-  NEXUSAI_ENV: "production"
-  NEXUSAI_APPROVAL_SECRET:
-    valueFrom:
-      secretKeyRef:
-        name: nexusai-secrets
-        key: approval-secret
-  NEXUSAI_REDIS_URL:
-    valueFrom:
-      secretKeyRef:
-        name: nexusai-secrets
-        key: redis-url
-  NEXUSAI_EXECUTION_DB: "/data/execution.db"
-  NEXUSAI_COORDINATOR_DB: "/data/coordinator.db"
-
 persistence:
   enabled: true
   storageClass: "standard"
-  accessMode: ReadWriteMany
+  accessMode: ReadWriteOnce
   size: 10Gi
   mountPath: /data
 
+env:
+  NEXUSAI_ENV: "production"
