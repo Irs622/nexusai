@@ -443,7 +443,7 @@ def test_execution_context_and_cancellation() -> None:
 @pytest.mark.asyncio
 async def test_circuit_breaker() -> None:
     from nexusai.providers import ProviderCircuitOpenError
-    from nexusai.runtime.circuit_breaker import CircuitBreaker, CircuitState
+    from nexusai.providers.circuit_breaker import CircuitBreaker, CircuitState
 
     cb = CircuitBreaker("p1", failure_threshold=2, recovery_timeout_seconds=60.0)
     assert cb.state == CircuitState.CLOSED

@@ -1,6 +1,6 @@
 """NexusAI Core Runtime Kernel package."""
 
-from nexusai.runtime.circuit_breaker import CircuitBreaker, CircuitState
+from nexusai.providers.circuit_breaker import CircuitBreaker, CircuitState
 from nexusai.runtime.clock import Clock, SystemClock, TestClock
 from nexusai.runtime.context import (
     CancellationToken,

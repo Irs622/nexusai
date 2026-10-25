@@ -6,7 +6,7 @@ import pytest
 
 from nexusai.core.config import SystemConfig
 from nexusai.core.engine import NexusAIRuntimeEngine
-from nexusai.models.circuit_breaker import CircuitBreaker
+from nexusai.providers.circuit_breaker import CircuitBreaker
 from nexusai.workflow.engine import WorkflowGraphEngine, WorkflowNode, WorkflowState
 
 

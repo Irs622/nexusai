@@ -16,7 +16,7 @@ from nexusai.providers.models import ChatRequest, ChatResponse
 from nexusai.providers.policy import BaseProviderPolicy, PolicyResult
 from nexusai.providers.router import ProviderRouter
 from nexusai.providers.session import ProviderSession
-from nexusai.runtime.circuit_breaker import CircuitBreaker
+from nexusai.providers.circuit_breaker import CircuitBreaker
 from nexusai.runtime.context import ExecutionContext
 from nexusai.runtime.middleware import MiddlewarePipeline
 from nexusai.runtime.state_machine import ExecutionState, ExecutionStateMachine
@@ -128,7 +128,7 @@ class ExecutionEngine:
     ) -> ChatResponse:
         """Execute a chat request through the orchestrated pipeline."""
         from nexusai.providers.exceptions import ProviderCircuitOpenError
-        from nexusai.runtime.circuit_breaker import CircuitState
+        from nexusai.providers.circuit_breaker import CircuitState
 
         ctx = context or ExecutionContext()
         ctx.runtime.cancellation_token.throw_if_cancelled()
