@@ -1,3 +1,7 @@
+{{- if .Values.worker.enabled }}
+{{- if not .Values.worker.command }}
+{{- fail "worker.enabled=true requires worker.command: the image has no dedicated worker entrypoint yet, and without a command the pod would run the control-plane API." }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -5,6 +9,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     app: nexusai-worker
+    {{- include "nexusai.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount.worker }}
   selector:
@@ -14,41 +19,38 @@ spec:
     metadata:
       labels:
         app: nexusai-worker
+        {{- include "nexusai.labels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ .Values.serviceAccount.name }}
       securityContext:
-        runAsNonRoot: true
-        runAsUser: 10001
-        runAsGroup: 10001
-        fsGroup: 10001
-        seccompProfile:
-          type: RuntimeDefault
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: worker
-          image: "{{ if .Values.image.digest }}{{ .Values.image.repository }}@{{ .Values.image.digest }}{{ else }}{{ .Values.image.repository }}:{{ .Values.image.tag }}{{ end }}"
+          image: {{ include "nexusai.image" . | quote }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            {{- toYaml .Values.worker.command | nindent 12 }}
           securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-            capabilities:
-              drop:
-                - ALL
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            {{- include "nexusai.env" . | trim | nindent 12 }}
           resources:
-            limits:
-              cpu: {{ .Values.resources.worker.limits.cpu }}
-              memory: {{ .Values.resources.worker.limits.memory }}
-            requests:
-              cpu: {{ .Values.resources.worker.requests.cpu }}
-              memory: {{ .Values.resources.worker.requests.memory }}
-          readinessProbe:
-            httpGet:
-              path: {{ .Values.probes.readiness.path }}
-              port: {{ .Values.probes.readiness.port }}
-            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
-            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
-          livenessProbe:
-            httpGet:
-              path: {{ .Values.probes.liveness.path }}
-              port: {{ .Values.probes.liveness.port }}
-            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
-            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+            {{- toYaml .Values.resources.worker | nindent 12 }}
+          volumeMounts:
+            # Workers get pod-local scratch storage; the control-plane PVC is ReadWriteOnce.
+            - name: data
+              mountPath: {{ .Values.persistence.mountPath }}
+            - name: tmp
+              mountPath: /tmp
+            - name: logs
+              mountPath: /app/logs
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: tmp
+          emptyDir:
+            sizeLimit: {{ .Values.tmpSizeLimit }}
+        - name: logs
+          emptyDir:
+            sizeLimit: {{ .Values.logsSizeLimit }}
+{{- end }}

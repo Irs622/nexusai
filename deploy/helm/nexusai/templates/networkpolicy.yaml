@@ -10,6 +10,40 @@ spec:
     - Ingress
     - Egress
 ---
+# The default-deny above would otherwise make the Service unreachable and block the
+# API from reaching DNS, LLM providers, Redis, or Postgres.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: nexusai-control-plane-allow
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: nexusai-control-plane
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 8080
+      {{- with .Values.networkPolicy.controlPlane.ingressFrom }}
+      from:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  egress:
+    - ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    - ports:
+        {{- range .Values.networkPolicy.controlPlane.egressPorts }}
+        - protocol: TCP
+          port: {{ . }}
+        {{- end }}
+---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
