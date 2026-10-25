@@ -3,7 +3,7 @@
 import pytest
 
 from nexusai.models.base import BaseModelProvider
-from nexusai.models.circuit_breaker import CircuitBreaker
+from nexusai.providers.circuit_breaker import CircuitBreaker
 from nexusai.models.streaming import StreamingProviderRuntime
 from nexusai.tools.isolation import SubprocessPluginRunner
 
@@ -22,7 +22,7 @@ def test_circuit_breaker_per_provider_metrics() -> None:
 
     metrics = breaker.get_metrics()
     assert metrics["provider_id"] == "openai_gpt4"
-    assert metrics["state"] == "OPEN"
+    assert metrics["state"] == "open"
     assert metrics["total_failures"] == 2
     assert metrics["trip_count"] == 1
     assert metrics["success_ratio"] == 0.0

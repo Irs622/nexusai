@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### ♻️ Package Consolidation (RFC 0002)
+- `refactor(providers)`: Single canonical `CircuitBreaker` in `nexusai.providers.circuit_breaker` (ADR 0037). It now accepts an injectable `clock` and tracks sliding-window metrics: `can_execute()`, `calculate_health_score()`, `get_metrics()`, `trip_count`, and latency recorded by `call()`. `nexusai.runtime.circuit_breaker` and `nexusai.models.circuit_breaker` are deprecated aliases that emit `DeprecationWarning`. `from nexusai.runtime import CircuitBreaker` keeps working without a warning. Behavior change: `CircuitState` from the `models` alias now uses lower-case values (`"open"`).
+
 ### 📝 Project Status Wording
 - `docs`: Reworded README, ROADMAP, platform status, and the web dashboard badge to state that NexusAI is under active development and not production-ready. Added a historical-report notice to the `docs/P*_REPORT.md` readiness and certification reports.
 

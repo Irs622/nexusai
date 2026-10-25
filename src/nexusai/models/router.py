@@ -3,7 +3,7 @@
 from typing import Dict, Optional
 
 from nexusai.models.base import BaseModelProvider
-from nexusai.models.circuit_breaker import CircuitBreaker
+from nexusai.providers.circuit_breaker import CircuitBreaker
 
 
 class ProviderRouter:
@@ -12,7 +12,7 @@ class ProviderRouter:
     def __init__(self, providers: Dict[str, BaseModelProvider]) -> None:
         self.providers = providers
         self.circuit_breakers: Dict[str, CircuitBreaker] = {
-            pid: CircuitBreaker(provider_id=pid) for pid in providers
+            pid: CircuitBreaker(provider_id=pid, success_threshold=1) for pid in providers
         }
 
     def select_best_provider(self, task_type: str = "general") -> tuple[str, BaseModelProvider]:

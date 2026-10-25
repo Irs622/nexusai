@@ -7,11 +7,13 @@ import pytest
 
 from nexusai.memory.hierarchy import MemoryHierarchy
 from nexusai.memory.sqlite_memory import SQLiteMemory
-from nexusai.models.circuit_breaker import CircuitBreaker, CircuitState
+from nexusai.providers.circuit_breaker import CircuitBreaker, CircuitState
 
 
 def test_circuit_breaker_state_transitions() -> None:
-    breaker = CircuitBreaker(failure_threshold=2, recovery_timeout_seconds=0.2)
+    breaker = CircuitBreaker(
+        "p1", failure_threshold=2, recovery_timeout_seconds=0.2, success_threshold=1
+    )
     assert breaker.state == CircuitState.CLOSED
     assert breaker.can_execute() is True
 
