@@ -8,9 +8,13 @@ services:
     image: nexusai/runtime:1.0.0
     container_name: nexusai-runtime
     ports:
-      - "8080:8080"
+      # Bind to loopback only: development mode is not hardened for network exposure.
+      - "127.0.0.1:8080:8080"
     environment:
       - NEXUSAI_ENV=development
+      # Set NEXUSAI_ADMIN_API_KEY in your shell or .env; otherwise a random key is generated
+      # at startup and printed to the container logs.
+      - NEXUSAI_ADMIN_API_KEY=${NEXUSAI_ADMIN_API_KEY:-}
       - PORT=8080
       - SQLITE_DB_PATH=/app/data/nexusai.db
       - REDIS_URL=redis://redis:6379/0
@@ -29,8 +33,9 @@ services:
   redis:
     image: redis:7-alpine
     container_name: nexusai-redis
-    ports:
-      - "6379:6379"
+    # Redis has no authentication here; it is reachable only on the compose network.
+    expose:
+      - "6379"
     volumes:
       - redis_data:/data
     healthcheck:

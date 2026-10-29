@@ -21,6 +21,7 @@ def build_router(ctx: ServerContext) -> APIRouter:
     _get_tenant_governance_budget = ctx.get_tenant_governance_budget
     _get_tenant_pending_approvals = ctx.get_tenant_pending_approvals
     broadcast_event = ctx.broadcast_event
+    security_guard = ctx.security_guard
 
     @router.get("/api/v1/governance/budget")
     async def get_governance_budget(request: Request, response: Response) -> dict[str, Any]:
@@ -34,7 +35,8 @@ def build_router(ctx: ServerContext) -> APIRouter:
         """Return list of pending human-in-the-loop safety approvals."""
         response.headers["X-NexusAI-Mode"] = "simulation"
         approvals = _get_tenant_pending_approvals(request)
-        return approvals
+        # Issued tokens are only handed to the requester (GET /api/v1/approvals/{id}).
+        return [{k: v for k, v in item.items() if k != "approval_token"} for item in approvals]
 
     @router.post("/api/v1/governance/approvals/{approval_id}/decision")
     async def submit_approval_decision_endpoint(
@@ -71,9 +73,38 @@ def build_router(ctx: ServerContext) -> APIRouter:
                 detail=f"Approval request '{approval_id}' is already {target['status']}",
             )
 
+        if req.decision not in ("APPROVED", "DENIED"):
+            raise HTTPException(status_code=400, detail="decision must be APPROVED or DENIED")
+
+        # Requests raised via /api/v1/approvals/request are bound to a concrete tool call:
+        # they need an authenticated decider who is not the requester (separation of duties).
+        is_bound = bool(target.get("bound_request"))
+        if is_bound:
+            if identity is None:
+                raise HTTPException(
+                    status_code=403,
+                    detail="An authenticated identity is required to resolve approval requests",
+                )
+            if identity.user_id == target["requested_by"]:
+                raise HTTPException(
+                    status_code=403,
+                    detail="Requesters cannot approve or deny their own approval requests",
+                )
+
+        approval_token: str | None = None
+        if is_bound and req.decision == "APPROVED":
+            approval_token, _ = security_guard.approval_service.create_token(
+                tool_name=target["tool_name"],
+                arguments=target["arguments"],
+                user_id=target["requested_by"],
+                execution_id=target["execution_id"],
+            )
+            target["approval_token"] = approval_token
+
+        actor = identity.user_id if identity else req.actor
         target["status"] = req.decision
         target["resolved_at"] = time.time()
-        target["actor"] = req.actor
+        target["actor"] = actor
 
         tenant_id = _get_tenant_id(request)
         if req.decision == "APPROVED":
@@ -93,7 +124,8 @@ def build_router(ctx: ServerContext) -> APIRouter:
                 "approval_id": approval_id,
                 "status": "APPROVED",
                 "grant_id": grant_id,
-                "actor": req.actor,
+                "actor": actor,
+                "token_issued": approval_token is not None,
             }
         else:
             broadcast_event(
@@ -107,7 +139,7 @@ def build_router(ctx: ServerContext) -> APIRouter:
             return {
                 "approval_id": approval_id,
                 "status": "DENIED",
-                "actor": req.actor,
+                "actor": actor,
             }
 
     return router

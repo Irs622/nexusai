@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🛡️ Code Review Remediation (critical & high findings)
+- `fix(sandbox)`: `ContainerRuntimeEngine` fails closed (exit code `126`) when no OCI runtime is enabled. It used to report `success=True` without running anything. The simulated path is opt-in via `NEXUSAI_SANDBOX_SIMULATION=true`, and its results carry `"simulated": True`. The hardcoded `memory_peak_mb=12.5` was removed.
+- `fix(sandbox)`: Host mount validation normalises and resolves paths. It rejects `/`, relative paths, paths containing `:` or `,`, and any path that is, contains, or lies inside a forbidden path. Previously `/var/run`, `/var/run/../run/docker.sock` and `//var/run/docker.sock` were accepted, which exposed the Docker socket.
+- `fix(api)`: Development mode no longer registers the publicly known `nx_test_admin_key_123` admin key. If `NEXUSAI_ADMIN_API_KEY` / `NEXUSAI_TEST_API_KEY` is unset, a random per-process key is generated and logged. `docker-compose.yml` binds the API to `127.0.0.1` and no longer publishes Redis on the host.
+- `fix(api)`: Approval requests from `POST /api/v1/approvals/request` can now be resolved through the governance decision endpoint. Previously the record shapes did not match, so they could never be approved. Approving now issues an approval token bound to the requester, the tool call and the arguments. The requester fetches it via the new `GET /api/v1/approvals/{approval_id}`, and it is never shown in the shared queue. Requesters cannot decide their own requests, the recorded `actor` is the authenticated user (not a client-supplied field), and decisions other than `APPROVED`/`DENIED` are rejected.
+- `fix(api)`: `POST /api/tools/execute` refuses HIGH/CRITICAL tools when there is no authenticated identity.
+- `fix(planner)`: `ExecutionScheduler` no longer runs dependents of failed steps; they are marked `SKIPPED`. It keeps up to `max_workers` steps running at every level of the graph, not just the first. Dependencies from `node.dependencies` and `graph.edges` are merged, and steps in a cycle or with unknown dependencies come back as failed results instead of being silently dropped.
+- `fix(tools)`: `NetworkTool` validates every redirect hop before requesting it, checks the connected peer address (closing the DNS-rebinding gap), ignores environment proxies, and runs the request in a worker thread instead of blocking the event loop.
+
 ### ☸️ Helm Chart Fixes
 - `fix(helm)`: The chart now renders container `env`, a data PVC, a control-plane `Service`, and writable `/tmp` and `/app/logs` `emptyDir` mounts, so pods can boot with `readOnlyRootFilesystem`. Previously none of these were rendered: `values-production.yaml` settings were ignored, and the control plane hit the `:memory:` production guard at startup.
 - `fix(helm)`: Storage paths (`NEXUSAI_EXECUTION_DB`, `NEXUSAI_COORDINATOR_DB`, `NEXUSAI_KEY_STORAGE_PATH`) are derived from `persistence.mountPath`. Credentials come from the `secrets.name` Secret via `secretEnv`, and an `env` entry overrides either without creating duplicate variables.

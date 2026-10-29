@@ -2,6 +2,7 @@
 Pytest global fixtures.
 """
 
+import os
 from pathlib import Path
 from typing import Generator
 
@@ -12,6 +13,11 @@ from nexusai.core.config import SecuritySettings, SystemConfig
 from nexusai.core.container import DependencyContainer
 from nexusai.security.guard import SecurityGuard
 from nexusai.security.identity import Identity, Role, TenantContext
+
+# The API no longer registers a hardcoded development admin key, and the sandbox fails
+# closed without a container engine. Tests opt in to both explicitly.
+os.environ.setdefault("NEXUSAI_TEST_API_KEY", "nx_test_admin_key_123")
+os.environ.setdefault("NEXUSAI_SANDBOX_SIMULATION", "true")
 
 
 @pytest.fixture(autouse=True)

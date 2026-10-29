@@ -18,6 +18,11 @@ from nexusai.infrastructure.sandbox.capability_policy import (
 )
 
 
+def _env_flag(name: str) -> bool:
+    """Return True when environment variable ``name`` is set to a truthy value."""
+    return os.getenv(name, "false").lower() in ("true", "1", "yes")
+
+
 class OciContainerRuntime:
     """Low-level OCI container execution driver (Docker / Podman / gVisor runsc).
 
@@ -180,13 +185,26 @@ class ContainerRuntimeEngine:
                 duration_ms=(t1 - t0) * 1000.0,
             )
 
-        # 3. Determine execution strategy (OCI container or secure isolated process fallback)
-        if self.oci_runtime.is_engine_available() and os.getenv(
-            "NEXUSAI_SANDBOX_OCI_ENABLED", "false"
-        ).lower() in ("true", "1", "yes"):
+        # 3. Determine execution strategy (OCI container, explicit simulation, or fail closed)
+        if self.oci_runtime.is_engine_available() and _env_flag("NEXUSAI_SANDBOX_OCI_ENABLED"):
             return await self._execute_oci_container(spec, t0)
 
-        return await self._execute_isolated_fallback(spec, t0)
+        if _env_flag("NEXUSAI_SANDBOX_SIMULATION"):
+            return await self._execute_isolated_fallback(spec, t0)
+
+        # Fail closed: never report success for a tool that was not actually executed.
+        t1 = time.perf_counter()
+        return SandboxResult(
+            execution_id=spec.execution_id,
+            success=False,
+            output=None,
+            exit_code=126,
+            error_message=(
+                "No sandbox runtime available: set NEXUSAI_SANDBOX_OCI_ENABLED=true with a "
+                "reachable container engine (or NEXUSAI_SANDBOX_SIMULATION=true for tests/demos)."
+            ),
+            duration_ms=(t1 - t0) * 1000.0,
+        )
 
     async def _execute_oci_container(self, spec: SandboxSpec, t0: float) -> SandboxResult:
         """Execute spec inside a real OCI container with resource limits and timeout handling."""
@@ -217,7 +235,6 @@ class ContainerRuntimeEngine:
                 exit_code=exit_code,
                 error_message="" if exit_code == 0 else stderr.decode("utf-8", errors="replace"),
                 duration_ms=(t1 - t0) * 1000.0,
-                memory_peak_mb=12.5,
             )
 
         except asyncio.TimeoutError:
@@ -244,7 +261,11 @@ class ContainerRuntimeEngine:
             )
 
     async def _execute_isolated_fallback(self, spec: SandboxSpec, t0: float) -> SandboxResult:
-        """Simulate secure isolated execution when container daemon is not active."""
+        """Simulate execution without running anything (opt-in via NEXUSAI_SANDBOX_SIMULATION).
+
+        Results are flagged with ``"simulated": True`` so callers can never mistake them for
+        real tool output.
+        """
         # Check simulated execution duration
         try:
             # If cmd is a sleep command, simulate duration
@@ -260,10 +281,9 @@ class ContainerRuntimeEngine:
             return SandboxResult(
                 execution_id=spec.execution_id,
                 success=True,
-                output={"status": "completed", "tool_id": spec.tool_id},
+                output={"status": "completed", "tool_id": spec.tool_id, "simulated": True},
                 exit_code=0,
                 duration_ms=(t1 - t0) * 1000.0,
-                memory_peak_mb=12.5,
             )
         except asyncio.TimeoutError:
             t1 = time.perf_counter()

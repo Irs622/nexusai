@@ -142,17 +142,26 @@ def build_router(ctx: ServerContext) -> APIRouter:
         import uuid as _uuid
 
         pending_id = str(_uuid.uuid4())
+        try:
+            risk_level = registry.get(req.tool_name).risk_level.value
+        except Exception:
+            risk_level = "UNKNOWN"
         pending_approvals = _get_tenant_pending_approvals(request)
+        # Same record shape as the governance approval queue, so supervisors can resolve it
+        # via POST /api/v1/governance/approvals/{approval_id}/decision.
         pending_approvals.append(
             {
-                "id": pending_id,
+                "approval_id": pending_id,
                 "tool_name": req.tool_name,
                 "arguments": req.arguments,
+                "parameters": req.arguments,
                 "execution_id": req.execution_id,
                 "requested_by": user_id,
                 "tenant_id": tenant_id,
-                "status": "PENDING_REVIEW",
+                "risk_level": risk_level,
+                "status": "PENDING",
                 "created_at": time.time(),
+                "bound_request": True,
             }
         )
         return {
@@ -160,6 +169,38 @@ def build_router(ctx: ServerContext) -> APIRouter:
             "status": "PENDING_REVIEW",
             "message": "Approval request submitted. An authorized supervisor must approve before execution can proceed.",
         }
+
+    @router.get("/api/v1/approvals/{approval_id}")
+    async def get_approval_request(approval_id: str, request: Request) -> dict[str, Any]:
+        """Return the state of an approval request; the requester receives the issued token."""
+        identity: Identity | None = (
+            getattr(request.state, "identity", None) or TenantContext.get_current_identity()
+        )
+        user_id = identity.user_id if identity else "anonymous"
+
+        target = next(
+            (
+                item
+                for item in _get_tenant_pending_approvals(request)
+                if item.get("approval_id") == approval_id and item.get("bound_request")
+            ),
+            None,
+        )
+        if target is None:
+            raise HTTPException(
+                status_code=404, detail=f"Approval request '{approval_id}' not found"
+            )
+
+        is_admin = identity is not None and identity.role == Role.ADMIN
+        if target["requested_by"] != user_id and not is_admin:
+            raise HTTPException(
+                status_code=403, detail="Only the requester may read this approval request"
+            )
+
+        result = {k: v for k, v in target.items() if k != "approval_token"}
+        if target["requested_by"] == user_id and "approval_token" in target:
+            result["approval_token"] = target["approval_token"]
+        return result
 
     @router.post("/api/tools/execute")
     async def execute_tool_endpoint(
@@ -181,7 +222,14 @@ def build_router(ctx: ServerContext) -> APIRouter:
         tenant_id = identity.tenant_id if identity else "default"
         user_id = identity.user_id if identity else "anonymous"
 
-        if identity is not None:
+        if identity is None:
+            # No authenticated identity (auth disabled): never allow HIGH/CRITICAL tools.
+            if tool.risk_level in (RiskLevel.HIGH, RiskLevel.CRITICAL):
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"RBAC access denied: {tool.risk_level.value} risk tool '{req.tool_name}' requires an authenticated identity",
+                )
+        else:
             # 1. Viewer role cannot execute tools -> 403 Forbidden
             if identity.role == Role.VIEWER:
                 raise HTTPException(

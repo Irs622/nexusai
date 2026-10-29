@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 from typing import Mapping, Sequence
@@ -50,11 +51,40 @@ class CapabilityPolicyEngine:
         return sanitized
 
     @classmethod
+    def mount_path_violation(cls, path: str) -> str | None:
+        """Return why ``path`` may not be mounted into a sandbox, or None if it is acceptable.
+
+        The check is made on both the lexically normalised and the symlink-resolved form of
+        the path, and rejects any path that is, contains, or lies inside a forbidden path
+        (mounting ``/var/run`` would expose ``/var/run/docker.sock``).
+        """
+        if not path or not os.path.isabs(path):
+            return "mount paths must be absolute"
+        if ":" in path or "," in path:
+            return "mount paths must not contain ':' or ','"
+
+        # POSIX preserves a leading "//", but container engines treat it as "/".
+        path = "/" + path.lstrip("/")
+        candidates = {Path(os.path.normpath(path)), Path(path).resolve()}
+        for candidate in candidates:
+            if candidate == Path("/"):
+                return "mounting the host root filesystem is forbidden"
+            for forbidden in cls.FORBIDDEN_PATHS:
+                # Compare against the resolved form too (e.g. /etc -> /private/etc on macOS).
+                for forbidden_path in {Path(forbidden), Path(forbidden).resolve()}:
+                    if (
+                        candidate == forbidden_path
+                        or forbidden_path in candidate.parents
+                        or candidate in forbidden_path.parents
+                    ):
+                        return f"path overlaps forbidden host path '{forbidden}'"
+        return None
+
+    @classmethod
     def validate_mount_paths(cls, allowed_host_paths: Sequence[str], requested_path: str) -> bool:
         """Verify that requested_path is contained within allowed_host_paths without traversal escapes."""
-        for forbidden in cls.FORBIDDEN_PATHS:
-            if requested_path.startswith(forbidden):
-                return False
+        if cls.mount_path_violation(requested_path) is not None:
+            return False
 
         req_resolved = Path(requested_path).resolve()
         for allowed in allowed_host_paths:
@@ -68,11 +98,11 @@ class CapabilityPolicyEngine:
         """Validate SandboxSpec against capability policies prior to container dispatch."""
         # 1. Check host path mounts
         for path in spec.policy.allowed_host_paths:
-            for forbidden in cls.FORBIDDEN_PATHS:
-                if path.startswith(forbidden):
-                    raise CapabilityPolicyViolation(
-                        f"Access to forbidden host path '{path}' is DENIED!"
-                    )
+            reason = cls.mount_path_violation(path)
+            if reason is not None:
+                raise CapabilityPolicyViolation(
+                    f"Access to forbidden host path '{path}' is DENIED! ({reason})"
+                )
 
         # 2. Check forbidden environment variables
         for env_key in spec.ephemeral_env.keys():

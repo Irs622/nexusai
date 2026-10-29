@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import secrets
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, AsyncGenerator
@@ -304,20 +305,25 @@ def build_context(
                 "Configure NEXUSAI_ADMIN_API_KEY or supply keys via config/api_keys.json."
             )
     else:
-        # Development / Testing mode: register development test key with prominent warning
-        dev_key = configured_admin_key or "nx_test_admin_key_123"
-        if dev_key == "nx_test_admin_key_123":
+        # Development / Testing mode: use the configured key, otherwise generate a random
+        # per-process key. A fixed, publicly known fallback key would grant ADMIN to anyone
+        # who can reach a development server (e.g. the docker-compose deployment).
+        dev_key = configured_admin_key
+        if not dev_key and auth_enabled and not api_key_service.list_keys():
+            dev_key = secrets.token_urlsafe(32)
             logger.warning(
-                "DEVELOPMENT/TEST MODE: Registering hardcoded administrative test key 'nx_test_admin_key_123'. "
-                "This fallback is strictly disabled and rejected in production mode."
+                "DEVELOPMENT MODE: No NEXUSAI_ADMIN_API_KEY configured; generated a temporary "
+                "administrative API key for this process: {}",
+                dev_key,
             )
-        api_key_service.register_raw_key(
-            raw_key=dev_key,
-            tenant_id="default",
-            user_id="admin-user",
-            role=Role.ADMIN,
-            name="Development Admin Key",
-        )
+        if dev_key:
+            api_key_service.register_raw_key(
+                raw_key=dev_key,
+                tenant_id="default",
+                user_id="admin-user",
+                role=Role.ADMIN,
+                name="Development Admin Key",
+            )
 
     app.add_middleware(
         AuthMiddleware,
