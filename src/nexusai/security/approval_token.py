@@ -144,7 +144,7 @@ class ApprovalTokenService:
         if not token or not token.startswith(self.TOKEN_PREFIX):
             raise SecurityError(
                 "Invalid approval token format: Missing expected prefix",
-                details={"token": token},
+                details={},
             )
 
         raw = token[len(self.TOKEN_PREFIX) :]
@@ -152,7 +152,7 @@ class ApprovalTokenService:
         if len(parts) != 3:
             raise SecurityError(
                 "Invalid approval token structure: Expected 3 segments",
-                details={"token": token},
+                details={},
             )
 
         nonce, exp_str, signature = parts
@@ -161,7 +161,7 @@ class ApprovalTokenService:
         except ValueError as err:
             raise SecurityError(
                 "Invalid approval token expiration timestamp",
-                details={"token": token, "error": str(err)},
+                details={"error": str(err)},
             ) from err
 
         return nonce, expires_at_int, signature
@@ -196,7 +196,6 @@ class ApprovalTokenService:
             raise SecurityError(
                 f"Approval token expired at {expires_at_int} (current time: {int(now)})",
                 details={
-                    "token": token,
                     "expires_at": str(expires_at_int),
                     "current_time": str(int(now)),
                     "tool_name": tool_name,
@@ -224,7 +223,6 @@ class ApprovalTokenService:
             raise SecurityError(
                 f"Approval token binding mismatch or invalid signature for tool '{tool_name}'",
                 details={
-                    "token": token,
                     "tool_name": tool_name,
                     "expected_args_digest": args_digest,
                 },
@@ -239,7 +237,7 @@ class ApprovalTokenService:
             ):
                 raise SecurityError(
                     f"Approval token has already been consumed (replay detected for nonce '{nonce}')",
-                    details={"token": token, "nonce": nonce, "tool_name": tool_name},
+                    details={"nonce": nonce, "tool_name": tool_name},
                 )
             self._consumed_nonces.add(nonce)
 

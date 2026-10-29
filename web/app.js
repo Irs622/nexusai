@@ -562,7 +562,9 @@ function escapeHtml(str) {
     return String(str)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
 async function handleChatSubmit(e) {
@@ -1262,27 +1264,35 @@ function renderApprovals(approvals) {
         return;
     }
 
-    feed.innerHTML = pending.map(app => `
-        <div class="approval-item-card" id="approvalCard_${app.approval_id}">
+    feed.innerHTML = pending.map(app => {
+        // Every field comes from the API (and may originate from a requester), so escape it.
+        const id = escapeHtml(app.approval_id);
+        const risk = escapeHtml(app.risk_level);
+        return `
+        <div class="approval-item-card" id="approvalCard_${id}">
             <div class="appr-info">
                 <div class="appr-top-row">
-                    <span class="risk-pill risk-${app.risk_level}">${app.risk_level} RISK</span>
-                    <span class="appr-tool">${app.tool_name}</span>
-                    <span class="badge badge-node font-mono">${app.approval_id}</span>
+                    <span class="risk-pill risk-${risk}">${risk} RISK</span>
+                    <span class="appr-tool">${escapeHtml(app.tool_name)}</span>
+                    <span class="badge badge-node font-mono">${id}</span>
                 </div>
-                <div class="appr-desc">${app.reason || 'Restricted system operation requiring operator confirmation.'}</div>
-                <div class="appr-meta font-mono">REQUESTER: ${app.requested_by} • PARAMS: ${JSON.stringify(app.parameters || {})}</div>
+                <div class="appr-desc">${escapeHtml(app.reason || 'Restricted system operation requiring operator confirmation.')}</div>
+                <div class="appr-meta font-mono">REQUESTER: ${escapeHtml(app.requested_by)} • PARAMS: ${escapeHtml(JSON.stringify(app.parameters || {}))}</div>
             </div>
             <div class="appr-actions">
-                <button class="btn-approve" onclick="submitApprovalDecision('${app.approval_id}', 'APPROVED')">
+                <button class="btn-approve" data-approval-id="${id}" data-decision="APPROVED">
                     [ ✓ APPROVE ]
                 </button>
-                <button class="btn-deny" onclick="submitApprovalDecision('${app.approval_id}', 'DENIED')">
+                <button class="btn-deny" data-approval-id="${id}" data-decision="DENIED">
                     [ ✕ DENY ]
                 </button>
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
+    feed.querySelectorAll('button[data-approval-id]').forEach(btn => {
+        btn.addEventListener('click', () => submitApprovalDecision(btn.dataset.approvalId, btn.dataset.decision));
+    });
 }
 
 async function submitApprovalDecision(approvalId, decision) {

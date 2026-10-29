@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+import shlex
 from pathlib import Path
 
 from nexusai.brain.domain.governance import ToolCapability
@@ -32,11 +33,35 @@ class ProcessTool(IToolPort):
             low_k = k.lower()
             if any(
                 secret_kw in low_k
-                for secret_kw in ("secret", "token", "password", "api_key", "auth", "private_key")
+                for secret_kw in (
+                    "secret",
+                    "token",
+                    "password",
+                    "api_key",
+                    "auth",
+                    "private_key",
+                    "access_key",
+                    "credential",
+                    "database_url",
+                    "redis_url",
+                    "dsn",
+                )
             ):
                 continue
             sanitized[k] = v
         return sanitized
+
+    async def _read_bounded(self, stream: asyncio.StreamReader | None) -> bytes:
+        """Read a pipe to EOF, keeping at most ``max_output_bytes`` in memory."""
+        if stream is None:
+            return b""
+        kept = bytearray()
+        while chunk := await stream.read(64 * 1024):
+            room = self.max_output_bytes - len(kept)
+            if room > 0:
+                kept.extend(chunk[:room])
+            # Keep draining past the limit so the child never blocks on a full pipe.
+        return bytes(kept)
 
     async def execute(self, request: ToolExecutionRequest) -> ToolExecutionResult:
         """Execute subprocess using explicit argv vector with bounded timeout and output clipping."""
@@ -44,7 +69,15 @@ class ProcessTool(IToolPort):
         if not cmd_args:
             raw_cmd = request.parameters.get("command", "")
             if raw_cmd:
-                cmd_args = raw_cmd.split()
+                try:
+                    cmd_args = shlex.split(raw_cmd)
+                except ValueError as err:
+                    return ToolExecutionResult(
+                        request_id=request.execution_id,
+                        tool_name=request.tool_name,
+                        success=False,
+                        error_message=f"Invalid command syntax: {err}",
+                    )
 
         if not cmd_args:
             return ToolExecutionResult(
@@ -70,8 +103,13 @@ class ProcessTool(IToolPort):
             )
 
             try:
-                stdout_data, stderr_data = await asyncio.wait_for(
-                    proc.communicate(), timeout=timeout
+                stdout_data, stderr_data, _ = await asyncio.wait_for(
+                    asyncio.gather(
+                        self._read_bounded(proc.stdout),
+                        self._read_bounded(proc.stderr),
+                        proc.wait(),
+                    ),
+                    timeout=timeout,
                 )
             except asyncio.TimeoutError:
                 # Reaping invariant: Terminate and kill timed-out subprocess cleanly
@@ -88,8 +126,8 @@ class ProcessTool(IToolPort):
                     error_message=f"Process execution timed out after {timeout} seconds",
                 )
 
-            stdout_str = stdout_data.decode("utf-8", errors="replace")[: self.max_output_bytes]
-            stderr_str = stderr_data.decode("utf-8", errors="replace")[: self.max_output_bytes]
+            stdout_str = stdout_data.decode("utf-8", errors="replace")
+            stderr_str = stderr_data.decode("utf-8", errors="replace")
 
             if proc.returncode != 0:
                 return ToolExecutionResult(

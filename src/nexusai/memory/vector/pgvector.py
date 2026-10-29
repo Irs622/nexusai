@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 import importlib
 import json
 from collections.abc import Sequence
@@ -33,8 +35,13 @@ class PgVectorStore(VectorStore):
     ) -> None:
         self._dsn = dsn
         self._table_name = table_name.replace("-", "_").replace(" ", "_")
+        # The table name is interpolated into SQL, so it must be a plain identifier.
+        if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]{0,62}", self._table_name):
+            raise ValueError(f"Invalid pgvector table name: {table_name!r}")
         self._dimensions = dimensions
         self._index_type = index_type.lower()
+        if self._index_type not in ("hnsw", "ivfflat"):
+            raise ValueError(f"Unsupported pgvector index type: {index_type!r}")
         self._distance_metric = distance_metric
         self._pool = pool
         self._fallback_enabled = fallback_enabled
